@@ -1,4 +1,5 @@
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
+/** @see ../../../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
@@ -6,7 +7,6 @@ import { stdin, stdout } from 'node:process'
 /** @see ../../../docs/modules/school-diary/README.md#family-onboarding-research */
 export function hiddenPrompt(label) {
   if (!stdin.isTTY || !stdin.setRawMode) throw new Error('Для входа нужен интерактивный терминал')
-  stdout.write(label)
   return new Promise((resolve, reject) => {
     const bytes = []
     stdin.setRawMode(true)
@@ -33,6 +33,7 @@ export function hiddenPrompt(label) {
       }
     }
     stdin.on('data', onData)
+    stdout.write(label)
   })
 }
 

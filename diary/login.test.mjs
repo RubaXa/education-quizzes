@@ -14,30 +14,16 @@ it('persists only the fully verified credential update, never the profile displa
  expect(save).toHaveBeenCalledWith({ token: 'verified-private', verifiedAt: 'fixture' })
 })
 
-it('runs the real no-invite CLI with a fixture HTTP rejection, explicit storage and no credential prompt', async () => {
- const { spawnSync } = await import('node:child_process')
- const { mkdtempSync, rmSync, writeFileSync, readFileSync } = await import('node:fs')
- const { tmpdir } = await import('node:os')
- const { join } = await import('node:path')
- const dir = mkdtempSync(join(tmpdir(), 'education-login-fixture-'))
- try {
-  writeFileSync(join(dir, 'secret.json'), JSON.stringify({ actorPersonId: 'existing-parent', token: 'previous-connection' }))
-  const fixture = `globalThis.fetch=async(url)=>{if(String(url)!=='https://login.mos.ru/sps/oauth/register')throw Error('unexpected endpoint');return Response.json({error:'access_denied',error_description:'The resource owner or authorization server denied the request.'},{status:400,headers:{'x-request-id':'fixture-server-id'}})}`
-  const result = spawnSync(process.execPath, ['--import', `data:text/javascript,${encodeURIComponent(fixture)}`, 'diary/cli.mjs', 'login', '--trace', '--data-dir', dir], { encoding: 'utf8', timeout: 10000 })
-  expect(result.status).toBe(1)
-  expect(result.stdout).toContain('Инвайт и Firebase не используются')
-  expect(result.stdout).toContain('fixture-server-id')
-  expect(result.stdout).toContain('"httpStatus": 400')
-  expect(result.stdout).toContain('"requestId":')
-  expect(result.stdout).toContain('"software_statement":')
-  expect(result.stdout).not.toContain('Пароль mos.ru')
-  expect(result.stderr).toContain('access_denied')
-  expect(JSON.parse(readFileSync(join(dir, 'secret.json'), 'utf8'))).toEqual({ actorPersonId: 'existing-parent', token: 'previous-connection' })
- } finally { rmSync(dir, { recursive: true, force: true }) }
-})
 it('preserves the current family connection when another valid parent logs in', async () => {
  const save = vi.fn()
  class Adapter { async verifyAccess() { return { accountRole: 'parent' } } }
  await expect(localMeshLogin({ login: async () => ({ actorPersonId: 'different-parent' }), Adapter, save, expectedActorPersonId: 'existing-parent' })).rejects.toThrow('другим родителем')
  expect(save).not.toHaveBeenCalled()
+})
+
+it('reads credentials before invoking the chosen login driver',async()=>{
+ const order=[],login=vi.fn(async input=>{order.push('login');expect(input).toMatchObject({username:'fixture-phone',password:'fixture-password',method:'web'});return {token:'fixture'}})
+ class Adapter{async verifyAccess(){return{accountRole:'parent'}}}
+ await localMeshLogin({login,Adapter,readCredentials:async()=>{order.push('credentials');return{username:'fixture-phone',password:'fixture-password'}},save:()=>{}})
+ expect(order).toEqual(['credentials','login'])
 })

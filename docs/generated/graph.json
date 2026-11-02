@@ -1617,6 +1617,40 @@
       "path": "docs/decisions/mesh-renewal-order-2026-11-01.md"
     },
     {
+      "id": "decision.mesh-web-login-2026-11-02",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-02",
+      "updated": "2026-11-02",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "parent",
+        "local diary operator",
+        "shared Mesh session"
+      ],
+      "code": [
+        "packages/education-connect/lib/web-login.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "packages/education-connect/lib/http-trace.mjs",
+        "packages/education-connect/lib/prompts.mjs",
+        "packages/education-connect/lib/login-diagnostics.mjs",
+        "packages/education-runtime/credentials.mjs",
+        "diary/login.mjs",
+        "diary/cli.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-web-login-2026-11-02.md"
+    },
+    {
       "id": "decision.method-guided-reviews-2026-10-31",
       "status": "accepted",
       "implementation": "implemented",
@@ -5305,6 +5339,13 @@
       "consumer": "Синхронизатор; план дня"
     },
     {
+      "id": "file:diary/login-pty.test.mjs",
+      "path": "diary/login-pty.test.mjs",
+      "kind": "verification",
+      "purpose": "Реальный TTY, порядок credentials/SMS и скрытие ввода",
+      "consumer": "Vitest; Node24"
+    },
+    {
       "id": "file:diary/login.mjs",
       "path": "diary/login.mjs",
       "kind": "artifact",
@@ -6037,6 +6078,20 @@
       "path": "packages/education-connect/lib/prompts.test.mjs",
       "kind": "verification",
       "purpose": "Unicode Backspace, длина без секрета и явное экранированное начало пароля",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:packages/education-connect/lib/web-login.mjs",
+      "path": "packages/education-connect/lib/web-login.mjs",
+      "kind": "artifact",
+      "purpose": "HTTP-вход существующего клиента дневника и продление собственной SSO",
+      "consumer": "Diary CLI; Mesh adapter"
+    },
+    {
+      "id": "file:packages/education-connect/lib/web-login.test.mjs",
+      "path": "packages/education-connect/lib/web-login.test.mjs",
+      "kind": "verification",
+      "purpose": "Password/SMS/state/cookie boundaries и истечение SSO",
       "consumer": "Vitest"
     },
     {
@@ -15477,6 +15532,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-web-login-2026-11-02",
+      "to": "file:diary/login-pty.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.mesh-web-login-2026-11-02",
+      "to": "file:packages/education-connect/lib/web-login.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.mesh-web-login-2026-11-02",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.method-guided-reviews-2026-10-31",
       "to": "shared.design.compact-review",
       "type": "uses"
@@ -16823,6 +16893,11 @@
     },
     {
       "from": "file:diary/cli.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/cli.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -16839,6 +16914,11 @@
     {
       "from": "file:diary/login.mjs",
       "to": "decision.mesh-http-trace-2026-11-02",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/login.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
       "type": "implements"
     },
     {
@@ -17267,6 +17347,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-connect/lib/http-trace.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
       "to": "decision.local-connect-diagnostics-2026-11-01",
       "type": "implements"
@@ -17279,6 +17364,11 @@
     {
       "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
       "to": "decision.mesh-login-stages-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
       "type": "implements"
     },
     {
@@ -17318,6 +17408,11 @@
     },
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -17343,7 +17438,17 @@
     },
     {
       "from": "file:packages/education-connect/lib/prompts.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/prompts.mjs",
       "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/web-login.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
       "type": "implements"
     },
     {
@@ -17429,6 +17534,11 @@
     {
       "from": "file:packages/education-presentation/solution-blocks.mjs",
       "to": "module.reviews.method-guided-solutions",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/credentials.mjs",
+      "to": "decision.mesh-web-login-2026-11-02",
       "type": "implements"
     },
     {
@@ -23974,6 +24084,11 @@
     {
       "from": "module.school-diary",
       "to": "decision.mesh-renewal-order-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "decision.mesh-web-login-2026-11-02",
       "type": "contains"
     },
     {

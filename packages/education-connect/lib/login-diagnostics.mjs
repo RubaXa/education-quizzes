@@ -1,5 +1,6 @@
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
+/** @see ../../../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** Safe local login stages; provider bodies and submitted credentials are never logged.
  * @see ../../../docs/shared/server-runtime.md#авторизация-и-совместимость
@@ -15,7 +16,7 @@ const labels = {
 }
 const providerCodes = new Set(['invalid_client', 'invalid_grant', 'invalid_request', 'invalid_token',
   'access_denied', 'unauthorized_client', 'unsupported_grant_type', 'invalid_credentials',
-  'INVALID_CREDENTIALS', 'INVALID_PASSWORD', 'WRONG_PASSWORD', 'INVALID_SMS_CODE'])
+  'login_required', 'captcha_required', 'invalid_otp', 'expired', 'no_attempts', 'method_temp_locked', 'INVALID_CREDENTIALS', 'INVALID_PASSWORD', 'WRONG_PASSWORD', 'INVALID_SMS_CODE'])
 const networkCodes = new Set(['ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'UND_ERR_CONNECT_TIMEOUT'])
 export function loginFailure({stage, httpStatus, providerCode, networkCode, reason = 'provider-rejected'} = {}) {
   return Object.assign(new Error('Вход МЭШ не завершён'), {
@@ -23,7 +24,7 @@ export function loginFailure({stage, httpStatus, providerCode, networkCode, reas
     httpStatus: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
     providerCode: providerCodes.has(providerCode) ? providerCode : null,
     networkCode: networkCodes.has(networkCode) ? networkCode : null,
-    reason: ['provider-rejected', 'network', 'non-json-response', 'incomplete-registration', 'unexpected-response'].includes(reason) ? reason : 'unexpected-response',
+    reason: ['provider-rejected', 'network', 'non-json-response', 'incomplete-registration', 'unexpected-response', 'interactive-required', 'state-mismatch', 'unexpected-redirect'].includes(reason) ? reason : 'unexpected-response',
   })
 }
 export function formatLoginFailure(error) {

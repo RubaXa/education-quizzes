@@ -1,4 +1,5 @@
 /** @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
+/** @see ../../../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-renewal-order-2026-11-01.md */
 /** @see ../../../docs/decisions/local-connect-diagnostics-2026-11-01.md */
 /** @see ../../../docs/decisions/mesh-login-stages-2026-11-01.md */
@@ -6,6 +7,7 @@
 import { authenticate } from 'mesh-diary/lib/auth.js'
 import { MeshAPI } from 'mesh-diary/lib/api.js'
 import { createLoginDiagnostics } from './login-diagnostics.mjs'
+import { authenticateWeb } from './web-login.mjs'
 import { createHttpTrace } from './http-trace.mjs'
 import { fetchMeshRead } from './network-retry.mjs'
 
@@ -135,7 +137,7 @@ export function normalizeSubjectPeriods(subjects, date = new Intl.DateTimeFormat
 }
 
 /** @see ../../../docs/modules/school-diary/README.md#diary-adapter */
-export async function loginToMesh({ username, password, readCredentials, askSmsCode, chooseProfile, onProgress, onDiagnostic, trace = null }, { telemetry = null } = {}) {
+export async function loginToMesh({ username, password, readCredentials, askSmsCode, chooseProfile, onProgress, onDiagnostic, trace = null, method = 'mobile', confirmTrust }, { telemetry = null } = {}) {
   const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
   const diagnostic = createLoginDiagnostics((url, options) => meshFetch(url, options, telemetry, null, httpTrace), onProgress, onDiagnostic)
   let entered = null
@@ -149,7 +151,9 @@ export async function loginToMesh({ username, password, readCredentials, askSmsC
     return diagnostic.fetch(url, options)
   }
   try {
-  const auth = await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
+  const auth = method === 'web'
+    ? await authenticateWeb({ fetch: (url, options) => meshFetch(url, options, telemetry, null, httpTrace), username, password, askSmsCode, confirmTrust, onProgress })
+    : await authenticate({ fetch, username, password, askSmsCode, onProgress: () => {} })
   if (!auth.token || !auth.personId) throw new Error('Вход прошёл, но профиль МЭШ не найден')
   const api = new MeshAPI({ token: auth.token, profileId: '0', fetch })
   const profiles = await api.getStudentProfiles(auth.personId)
@@ -159,6 +163,7 @@ export async function loginToMesh({ username, password, readCredentials, askSmsC
   if (!selected) throw new Error('Ученический профиль не выбран')
   return {
     token: auth.token,
+    ...(auth.authMethod === 'web' ? { authMethod: 'web', webSession: auth.webSession } : {}),
     refreshToken: auth.refreshToken,
     clientId: auth.clientId,
     clientSecret: auth.clientSecret,
@@ -168,7 +173,7 @@ export async function loginToMesh({ username, password, readCredentials, askSmsC
     studentId: String(selected.id),
     profileName: childLabel(selected),
   }
-  } catch (error) { throw diagnostic.failure(error) }
+  } catch (error) { if (error?.code === 'mesh_login_failed') throw error; throw diagnostic.failure(error) }
 }
 
 /** Safe authorization diagnostics: never retain SDK URL, response body or credentials.
@@ -177,8 +182,8 @@ export async function loginToMesh({ username, password, readCredentials, askSmsC
 export function meshAuthDiagnostic(error) {
   const httpStatus = Number(error?.httpStatus ?? String(error?.message ?? '').match(/^API (401|403):/)?.[1])
   if (error?.code !== 'mesh_auth_required' && ![401, 403].includes(httpStatus)) return null
-  const stage = ['oauth-refresh', 'mesh-exchange', 'mesh-activation'].includes(error?.stage) ? error.stage : 'mesh-api'
-  const oauthError = ['invalid_client', 'invalid_grant', 'unauthorized_client', 'access_denied'].includes(error?.oauthError) ? error.oauthError : null
+  const stage = ['oauth-refresh', 'mesh-exchange', 'mesh-activation', 'web-session'].includes(error?.stage) ? error.stage : 'mesh-api'
+  const oauthError = ['invalid_client', 'invalid_grant', 'unauthorized_client', 'access_denied', 'invalid_token', 'login_required'].includes(error?.oauthError) ? error.oauthError : null
   return { code: 'mesh_auth_required', stage, httpStatus: [400, 401, 403].includes(httpStatus) ? httpStatus : null, oauthError }
 }
 export function meshAuthFailure(error) {
@@ -194,6 +199,17 @@ async function rejectAuth(response, stage) {
 }
 
 async function refreshToken(secret, telemetry = null, shutdownSignal = null, trace = null) {
+  if (secret.authMethod === 'web') {
+    let updated
+    try {
+      updated = await authenticateWeb({ fetch: (url, options) => meshFetch(url, options, telemetry, shutdownSignal, trace), session: secret.webSession, interactive: false })
+    } catch (error) {
+      if (error?.code === 'mesh_login_failed' && error.reason !== 'network') throw meshAuthFailure({ code: 'mesh_auth_required', stage: 'web-session', httpStatus: error.httpStatus, oauthError: error.providerCode || 'login_required' })
+      throw error
+    }
+    if (updated.personId !== secret.actorPersonId) throw meshAuthFailure({ code: 'mesh_auth_required', stage: 'web-session', oauthError: 'invalid_token' })
+    return { token: updated.token, webSession: updated.webSession }
+  }
   if (!secret.clientId || !secret.clientSecret) return null
   const authorization = `Basic ${Buffer.from(`${secret.clientId}:${secret.clientSecret}`).toString('base64')}`
   const request = async (body) => {

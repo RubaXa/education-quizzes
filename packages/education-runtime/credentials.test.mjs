@@ -205,3 +205,25 @@ async function waitFor(predicate) {
   }
   throw new Error('worker_start_timeout')
 }
+
+describe('web SSO cookie rotation',()=>{
+ it('atomically persists only a valid web cookie store and preserves the bound actor',async()=>{
+  const {CookieJar}=await import('tough-cookie')
+  const directory=root(),file=join(directory,'secret.json'),actor='fixture-parent',accountId=meshParentAccountId(actor)
+  const familyAccessPath=join(directory,'family-access.json')
+  writeFileSync(familyAccessPath,JSON.stringify({legacyDayOwner:{familyId:'family-a',childId:'child-a'}}))
+  writeFileSync(file,JSON.stringify({actorPersonId:actor,authMethod:'web',token:'old',webSession:{cookies:[]}}))
+  const codec=createLegacyMeshCredentialCodec({familyAccessPath,credentialsPath:file})
+  const store=createMeshCredentialStore({connectionsDir:join(directory,'connections'),legacyCodec:codec})
+  await store.withAccountLock(accountId,async lease=>{
+   const record=store.load(accountId,{kind:'legacy',accountId,familyId:'family-a',childId:'child-a'},lease)
+   const jar=new CookieJar();jar.setCookieSync('sso=rotated; Secure; Path=/','https://login.mos.ru')
+   record.save({token:'new',webSession:jar.serializeSync(),actorPersonId:'wrong'})
+   expect(record.credentials.actorPersonId).toBe(actor)
+   expect(record.credentials.webSession.cookies[0].value).toBe('rotated')
+   expect(()=>record.save({token:'bad',webSession:{cookies:[{key:'sso',value:'private',domain:'unrelated.test'}]}})).toThrow('credential_refresh_invalid')
+  })
+  expect(JSON.parse(readFileSync(file,'utf8')).token).toBe('new')
+  expect(statSync(file).mode&0o777).toBe(0o600)
+ })
+})
