@@ -1,7 +1,7 @@
 /** @see ../docs/decisions/mesh-web-login-2026-11-02.md */
 import { expect, it } from 'vitest'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, writeFileSync, readFileSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -57,3 +57,22 @@ finally:os.close(master)
   expect(saved.webSession.cookies.some(c=>c.key==='auth_token')).toBe(true)
  }finally{rmSync(dir,{recursive:true,force:true})}
 },25000)
+
+it('resumes the real CLI from a private checkpoint without credentials and deletes it only after verification',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'education-resume-cli-'))
+ try{
+  const fixture=join(dir,'fixture.mjs'),state='fixture-state-for-resume-cli'
+  writeFileSync(join(dir,'secret.json'),JSON.stringify({actorPersonId:'fixture-parent',token:'previous'}))
+  writeFileSync(join(dir,'login-pending.json'),JSON.stringify({schemaVersion:1,createdAt:Date.now(),state,url:'https://login.mos.ru/sps/login/ur/askToTrust',html:'fixture',session:{version:'tough-cookie@6.0.2',storeType:'MemoryCookieStore',rejectPublicSuffixes:true,cookies:[]}}),{mode:0o600})
+  writeFileSync(fixture,`const token='eyJhbGciOiJub25lIn0.'+Buffer.from(JSON.stringify({msh:'fixture-parent'})).toString('base64url')+'.fixture';globalThis.fetch=async(url,opts)=>{const p=new URL(url).pathname;if(opts.method==='POST')throw Error('CREDENTIAL POST MUST NOT RUN');if(p.endsWith('/askToTrust'))return new Response('',{status:303,headers:{location:'https://school.mos.ru/v3/auth/sudir/callback?code=fixture&state=${state}'}});if(p.endsWith('/sudir/callback'))return new Response('',{status:302,headers:{location:'/diary','set-cookie':'auth_token='+token+'; Secure; Path=/'}});if(p.endsWith('/student_profiles'))return Response.json([{id:'child-profile',person_id:'child-person',user_name:'fixture-child'}]);if(p.endsWith('/profile_info'))return Response.json([{type:'ParentProfile'}]);if(p.endsWith('/profile'))return Response.json({profile:{type:'parent',id:'parent-profile'},children:[{id:'child-profile'}]});throw Error('unexpected endpoint')}`)
+  const child=spawnSync(process.execPath,['--import',fixture,'diary/cli.mjs','login','--resume','--trace','--data-dir',dir],{encoding:'utf8',timeout:10000,input:''})
+  expect(child.status,child.stdout+child.stderr).toBe(0)
+  expect(child.stdout).not.toContain('Пароль mos.ru (ввод скрыт)')
+  expect(child.stdout).not.toContain('Код из SMS')
+  expect(JSON.parse(readFileSync(join(dir,'secret.json'),'utf8'))).toMatchObject({authMethod:'web',actorPersonId:'fixture-parent'})
+  expect(existsSync(join(dir,'login-pending.json'))).toBe(false)
+  writeFileSync(join(dir,'login-pending.json'),JSON.stringify({createdAt:Date.now()-600001}))
+  const expired=spawnSync(process.execPath,['--import',fixture,'diary/cli.mjs','login','--resume','--data-dir',dir],{encoding:'utf8',timeout:10000,input:''})
+  expect(expired.status).not.toBe(0);expect(existsSync(join(dir,'login-pending.json'))).toBe(false)
+ }finally{rmSync(dir,{recursive:true,force:true})}
+})

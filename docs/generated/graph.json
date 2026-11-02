@@ -6084,7 +6084,7 @@
       "id": "file:packages/education-connect/lib/web-login.mjs",
       "path": "packages/education-connect/lib/web-login.mjs",
       "kind": "artifact",
-      "purpose": "HTTP-вход существующего клиента дневника и продление собственной SSO",
+      "purpose": "HTTP-вход, локальная диагностика trust-страницы, возобновление и продление собственной SSO",
       "consumer": "Diary CLI; Mesh adapter"
     },
     {

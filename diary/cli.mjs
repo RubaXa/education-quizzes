@@ -4,6 +4,8 @@
 /** @see ../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { resolve } from 'node:path'
+import { rmSync } from 'node:fs'
+import { validPendingLogin } from '../packages/education-connect/lib/web-login.mjs'
 import { createRequire } from 'node:module'
 import { traceStack } from '../packages/education-connect/lib/http-trace.mjs'
 import { localMeshLogin } from './login.mjs'
@@ -50,15 +52,22 @@ async function main() {
   }
   if (command === 'login') {
     if (args.includes('--help')) {
-      stdout.write('Прямой вход: npm run mesh:login -- --trace [--data-dir PATH] [--method web|mobile] [--show-password-prefix]\nПо умолчанию веб-клиент дневника, ввод телефона/email/СНИЛС и пароля перед запросами. Mobile отдельно регистрирует приложение.\n')
+      stdout.write('Прямой вход: npm run mesh:login -- --trace [--resume] [--data-dir PATH] [--method web|mobile] [--show-password-prefix]\nПо умолчанию веб-клиент дневника, ввод телефона/email/СНИЛС и пароля перед запросами. --resume продолжает промежуточную сессию доверия до10минут без пароля/SMS. Mobile отдельно регистрирует приложение.\n')
       return
     }
     const methodAt = args.indexOf('--method')
     const method = methodAt < 0 ? 'web' : args[methodAt + 1]
     if (!['web', 'mobile'].includes(method)) throw new Error('Укажите --method web или --method mobile')
-    const allowed = new Set(['--trace', '--show-password-prefix'])
+    const allowed = new Set(['--trace', '--show-password-prefix', '--resume'])
     const loginArgs = args.filter((_, i) => (dirAt < 0 || (i !== dirAt && i !== dirAt + 1)) && (methodAt < 0 || (i !== methodAt && i !== methodAt + 1)))
     if (loginArgs.some(arg => !allowed.has(arg))) throw new Error('Укажите только --trace, --show-password-prefix, --method web|mobile или --data-dir PATH')
+    const pendingFile = 'login-pending.json'
+    const resume = args.includes('--resume') ? readJson(config.dataDir, pendingFile) : null
+    if (args.includes('--resume') && (method !== 'web' || !validPendingLogin(resume))) {
+      rmSync(resolve(config.dataDir, pendingFile), { force: true })
+      throw new Error('Нет действующей промежуточной сессии доверия (до10минут). Запустите npm run mesh:login без --resume.')
+    }
+    if (!resume) rmSync(resolve(config.dataDir, pendingFile), { force: true })
     const tracing = args.includes('--trace')
     stdout.write('Прямой локальный вход в МЭШ через mos.ru. Инвайт и Firebase не используются.\n')
     stdout.write(`Способ входа: ${method === 'web' ? 'веб-клиент дневника, без мобильной регистрации' : 'мобильный SDK с регистрацией приложения'}.\n`)
@@ -69,6 +78,11 @@ async function main() {
     }
     const result = await localMeshLogin({
       login: loginToMesh, Adapter: MeshDiaryAdapter, trace: tracing ? {} : null, method,
+      resume,
+      onTrustPage: page => {
+        writeJson(config.dataDir, pendingFile, page)
+        stdout.write('Промежуточная сессия и HTML сохранены локально с правами0600; возобновление доступно10минут, пароль/SMS не сохраняются. Продолжение: npm run mesh:login -- --resume\n')
+      },
       confirmTrust: () => confirmPrompt('mos.ru предлагает доверять этому входу. Подтвердить? Напишите «да»: '),
       expectedActorPersonId: readJson(config.dataDir, 'secret.json')?.actorPersonId,
       readCredentials: async () => {
@@ -81,6 +95,7 @@ async function main() {
       askSmsCode: () => hiddenPrompt('Код из SMS (ввод скрыт): '), chooseProfile,
       save: stored => writeJson(config.dataDir, 'secret.json', stored),
     })
+    rmSync(resolve(config.dataDir, pendingFile), { force: true })
     stdout.write(`Родительский доступ подтверждён; ученик ${result.profileName} связан с аккаунтом. Доступ сохранён локально. Роль: ${result.verified.accountRole}.\n`)
     return
   }

@@ -4,12 +4,37 @@ import { createHash, randomBytes } from 'node:crypto'
 import { CookieJar } from 'tough-cookie'
 import parse5 from 'parse5'
 import { loginFailure } from './login-diagnostics.mjs'
+import { maskSecret } from './http-trace.mjs'
 
 const loginOrigin = 'https://login.mos.ru'
 const callback = 'https://school.mos.ru/v3/auth/sudir/callback'
 const hosts = new Set(['login.mos.ru', 'school.mos.ru', 'dnevnik.mos.ru'])
 const trustPath = '/sps/login/ur/askToTrust'
 const labels = { 'oauth-init': 'подготовка веб-входа mos.ru', password: 'проверка логина и пароля mos.ru', sms: 'подтверждение SMS', trust: 'подтверждение доверия mos.ru', 'mesh-exchange': 'завершение веб-входа МЭШ' }
+
+export function validPendingLogin(value, now = Date.now()) {
+  return value?.schemaVersion === 1 && Number.isFinite(value.createdAt) && value.createdAt <= now
+    && now - value.createdAt < 10 * 60 * 1000 && value.url === `${loginOrigin}${trustPath}`
+    && typeof value.state === 'string' && /^[A-Za-z0-9_-]{16,128}$/.test(value.state)
+    && typeof value.html === 'string' && value.html.length <= 512 * 1024 && validWebSession(value.session)
+}
+
+export function trustPageDiagnostic(html, address) {
+  const nodes = []
+  const walk = node => { nodes.push(node); (node.childNodes || []).forEach(walk) }
+  walk(parse5.parse(html))
+  const attrs = node => Object.fromEntries((node.attrs || []).map(a => [a.name, a.value]))
+  const safeName = value => /^[A-Za-z_][A-Za-z0-9_.:-]{0,63}$/.test(value || '') ? value : maskSecret(value)
+  return nodes.filter(n => n.tagName === 'form' || ['input', 'button', 'select'].includes(n.tagName)).slice(0,50).map(node => {
+    const a = attrs(node)
+    if (node.tagName === 'form') {
+      let action
+      try { const u = new URL(a.action || address, address); action = { origin: u.origin, path: u.pathname, queryKeys: [...u.searchParams.keys()] } } catch { action = '[invalid]' }
+      return { tag: 'form', method: a.method || 'get', action }
+    }
+    return { tag: node.tagName, type: a.type || '', name: safeName(a.name || ''), value: maskSecret(a.value || '') }
+  })
+}
 
 // Parse data from the provider's form, never execute embedded scripts or guess fields.
 export function trustForm(text, address) {
@@ -70,7 +95,12 @@ export function solveHashcash(header) {
 }
 
 export async function authenticateWeb({ fetch: fetcher, username, password, askSmsCode, confirmTrust,
-  onProgress = () => {}, session = null, interactive = true, state = randomBytes(24).toString('base64url') }) {
+  onProgress = () => {}, onTrustPage, resume = null, session = null, interactive = true, state = randomBytes(24).toString('base64url') }) {
+  if (resume) {
+    if (!interactive || !validPendingLogin(resume)) throw loginFailure({ stage: 'trust', reason: 'interactive-required' })
+    session = resume.session
+    state = resume.state
+  }
   if (session && !validWebSession(session)) throw loginFailure({ stage: 'oauth-init', reason: 'unexpected-response' })
   const jar = session ? CookieJar.deserializeSync(session) : new CookieJar(undefined, { prefixSecurity: 'strict' })
   let requests = 0, stage = 'oauth-init', passwordSent = false, smsSent = false, smsAttempts = 0, callbackSeen = false, issuedToken = null, trustSubmitted = false
@@ -116,7 +146,7 @@ export async function authenticateWeb({ fetch: fetcher, username, password, askS
   initial.search = new URLSearchParams({ response_type: 'code', access_type: 'offline', client_id: 'dnevnik.mos.ru',
     scope: 'openid profile birthday contacts snils blitz_user_rights blitz_change_password', redirect_uri: callback,
     display: 'script', state, ...(!interactive ? { prompt: 'none' } : {}) }).toString()
-  let current = await request(initial, 'oauth-init')
+  let current = await request(resume ? resume.url : initial, resume ? 'trust' : 'oauth-init')
   for (let step = 0; step < 24; step++) {
     const { response, data, text, url } = current
     const location = Object.fromEntries(response.headers).location
@@ -171,9 +201,15 @@ export async function authenticateWeb({ fetch: fetcher, username, password, askS
     }
     if (!data && url.origin === loginOrigin && url.pathname === trustPath) {
       stage = 'trust'
+      if (onTrustPage) await onTrustPage({ schemaVersion: 1, createdAt: resume?.createdAt ?? Date.now(),
+        state, url: url.toString(), session: jar.serializeSync(), html: text })
       if (trustSubmitted) throw fail(null, 'unexpected-response', response.status)
       const form = trustForm(text, url.toString())
-      if (!form || !await confirmTrust?.()) throw fail(null, 'interactive-required', response.status)
+      if (!form) {
+        onProgress(JSON.stringify({ kind: 'trust-page-structure', controls: trustPageDiagnostic(text, url.toString()) }))
+        throw fail(null, 'interactive-required', response.status)
+      }
+      if (!await confirmTrust?.()) throw fail(null, 'interactive-required', response.status)
       trustSubmitted = true
       const next = new URL(form.url)
       if (form.method === 'GET') next.search = form.body

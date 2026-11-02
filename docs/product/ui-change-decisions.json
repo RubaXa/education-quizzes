@@ -741,7 +741,7 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "0fb2f497101d4b43c1f6dd59c0d8c901f0fed9ecab57eb78d8e849607d9e84e0",
+      "sha256": "9a2ce017393a0bf8983a86d66af46810417acbe9a8524d78d243462338a96fb8",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
@@ -7824,7 +7824,7 @@
       }
     },
     "diary/cli.mjs": {
-      "sha256": "fc5fcd7c9258091615b10580974ee4f4ef073574602cbbeddc2f95a447b8783e",
+      "sha256": "13d511b719d35a9e335af3e400b2d4205d3ca33fa1588a71005c99986163f339",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
@@ -7870,7 +7870,7 @@
       }
     },
     "diary/login.mjs": {
-      "sha256": "a31c862902979ab20641eda9f02ff71f44b6da7344a576daf5d8e0aaf519f808",
+      "sha256": "9a06a3231d04c0189fdee3e35784b86da1fd5810762297e85baebc00ce1b0059",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
@@ -7902,7 +7902,7 @@
       }
     },
     "packages/education-connect/lib/web-login.mjs": {
-      "sha256": "59d245dd0cce7a280354de1de95002039f823b7876c6e2cba94d96df2727fb54",
+      "sha256": "2655f20e1554cf4403db1212e62bb48ed0b606619a42eed44b820cc685902278",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
