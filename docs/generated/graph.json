@@ -1497,6 +1497,35 @@
       "path": "docs/decisions/mesh-calendar-date-scopes-2026-10-18.md"
     },
     {
+      "id": "decision.mesh-http-trace-2026-11-02",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-02",
+      "updated": "2026-11-02",
+      "parent": "module.school-diary",
+      "uses": [
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "parent",
+        "local diary operator"
+      ],
+      "code": [
+        "packages/education-connect/lib/http-trace.mjs",
+        "packages/education-connect/lib/mesh.mjs",
+        "diary/login.mjs",
+        "diary/cli.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-http-trace-2026-11-02.md"
+    },
+    {
       "id": "decision.mesh-informational-entry-2026-10-21",
       "status": "accepted",
       "implementation": "implemented",
@@ -5275,6 +5304,20 @@
       "consumer": "Синхронизатор; план дня"
     },
     {
+      "id": "file:diary/login.mjs",
+      "path": "diary/login.mjs",
+      "kind": "artifact",
+      "purpose": "Сохранение локальных credentials только после проверки роли",
+      "consumer": "Diary CLI"
+    },
+    {
+      "id": "file:diary/login.test.mjs",
+      "path": "diary/login.test.mjs",
+      "kind": "verification",
+      "purpose": "Защита прежнего доступа при отказе нового входа",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:docs/audits/server-runtime-load-2026-10-17.json",
       "path": "docs/audits/server-runtime-load-2026-10-17.json",
       "kind": "artifact",
@@ -5903,6 +5946,20 @@
       "kind": "artifact",
       "purpose": "Запись зашифрованного пакета по приглашению",
       "consumer": "`education-connect` CLI; Firebase"
+    },
+    {
+      "id": "file:packages/education-connect/lib/http-trace.mjs",
+      "path": "packages/education-connect/lib/http-trace.mjs",
+      "kind": "artifact",
+      "purpose": "Локальная корреляция запросов и ответов, маскирование секретов",
+      "consumer": "Diary CLI; Vitest"
+    },
+    {
+      "id": "file:packages/education-connect/lib/http-trace.test.mjs",
+      "path": "packages/education-connect/lib/http-trace.test.mjs",
+      "kind": "verification",
+      "purpose": "Приватность трассы и неизменность транспорта",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/education-connect/lib/login-diagnostics.mjs",
@@ -15384,6 +15441,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.mesh-http-trace-2026-11-02",
+      "to": "file:diary/login.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.mesh-http-trace-2026-11-02",
+      "to": "file:packages/education-connect/lib/http-trace.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "decision.mesh-http-trace-2026-11-02",
+      "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-informational-entry-2026-10-21",
       "to": "module.school-diary.day-page",
       "type": "uses"
@@ -16740,6 +16812,11 @@
     },
     {
       "from": "file:diary/cli.mjs",
+      "to": "decision.mesh-http-trace-2026-11-02",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/cli.mjs",
       "to": "decision.mesh-login-stages-2026-11-01",
       "type": "implements"
     },
@@ -16756,6 +16833,11 @@
     {
       "from": "file:diary/local-store.mjs",
       "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/login.mjs",
+      "to": "decision.mesh-http-trace-2026-11-02",
       "type": "implements"
     },
     {
@@ -17179,6 +17261,11 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-connect/lib/http-trace.mjs",
+      "to": "decision.mesh-http-trace-2026-11-02",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-connect/lib/login-diagnostics.mjs",
       "to": "decision.local-connect-diagnostics-2026-11-01",
       "type": "implements"
@@ -17206,6 +17293,11 @@
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "decision.mesh-auth-recovery-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.mesh-http-trace-2026-11-02",
       "type": "implements"
     },
     {
@@ -23861,6 +23953,11 @@
     {
       "from": "module.school-diary",
       "to": "decision.local-connect-diagnostics-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "decision.mesh-http-trace-2026-11-02",
       "type": "contains"
     },
     {

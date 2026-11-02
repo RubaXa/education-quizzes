@@ -2,6 +2,12 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/mesh-http-trace-2026-11-02.md](decisions/mesh-http-trace-2026-11-02.md) | [School diary](modules/school-diary/README.md) | Прямой локальный вход и подробная маскированная HTTP-трасса | Родитель; оператор |
+| [packages/education-connect/lib/http-trace.mjs](../packages/education-connect/lib/http-trace.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Локальная корреляция запросов и ответов, маскирование секретов | Diary CLI; Vitest |
+| [packages/education-connect/lib/http-trace.test.mjs](../packages/education-connect/lib/http-trace.test.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Приватность трассы и неизменность транспорта | Vitest |
+| [diary/login.mjs](../diary/login.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Сохранение локальных credentials только после проверки роли | Diary CLI |
+| [diary/login.test.mjs](../diary/login.test.mjs) | [HTTP-трасса МЭШ](decisions/mesh-http-trace-2026-11-02.md) | Защита прежнего доступа при отказе нового входа | Vitest |
+
 | [scripts/check-review-brief-viewport.test.mjs](../scripts/check-review-brief-viewport.test.mjs) | [Компактный разбор](shared/design/compact-review.md) | Обязательная браузерная проверка старого длинного разбора и реального production CSS | npm check; оператор выпуска |
 | [docs/decisions/review-readability-repair-2026-10-31.md](decisions/review-readability-repair-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Основание исправления нечитаемых старых разборов, бюджет авторского текста и проверка реального сценария | Репетитор; разработчик; оператор выпуска |
 | [docs/decisions/compact-review-rollout-2026-10-31.md](decisions/compact-review-rollout-2026-10-31.md) | [Компактный разбор](shared/design/compact-review.md) | Прямое одобрение, интеграция всех адаптеров, сохранённые сценарии и проверки | Автор; frontend; UI Kit |

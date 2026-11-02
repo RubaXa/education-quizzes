@@ -741,18 +741,19 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "feee89d4d8a2b47077d6fc05ba1df8237e6efa08e26a70bed1572e94dc33d081",
-      "record": "docs/decisions/mesh-renewal-order-2026-11-01.md",
+      "sha256": "08cfdf5e16ac48bc91f6607b8de1d4793cc2f1e569336253e10670fdd1258342",
+      "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
       "specs": [
+        "docs/modules/school-diary/README.md",
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-auth.test.mjs",
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs"
+        "packages/education-connect/lib/login-diagnostics.test.mjs",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал исправить причину недоступности МЭШ; неверный приоритет продления обнаружен при расследовании нового отказа входа и исправляется по первичному контракту."
+        "evidence": "Родитель02.11.2026 потребовал прямой локальный логин МЭШ без инвайта с HTTP-заголовками, ID запросов и маскированием токенов двумя символами и длиной."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -7821,18 +7822,18 @@
       }
     },
     "diary/cli.mjs": {
-      "sha256": "e68acbab2747de7d8fb1a3432e4cf9189f2a5a20cf95a9ac4a7cee96dc8e0f4c",
-      "record": "docs/decisions/mesh-login-stages-2026-11-01.md",
+      "sha256": "bfebaf3effee92a25d4294a99d4819520ed9928c4d2b090e81d8bdc48ba96078",
+      "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
       "specs": [
+        "docs/modules/school-diary/README.md",
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "packages/education-connect/lib/login-diagnostics.test.mjs",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "diary/login.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 сообщил два неработающих входа, потребовал диагностику и понятный видимый ввод логина вместо скрытия."
+        "evidence": "Родитель02.11.2026 потребовал прямой локальный логин МЭШ без инвайта с HTTP-заголовками, ID запросов и маскированием токенов двумя символами и длиной."
       }
     },
     "packages/education-connect/lib/login-diagnostics.mjs": {
@@ -7863,6 +7864,36 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель01.11 прямо попросил локально показать первые четыре символа и длину пароля для проверки корректности ввода."
+      }
+    },
+    "diary/login.mjs": {
+      "sha256": "5bd39704b246233d4589fff98a661611a7b5568df12c686eb00d19a678c33076",
+      "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
+      "specs": [
+        "docs/modules/school-diary/README.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "diary/login.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель02.11.2026 потребовал прямой локальный логин МЭШ без инвайта с HTTP-заголовками, ID запросов и маскированием токенов двумя символами и длиной."
+      }
+    },
+    "packages/education-connect/lib/http-trace.mjs": {
+      "sha256": "3ae10241934da1ed3eb746e595817fcf41eb0334a3e662100a4237859877cdea",
+      "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
+      "specs": [
+        "docs/modules/school-diary/README.md",
+        "docs/shared/server-runtime.md"
+      ],
+      "tests": [
+        "packages/education-connect/lib/http-trace.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель02.11.2026 потребовал прямой локальный логин МЭШ без инвайта с HTTP-заголовками, ID запросов и маскированием токенов двумя символами и длиной."
       }
     }
   }

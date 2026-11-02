@@ -1,6 +1,11 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/mesh-http-trace-2026-11-02.md */
 /** @see ../docs/decisions/mesh-login-stages-2026-11-01.md */
 /** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
+import { resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import { traceStack } from '../packages/education-connect/lib/http-trace.mjs'
+import { localMeshLogin } from './login.mjs'
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 import { loadConfig } from './config.mjs'
@@ -11,7 +16,7 @@ import { lessonVisibility } from './application/lesson-visibility.mjs'
 import { downloadDayAttachments } from './attachments.mjs'
 import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
 import { formatLoginFailure } from '../packages/education-connect/lib/login-diagnostics.mjs'
-import { hiddenPrompt, visiblePrompt } from '../packages/education-connect/lib/prompts.mjs'
+import { hiddenPrompt, visiblePrompt, credentialInputSummary } from '../packages/education-connect/lib/prompts.mjs'
 
 async function chooseProfile(profiles) {
   if (profiles.length === 1) return 0
@@ -28,6 +33,11 @@ async function chooseProfile(profiles) {
 async function main() {
   const [command, ...args] = process.argv.slice(2)
   const config = loadConfig()
+  const dirAt = args.indexOf('--data-dir')
+  if (dirAt >= 0) {
+    if (!args[dirAt + 1] || args[dirAt + 1].startsWith('--')) throw new Error('Укажите --data-dir PATH')
+    config.dataDir = resolve(args[dirAt + 1])
+  }
   if (!command || command === 'help') {
     stdout.write('Команды: npm run diary -- doctor | login | verify | sync --date YYYY-MM-DD | files --date YYYY-MM-DD | status\n')
     return
@@ -38,16 +48,34 @@ async function main() {
     return
   }
   if (command === 'login') {
-    const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
-    const password = await hiddenPrompt('Пароль mos.ru (ввод скрыт): ')
-    if (!username || !password) throw new Error('Логин и пароль обязательны')
-    const secret = await loginToMesh({ username, password, onProgress: (message) => stdout.write(`${message}\n`), askSmsCode: () => hiddenPrompt('Код из SMS (ввод скрыт): '), chooseProfile })
-    const name = secret.profileName
-    const { profileName: _profileName, ...stored } = secret
-    writeJson(config.dataDir, 'secret.json', stored)
-    const adapter = new MeshDiaryAdapter(stored, (updated) => writeJson(config.dataDir, 'secret.json', updated))
-    const verified = await adapter.verifyAccess()
-    stdout.write(`Родительский доступ подтверждён; ученик ${name} связан с аккаунтом. Доступ сохранён локально. Роль: ${verified.accountRole}.\n`)
+    if (args.includes('--help')) {
+      stdout.write('Прямой вход: npm run mesh:login -- --trace [--data-dir PATH] [--show-password-prefix]\nБез приглашений и передачи доступа в Firebase. Реальный запуск регистрирует клиент mos.ru.\n')
+      return
+    }
+    const allowed = new Set(['--trace', '--show-password-prefix'])
+    const loginArgs = args.filter((_, i) => dirAt < 0 || (i !== dirAt && i !== dirAt + 1))
+    if (loginArgs.some(arg => !allowed.has(arg))) throw new Error('Укажите только --trace, --show-password-prefix или --data-dir PATH')
+    const tracing = args.includes('--trace')
+    stdout.write('Прямой локальный вход в МЭШ через mos.ru. Инвайт и Firebase не используются.\n')
+    stdout.write(`Локальное хранилище: ${config.dataDir}. Существующий доступ заменится только после проверки роли и ребёнка.\n`)
+    if (tracing) {
+      const require = createRequire(import.meta.url)
+      stdout.write(`Node ${process.version}; SDK: ${require.resolve('mesh-diary/lib/auth.js')}\nHTTP-трасса: секреты показаны двумя символами и длиной; файлы логов не создаются.\n`)
+    }
+    const result = await localMeshLogin({
+      login: loginToMesh, Adapter: MeshDiaryAdapter, trace: tracing ? {} : null,
+      expectedActorPersonId: readJson(config.dataDir, 'secret.json')?.actorPersonId,
+      readCredentials: async () => {
+        const username = await visiblePrompt('Логин mos.ru (виден при вводе): ')
+        const password = await hiddenPrompt('Пароль mos.ru (ввод скрыт): ')
+        if (tracing || args.includes('--show-password-prefix')) stdout.write(credentialInputSummary(password, { showPrefix: args.includes('--show-password-prefix') }))
+        return { username, password }
+      },
+      onProgress: message => stdout.write(`${message}\n`),
+      askSmsCode: () => hiddenPrompt('Код из SMS (ввод скрыт): '), chooseProfile,
+      save: stored => writeJson(config.dataDir, 'secret.json', stored),
+    })
+    stdout.write(`Родительский доступ подтверждён; ученик ${result.profileName} связан с аккаунтом. Доступ сохранён локально. Роль: ${result.verified.accountRole}.\n`)
     return
   }
   if (command === 'status') {
@@ -137,11 +165,12 @@ function printChanges(changes) {
 }
 
 main().catch((error) => {
+  if (process.argv.includes('--trace')) console.error(JSON.stringify({ kind: 'local-stack', stack: traceStack(error) }, null, 2))
   const loginDiagnostic = formatLoginFailure(error)
   if (loginDiagnostic) { console.error(loginDiagnostic); process.exitCode = 1; return }
   const diagnostic = meshAuthDiagnostic(error)
   if (diagnostic) {
-    console.error(`МЭШ: ${diagnostic.stage}, HTTP ${diagnostic.httpStatus ?? 'неизвестно'}${diagnostic.oauthError ? `, ${diagnostic.oauthError}` : ''}. Нужно повторное подключение: npx education-connect --invite <одноразовый-код>. Пароль и SMS вводятся только в скрытых полях терминала.`)
+    console.error(`МЭШ: ${diagnostic.stage}, HTTP ${diagnostic.httpStatus ?? 'неизвестно'}${diagnostic.oauthError ? `, ${diagnostic.oauthError}` : ''}. Для прямого локального входа: npm run mesh:login -- --trace. Инвайт не требуется.`)
     process.exitCode = 1
     return
   }
