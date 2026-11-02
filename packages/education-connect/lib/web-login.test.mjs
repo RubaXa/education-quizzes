@@ -2,7 +2,7 @@
 import { expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import { CookieJar } from 'tough-cookie'
-import { authenticateWeb, solveHashcash, validWebSession } from './web-login.mjs'
+import { authenticateWeb, solveHashcash, validWebSession, trustForm } from './web-login.mjs'
 const state='fixture-state', token=`eyJhbGciOiJub25lIn0.${Buffer.from(JSON.stringify({msh:'fixture-parent'})).toString('base64url')}.fixture`
 const authReply=()=>Response.json({inquire:'choose_one',items:[{inquire:'login_with_password',proofOfWork:'1:8:fixture::salt:'}]},{headers:{'set-cookie':'oauth_az=fixture-session; Path=/; Secure; HttpOnly'}})
 function fixture({sms=false,badState=false,external=false,denied=false}={}) {
@@ -87,4 +87,39 @@ it('stops at CAPTCHA without solving it or posting credentials',async()=>{
  const fetch=vi.fn(async()=>Response.json({inquire:'captcha'}))
  await expect(authenticateWeb({fetch,username:'fixture',password:'fixture',state})).rejects.toMatchObject({providerCode:'captcha_required'})
  expect(fetch).toHaveBeenCalledTimes(1)
+})
+it('submits the trust form once instead of reopening its GET after SMS', async () => {
+ const f=fixture({sms:true}), base=f.fetch, confirmTrust=vi.fn(async()=>true)
+ const fetch=vi.fn(async(url,opts)=>{
+  if(new URL(url).pathname.endsWith('/sms/bind') && opts.body) return new Response('',{status:303,headers:{location:'/sps/login/ur/askToTrust'}})
+  if(new URL(url).pathname.endsWith('/askToTrust')) {
+   if(opts.method==='POST') { expect(new URLSearchParams(opts.body).get('csrf')).toBe('fixture&csrf');expect(new URLSearchParams(opts.body).get('decision')).toBe('trust'); return new Response('',{status:303,headers:{location:`https://school.mos.ru/v3/auth/sudir/callback?code=fixture&state=${state}`}}) }
+   return new Response('<form method="post" action="/sps/login/ur/askToTrust"><input type="hidden" name="csrf" value="fixture&amp;csrf"><button name="decision" value="reject">Не доверять</button><button name="decision" value="trust">Доверять</button></form>')
+  }
+  return base(url,opts)
+ })
+ const result=await authenticateWeb({fetch,username:'fixture',password:'fixture',askSmsCode:async()=>'123456',confirmTrust,state})
+ expect(result.authMethod).toBe('web');expect(confirmTrust).toHaveBeenCalledTimes(1)
+ expect(fetch.mock.calls.filter(([url,opts])=>url.endsWith('/askToTrust')&&opts.method==='POST')).toHaveLength(1)
+})
+it('stops a repeated trust page after one decision, with no repeated prompts',async()=>{
+ const base=fixture().fetch,confirmTrust=vi.fn(async()=>true)
+ const fetch=vi.fn(async(url,opts)=>url.includes('/password')?new Response('',{status:303,headers:{location:'/sps/login/ur/askToTrust'}}):url.includes('/askToTrust')?new Response('<form method="post"><button name="trust" value="true">Доверять</button></form>'):base(url,opts))
+ await expect(authenticateWeb({fetch,username:'fixture',password:'fixture',confirmTrust,state})).rejects.toMatchObject({stage:'trust',reason:'unexpected-response'})
+ expect(confirmTrust).toHaveBeenCalledTimes(1)
+})
+
+it('rejects unsafe or ambiguous trust forms and preserves a valid GET selection',()=>{
+ const address='https://login.mos.ru/sps/login/ur/askToTrust'
+ expect(trustForm('<form method="post" action="https://external.test"><button>Доверять</button></form>',address)).toBeNull()
+ expect(trustForm('<form method="post"><input name="password" type="hidden" value="secret"><button>Доверять</button></form>',address)).toBeNull()
+ expect(trustForm('<form method="post"><button>Доверять</button><button>Да</button></form>',address)).toBeNull()
+ expect(trustForm('<form method="post"><button>Не доверять</button></form>',address)).toBeNull()
+ expect(trustForm('<form><input type="hidden" name="csrf" value="a&amp;b"><input type="submit" name="choice" value="Да"></form>',address)).toEqual({url:address,method:'GET',body:'csrf=a%26b&choice=%D0%94%D0%B0'})
+})
+it('a declined trust confirmation never submits the form',async()=>{
+ const base=fixture().fetch
+ const fetch=vi.fn(async(url,opts)=>url.includes('/password')?new Response('',{status:303,headers:{location:'/sps/login/ur/askToTrust'}}):url.includes('/askToTrust')?new Response('<form method="post"><button name="trust" value="true">Доверять</button></form>'):base(url,opts))
+ await expect(authenticateWeb({fetch,username:'fixture',password:'fixture',confirmTrust:async()=>false,state})).rejects.toMatchObject({stage:'trust',reason:'interactive-required'})
+ expect(fetch.mock.calls.filter(([url])=>url.includes('/askToTrust'))).toHaveLength(1)
 })

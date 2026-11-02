@@ -7840,7 +7840,7 @@
       }
     },
     "packages/education-connect/lib/login-diagnostics.mjs": {
-      "sha256": "a6af00785060451f0312a342a9efe2122d2f1597958cdce10370d59cf6138b4a",
+      "sha256": "138bad6d40a95159945cd7d2d8d9104a18eaa5a209d3e0c5fd12b2f961ff79a8",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",
@@ -7902,7 +7902,7 @@
       }
     },
     "packages/education-connect/lib/web-login.mjs": {
-      "sha256": "7b567fdef383e23d4d2218be25e6aa7dfbc1049483c8fab61096c869e22ea1cc",
+      "sha256": "59d245dd0cce7a280354de1de95002039f823b7876c6e2cba94d96df2727fb54",
       "record": "docs/decisions/mesh-web-login-2026-11-02.md",
       "specs": [
         "docs/modules/school-diary/README.md",

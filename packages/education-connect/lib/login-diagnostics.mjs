@@ -10,6 +10,7 @@ const labels = {
   'oauth-init': 'подготовка входа mos.ru',
   password: 'вход mos.ru',
   sms: 'подтверждение SMS',
+  trust: 'подтверждение доверия mos.ru',
   'token-exchange': 'обмен кода на токен',
   'mesh-exchange': 'получение доступа МЭШ',
   profile: 'проверка профиля',
@@ -39,7 +40,8 @@ function stageFor(url) {
   if (path.endsWith('/oauth/register')) return 'registration'
   if (path.endsWith('/oauth/ae')) return 'oauth-init'
   if (path.includes('/headless/password')) return 'password'
-  if (path.includes('/sms/') || path.includes('/askToTrust')) return 'sms'
+  if (path.includes('/askToTrust')) return 'trust'
+  if (path.includes('/sms/')) return 'sms'
   if (path.endsWith('/oauth/te')) return 'token-exchange'
   if (path.endsWith('/sudir/auth')) return 'mesh-exchange'
   return 'profile'
