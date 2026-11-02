@@ -7837,18 +7837,18 @@
       }
     },
     "packages/education-connect/lib/login-diagnostics.mjs": {
-      "sha256": "8abc62f3dc91ad14f527b1860f5d94c7422fceeb4e74d65993ce096c166c49da",
-      "record": "docs/decisions/local-connect-diagnostics-2026-11-01.md",
+      "sha256": "cacc4c323eff910607ebbc9fd2566708cdb2a71e697d3f573cfa23175ce16cb7",
+      "record": "docs/decisions/mesh-http-trace-2026-11-02.md",
       "specs": [
+        "docs/modules/school-diary/README.md",
         "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "scripts/connect-diagnose.test.mjs",
         "packages/education-connect/lib/login-diagnostics.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал локальный CLI через npm run для безопасного сбора диагностики подключения вместо npx-публикации."
+        "evidence": "Родитель02.11.2026 запросил подробную HTTP-трассу с маскированием токенов. Финальная строка ошибки должна соответствовать реально показанному телу ответа."
       }
     },
     "scripts/connect-diagnose.mjs": {

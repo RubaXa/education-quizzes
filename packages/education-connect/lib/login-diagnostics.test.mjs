@@ -67,3 +67,9 @@ it('prompts once immediately before the password request and traces only masked 
  expect(events.join('')).not.toMatch(/user-private|password-private|client-private|secret-private/)
  expect(events.join('')).toContain('pa******** (длина: 16)')
 })
+
+it('keeps the final failure message consistent with opt-in masked HTTP body traces',()=>{
+ const text=formatLoginFailure(loginFailure({stage:'registration',httpStatus:400,providerCode:'access_denied'}))
+ expect(text).toContain('Полные значения пароля, SMS и токенов не выводятся')
+ expect(text).not.toContain('тело ответа не выводится')
+})

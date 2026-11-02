@@ -12,6 +12,7 @@ consumers:
   - local diary operator
 code:
   - packages/education-connect/lib/http-trace.mjs
+  - packages/education-connect/lib/login-diagnostics.mjs
   - packages/education-connect/lib/mesh.mjs
   - diary/login.mjs
   - diary/cli.mjs
@@ -59,7 +60,8 @@ access_denied показывается полностью; неизвестны�
 cookie отдельно. Accept-CH/Critical-CH/front-end-https выводятся как открытые
 метаданные сервера, а не как секреты. Это позволяет проверять гипотезу потери cookie,
 но не доказывает её обязательность для регистрации. SMS, cookies, OAuth codes, login, password, client
-credentials и токены следуют одному правилу. Файлы HTTP-логов не создаются.
+credentials и токены следуют одному правилу. Файлы HTTP-логов не создаются. Итоговая ошибка login-diagnostics.mjs сообщает
+о маскировании полных секретов, не отрицает наличие HTTP-body в trace.
 `--show-password-prefix` дополнительно включает прежнюю проверку первых до4символов
 пароля только в терминале; без флага ввод скрыт.
 
