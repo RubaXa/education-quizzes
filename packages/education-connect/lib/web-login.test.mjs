@@ -146,3 +146,14 @@ it('reports only masked form structure and rejects expired or malformed pending 
  await expect(authenticateWeb({fetch,resume:{}})).rejects.toMatchObject({stage:'trust'})
  expect(fetch).not.toHaveBeenCalled()
 })
+it('matches the real mos.ru decision form and its official askToTrust.js action',()=>{
+ const html='<form id="decision" action="/sps/login/ur/askToTrust" method="POST"><input id="action" name="action" type="hidden" value=""><button id="agree" type="button">Доверять</button><button id="disagree" type="button">Не доверять</button></form><script src="/sps/login/assets/javascripts/askToTrust.js"></script>'
+ expect(trustForm(html,'https://login.mos.ru/sps/login/ur/askToTrust')).toEqual({url:'https://login.mos.ru/sps/login/ur/askToTrust',method:'POST',body:'action=trust'})
+ expect(trustForm(html.replace('id="action"','id="unrelated"'),'https://login.mos.ru/sps/login/ur/askToTrust')).toBeNull()
+})
+it('accepts tough-cookie serialization of empty or cleared cookie values without widening domains',()=>{
+ const jar=new CookieJar();jar.setCookieSync('empty=; Secure; Path=/','https://login.mos.ru');jar.setCookieSync('cleared=; Max-Age=0; Path=/','https://login.mos.ru')
+ const saved=jar.serializeSync();expect(saved.cookies.some(c=>c.value===undefined)).toBe(true)
+ expect(validWebSession(saved)).toBe(true);expect(CookieJar.deserializeSync(saved).getCookieStringSync('https://login.mos.ru')).toContain('empty=')
+ expect(validWebSession({cookies:[{key:'bad',value:null,domain:'login.mos.ru'}]})).toBe(false)
+})
