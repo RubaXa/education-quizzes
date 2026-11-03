@@ -9336,6 +9336,18 @@
     "note": "Только владелец/задание текущего help.requested: проверка версии вопроса, источника и уже выданной помощи; retry читает точную неизменяемую квитанцию. Без сканирования семей и новых фоновых подписок."
   },
   {
+    "id": "sync/help-response.mjs#admin.get#2d269cb946c4-7",
+    "file": "sync/help-response.mjs",
+    "line": 49,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "exact-event-observation",
+    "refresh": "per-help-publication-transaction",
+    "note": "One exact freshness observation inside source CAS; no collection scan."
+  },
+  {
     "id": "sync/help-response.mjs#admin.get#53b1ad5df27f",
     "file": "sync/help-response.mjs",
     "line": 59,
