@@ -14,6 +14,17 @@ const counts = (rows) => {
   return result
 }
 
+export function gradeCollectionProvenance(receipt, mesh) {
+  const instant = (value) => typeof value === 'string' && Number.isFinite(Date.parse(value))
+  if (receipt?.operation !== 'project.collect' || receipt.status !== 'succeeded' || receipt.apply !== true
+    || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(receipt.runId ?? '')
+    || !instant(receipt.startedAt) || !instant(receipt.finishedAt) || !instant(mesh?.fetchedAt)
+    || receipt.startedAt > mesh.fetchedAt || receipt.finishedAt < mesh.fetchedAt) {
+    throw new Error('Квитанция должна подтверждать успешный сбор, включающий время снимка.')
+  }
+  return `operator-run:${receipt.runId}`
+}
+
 export function proposeGradeSnapshot(previous, mesh, reportPath) {
   const threshold = Number(previous?.working_threshold)
   if (previous?.working_threshold_status !== 'conditional; not a confirmed school rule'
@@ -23,7 +34,7 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
   if (!mesh?.complete || !Array.isArray(mesh.marks) || !/^20\d{2}-\d{2}-\d{2}T/.test(mesh.fetchedAt ?? '')) {
     throw new Error('Нужен полный датированный снимок МЭШ с оценками.')
   }
-  if (typeof reportPath !== 'string' || !/^reports\/20\d{2}-\d{2}-\d{2}-education-sync\/baseline\.md$/.test(reportPath)) {
+  if (typeof reportPath !== 'string' || !(/^(?:reports\/20\d{2}-\d{2}-\d{2}-education-sync\/baseline\.md|operator-run:[a-f0-9-]{36})$/).test(reportPath)) {
     throw new Error('Нужен постоянный отчёт reports/YYYY-MM-DD-education-sync/baseline.md.')
   }
   const byName = new Map(mesh.marks.map((entry) => [aliases.get(entry.subject_name) ?? entry.subject_name, entry]))

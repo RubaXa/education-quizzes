@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { proposeGradeSnapshot } from './grade-snapshot.mjs'
+import { proposeGradeSnapshot, gradeCollectionProvenance } from './grade-snapshot.mjs'
 
 const report = 'reports/2026-10-16-education-sync/baseline.md'
 const previous = { snapshot_id: 'grades:2026-10-15-period-1', observed_at: '2026-10-15', source_report: 'old',
@@ -19,6 +19,11 @@ describe('штатное обновление среза оценок', () => {
     const second = proposeGradeSnapshot(first.proposal, mesh, report)
     expect(second.changes).toEqual([])
     expect(second.proposal).toBe(first.proposal)
+  })
+  it('принимает техническую квитанцию, но отвергает произвольный источник', () => {
+    const ref = 'operator-run:cc4eba28-6d8f-484f-8620-b8718139d7f1'
+    expect(proposeGradeSnapshot(previous, mesh, ref).proposal.source_report).toBe(ref)
+    expect(() => proposeGradeSnapshot(previous, mesh, '/tmp/anything')).toThrow()
   })
   it('останавливает потерю, исправление и неполную ленту', () => {
     expect(() => proposeGradeSnapshot(previous, { ...mesh, marks: [{ ...mesh.marks[0], count: 2, average: 5, marks: [{ value: 5, weight: 1 }, { value: 5, weight: 1 }] }] }, report)).toThrow(/изменилась/)
@@ -44,3 +49,12 @@ describe('штатное обновление среза оценок', () => {
     expect(repeated.proposal).toBe(repaired.proposal)
   })
 })
+
+ it('проверяет реальную квитанцию: успех, запись и временной охват снимка', () => {
+   const receipt = { operation: 'project.collect', status: 'succeeded', apply: true,
+     runId: 'cc4eba28-6d8f-484f-8620-b8718139d7f1', startedAt: '2026-10-16T06:00:00Z', finishedAt: '2026-10-16T07:00:00Z' }
+   expect(gradeCollectionProvenance(receipt, mesh)).toBe(`operator-run:${receipt.runId}`)
+   for (const patch of [{status:'failed'}, {apply:false}, {startedAt:undefined}, {finishedAt:'2026-10-15T07:00:00Z'}, {operation:'queue.scan'}]) {
+     expect(() => gradeCollectionProvenance({...receipt,...patch}, mesh)).toThrow(/Квитанция/)
+   }
+ })
