@@ -7421,7 +7421,7 @@
       "id": "file:scripts/grade-snapshot.mjs",
       "path": "scripts/grade-snapshot.mjs",
       "kind": "artifact",
-      "purpose": "Штатный предпросмотр и запись аддитивного среза МЭШ после постоянного отчёта",
+      "purpose": "Штатный предпросмотр и запись аддитивного среза МЭШ с отчётом или проверенной квитанцией сбора и явным workspace",
       "consumer": "Оператор Education Sync; `day reconcile-grades`"
     },
     {

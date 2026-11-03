@@ -331,7 +331,7 @@
       }
     },
     "day/grade-snapshot.mjs": {
-      "sha256": "7f50557b3b568b7b182aea51b4a4bf433c1964cf9c726d9123b8274bcbce3c29",
+      "sha256": "95e46c253dddaa4798f1093228a3694434655ec73dd67ee0462c1d68530cb622",
       "record": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
@@ -2091,7 +2091,7 @@
       }
     },
     "scripts/grade-snapshot.mjs": {
-      "sha256": "7f476fe7b6fb8675319372e4ee0815fed6ae1586460ce4bf5f68194d3b8dc221",
+      "sha256": "36218ce8bcd9e5bc7c5487cd52b30cfa714c3af722acc6720208ee32334c0746",
       "record": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
