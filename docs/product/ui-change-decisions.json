@@ -6505,7 +6505,7 @@
       }
     },
     "sync/help-response.mjs": {
-      "sha256": "db8982f2e3bc46f46f7e2fcd0d0b6c9650f2ee9ed6f68657ebc468668ed9cd36",
+      "sha256": "78b19861343494d2383577fab9a33c14ddb6277cbcd791c2885f8dc3622110eb",
       "record": "docs/decisions/student-review-reply-2026-11-01.md",
       "specs": [
         "docs/shared/design/student-review-step.md",

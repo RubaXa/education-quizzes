@@ -43,7 +43,9 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
       return { path: responseRef.path, jobPath: jobRef.path, unchanged: true }
     }
     if (job.status === 'done') fail('help_response_job_changed')
-    if (validateTaskArtifact(artifact, { eventId, now }).state !== 'ready') fail('help_response_artifact_invalid')
+    const observationSnap = await tx.get(db.doc(`operatorSyncTaskObservations/${eventId}`))
+    const observation = observationSnap.exists ? observationSnap.data() : null
+    if (validateTaskArtifact(artifact, { eventId, observation, now }).state !== 'ready') fail('help_response_artifact_invalid')
     const transactionalDb = { doc: path => ({ get: () => tx.get(db.doc(path)) }), collection:path=>({where:(...args)=>({get:()=>tx.get(db.collection(path).where(...args))})}) }
     const inputs = await captureEventTaskInputs(transactionalDb, event)
     if (!Number.isInteger(inputs.source.planRevision) || taskArtifactFingerprint({ eventId, inputs }) !== artifact.fingerprint

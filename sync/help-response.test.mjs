@@ -27,6 +27,20 @@ function fixture() {
 }
 
 describe('shared help response', () => {
+  it('accepts a freshly rechecked immutable artifact and rejects an unrelated observation', async () => {
+    for (const mismatch of [false, true]) {
+      const { db, rows } = fixture()
+      const artifact = await prepareEventTaskArtifact(db, event, { now })
+      rows.set(`operatorSyncJobs/${syncJobId('triage-help', 'family', 'child', eventId)}`, { kind: 'triage-help', familyId: 'family', childId: 'child', eventId, sourceId: eventId, status: 'queued', artifactPath: artifact.artifactPath, fingerprint: artifact.fingerprint })
+      const fresh = '2026-10-28T10:10:00.000Z'
+      await prepareEventTaskArtifact(db, event, { now: fresh })
+      expect(rows.get(artifact.artifactPath).verifiedAt).toBe(now)
+      if (mismatch) rows.get(`operatorSyncTaskObservations/${eventId}`).artifactId = 'd'.repeat(64)
+      const action = publishHelpResponse(db, { eventId, artifactId: artifact.artifactId, text: 'Проверь свою запись.', now: fresh })
+      if (mismatch) await expect(action).rejects.toThrow('task_artifact_superseded')
+      else expect(await action).toMatchObject({ verified: true })
+    }
+  })
   it('publishes the response for the original event after a later addition, and retries idempotently', async () => {
     const { db, rows } = fixture()
     const artifact = await prepareEventTaskArtifact(db, event, { now })

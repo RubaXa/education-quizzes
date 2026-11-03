@@ -10718,7 +10718,7 @@
       "id": "file:sync/help-response.mjs",
       "path": "sync/help-response.mjs",
       "kind": "artifact",
-      "purpose": "Проверенный отклик/следующий шаг или ответ по фото с проверкой источника",
+      "purpose": "Проверенный отклик/следующий шаг или ответ по фото; свежесть по адресному наблюдению и CAS источника",
       "consumer": "EducationSync; оператор"
     },
     {
