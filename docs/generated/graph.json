@@ -1699,6 +1699,35 @@
       "path": "docs/decisions/mixed-assignment-actions-2026-10-22.md"
     },
     {
+      "id": "decision.moving-preparation-window-2026-11-05",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-05",
+      "updated": "2026-11-05",
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "module.synchronization.global-sync"
+      ],
+      "code": [
+        "sync/preparation-window.mjs",
+        "sync/help-request-resolution.mjs",
+        "scripts/sync-inbox.mjs",
+        "scripts/sync-queue.mjs",
+        "scripts/submissions.mjs"
+      ],
+      "consumers": [
+        "Education sync operator"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/moving-preparation-window-2026-11-05.md"
+    },
+    {
       "id": "decision.olympiad-calendar-2026-10-31",
       "status": "accepted",
       "implementation": "implemented",
@@ -10800,6 +10829,20 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:sync/preparation-window.mjs",
+      "path": "sync/preparation-window.mjs",
+      "kind": "artifact",
+      "purpose": "Завершение устаревшей служебной подготовки без изменения работ ученика",
+      "consumer": "sync-queue"
+    },
+    {
+      "id": "file:sync/preparation-window.test.mjs",
+      "path": "sync/preparation-window.test.mjs",
+      "kind": "verification",
+      "purpose": "Границы недели и сохранение попыток, помощи и event-action",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/project-audit.mjs",
       "path": "sync/project-audit.mjs",
       "kind": "artifact",
@@ -15595,6 +15638,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.moving-preparation-window-2026-11-05",
+      "to": "module.synchronization.global-sync",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-calendar-2026-10-31",
       "to": "file:day/family-practice-calendar.test.mjs",
       "type": "verified-by"
@@ -18791,6 +18839,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
@@ -18866,6 +18919,11 @@
     },
     {
       "from": "file:scripts/sync-inbox.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-inbox.mjs",
       "to": "module.materials.family-library",
       "type": "implements"
     },
@@ -18932,6 +18990,11 @@
     {
       "from": "file:scripts/sync-queue.mjs",
       "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
       "type": "implements"
     },
     {
@@ -22086,6 +22149,11 @@
     },
     {
       "from": "file:sync/help-request-resolution.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/help-request-resolution.mjs",
       "to": "module.synchronization.education-pipeline",
       "type": "implements"
     },
@@ -22107,6 +22175,16 @@
     {
       "from": "file:sync/olympiad-help.mjs",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/preparation-window.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/preparation-window.mjs",
+      "to": "module.synchronization.global-sync",
       "type": "implements"
     },
     {
@@ -24401,6 +24479,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "decisions.project-publication-audit-2026-10-21",
       "type": "contains"
     },
@@ -24422,6 +24505,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "file:sync/job-queue-fence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:sync/preparation-window.test.mjs",
       "type": "verified-by"
     },
     {

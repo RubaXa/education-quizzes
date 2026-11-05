@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -152,12 +153,14 @@ async function addDays(items, owners) {
     if (requests.docs.length) readCalls.parentDecisionQueries++
     const decisions = requests.docs.length ? (await db.collection(`dayParentDecisions/${ownerDoc.id}/events`).get())
       .docs.map(doc => ({ ...doc.data(), id: doc.id })) : []
+    const responses = requests.docs.length ? (await db.collection(`dayGuidance/${ownerDoc.id}/items`)
+      .where('stageId', '==', 'help-response').get()).docs.map(doc => doc.data()) : []
     // A support revision alone is not proof of a reply. A later explicit family
     // acceptance closes attention for that same attempt without deleting history.
     for (const doc of requests.docs) {
       const data = doc.data()
       const later = progress.get(doc.id)
-      if (helpRequestResolution({ taskId: doc.id, request: data, review: later, decisions })) continue
+      if (helpRequestResolution({ taskId: doc.id, request: data, review: later, decisions, responses })) continue
       items.push({ kind: 'help-request', lane: 'triage', familyId: owner.familyId,
         childId: owner.childId, dayDate: owner.date, id: doc.id,
         requestKind: data.requestKind ?? null, requestedRevision: data.revision ?? null,
