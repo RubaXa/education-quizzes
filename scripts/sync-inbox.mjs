@@ -23,7 +23,7 @@ const helpCache = new HelpRequestCache(resolve('.local/project-sync/help-request
 const started = performance.now()
 const timings = {}
 const readCalls = { initialQueries: 5, pageCounts: 0, dayFiles: 0, dayHelp: 0,
-  progressBatches: 0, progressRefs: 0, parentDecisionQueries: 0, manualReviews: 0 }
+  progressBatches: 0, progressRefs: 0, parentDecisionQueries: 0, guidanceQueries: 0, manualReviews: 0 }
 
 // Independent owners and books can be checked together without widening the
 // source set. Keep a small limit to avoid a burst of Firestore requests.
@@ -153,6 +153,7 @@ async function addDays(items, owners) {
     if (requests.docs.length) readCalls.parentDecisionQueries++
     const decisions = requests.docs.length ? (await db.collection(`dayParentDecisions/${ownerDoc.id}/events`).get())
       .docs.map(doc => ({ ...doc.data(), id: doc.id })) : []
+    if (requests.docs.length) readCalls.guidanceQueries++
     const responses = requests.docs.length ? (await db.collection(`dayGuidance/${ownerDoc.id}/items`)
       .where('stageId', '==', 'help-response').get()).docs.map(doc => doc.data()) : []
     // A support revision alone is not proof of a reply. A later explicit family

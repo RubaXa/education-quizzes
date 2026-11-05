@@ -2333,7 +2333,7 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "09d77ca8e2d11c487fefde741927158d93922d8addb15d7c25a6470b4dd962e3",
+      "sha256": "3af0fdf4f5bda0a1de703a409ead5e3aa059bb82ec690bd5fc7382f0f157e85f",
       "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md"
@@ -2367,7 +2367,7 @@
       }
     },
     "scripts/sync-inbox.mjs": {
-      "sha256": "e8901a33b87def315ea5fc7921ec6d656777debcdd375c2ca8bc0e59bb91e8a4",
+      "sha256": "8d61c45f9beedfb2dc89f75986245c4ca80cfb75bc265edf66d2f79937bb9ba7",
       "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md"

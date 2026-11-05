@@ -106,14 +106,14 @@ async function helpInbox() {
   for (const ownerDoc of owners.docs) {
     const owner = ownerDoc.data()
     if (dateFilter && owner.date !== dateFilter) continue
-    const [pageDoc, childDoc, helpDocs, guidanceDocs] = await Promise.all([
+    const [pageDoc, childDoc, helpDocs] = await Promise.all([
       db.doc(`dayPages/${ownerDoc.id}`).get(),
       db.doc(`families/${owner.familyId}/children/${owner.childId}`).get(),
       db.collection(`dayHelp/${ownerDoc.id}/items`).get(),
-      db.collection(`dayGuidance/${ownerDoc.id}/items`).where('stageId', '==', 'help-response').get(),
     ])
     const page = pageDoc.data()
     if (page?.kind !== 'student' || !helpDocs.size) continue
+    const guidanceDocs = await db.collection(`dayGuidance/${ownerDoc.id}/items`).where('stageId', '==', 'help-response').get()
     for (const helpDoc of helpDocs.docs) {
       const help = helpDoc.data()
       const task = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((entry) => entry.problems?.some((problem) => problem.id === helpDoc.id))
