@@ -74,6 +74,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
           ? await store.heartbeatClaim({ requestId: values.request, tokenHash, now: new Date().toISOString() })
           : await store.failClaim({ requestId: values.request, tokenHash, now: new Date().toISOString(), retryAt: new Date(Date.now() + 60_000).toISOString() })
       if (command !== 'heartbeat' && ['completed', 'pending'].includes(result.status)) {
+        writeDispatchProgress(root, values.request, { phase: command === 'fail' ? 'failed' : 'completed' })
         result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
         rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
       }
@@ -84,6 +85,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       const tokenHash = createHash('sha256').update(claim.token).digest('hex')
       result = await store.blockClaim({ requestId: values.request, tokenHash, reasonCode: values.reason, now: new Date().toISOString() })
       if (result.status === 'blocked') {
+        writeDispatchProgress(root, values.request, { phase: 'blocked' })
         result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
         rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
       }
