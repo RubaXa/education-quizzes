@@ -89,6 +89,7 @@ describe('education sync dispatch CLI', () => {
       expect(await main(['complete', '--request', REQUEST, '--claim-file', claimPath], { ...deps, out })).toBe(0)
       const terminal = JSON.parse(out.value())
       expect(terminal.runReport).toMatchObject({ lifecycle: 'finished', sourceCycleComplete: false, outcome: 'partial' })
+      expect(JSON.parse(readFileSync(resolve(root, '.local/education-sync-dispatch/work', REQUEST, 'progress.json'), 'utf8')).phase).toBe('completed')
       expect(store.completeClaim).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, tokenHash: store.tokenHash }))
     } finally { rmSync(root, { recursive: true, force: true }) }
   })
@@ -132,6 +133,7 @@ describe('education sync dispatch CLI', () => {
       const claimPath = JSON.parse(out.value()).claimPath
       await main(['block', '--request', REQUEST, '--claim-file', claimPath, '--reason', 'permission_required'], deps)
       expect(store.blockClaim).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, reasonCode: 'permission_required' }))
+      expect(JSON.parse(readFileSync(resolve(root, '.local/education-sync-dispatch/work', REQUEST, 'progress.json'), 'utf8')).phase).toBe('blocked')
       out.value = () => ''
       expect(await main(['resume', '--request', REQUEST], deps)).toBe(0)
       expect(store.resumeBlocked).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST }))

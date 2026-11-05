@@ -1960,7 +1960,7 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "a277a474745d2fc14548c30884defbeaeb419d486ddb9b2841d677cf7068e842",
+      "sha256": "ac5b9e72bbf2e26b5b9283b4f3fdaee9ca286ab947975a986e44e82b16a370fc",
       "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
       "specs": [
         "docs/modules/synchronization/execution-artifact.md"
