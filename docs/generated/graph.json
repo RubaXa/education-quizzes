@@ -1713,7 +1713,9 @@
         "sync/help-request-resolution.mjs",
         "scripts/sync-inbox.mjs",
         "scripts/sync-queue.mjs",
-        "scripts/submissions.mjs"
+        "scripts/submissions.mjs",
+        "scripts/quiz.mjs",
+        "assessment/followup-contract.mjs"
       ],
       "consumers": [
         "Education sync operator"
@@ -16399,6 +16401,11 @@
     },
     {
       "from": "file:assessment/followup-contract.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/followup-contract.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
@@ -18775,6 +18782,11 @@
     {
       "from": "file:scripts/quiz.mjs",
       "to": "decision.informatics-assessment-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
+      "to": "decision.moving-preparation-window-2026-11-05",
       "type": "implements"
     },
     {

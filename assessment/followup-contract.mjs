@@ -36,7 +36,7 @@ export function openQuizRevision({ current, spec, owner, revisedAt }) {
     throw new Error('Изменять можно только открытый тест без сохранённых ответов.')
   }
   if (current.familyId !== owner.familyId || current.childId !== owner.childId
-    || current.linkedToTestId !== spec.linkedToTestId || current.slug !== spec.slug
+    || (current.linkedToTestId ?? null) !== (spec.linkedToTestId ?? null) || current.slug !== spec.slug
     || current.subject !== spec.subject) {
     throw new Error('Ревизия не может сменить владельца, исходный тест, предмет или ссылку.')
   }
@@ -51,12 +51,25 @@ export function openQuizRevision({ current, spec, owner, revisedAt }) {
   }
 }
 
+/** Rename an unstarted test without changing content, key, links or owner.
+ * @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
+export function titleOnlyQuizRevision({ current, spec, owner, answerKey, index, revisedAt }) {
+  const proposed = openQuizRevision({current,spec,owner,revisedAt})
+  for (const field of ['description','visual','reading','questions']) {
+    if (!isDeepStrictEqual(current[field] ?? null, proposed.assignment[field] ?? null)) throw new Error('Только заголовок: содержание изменилось.')
+  }
+  if (!isDeepStrictEqual(answerKey?.entries, proposed.answerKey.entries)
+    || !isDeepStrictEqual(index?.board, spec.board)) throw new Error('Только заголовок: ключ или план списка изменился.')
+  const title = {title:spec.title,revisedAt}
+  return {assignment:title,preview:title,index:title}
+}
+
 export function assertOpenRevisionReadback({ assignment, answerKey, preview, indexes, spec }) {
   const ids = spec.questions.map((question) => question.id)
   const sameIds = (questions) => JSON.stringify(questions?.map((question) => question.id)) === JSON.stringify(ids)
   const questions = spec.questions.map(({ answer: _answer, ...question }) => question)
   const entries = Object.fromEntries(spec.questions.map((question) => [question.id, publishedAnswer(question.answer)]))
-  if (assignment?.status !== 'open' || Object.keys(assignment.answers ?? {}).length
+  if (assignment?.status !== 'open' || assignment.title !== spec.title || preview?.title !== spec.title || Object.keys(assignment.answers ?? {}).length
     || !sameIds(assignment.questions) || !sameIds(preview?.questions)
     || !isDeepStrictEqual(assignment.questions, questions) || !isDeepStrictEqual(preview.questions, questions)
     || !isDeepStrictEqual(answerKey?.entries, entries)
