@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/sync-single-drainer-2026-11-05.md */
 /** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../../../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../../../docs/decisions/independent-action-dispatch-2026-10-21.md */
@@ -350,10 +351,8 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           return null
         }
         if (state.status === 'queued') {
-          const queuedAt = Date.parse(state.queuedAt ?? '')
-          if (Number.isFinite(queuedAt) && Date.parse(now) >= queuedAt + 10 * 60_000) {
-            tx.set(ref, { ...state, status: 'uncertain', uncertainAt: now, lastErrorCode: 'queue_ack_expired', retryAt: now }, { merge: false })
-          }
+          // A durable queue acknowledgement does not expire because the chat is busy.
+          // Resending here used to append the same wake every ten minutes.
           return null
         }
         if (state.status === 'running') return null
@@ -466,11 +465,13 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         return { status: 'running' }
       })
     },
-    async completeClaim({ requestId, tokenHash, now }) {
+    async completeClaim({ requestId, tokenHash, now, drain = false, expectedGeneration = null }) {
       const preliminary = await ref.get()
       const snapshotState = preliminary.exists ? preliminary.data() : null
       const execution = resolveEducationSyncExecution(snapshotState, { requestId, tokenHash, now })
       if (!execution) return { status: 'invalid_claim' }
+      const frozenGeneration = execution.scope === 'action' ? snapshotState.actionLane.sendingGeneration : snapshotState.sendingGeneration
+      if (drain && (!Number.isInteger(expectedGeneration) || frozenGeneration !== expectedGeneration)) return { status: 'stale_batch' }
       const frozenAfter = execution.actionAfterGeneration ?? 0
       const frozenThrough = execution.actionThroughGeneration
       if (Number.isInteger(frozenThrough) && frozenThrough > frozenAfter) {
@@ -494,12 +495,25 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const currentExecution = resolveEducationSyncExecution(state, { requestId, tokenHash, now })
         const currentLane = currentExecution?.scope === 'action' ? state.actionLane : null
         if (currentLane) {
+          if (drain && currentLane.sendingGeneration !== expectedGeneration) return { status: 'stale_batch' }
           if (currentLane.actionAfterGeneration !== frozenAfter || currentLane.actionThroughGeneration !== frozenThrough) return { status: 'invalid_claim' }
           const pendingThrough = Number.isInteger(state.pendingActionThroughGeneration) && state.pendingActionThroughGeneration > frozenThrough
             ? state.pendingActionThroughGeneration : null
           const pendingAfter = pendingThrough === null ? null : Math.max(state.pendingActionAfterGeneration ?? frozenThrough, frozenThrough)
           const pendingKinds = pendingThrough === null ? (state.pendingKinds ?? []).filter((kind) => kind !== 'action')
             : [...new Set([...(state.pendingKinds ?? []), 'action'])]
+          if (drain && pendingThrough !== null) {
+            tx.set(ref, { ...state,
+              completedActionGeneration: currentLane.gapPrior ? state.completedActionGeneration ?? 0 : Math.max(state.completedActionGeneration ?? 0, frozenThrough),
+              pendingActionAfterGeneration: null, pendingActionThroughGeneration: null,
+              pendingKinds: pendingKinds.filter(kind => kind !== 'action'),
+              actionLane: { ...currentLane, status: 'running', sendingGeneration: pendingThrough,
+                actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
+                lastCompletedBatch: { generation: expectedGeneration, completedAt: now },
+                workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString(), heartbeatAt: now },
+            }, { merge: false })
+            return { status: 'continued', scope: 'action', generation: pendingThrough, workKinds: ['action'], needsFullVerification: false }
+          }
           tx.set(ref, { ...state, completedActionGeneration: currentLane.gapPrior ? state.completedActionGeneration ?? 0 : Math.max(state.completedActionGeneration ?? 0, frozenThrough),
             pendingActionAfterGeneration: pendingAfter, pendingActionThroughGeneration: pendingThrough, pendingKinds,
             actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
@@ -509,9 +523,27 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         }
         if (!currentExecution || currentExecution.scope !== 'request') return { status: 'invalid_claim' }
         const currentState = snap.data()
+        if (drain && currentState.sendingGeneration !== expectedGeneration) return { status: 'stale_batch' }
+        if (currentState.sendingGeneration !== snapshotState.sendingGeneration) return { status: 'stale_batch' }
         const completedActions = currentState.sendingActionThroughGeneration ?? currentState.completedActionGeneration ?? 0
         const pending = (currentState.generation ?? 0) > (currentState.sendingGeneration ?? 0)
           || (currentState.pendingActionThroughGeneration ?? 0) > completedActions
+        if (drain && pending) {
+          const kinds = currentState.pendingKinds ?? []
+          const generation = currentState.generation
+          tx.set(ref, { ...currentState, status: 'running',
+            completedActionGeneration: Math.max(currentState.completedActionGeneration ?? 0, completedActions),
+            lastCompletedBatch: { generation: expectedGeneration, completedAt: now },
+            sendingGeneration: generation, sendingKinds: kinds,
+            sourceAttemptGeneration: generation,
+            sendingActionAfterGeneration: Math.max(completedActions, currentState.pendingActionAfterGeneration ?? 0),
+            sendingActionThroughGeneration: currentState.pendingActionThroughGeneration ?? null,
+            pendingKinds: [], pendingActionAfterGeneration: null, pendingActionThroughGeneration: null,
+            workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString(), heartbeatAt: now,
+          }, { merge: false })
+          return { status: 'continued', generation, workKinds: kinds,
+            needsFullVerification: kinds.includes('mesh') || kinds.includes('work') }
+        }
         tx.set(ref, { ...currentState, status: pending ? 'pending' : 'completed', completedRequestId: requestId,
           completedAt: now, requestId: null, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null, leaseUntil: null,
           completedActionGeneration: Math.max(currentState.completedActionGeneration ?? 0, completedActions),
@@ -617,7 +649,8 @@ export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/educati
   const meshInstruction = 'The user has authorized standard Mesh material synchronization using the established family archive and public-link workflow without per-file confirmation prompts.'
   const independentAction = _workKinds.length === 1 && _workKinds[0] === 'action' && _batch.independentSourceBlock === true
   const instruction = independentAction ? `Process this exact Firebase action batch independently; the unrelated Mesh source is blocked and must not prevent this work. Run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, follow the private manifest, verify source and both roles, and preserve the Mesh block. Do not mark the full source cycle complete.` : [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
-  return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. After the requested workflow succeeds, run ${run(`complete --request ${requestId} --claim-file ${claimFile}`)}. Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
+  const continuation = `This is one queue-draining session. New events remain in the server queue; do not enqueue chat messages. The tasks command returns generation and a private batch directory. Update progress and heartbeat using ${run(`progress --request ${requestId} --claim-file ${claimFile} --phase review`)} (choose the actual phase). After publication, both-role readback and final inbox verification for that batch, acknowledge exactly its generation using ${run(`next --request ${requestId} --claim-file ${claimFile} --generation GENERATION_FROM_TASKS`)}. If continued, keep the same claim and immediately run tasks again, then process the NEW frozen manifest. Do not expand a frozen batch. Perform another full verification only when needsFullVerification is true; otherwise handle the next Firebase batch using the current full-cycle receipts. If completed, the queue was atomically empty and the lock released: stop. Never acknowledge unfinished work. A stale_batch response requires rereading tasks, never guessing the next generation. Local batch files are removed only after server acknowledgement; source files and history are preserved.`
+  return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. ${continuation} Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
 }
 
 const ACTION_KINDS = Object.freeze({
@@ -803,11 +836,6 @@ function claimPersistedActionLane({ tx, ref, state, now, workerId }) {
     return null
   }
   if (lane.status === 'queued') {
-    const queuedAt = Date.parse(lane.queuedAt ?? '')
-    if (Number.isFinite(queuedAt) && Date.parse(now) >= queuedAt + 10 * 60_000) {
-      tx.set(ref, { ...state, actionLane: { ...lane, status: 'uncertain', uncertainAt: now,
-        lastErrorCode: 'queue_ack_expired', retryAt: now, leaseUntil: null } }, { merge: false })
-    }
     return null
   }
   if (lane.status === 'running') {

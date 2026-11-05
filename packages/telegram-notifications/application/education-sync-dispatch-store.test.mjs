@@ -56,6 +56,43 @@ const iso = (offsetMs = 0) => new Date(base + offsetMs).toISOString()
 const digest = (n) => n.toString(16).padStart(64, '0')
 
 describe('Firestore EducationSync dispatch store state machine', () => {
+  it('does not enqueue another wake after ten minutes of waiting in the chat queue', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(2000), now: iso(), debounceUntil: iso() })
+    const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+    await store.markQueued({ ...wake, now: iso(2) })
+    for (const minutes of [11, 12, 60, 1440]) {
+      expect(await store.claim({ now: iso(minutes * 60_000), workerId: 'worker' })).toBeNull()
+    }
+    expect(await store.read()).toMatchObject({ status: 'queued', requestId: wake.requestId })
+  })
+
+  it('drains a second frozen batch under the same lock and fences repeated acknowledgements', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(2010), now: iso(), debounceUntil: iso() })
+    const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+    await store.claimRequest({ requestId: wake.requestId, tokenHash: digest(2011), now: iso(2) })
+    await store.recordMeshChange({ eventDigest: digest(2012), now: iso(3), debounceUntil: iso(4) })
+    const args = { requestId: wake.requestId, tokenHash: digest(2011), now: iso(5), drain: true, expectedGeneration: 1 }
+    expect(await store.completeClaim(args)).toMatchObject({ status: 'continued', generation: 2, needsFullVerification: true })
+    expect(await store.claim({ now: iso(6), workerId: 'other' })).toBeNull()
+    expect(await store.completeClaim(args)).toMatchObject({ status: 'stale_batch' })
+    expect(await store.completeClaim({ ...args, expectedGeneration: 2 })).toMatchObject({ status: 'completed' })
+    expect(await store.heartbeatClaim({ ...args, now: iso(7) })).toEqual({ status: 'invalid_claim' })
+  })
+
+  it('serializes simultaneous drain acknowledgements without dropping a newly accepted event', async () => {
+    const { store } = setup()
+    await store.recordMeshChange({ eventDigest: digest(2020), now: iso(), debounceUntil: iso() })
+    const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+    await store.claimRequest({ requestId: wake.requestId, tokenHash: digest(2021), now: iso(2) })
+    await store.recordMeshChange({ eventDigest: digest(2022), now: iso(3), debounceUntil: iso(4) })
+    const args = { requestId: wake.requestId, tokenHash: digest(2021), now: iso(5), drain: true, expectedGeneration: 1 }
+    const results = await Promise.all([store.completeClaim(args), store.completeClaim(args)])
+    expect(results.map(r => r.status).sort()).toEqual(['continued', 'stale_batch'])
+    await store.recordMeshChange({ eventDigest: digest(2023), now: iso(6), debounceUntil: iso(7) })
+    expect(await store.read()).toMatchObject({ status: 'running', sendingGeneration: 2, generation: 3, pendingKinds: ['mesh'] })
+  })
   it('absorbs a burst while queued into the same first workflow claim, with no successor run', async () => {
     const { store } = setup()
     await store.recordMeshChange({ eventDigest: digest(1000), now: iso(), debounceUntil: iso() })
@@ -197,7 +234,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await store.read()).toMatchObject({ sendingGeneration: 1, sendingKinds: ['work'], pendingKinds: ['mesh'] })
   })
 
-  it.each(['queued', 'running', 'uncertain'])('safely retries legacy %s request with missing kind metadata as Mesh, retaining later work', async (status) => {
+  it.each(['running', 'uncertain'])('safely retries legacy %s request with missing kind metadata as Mesh, retaining later work', async (status) => {
     const { db, store } = setup()
     const legacyRequest = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
     db.documents.set('educationSyncDispatch/current', { status, generation: 5, requestId: legacyRequest,

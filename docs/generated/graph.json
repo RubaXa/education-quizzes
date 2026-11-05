@@ -3036,6 +3036,35 @@
       "path": "docs/decisions/sync-phase-report-2026-10-29.md"
     },
     {
+      "id": "decision.sync-single-drainer-2026-11-05",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-05",
+      "updated": "2026-11-05",
+      "parent": "service.telegram-bot.education-sync-dispatch",
+      "uses": [
+        "module.synchronization.execution-artifact"
+      ],
+      "consumers": [
+        "Education operator",
+        "Telegram worker"
+      ],
+      "code": [
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+        "scripts/education-sync-dispatch.mjs",
+        "sync/dispatch-workspace.mjs",
+        "sync/event-task-export.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/sync-single-drainer-2026-11-05.md"
+    },
+    {
       "id": "decision.sync-task-routing-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -10659,6 +10688,13 @@
       "consumer": "`day/dashboard-index.mjs`; `sync/publication-audit.test.mjs`"
     },
     {
+      "id": "file:sync/dispatch-workspace.mjs",
+      "path": "sync/dispatch-workspace.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый прогресс и очистка только подтверждённых пакетов",
+      "consumer": "Dispatch CLI"
+    },
+    {
       "id": "file:sync/event-task-artifact.mjs",
       "path": "sync/event-task-artifact.mjs",
       "kind": "artifact",
@@ -14035,9 +14071,11 @@
       ],
       "code": [
         "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-        "scripts/education-sync-dispatch.mjs"
+        "scripts/education-sync-dispatch.mjs",
+        "sync/dispatch-workspace.mjs"
       ],
       "sections": [
+        "single-drainer",
         "назначение-и-границы",
         "события-и-устойчивость",
         "запуск-и-подтверждение",
@@ -15952,6 +15990,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.sync-single-drainer-2026-11-05",
+      "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
       "from": "decision.teacher-choice-practice-2026-10-17",
       "to": "module.school-diary.day-page",
       "type": "uses"
@@ -17763,6 +17806,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.sync-single-drainer-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "decision.upload-lifecycle-continuation-2026-10-30",
       "type": "implements"
     },
@@ -18409,6 +18457,11 @@
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "decision.sync-phase-report-2026-10-29",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
     },
     {
@@ -21967,6 +22020,16 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/dispatch-workspace.mjs",
+      "to": "decision.sync-single-drainer-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/dispatch-workspace.mjs",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/event-task-artifact.mjs",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
@@ -21994,6 +22057,11 @@
     {
       "from": "file:sync/event-task-export.mjs",
       "to": "decision.independent-action-dispatch-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-export.mjs",
+      "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
     },
     {
@@ -25534,6 +25602,11 @@
     {
       "from": "service.telegram-bot.education-sync-dispatch",
       "to": "decision.source-wait-generations-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "decision.sync-single-drainer-2026-11-05",
       "type": "contains"
     },
     {

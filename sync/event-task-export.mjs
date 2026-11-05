@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/sync-single-drainer-2026-11-05.md */
 /** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 import { chmodSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -17,7 +18,8 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
     && Array.isArray(state.sendingKinds) && state.sendingKinds.length === 1 && state.sendingKinds[0] === 'mesh'
   if (!Number.isInteger(execution.actionThroughGeneration) && !sourceOnly) throw new Error('education_sync_action_request_unclaimed')
   if (!sourceOnly && typeof store.readActionTasks !== 'function') throw new Error('task_manifest_unavailable')
-  const directory = resolve(root, '.local/education-sync-dispatch/tasks', requestId)
+  const generation = execution.scope === 'action' ? state.actionLane.sendingGeneration : state.sendingGeneration ?? 0
+  const directory = resolve(root, '.local/education-sync-dispatch/tasks', requestId, `batch-${generation}`)
   mkdirSync(directory, { recursive: true, mode: 0o700 })
   chmodSync(directory, 0o700)
   const pages = [], seenCursors = new Set()
@@ -99,7 +101,7 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
     pages, taskCount, doneCount, legacyCount }
   const manifestPath = resolve(directory, 'manifest.json')
   writePrivate(manifestPath, manifest)
-  return { status: manifest.state, requestId, manifestPath, taskCount, doneCount, legacyCount, pageCount: pages.length }
+  return { status: manifest.state, requestId, generation, manifestPath, taskCount, doneCount, legacyCount, pageCount: pages.length }
 }
 
 function writePrivate(path, value) {
