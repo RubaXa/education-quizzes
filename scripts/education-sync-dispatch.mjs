@@ -1,6 +1,7 @@
 /** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
+/** @see ../docs/decisions/sync-single-drainer-2026-11-05.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -12,6 +13,7 @@ import { exportEventTaskManifest } from '../sync/event-task-export.mjs'
 
 /** @see ../docs/services/telegram-bot/education-sync-dispatch.md */
 import { finishDispatchReport } from '../operator/run-report.mjs'
+import { WORK_PHASES, writeDispatchProgress, clearDispatchBatch } from '../sync/dispatch-workspace.mjs'
 
 export async function main(args = process.argv.slice(2), { env = process.env, out = process.stdout,
   err = process.stderr, scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..'),
@@ -41,6 +43,27 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       const claim = readClaimFile(root, values['claim-file'], values.request)
       result = await exportEventTaskManifest(db, store, { root, requestId: values.request,
         tokenHash: createHash('sha256').update(claim.token).digest('hex') })
+      result.progressPath = writeDispatchProgress(root, values.request, { phase: 'sources', generation: result.generation, manifestPath: result.manifestPath })
+    } else if (['next', 'progress'].includes(command) && validRequest(values.request)
+      && typeof values['claim-file'] === 'string' && Object.keys(values).length === 3
+      && (command === 'next' ? /^\d+$/.test(values.generation ?? '') : WORK_PHASES.includes(values.phase))) {
+      const claim = readClaimFile(root, values['claim-file'], values.request)
+      const tokenHash = createHash('sha256').update(claim.token).digest('hex')
+      const now = new Date().toISOString()
+      result = command === 'next'
+        ? await store.completeClaim({ requestId: values.request, tokenHash, now, drain: true, expectedGeneration: Number(values.generation) })
+        : await store.heartbeatClaim({ requestId: values.request, tokenHash, now })
+      if (command === 'next' && ['continued', 'completed'].includes(result.status)) {
+        writeDispatchProgress(root, values.request, { phase: result.status === 'continued' ? 'claimed' : 'completed',
+          generation: result.generation ?? Number(values.generation), completedGeneration: Number(values.generation), manifestPath: null })
+        clearDispatchBatch(root, values.request, Number(values.generation))
+        if (result.status === 'completed') {
+          result.runReport = finishDispatchReport(root, values.request, result)
+          rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+        }
+      } else if (command === 'progress' && result.status === 'running') {
+        result.progressPath = writeDispatchProgress(root, values.request, { phase: values.phase })
+      }
     } else if (['complete', 'fail', 'heartbeat'].includes(command) && validRequest(values.request)
       && typeof values['claim-file'] === 'string' && Object.keys(values).length === 2) {
       const claim = readClaimFile(root, values['claim-file'], values.request)
@@ -68,7 +91,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')
     out.write(`${JSON.stringify(result)}\n`)
-    return ['invalid_claim', 'stale_request', 'invalid_reason', 'not_blocked', 'incomplete_actions', 'action_busy'].includes(result.status) ? 1 : 0
+    return ['invalid_claim', 'stale_request', 'stale_batch', 'invalid_reason', 'not_blocked', 'incomplete_actions', 'action_busy'].includes(result.status) ? 1 : 0
   } catch (error) {
     err.write(`${safeError(error)}\n`)
     return 1
@@ -95,7 +118,8 @@ async function claimRequest(store, projectRoot, requestId) {
     await store.failClaim({ requestId, tokenHash, now: new Date().toISOString(), retryAt: new Date().toISOString() })
     throw new Error('claim_file_unavailable')
   }
-  return { status: 'claimed', claimPath }
+  const progressPath = writeDispatchProgress(projectRoot, requestId, { phase: 'claimed' })
+  return { status: 'claimed', claimPath, progressPath }
 }
 
 export async function enqueueExistingEvent(db, store, eventId, { createInventory = createFirestoreSourceInventory } = {}) {
@@ -207,7 +231,7 @@ function parse(tokens) {
   const result = {}
     for (let index = 0; index < tokens.length; index += 1) {
     const name = tokens[index]
-    if (!['--request', '--claim-file', '--event-id', '--reason', '--since'].includes(name) || result[name.slice(2)] !== undefined
+    if (!['--request', '--claim-file', '--event-id', '--reason', '--since', '--generation', '--phase'].includes(name) || result[name.slice(2)] !== undefined
       || typeof tokens[index + 1] !== 'string' || tokens[index + 1].startsWith('--')) throw new Error('usage_invalid')
     result[name.slice(2)] = tokens[++index]
   }

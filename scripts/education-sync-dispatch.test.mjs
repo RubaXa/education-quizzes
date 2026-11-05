@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
@@ -9,6 +9,34 @@ const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 function output() { let value = ''; return { write: (part) => { value += part }, value: () => value } }
 
 describe('education sync dispatch CLI', () => {
+  it('continues locally, cleans only acknowledged batch files, and releases the claim only when empty', async () => {
+    const root = mkdtempSync(resolve(tmpdir(), 'education-drainer-'))
+    const out = output(), err = output()
+    const store = { claimRequest: vi.fn(async () => ({ status: 'claimed' })),
+      completeClaim: vi.fn().mockResolvedValueOnce({ status: 'continued', generation: 2, needsFullVerification: false })
+        .mockResolvedValueOnce({ status: 'completed' }) }
+    const deps = { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education', EDUCATION_SYNC_PROJECT_ROOT: root },
+      out, err, createDb: () => ({ terminate: async () => {} }), createStore: () => store }
+    try {
+      await main(['claim', '--request', REQUEST], deps)
+      const claimPath = JSON.parse(out.value()).claimPath
+      const base = resolve(root, '.local/education-sync-dispatch/tasks', REQUEST)
+      for (const generation of [1, 2]) { mkdirSync(resolve(base, `batch-${generation}`), { recursive: true }); writeFileSync(resolve(base, `batch-${generation}`, 'page-1.json'), 'private') }
+      const next = generation => main(['next', '--request', REQUEST, '--claim-file', claimPath, '--generation', String(generation)], { ...deps, out: output() })
+      expect(await next(1)).toBe(0)
+      expect(existsSync(claimPath)).toBe(true)
+      expect(existsSync(resolve(base, 'batch-1'))).toBe(false)
+      expect(existsSync(resolve(base, 'batch-2'))).toBe(true)
+      const progress = resolve(root, '.local/education-sync-dispatch/work', REQUEST, 'progress.json')
+      expect(JSON.parse(readFileSync(progress, 'utf8'))).toMatchObject({ phase: 'claimed', generation: 2, completedGeneration: 1 })
+      expect(statSync(progress).mode & 0o077).toBe(0)
+      expect(await next(2)).toBe(0)
+      expect(existsSync(claimPath)).toBe(false)
+      expect(existsSync(resolve(base, 'batch-2'))).toBe(false)
+      expect(readFileSync(progress, 'utf8')).not.toContain('token')
+      expect(store.completeClaim).toHaveBeenCalledWith(expect.objectContaining({ drain: true, expectedGeneration: 1 }))
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
   it('reports action backlog and its independent lane without leaking private claim fields', async () => {
     const out = output()
     const state = { status: 'blocked', generation: 162, sendingGeneration: 19, pendingKinds: ['mesh', 'action', 'action', 'unknown'],

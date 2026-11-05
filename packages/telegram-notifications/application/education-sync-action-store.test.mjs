@@ -46,6 +46,27 @@ const artifact = (id) => ({ artifactPath: `operatorSyncTaskArtifacts/${id.toStri
 const now = '2026-10-19T10:00:00.000Z'
 
 describe('typed EducationSync action batch', () => {
+  it('drains independent Firebase batches while preserving the Mesh block and requiring every job acknowledgement', async () => {
+    const db = new FakeDb(), store = createFirestoreEducationSyncStore(db)
+    db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh', blockedReasonCode: 'source_unavailable',
+      generation: 8, completedActionGeneration: 0, pendingKinds: ['action', 'mesh'],
+      pendingActionAfterGeneration: 5, pendingActionThroughGeneration: 8,
+      actionLane: { requestId: 'action', status: 'running', sendingGeneration: 5, actionAfterGeneration: 0,
+        actionThroughGeneration: 5, claimTokenHash: 'token', workflowLeaseUntil: '2026-10-20T00:00:00.000Z' } })
+    for (const generation of [5, 8]) {
+      db.rows.set(`educationSyncDispatchEvents/e${generation}`, { kind: 'action', generation, jobId: `job${generation}` })
+      db.rows.set(`operatorSyncJobs/job${generation}`, { status: generation === 5 ? 'done' : 'queued' })
+    }
+    const args = { requestId: 'action', tokenHash: 'token', now, drain: true, expectedGeneration: 5 }
+    expect(await store.completeClaim(args)).toMatchObject({ status: 'continued', generation: 8, needsFullVerification: false })
+    expect(await store.read()).toMatchObject({ status: 'blocked', blockedReasonCode: 'source_unavailable', pendingKinds: ['mesh'],
+      actionLane: { status: 'running', actionAfterGeneration: 5, actionThroughGeneration: 8 } })
+    expect(await store.completeClaim(args)).toMatchObject({ status: 'stale_batch' })
+    expect(await store.completeClaim({ ...args, expectedGeneration: 8 })).toMatchObject({ status: 'incomplete_actions' })
+    db.rows.get('operatorSyncJobs/job8').status = 'done'
+    expect(await store.completeClaim({ ...args, expectedGeneration: 8 })).toMatchObject({ status: 'completed', scope: 'action' })
+    expect(await store.read()).toMatchObject({ status: 'blocked', blockedReasonCode: 'source_unavailable' })
+  })
   it('processes later Firebase actions while retaining an older missing-source block', async () => {
     const db = new FakeDb(), store = createFirestoreEducationSyncStore(db)
     db.rows.set('educationSyncDispatch/current', { status: 'blocked', requestId: 'mesh-block', generation: 232,

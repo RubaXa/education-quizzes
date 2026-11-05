@@ -1,5 +1,12 @@
 {
   "files": {
+    "sync/dispatch-workspace.mjs": {
+      "sha256": "5343e5f977d83617b4a0d4ee41b6d3497dc197013044948e14965f705bdc5efc",
+      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
+      "specs": ["docs/services/telegram-bot/education-sync-dispatch.md"],
+      "tests": ["scripts/education-sync-dispatch.test.mjs"],
+      "authorization": {"status":"direct-request","evidence":"Родитель05.11.2026 прямо согласовал одну активную обработку, серверную очередь и локальные пакеты с прогрессом."}
+    },
     "day/learner-flow.mjs": {
       "sha256": "a1bfd262a8e5846243f599e9b64d9bc5eff70915d520dab97cd3ff01ff20867e",
       "record": "docs/decisions/scoped-learner-flow-2026-10-21.md",
@@ -1231,8 +1238,8 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "5788b6235fafa83abbe58488ae4d08aed803afde0d9b73064300c447b3ee607c",
-      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "sha256": "9431591d6191070a6de6448c3c482f8f05706b450b4d57f2c685f217684bf347",
+      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
       "specs": [
         "docs/modules/synchronization/event-queue.md"
       ],
@@ -1953,8 +1960,8 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "c54c73471d6d5e501cf2ebc0e93c728ae69b72c86beba1ee18e6bd0b984c50f3",
-      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
+      "sha256": "a277a474745d2fc14548c30884defbeaeb419d486ddb9b2841d677cf7068e842",
+      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
       "specs": [
         "docs/modules/synchronization/execution-artifact.md"
       ],
@@ -5337,8 +5344,8 @@
       }
     },
     "sync/event-task-export.mjs": {
-      "sha256": "b232c2155186d0b6bec2e4eec86d7cc4483d021b8efb4003fcbcb33362ae9b9c",
-      "record": "docs/decisions/independent-action-dispatch-2026-10-21.md",
+      "sha256": "10caab70fe8d6c272a807ad513bc072a07a174263eb1d52df12dc9c7222c27d0",
+      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/modules/synchronization/execution-artifact.md"
