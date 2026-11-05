@@ -7,6 +7,15 @@ const review = { status: 'partial', checkedAt: at(10) }
 const accepted = { id:'a',taskId:'p5',action:'accept',actorPersonId:'parent',reviewCheckedAt:at(10),decidedAt:at(30) }
 const resolve = (overrides={}) => helpRequestResolution({taskId:'p5',request,review,decisions:[accepted],...overrides})
 describe('help closure follows the same reviewed attempt', () => {
+  it('closes attention after a real addressed reply, without claiming mastery', () => {
+    const reply = {taskId:'p5',stageId:'help-response',actorPersonId:'education-operator',
+      sourceRequestEventId:'a'.repeat(64),sourceArtifactId:'b'.repeat(64),text:'Адресный отклик',createdAt:at(30)}
+    expect(resolve({decisions:[],responses:[reply]})).toBe('later-addressed-tutor-response')
+    for (const change of [{taskId:'p6'},{createdAt:at(19)},{sourceArtifactId:null},{actorPersonId:'student'},{text:''}])
+      expect(resolve({decisions:[],responses:[{...reply,...change}]})).toBeNull()
+    expect(resolve({request:{requestedAt:at(31)},decisions:[],responses:[reply]})).toBeNull()
+    expect(resolve({decisions:[{...accepted,action:'reopen',decidedAt:at(40)}],responses:[reply]})).toBeNull()
+  })
   it('closes a request only after the family accepts that attempt, preserving input', () => {
     const before=JSON.stringify({request,review,accepted})
     expect(resolve()).toBe('later-family-acceptance')

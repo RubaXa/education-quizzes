@@ -1,5 +1,20 @@
 {
   "files": {
+    "sync/preparation-window.mjs": {
+      "sha256": "1e1e445f412e13a74c231761619ce68f0dc4e87401cbc88163b88ca92357a771",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "specs": [
+        "docs/modules/synchronization/global-sync.md"
+      ],
+      "tests": [
+        "sync/preparation-window.test.mjs",
+        "sync/help-request-resolution.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
+      }
+    },
     "sync/dispatch-workspace.mjs": {
       "sha256": "5343e5f977d83617b4a0d4ee41b6d3497dc197013044948e14965f705bdc5efc",
       "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
@@ -85,19 +100,18 @@
       }
     },
     "assessment/followup-contract.mjs": {
-      "record": "docs/decisions/question-guidance-2026-10-19.md",
+      "sha256": "ac1c578cf474c34cd7e997d90ec4ee27c8a157cfaa6efc0ee1dfa1c8ad7ac865",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.test.tsx",
-        "assessment/question-guidance.test.mjs"
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует вместо одинаковой копипасты точное расхождение, наводящий вопрос и проверяемое место оригинала каждого вопроса."
-      },
-      "sha256": "b67b9527510f614938d1701e5a25f9e3060df54151f331fa8e7abca8db0619fe"
+        "evidence": "Родитель просил проверить внешний вид тестов; мобильная проверка05.11 обнаружила обрезанный заголовок. Исправляется только название без изменения работы."
+      }
     },
     "assessment/question-copy.mjs": {
       "sha256": "9e233f347ba03465671c60adf6cc56235c9a8bab453a8f765ac560bfc34485c0",
@@ -2239,18 +2253,17 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "f17a2a9bc90a67bbe93811f2a85bfd60f2506ec69e57fbef441ba8af2e2c7f3e",
-      "record": "docs/decisions/program-explanation-2026-11-01.md",
+      "sha256": "e65d11060bc602763ae9052ac24bc97b5d91a7336f5e3c306748f564826b8ffe",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.test.tsx"
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал объяснять выполнение программы по шагам, убрать пустой input и показать причину отличия ответа."
+        "evidence": "Родитель просил проверить внешний вид тестов; мобильная проверка05.11 обнаружила обрезанный заголовок. Исправляется только название без изменения работы."
       }
     },
     "scripts/release-note.mjs": {
@@ -2320,20 +2333,18 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "c4b2d5ae4f53e6aaaa54e4f47678033a492afc18e9402da99394172de58094e4",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "3af0fdf4f5bda0a1de703a409ead5e3aa059bb82ec690bd5fc7382f0f157e85f",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/synchronization/global-sync.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/help-request-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2356,19 +2367,18 @@
       }
     },
     "scripts/sync-inbox.mjs": {
-      "sha256": "5738c2b477d67b37621f918338595534eb7e5387546ae410f1405e75e30ed538",
-      "record": "docs/decisions/olympiad-family-screen-2026-10-27.md",
+      "sha256": "8d61c45f9beedfb2dc89f75986245c4ca80cfb75bc265edf66d2f79937bb9ba7",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/synchronization/global-sync.md"
       ],
       "tests": [
-        "sync/olympiad-help.test.mjs",
-        "sync/job-queue-fence.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/help-request-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь поручил подключить синхронизацию помощи олимпиады и проверять интеграцию без дополнительных согласований."
+        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
       }
     },
     "scripts/sync-project.mjs": {
@@ -2388,19 +2398,18 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "a19ffdd3453e07a8edfbb2f74578b7bbce011ab75173a6a0ba9df21a5b08ff0a",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "89e5ffcb57beffbcedad650b3ff605b6d57cd54e367c202eb6411d8529ec34f3",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/modules/synchronization/global-sync.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/help-request-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -6111,18 +6120,18 @@
       }
     },
     "sync/help-request-resolution.mjs": {
-      "sha256": "ba8c01438ff181d1f7fb5e4bd66b7ac2eacb9482b16aebd59e89c1c6040497e1",
-      "record": "docs/decisions/accepted-help-closure-2026-10-25.md",
+      "sha256": "f2a91fb485bb0e624bb563707efb38cfc3ab23643beb9adf3e843a55cd382d7a",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/synchronization/global-sync.md"
       ],
       "tests": [
-        "sync/help-request-resolution.test.mjs",
-        "scripts/sync-queue-resolution.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/help-request-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель25.10попросил выяснить причину старого обращения и обработать его, если ребёнок ещё ждёт помощи. Подтверждено последующее принятие той же попытки семьёй."
+        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
       }
     },
     "storage/photo-placement.mjs": {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } from './followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision } from './followup-contract.mjs'
 import { followupQuestionCount } from '../src/lib/quizCompletion.ts'
 
 const spec = { slug: 'same-link', subject: 'История', linkedToTestId: 'source', title: 'Новый раунд',
@@ -16,6 +16,19 @@ followupCoverage: { sourceTestId: 'source', errors: [
 ] } }
 
 describe('follow-up coverage and unopened revision', () => {
+  it('allows only a title change on an unstarted ordinary test', () => {
+    const ordinary={...spec,linkedToTestId:undefined}
+    const owner={familyId:'f',childId:'c'}
+    const initial=openQuizRevision({current:{...owner,status:'open',slug:spec.slug,subject:spec.subject,linkedToTestId:null},spec:ordinary,owner,revisedAt:'before'})
+    const current={...owner,...initial.assignment,status:'open',slug:spec.slug,subject:spec.subject,linkedToTestId:null}
+    const args={current,spec:{...ordinary,title:'Короткое название'},owner,answerKey:initial.answerKey,index:initial.index,revisedAt:'now'}
+    const result=titleOnlyQuizRevision(args)
+    expect(result.assignment).toEqual({title:'Короткое название',revisedAt:'now'})
+    expect(result).not.toHaveProperty('answerKey')
+    expect(() => titleOnlyQuizRevision({...args,spec:{...args.spec,description:'changed'}})).toThrow('содержание')
+    expect(() => titleOnlyQuizRevision({...args,answerKey:{entries:{}}})).toThrow('ключ')
+    expect(() => titleOnlyQuizRevision({...args,current:{...current,answers:{'new-a':'a'}}})).toThrow('без сохранённых ответов')
+  })
   it('requires nine distinct questions after five errors in five questions', () => {
     const sourceIds = Array.from({ length: 5 }, (_value, index) => `old-${index}`)
     const directIds = Array.from({ length: 5 }, (_value, index) => `direct-${index}`)

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/accepted-help-closure-2026-10-25.md */
@@ -12,6 +13,7 @@ import { resolve } from 'node:path'
 import { Timestamp } from 'firebase-admin/firestore'
 import { operatorFirestore } from './lib/admin-firebase.mjs'
 import { dateWindow } from '../sync/project-plan.mjs'
+import { preparationExpiry } from '../sync/preparation-window.mjs'
 import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/job-queue.mjs'
 import { pendingManualQuestionIds, quizDecision, supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
@@ -124,7 +126,7 @@ async function discover() {
           [page.targetDate, task.id, task.materialStatus, task.materialRequest, task.assessmentIntent, page.sourceRevision], 30))
       }
       const decision = quizDecision(task)
-      if (decision && !task.testToken && !placement && task.platformResult?.state !== 'completed') {
+      if (decision && taskRoute(task).next !== 'await-source-upload' && !task.testToken && !placement && task.platformResult?.state !== 'completed') {
         candidates.push(job(decision.job, owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id,
             assessmentMode: decision.mode ?? null, reason: decision.reason ?? null },
@@ -247,7 +249,8 @@ async function verifiedResolution(record) {
     const page = (await db.doc(`dayPages/${source.dayToken}`).get()).data()
     const task = page?.subjects?.flatMap((subject) => subject.tasks ?? []).find((item) => item.id === source.taskId)
     if (!task) return null
-    return record.kind === 'classify-assignment' ? quizDecision(task)?.job === 'prepare-quiz' ? 'assessment-intent-confirmed' : null
+    return record.kind === 'classify-assignment' ? taskRoute(task).next === 'await-source-upload' ? 'classification-deferred-to-published-material-request'
+      : quizDecision(task)?.job === 'prepare-quiz' ? 'assessment-intent-confirmed' : null
       : record.kind === 'enrich-task' ? task.instructionStatus?.state === 'reviewed' ? 'reviewed-day-task' : null
       : record.kind === 'material-needed' ? taskRoute(task).next === 'await-source-upload' ? 'student-material-request-published'
         : task.materialStatus?.state === 'textbook-page-linked' ? 'family-material-linked' : null
@@ -274,13 +277,14 @@ async function verifiedResolution(record) {
     const owner = (await db.collection('dayOwners').where('date', '==', source.dayDate).get()).docs
       .find((item) => item.data().familyId === record.familyId && item.data().childId === record.childId)
     if (!owner) return null
-    const [request, result, decisions] = await Promise.all([
+    const [request, result, decisions, responses] = await Promise.all([
       db.doc(`dayHelp/${owner.id}/items/${source.id}`).get(),
       db.doc(`dayProgress/${owner.id}/items/${source.id}`).get(),
       db.collection(`dayParentDecisions/${owner.id}/events`).get(),
+      db.collection(`dayGuidance/${owner.id}/items`).where('stageId', '==', 'help-response').get(),
     ])
     return helpRequestResolution({ taskId: source.id, request: request.data(), review: result.data(),
-      decisions: decisions.docs.map(doc => ({ ...doc.data(), id: doc.id })) })
+      decisions: decisions.docs.map(doc => ({ ...doc.data(), id: doc.id })), responses: responses.docs.map(doc => doc.data()) })
   }
   return null
 }
@@ -370,6 +374,11 @@ if (command === 'scan') {
   const touched = [...candidates, ...prior.docs.map((doc) => doc.data())].map(({ familyId, childId }) => ({ familyId, childId }))
   const resolutionResults = await boundedMap(prior.docs, 4, async (doc) => {
     const record = doc.data()
+    const expiry = preparationExpiry(record, dateWindow(todayMoscow()))
+    if (expiry) {
+      await setSyncJob(db, doc.id, 'done', 'inactive', { evidence: expiry, expectedFingerprint: record.fingerprint })
+      return true
+    }
     if (record.status === 'done' || discovered.has(doc.id) || record.kind === 'reconcile-day') return false
     const evidence = await verifiedResolution(record)
     if (!evidence) return false

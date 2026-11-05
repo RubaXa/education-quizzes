@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { randomBytes } from 'node:crypto'
@@ -10,7 +11,7 @@ import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision } from '../assessment/followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
@@ -354,9 +355,10 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   if (!learnerToken || !specPath || !studentPersonId) fail('Нужны токен открытого теста, spec и ID ученика.')
   const spec = loadJson(specPath)
   const plan = validateSpec(spec, specPath)
-  if (plan.mode !== 'targeted-followup' || !spec.linkedToTestId) fail('Ревизия разрешена только для адресного продолжения.')
+  const titleOnly = process.argv.includes('--title-only')
+  if (!titleOnly && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения.')
   const owner = assignmentOwner(studentPersonId)
-  await inspectedFollowupSource(spec, plan, owner)
+  if (!titleOnly) await inspectedFollowupSource(spec, plan, owner)
   const ownerToken = dashboardToken()
   const assignmentRef = db.doc(`assignments/${learnerToken}`)
   const keyRef = db.doc(`answerKeys/${learnerToken}`)
@@ -379,11 +381,12 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
     ])
     const indexDocs = [ownerIndexDoc, ...additionalIndexDocs]
     if (!previewDoc.exists || indexDocs.some((doc) => !doc.exists)) fail('Не все ролевые индексы и предпросмотр существуют.')
-    const patch = openQuizRevision({ current: assignmentDoc.data(), spec, owner, revisedAt })
+    const patch = titleOnly ? titleOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
+      : openQuizRevision({ current: assignmentDoc.data(), spec, owner, revisedAt })
     const shapeErrors = assignmentShapeErrors({ ...assignmentDoc.data(), ...patch.assignment })
     if (shapeErrors.length) fail(`Ревизия нарушает модель назначения: ${shapeErrors.join(' ')}`)
     transaction.update(assignmentRef, patch.assignment)
-    transaction.update(keyRef, patch.answerKey)
+    if (!titleOnly) transaction.update(keyRef, patch.answerKey)
     transaction.update(previewRef, patch.preview)
     indexRefs.forEach((ref) => transaction.update(ref, patch.index))
     readbackRefs = [assignmentRef, keyRef, previewRef, ...indexRefs]

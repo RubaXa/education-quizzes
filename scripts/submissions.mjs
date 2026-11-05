@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/reviewed-photo-placement-2026-10-26.md */
 /**
@@ -112,6 +113,7 @@ async function helpInbox() {
     ])
     const page = pageDoc.data()
     if (page?.kind !== 'student' || !helpDocs.size) continue
+    const guidanceDocs = await db.collection(`dayGuidance/${ownerDoc.id}/items`).where('stageId', '==', 'help-response').get()
     for (const helpDoc of helpDocs.docs) {
       const help = helpDoc.data()
       const task = page.subjects?.flatMap((subject) => subject.tasks ?? []).find((entry) => entry.problems?.some((problem) => problem.id === helpDoc.id))
@@ -120,7 +122,12 @@ async function helpInbox() {
         dayDate: owner.date, taskId: helpDoc.id, taskTitle: problem?.title ?? null,
         requestedAt: help.requestedAt?.toDate?.().toISOString() ?? null,
         requestKind: help.requestKind ?? null, requestText: help.requestText ?? '',
-        requestedRevision: help.revision, currentSupportRevision: problem?.support?.revision ?? null })
+        requestedRevision: help.revision, currentSupportRevision: problem?.support?.revision ?? null,
+        addressedResponses: guidanceDocs.docs.filter(doc => doc.data().taskId === helpDoc.id).map(doc => ({
+          path: doc.ref.path, createdAt: doc.data().createdAt?.toDate?.().toISOString() ?? null,
+          sourceRequestEventId: doc.data().sourceRequestEventId, sourceArtifactId: doc.data().sourceArtifactId,
+          sourceStepId: doc.data().sourceStepId ?? null, text: doc.data().text,
+        })) })
     }
   }
   requests.sort((a, b) => (b.requestedAt ?? '').localeCompare(a.requestedAt ?? ''))
