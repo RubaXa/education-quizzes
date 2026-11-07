@@ -3,12 +3,12 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DayPageData, DayUpload } from './lib/dayStore'
+import type { DayPageData, DayUpload, DayWorkReview } from './lib/dayStore'
 import type { ParentCompletionEvent } from './lib/parentCompletion'
 import WeekendMathSlot from './WeekendMathSlot'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
-const scene = vi.hoisted(() => ({ page: null as DayPageData | null, role: 'parent', decisions: [] as ParentCompletionEvent[], uploads: [] as DayUpload[] }))
+const scene = vi.hoisted(() => ({ page: null as DayPageData | null, role: 'parent', decisions: [] as ParentCompletionEvent[], uploads: [] as DayUpload[], reviews: [] as DayWorkReview[] }))
 vi.mock('./lib/dayStore', async (original) => ({
   ...await original<typeof import('./lib/dayStore')>(),
   watchDayPage: (_token: string, changed: (page: DayPageData) => void) => { changed(scene.page!); return () => {} },
@@ -18,7 +18,7 @@ vi.mock('./lib/dayStore', async (original) => ({
 }))
 vi.mock('./lib/personalAccess', () => ({ dayHelpSessionRole: async () => scene.role }))
 vi.mock('./lib/dayGuidance', () => ({ watchDayGuidance: (_token: string, changed: (items: unknown[]) => void) => { changed([]); return () => {} }, sendDayGuidance: vi.fn() }))
-vi.mock('./lib/useDayEvidence', () => ({ useDayEvidence: () => ({ studentToken: 'student-token', evidenceKey: 'student-token', uploads: scene.uploads, reviews: [], evidencePages: [], ready: true }) }))
+vi.mock('./lib/useDayEvidence', () => ({ useDayEvidence: () => ({ studentToken: 'student-token', evidenceKey: 'student-token', uploads: scene.uploads, reviews: scene.reviews, evidencePages: [], ready: true }) }))
 vi.mock('./lib/useParentCompletions', () => ({ useParentCompletions: () => ({ events: scene.decisions, ready: true }) }))
 vi.mock('./components/ProblemTaskCard', async (original) => {
   const { default: Actual } = await original<typeof import('./components/ProblemTaskCard')>()
@@ -31,6 +31,7 @@ beforeEach(() => {
   scene.role = 'parent'
   scene.decisions = []
   scene.uploads = []
+  scene.reviews = []
   scene.page = { targetDate: '2026-10-19', studentToken: 'student-token', subjects: [{ id: 'math', name: 'Математика', icon: '∑', summary: '', tasks: [{
     id: 'combinatorics', title: 'Комбинаторика', detail: 'Реши сколько получится', source: 'МЭШ', kind: 'check', status: 'unknown',
     practiceVariants: Array.from({ length: 8 }, (_, i) => ({ id: `v${i + 1}`, title: `№${i + 1}`, optionalByTeacher: { sourceRef: 'sheet', excerpt: 'Реши сколько получится' } })),
@@ -38,15 +39,28 @@ beforeEach(() => {
   }] }] } as DayPageData
 })
 
-async function renderSlot(parent = true) {
+async function renderSlot(parent = true, options: { preparationThrough?: string; selectedDate?: string } = {}) {
   const host = document.createElement('div')
   document.body.append(host)
   const root = createRoot(host)
-  await act(async () => root.render(<WeekendMathSlot token="same-source-page" taskIds={['combinatorics']} parent={parent} lessonDate="2026-10-19" dueDate="2026-10-19" title="Спецкурс · Комбинаторика" />))
+  await act(async () => root.render(<WeekendMathSlot token="same-source-page" taskIds={['combinatorics']} parent={parent} lessonDate="2026-10-19" dueDate="2026-10-19" title="Спецкурс · Комбинаторика" {...options} />))
   return { host, close: () => act(() => { root.unmount(); host.remove() }) }
 }
 
 describe('weekend source-selected practice', () => {
+  it.each([false, true])('retains unfinished optional work after Tuesday without a new photo requirement, parent=%s', async (parent) => {
+    scene.role = parent ? 'parent' : 'student'
+    const { host, close } = await renderSlot(parent, { preparationThrough: '2026-10-13', selectedDate: '2026-10-20' })
+    try { expect(host.textContent).toContain('Подготовка к 13 октября'); expect(host.textContent).not.toContain('Сделано · проверено') } finally { close() }
+  })
+  it('removes only confirmed completed work from the active projection after Tuesday', async () => {
+    for (let n = 1; n <= 8; n++) {
+      scene.uploads.push({ id: `student-token:photo${n}`, taskId: `p${n}`, status: 'reviewed' } as DayUpload)
+      scene.reviews.push({ taskId: `p${n}`, status: 'verified', uploadIds: [`photo${n}`] } as DayWorkReview)
+    }
+    const { host, close } = await renderSlot(true, { preparationThrough: '2026-10-13', selectedDate: '2026-10-20' })
+    try { expect(host.textContent).toBe('') } finally { close() }
+  })
   it.each([false, true])('opens, switches and closes own reviewed photos without losing linked references, parent=%s', async (parent) => {
     scene.role = parent ? 'parent' : 'student'
     scene.uploads = [1, 2].map((n) => ({ id: `student-token:photo-${n}`, taskId: 'p1', coveredTaskIds: ['p1', 'p2'], status: 'reviewed', dataUrl: `data:image/png;base64,demo${n}` }))

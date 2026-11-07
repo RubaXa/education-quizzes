@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/olympiad-calendar-2026-10-31.md */
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
@@ -13,6 +14,7 @@
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
 import { supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
+import { ensureContinuousPreparation } from '../sync/preparation-window.mjs'
 import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
@@ -630,6 +632,8 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   const sourceFile = resolve(local, `day-source-${date}.json`)
   if (!existsSync(sourceFile)) fail(`Нет ${sourceFile}`)
   const source = json(sourceFile)
+  const availableFrom = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  if (ensureContinuousPreparation(source, availableFrom)) writeFileSync(sourceFile, JSON.stringify(source, null, 2), { mode: 0o600 })
   const taskIds = validate(source)
   const today = json(resolve(local, `diary/snapshot-${date}.json`))
   const target = json(resolve(local, `diary/snapshot-${source.targetDate}.json`))

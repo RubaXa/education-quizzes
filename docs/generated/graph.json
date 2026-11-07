@@ -862,6 +862,37 @@
       "path": "docs/decisions/compact-review-ui-kit-2026-10-31.md"
     },
     {
+      "id": "decision.continuous-course-preparation-2026-11-07",
+      "status": "accepted",
+      "implementation": "implemented",
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "parent": "module.synchronization.task-routing",
+      "uses": [
+        "module.school-diary.dashboard"
+      ],
+      "created": "2026-11-07",
+      "updated": "2026-11-07",
+      "consumers": [
+        "operator",
+        "family"
+      ],
+      "code": [
+        "sync/preparation-window.mjs",
+        "scripts/day.mjs",
+        "day/dashboard-index.mjs",
+        "src/lib/dayDashboardStore.ts",
+        "src/DayDashboard.tsx",
+        "src/WeekendMathSlot.tsx"
+      ],
+      "path": "docs/decisions/continuous-course-preparation-2026-11-07.md"
+    },
+    {
       "id": "decision.course-placement-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -10911,11 +10942,18 @@
       "consumer": "Education; разработчик"
     },
     {
+      "id": "file:sync/preparation-window.d.mts",
+      "path": "sync/preparation-window.d.mts",
+      "kind": "artifact",
+      "purpose": "Типы общей политики подготовки для клиентского потребителя",
+      "consumer": "Dashboard"
+    },
+    {
       "id": "file:sync/preparation-window.mjs",
       "path": "sync/preparation-window.mjs",
       "kind": "artifact",
-      "purpose": "Завершение устаревшей служебной подготовки без изменения работ ученика",
-      "consumer": "sync-queue"
+      "purpose": "Раздельное истечение служебной подготовки и сохранение ученического листа до выполнения",
+      "consumer": "Day publisher; dashboard; sync-queue"
     },
     {
       "id": "file:sync/preparation-window.test.mjs",
@@ -12976,6 +13014,8 @@
         "operator CLI"
       ],
       "code": [
+        "sync/preparation-window.mjs",
+        "sync/preparation-window.d.mts",
         "sync/task-route.mjs",
         "scripts/sync-queue.mjs",
         "sync/event-task-artifact.mjs",
@@ -12983,6 +13023,7 @@
         "scripts/education.mjs"
       ],
       "sections": [
+        "learning-lifecycle",
         "plan",
         "sources",
         "events",
@@ -15464,6 +15505,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.continuous-course-preparation-2026-11-07",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -16676,6 +16722,11 @@
     {
       "from": "file:day/card-policy.mjs",
       "to": "module.reviews.special-course-card-overlay",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/dashboard-index.mjs",
+      "to": "decision.continuous-course-preparation-2026-11-07",
       "type": "implements"
     },
     {
@@ -18436,6 +18487,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "decision.audio-library-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decision.continuous-course-preparation-2026-11-07",
       "type": "implements"
     },
     {
@@ -20750,6 +20806,11 @@
     },
     {
       "from": "file:src/DayDashboard.tsx",
+      "to": "decision.continuous-course-preparation-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
       "to": "decision.pupil-vacations-2026-10-19",
       "type": "implements"
     },
@@ -21011,6 +21072,11 @@
     {
       "from": "file:src/lib/dayDashboardLessonCache.ts",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayDashboardStore.ts",
+      "to": "decision.continuous-course-preparation-2026-11-07",
       "type": "implements"
     },
     {
@@ -21955,6 +22021,11 @@
     },
     {
       "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decision.continuous-course-preparation-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
@@ -22344,13 +22415,23 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/preparation-window.d.mts",
+      "to": "module.synchronization.task-routing",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/preparation-window.mjs",
+      "to": "decision.continuous-course-preparation-2026-11-07",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/preparation-window.mjs",
       "to": "decision.moving-preparation-window-2026-11-05",
       "type": "implements"
     },
     {
       "from": "file:sync/preparation-window.mjs",
-      "to": "module.synchronization.global-sync",
+      "to": "module.synchronization.task-routing",
       "type": "implements"
     },
     {
@@ -24802,6 +24883,11 @@
       "from": "module.synchronization.shared-artifact-pipeline",
       "to": "module.synchronization.global-sync",
       "type": "uses"
+    },
+    {
+      "from": "module.synchronization.task-routing",
+      "to": "decision.continuous-course-preparation-2026-11-07",
+      "type": "contains"
     },
     {
       "from": "module.synchronization.task-routing",
