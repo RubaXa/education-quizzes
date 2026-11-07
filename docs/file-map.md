@@ -2,6 +2,18 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/photo-outbox-route-recovery-2026-11-07.md](decisions/photo-outbox-route-recovery-2026-11-07.md) | [Хранение](modules/materials/storage-privacy.md) | Восстановление сохранённых фото с любого маршрута и диагностика стадий | App; outbox; Rules; оператор |
+
+| [docs/decisions/photo-transfer-revision-race-2026-11-07.md](decisions/photo-transfer-revision-race-2026-11-07.md) | [Восстановление фото](services/upload-worker/README.md) | Причина гонки ревизий и сохранение уже принятой передачи | Разработчик; оператор |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [scripts/photo-transfer.mjs](../scripts/photo-transfer.mjs) | [Восстановление фото](services/upload-worker/README.md) | Адресная диагностика и повтор той же заявки | Оператор |
+| [storage/photo-transfer-recovery.mjs](../storage/photo-transfer-recovery.mjs) | [Восстановление фото](services/upload-worker/README.md) | CAS с текущими правами, queue event и адресный запрос в приложении | CLI; runtime |
+| [storage/photo-transfer-recovery.test.mjs](../storage/photo-transfer-recovery.test.mjs) | [Восстановление фото](services/upload-worker/README.md) | Гонка ревизий, идемпотентность и отказ чужому/снятому доступу | Vitest |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
 | [docs/decisions/sync-single-drainer-2026-11-05.md](decisions/sync-single-drainer-2026-11-05.md) | [Одна сессия синхронизации](services/telegram-bot/education-sync-dispatch.md) | Основание отказа от повторных сообщений и последовательного подтверждения пакетов | Оператор; worker |
 | [sync/dispatch-workspace.mjs](../sync/dispatch-workspace.mjs) | [Один разбор очереди](services/telegram-bot/education-sync-dispatch.md) | Закрытый прогресс и очистка только подтверждённых пакетов | Dispatch CLI |
 | [docs/decisions/mesh-web-login-2026-11-02.md](decisions/mesh-web-login-2026-11-02.md) | [School diary](modules/school-diary/README.md) | Прямой парольный веб-вход с CookieJar, SMS и проверкой владельца | Родитель; оператор; runtime |

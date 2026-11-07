@@ -21,10 +21,10 @@ describe('upload queue broker', () => {
     await producer.stop()
   })
 
-  it('issues photo transfer URLs from the exact source event without source listeners', async () => {
+  it.each([7, 8])('issues admitted photo transfer URLs after day revision %s without source listeners', async (pageRevision) => {
     const rows = new Map([
       [`dayOwners/${id}`, { date: '2026-10-19', familyId, childId }],
-      [`dayPages/${id}`, { date: '2026-10-19', kind: 'student', taskIds: [taskId], planRevision: 7 }],
+      [`dayPages/${id}`, { date: '2026-10-19', kind: 'student', taskIds: [taskId], planRevision: pageRevision }],
       [`dayUploads/${id}/files/${id}`, { taskId, planRevision: 7, deviceUid: id, contentType: 'image/jpeg', size: 3,
         sha256: sha, status: 'requested' }],
       [`deviceSessions/${id}`, { linkToken: 'linktoken12345678901234' }],
@@ -82,6 +82,8 @@ describe('upload queue broker', () => {
       doc: makeRef,
       collection(name) { return { doc: (docId) => makeRef(`${name}/${docId}`) } },
       async runTransaction(callback) {
+        // Reproduce a day publication after bytes were checked, before commit.
+        rows.set(`dayPages/${id}`, { ...rows.get(`dayPages/${id}`), planRevision: 8 })
         const tx = {
           async get(ref) { const value = rows.get(ref.path); return { exists: value !== undefined, data: () => value } },
           create(ref, value) { rows.set(ref.path, value) },

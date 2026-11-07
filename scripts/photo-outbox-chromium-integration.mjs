@@ -31,7 +31,7 @@ const uiErrorsId = '\0virtual:photo-outbox-ui-errors'
 const accessTraceId = '\0virtual:photo-outbox-access-trace'
 
 const fixtureSource = `
-import { savePhotoForTransfer, localPhotoForTransfer, resumePhotoTransfer, getPhotoTransferUiSnapshot } from '/src/lib/photoOutbox.ts'
+import { savePhotoForTransfer, localPhotoForTransfer, resumePhotoTransfer, recoverLocalPhotoTransfers, getPhotoTransferUiSnapshot } from '/src/lib/photoOutbox.ts'
 globalThis.__photoIntegrationState = { docs: new Map(), commits: [], injectedAborts: 0, injectedModes: [] }
 const state = globalThis.__photoIntegrationState
 const studentToken = 'integration-day'
@@ -67,7 +67,7 @@ globalThis.__photoIntegration = {
     await savePhotoForTransfer(studentToken, uploadId, new Blob([bytes], { type: 'image/jpeg' }))
     const writeRecovered = restoreWrite()
     const restoreRead = failNextTransaction('readonly')
-    resumePhotoTransfer(studentToken, uploadId, source)
+    await recoverLocalPhotoTransfers()
     const deadline = Date.now() + 7000
     while (state.docs.get(sourcePath)?.status !== 'uploaded' && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 10))
     const readRecovered = restoreRead()
@@ -98,6 +98,7 @@ const firestoreSource = `
 const getState = () => globalThis.__photoIntegrationState
 export const db = {}
 export const doc = (_db, ...parts) => ({ path: parts.join('/') })
+export const serverTimestamp = () => 'synthetic-server-time'
 export async function getDocFromServer(ref) {
   const state = getState()
   const value = state.docs.get(ref.path)
@@ -133,7 +134,7 @@ export function stagePreparedEducationEvent(batch, envelope) {
 }
 `
 const uiErrorsSource = `export function reportUiError() { return 'Действие не выполнено. Повторите попытку.' }`
-const accessTraceSource = `export function tracePhotoStorage() {}`
+const accessTraceSource = `export function tracePhotoStorage() {} export function traceAccess() {}`
 
 const profile = mkdtempSync(join(tmpdir(), 'education-photo-outbox-chromium-'))
 const site = join(profile, 'site')
@@ -283,8 +284,9 @@ try {
   assert.equal(result.eventType, 'upload.bytes_uploaded')
   assert.equal(result.eventOperationId, 'upload-transfer:integration-photo-001:uploaded')
   assert.deepEqual(result.eventDocuments, ['educationEvents/integration-event-upload-transfer:integration-photo-001:uploaded'])
-  assert.equal(result.commits.length, 1, 'source and event should be recorded in one commit')
-  assert.deepEqual(result.commits[0].map((item) => item.path).sort(), [
+  const deliveryCommits = result.commits.filter(items => items.some(item => item.path.startsWith('educationEvents/')))
+  assert.equal(deliveryCommits.length, 1, 'source and event should be recorded in one commit, independently of diagnostic writes')
+  assert.deepEqual(deliveryCommits[0].map((item) => item.path).sort(), [
     'dayUploads/integration-day/files/integration-photo-001',
     'educationEvents/integration-event-upload-transfer:integration-photo-001:uploaded',
   ].sort())

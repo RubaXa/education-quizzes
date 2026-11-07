@@ -28,6 +28,13 @@ describe('direct Disk upload contract', () => {
     expect(validUploadHref('https://attacker.example/upload')).toBe(false)
     expect(validUploadHref('http://disk.yandex.net/upload')).toBe(false)
   })
+
+  it('keeps an admitted transfer valid across day republishes but rejects future or removed tasks', () => {
+    expect(validPhotoRequest(request, { ...page, planRevision: 2 })).toBe(true)
+    expect(validPhotoRequest({ ...request, planRevision: 3 }, { ...page, planRevision: 2 })).toBe(false)
+    expect(validPhotoRequest(request, { ...page, planRevision: 2, taskIds: ['other'] })).toBe(false)
+    expect(validPhotoRequest({ ...request, planRevision: 0 }, page)).toBe(false)
+  })
 })
 
 describe('solution documents', () => {

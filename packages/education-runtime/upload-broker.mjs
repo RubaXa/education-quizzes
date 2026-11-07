@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/photo-transfer-revision-race-2026-11-07.md */
 /** @see ../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /**
  * Queue handlers and bounded compatibility discovery for direct uploads.
@@ -365,7 +366,7 @@ async function reconcileBook({ db, publish, snapshot, clock }) {
 
 async function publishEventId(input) { return createEducationEventId(input) }
 
-async function authorizedPhoto(db, owner, page, request) {
+export async function authorizedPhoto(db, owner, page, request) {
   if (!validPhotoRequest(request, page) || page.date !== owner.date) return false
   const session = (await db.doc(`deviceSessions/${request.deviceUid}`).get()).data()
   if (!session?.linkToken) return false
@@ -385,7 +386,7 @@ async function authorizedFamilyBook(db, familyId, childId, request) {
   return member?.active === true && member.role === 'parent' && member.childIds?.includes(childId)
 }
 
-async function photoAuthorizedInTransaction(tx, db, event, request) {
+export async function photoAuthorizedInTransaction(tx, db, event, request) {
   const studentToken = event.sourceRef.dayToken
   const [ownerSnapshot, pageSnapshot] = await Promise.all([
     tx.get(db.doc(`dayOwners/${studentToken}`)), tx.get(db.doc(`dayPages/${studentToken}`)),

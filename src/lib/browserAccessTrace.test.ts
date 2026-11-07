@@ -109,6 +109,13 @@ it('limits lesson interaction diagnostics to fixed actions and never retains ans
   expect(createAccessTrace({ storage: sessionStorage, now: () => 1001, runId: 'next' }).snapshot().events).toEqual(trace.events)
   expect(inspectAccessTrace(trace).findings).toEqual([])
 })
+it('keeps only known transfer phases/codes, never URL or file information', () => {
+  const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
+  journal.record('photo.transfer', { action: 'sending', code: 'none', href: 'SECRET', scope: 'PRIVATE_FILE' } as any)
+  journal.record('photo.transfer', { action: 'SECRET', code: 'SECRET' })
+  expect(journal.snapshot().events.map(row => row.detail)).toEqual([{ action: 'sending', code: 'none' }, {}])
+  expect(JSON.stringify(journal.snapshot())).not.toContain('SECRET')
+})
 it('applies the existing 200 event cap to photo storage diagnostics', () => {
   const journal = createAccessTrace({ now: () => 1000, runId: 'run' })
   for (let attempt = 1; attempt <= 205; attempt++) journal.record('photo.storage', { atFunction: 'localPhotoForTransfer', state: 'checking', count: attempt })
