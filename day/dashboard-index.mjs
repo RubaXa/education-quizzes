@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { lessonVisibility } from '../diary/application/lesson-visibility.mjs'
@@ -123,7 +124,9 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
     const pair = links[sourceDate]
     if (!pair?.[role]) throw new Error(`Выходная работа ${name} не опубликована для роли ${role}.`)
     if (!validDate(source.targetDate) || !Array.isArray(slot.dates) || !slot.dates.length
-      || !slot.dates.every((date) => validDate(date) && date < source.targetDate && [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay()))
+      || !slot.dates.every((date) => validDate(date) && date < source.targetDate && (slot.mode === 'until-complete' || [0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay())))
+      || slot.mode === 'until-complete' && (!validDate(slot.availableFrom) || !validDate(slot.preparationThrough)
+        || slot.availableFrom > slot.preparationThrough || slot.preparationThrough >= source.targetDate)
       || new Set(slot.dates).size !== slot.dates.length || typeof slot.title !== 'string' || !slot.title.trim()
       || !Array.isArray(slot.taskIds) || !slot.taskIds.length || new Set(slot.taskIds).size !== slot.taskIds.length) {
       throw new Error(`У выходной работы ${name} нужны выходные даты, название и уникальные ID заданий своего урока.`)
@@ -143,9 +146,9 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
       if (weekendTaskOwners.has(key)) throw new Error(`Выходное задание ${id} повторяется в нескольких карточках.`)
       weekendTaskOwners.add(key)
     }
-    if (!slot.dates.some((date) => date >= start && date <= end)) return []
+    if (slot.mode === 'until-complete' ? slot.availableFrom > end : !slot.dates.some((date) => date >= start && date <= end)) return []
     return [{ dates: slot.dates, dayToken: pair[role], taskIds: slot.taskIds, lessonDate: source.targetDate,
-      dueDate, title: slot.title }]
+      dueDate, title: slot.title, ...(slot.mode === 'until-complete' ? { mode: slot.mode, availableFrom: slot.availableFrom, preparationThrough: slot.preparationThrough } : {}) }]
   })
   const dayCanonicalTokens = learningDayAliases(links)
   const index = { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork, dayCanonicalTokens }

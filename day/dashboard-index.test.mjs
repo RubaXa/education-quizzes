@@ -27,6 +27,19 @@ it('retains an owned calendar across day republishing and rejects another child�
 })
 
 describe('dashboard homework references', () => {
+  it('keeps continuous preparation linked to the original Thursday page on Monday and beyond its lesson week', () => {
+    const local = mkdtempSync(resolve(tmpdir(), 'education-continuous-'))
+    try {
+      mkdirSync(resolve(local, 'diary'))
+      writeFileSync(resolve(local, 'day-source-2026-11-11.json'), JSON.stringify({ targetDate: '2026-11-12',
+        subjects: [{ name: 'Спецкурс', tasks: [{ id: 'sheet', lessonDate: '2026-11-12', problems: [{ id: 'p1' }] }] }],
+        weekendSlot: { mode: 'until-complete', availableFrom: '2026-11-07', preparationThrough: '2026-11-10', dates: ['2026-11-07'], title: 'Спецкурс', taskIds: ['sheet'] } }))
+      for (const role of ['student', 'parent']) {
+        const index = buildDayDashboardIndex(local, { '2026-11-11': { [role]: 'original-page' } }, role, new Date('2026-11-16T10:00:00Z'))
+        expect(index.weekendWork).toContainEqual(expect.objectContaining({ dayToken: 'original-page', taskIds: ['sheet'], availableFrom: '2026-11-07', preparationThrough: '2026-11-10' }))
+      }
+    } finally { rmSync(local, { recursive: true, force: true }) }
+  })
   it('links an exact Friday pointer to the published Thursday assignment', () => {
     const local = mkdtempSync(resolve(tmpdir(), 'education-week-'))
     try {

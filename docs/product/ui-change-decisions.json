@@ -34,18 +34,20 @@
       }
     },
     "sync/preparation-window.mjs": {
-      "sha256": "1e1e445f412e13a74c231761619ce68f0dc4e87401cbc88163b88ca92357a771",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "sha256": "510c1a3be7e818200ba2186bd4b31a1d4f1d0bfd90c14cf171399ccb130b35ed",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
-        "sync/help-request-resolution.test.mjs"
+        "day/dashboard-index.test.mjs",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "sync/dispatch-workspace.mjs": {
@@ -280,24 +282,20 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "de680b411ffab335fcecdb950fcf4201ea0a211ccbad48c16856a8d5829ba62d",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "a257966f4d58cc1cc3625771043ac2be74767938a432a04c9b8fb879f049cd4c",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "assessment/learning-context.test.mjs",
-        "day/family-assignment.test.mjs",
+        "sync/preparation-window.test.mjs",
         "day/dashboard-index.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "day/data-contract.mjs": {
@@ -1970,18 +1968,20 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "6a2617c4207a2b68dfd8c2ae01ce55fd4ee439951de9eb30a7f33083fb177619",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "39b319cdc0b75b9d66763b4602630ff69e2cdcd629666afb437fe319c580e162",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/family-practice-calendar.test.mjs",
-        "src/lib/olympiad/calendar.test.ts"
+        "sync/preparation-window.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2600,31 +2600,20 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "bfc01787e5ebe734427cfb940d6d979bbe2af5b2d70c0126480421dc210ace7a",
-      "record": "docs/decisions/calendar-scroll-selection-2026-10-28.md",
+      "sha256": "c37175e9f7fba37688f24874a450d28d85d97e0358df655ea35ef0d2813c1b95",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md",
-        "docs/modules/school-diary/school-calendar.md",
-        "docs/shared/design/README.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/product/ui-change-control.md",
-        "docs/shared/design/components.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "day/family-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs",
-        "src/DayDashboard.warmStart.test.tsx",
-        "src/components/DayCalendar.test.tsx",
-        "src/components/dayCalendarScroll.test.ts"
+        "sync/preparation-window.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя от 28.10.2026 по трём скриншотам: центрирование выбранного дня при открытии, отсутствие сдвига при выборе рядом, плавное смещение к центру при выборе у края; требование связать общее поведение DayCalendar со спецификацией, UI Kit и дизайн-системой."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "src/DayPage.css": {
@@ -2716,21 +2705,20 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "18106384b822c76ec7c765af08c0006006a396b32d6838af6e424e9b4d02ac79",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "f6b572a3539083dd76271d23e50e422f394db7a6a47bec36dadf5711d3dcea30",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -4087,20 +4075,20 @@
       }
     },
     "src/lib/dayDashboardStore.ts": {
-      "sha256": "03d86878a2b5e7401847074ff3fb80fdddfd1dd85f893804fe2d6ff21a4562fe",
-      "record": "docs/decisions/pupil-vacations-2026-10-19.md",
+      "sha256": "bdb9b8a0c94b85c7289a2fd26766e2b960ad9f1a9dd7f0922e365945cbaf23e2",
+      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md"
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/school-calendar.test.mjs",
-        "sync/school-calendar-publication.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "sync/preparation-window.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 просит выделить каникулы красивым блоком дней, получая даты только из МЭШ конкретного ученика."
+        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
       }
     },
     "src/lib/dayDashboardViewCache.ts": {

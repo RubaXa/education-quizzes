@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from './firebase'
 import { normalizeDayDashboard } from './dayCompatibility'
@@ -24,7 +25,7 @@ export type DayDashboardData = {
   timezone: string
   days: IndexedDay[]
   schoolCalendar?: SchoolCalendar
-  weekendWork?: { dates: string[]; dayToken: string; taskIds: string[]; lessonDate: string; dueDate: string; title: string }[]
+  weekendWork?: { dates: string[]; dayToken: string; taskIds: string[]; lessonDate: string; dueDate: string; title: string; mode?: 'until-complete'; availableFrom?: string; preparationThrough?: string }[]
   updatedAt?: unknown
 }
 

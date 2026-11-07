@@ -2,6 +2,11 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/continuous-course-preparation-2026-11-07.md](decisions/continuous-course-preparation-2026-11-07.md) | [Общий жизненный цикл](modules/synchronization/task-routing.md) | Причина потери спецкурса, непрерывная подготовка и отдельная сдача тетради | Оператор; разработчик |
+| [sync/preparation-window.d.mts](../sync/preparation-window.d.mts) | [Общий жизненный цикл](modules/synchronization/task-routing.md) | Типы общей политики подготовки для клиентского потребителя | Dashboard |
+
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
 | [docs/decisions/photo-outbox-route-recovery-2026-11-07.md](decisions/photo-outbox-route-recovery-2026-11-07.md) | [Хранение](modules/materials/storage-privacy.md) | Восстановление сохранённых фото с любого маршрута и диагностика стадий | App; outbox; Rules; оператор |
 
 | [docs/decisions/photo-transfer-revision-race-2026-11-07.md](decisions/photo-transfer-revision-race-2026-11-07.md) | [Восстановление фото](services/upload-worker/README.md) | Причина гонки ревизий и сохранение уже принятой передачи | Разработчик; оператор |
@@ -853,7 +858,7 @@
 | [sync/help-request-cache.test.mjs](../sync/help-request-cache.test.mjs) | [План сокращения чтений](modules/synchronization/firestore-read-paths.md) | Интеграционный fake Firestore для дельты, повторов и повреждённого кеша | Vitest; разработчик |
 | [sync/job-queue.mjs](../sync/job-queue.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Устойчивые ID и ревизии заданий общей операторской очереди | `scripts/sync-queue.mjs`; Firestore |
 | [sync/project-plan.mjs](../sync/project-plan.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Детерминированный выбор строго подтверждённого Mesh source, окно дат и ограничитель параллельности | `scripts/sync-project.mjs` |
-| [sync/preparation-window.mjs](../sync/preparation-window.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Завершение устаревшей служебной подготовки без изменения работ ученика | sync-queue |
+| [sync/preparation-window.mjs](../sync/preparation-window.mjs) | [Общий жизненный цикл](modules/synchronization/task-routing.md) | Раздельное истечение служебной подготовки и сохранение ученического листа до выполнения | Day publisher; dashboard; sync-queue |
 | [docs/decisions/moving-preparation-window-2026-11-05.md](decisions/moving-preparation-window-2026-11-05.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Решение родителя об активной неделе и закрытии обработанных обращений | sync-queue; sync-inbox |
 | [sync/preparation-window.test.mjs](../sync/preparation-window.test.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Границы недели и сохранение попыток, помощи и event-action | Vitest |
 | [sync/project-audit.mjs](../sync/project-audit.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Валидация run/window/owner, зарегистрированный legacy symlink и read-only receipt без завершения workflow | `scripts/sync-project.mjs`; operator CLI |

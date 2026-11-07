@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import TaskWorkEvidence from '@/components/TaskWorkEvidence'
 import { workFileContentType } from '../storage/work-file-types.mjs'
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
@@ -18,12 +19,13 @@ import { useDayEvidence } from '@/lib/useDayEvidence'
 import { useParentCompletions } from '@/lib/useParentCompletions'
 import { canAcceptCorrectAnswer, parentAccepted, practiceRequired, recordParentCompletion, recordRequirementChoice, recordStageChoice } from '@/lib/parentCompletion'
 import { reportUiError } from '@/lib/uiErrors'
+import { summarizeProblemGroup } from '@/lib/problemGroupSummary'
 import './WeekendMathSlot.css'
 
 type LocalPhoto = { originalName?: string; contentType?: string; id: string; taskId: string; url: string; state: 'uploading' | 'failed'; error?: string }
 function shortDate(date: string) { return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', timeZone: 'Europe/Moscow' }).format(new Date(`${date}T12:00:00+03:00`)) }
 
-export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, dueDate, title }: { token: string; taskIds: string[]; parent: boolean; lessonDate?: string; dueDate: string; title: string }) {
+export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, dueDate, title, preparationThrough, selectedDate }: { token: string; taskIds: string[]; parent: boolean; lessonDate?: string; dueDate: string; title: string; preparationThrough?: string; selectedDate?: string }) {
   const [page, setPage] = useState<DayPageData>()
   const [helpRequests, setHelpRequests] = useState<DayHelp[]>([])
   const [guideSnapshot, setGuideSnapshot] = useState<{ token: string; guides: Record<string, ParentTaskPrivate> }>({ token: '', guides: {} })
@@ -86,9 +88,15 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   if (!page) return <section className="weekend-math-slot">Загружаем задания на выходные…</section>
   const requested = new Set(taskIds)
   const subjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => requested.has(task.id)) })).filter((subject) => subject.tasks.length)
+  const completed = requested.size > 0 && subjects.flatMap(subject => subject.tasks).length === requested.size && subjects.flatMap(subject => subject.tasks).every(task => {
+    const all = task.problems ?? []
+    const required = all.filter(problem => !problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events))
+    return summarizeProblemGroup(all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).activeCount === 0 && summarizeProblemGroup(required.length ? required : all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).complete
+  })
+  if (preparationThrough && selectedDate && selectedDate > preparationThrough && completed) return null
   if (subjects.flatMap((subject) => subject.tasks).length !== requested.size) return <section className="weekend-math-slot" role="alert">Связь выходного задания изменилась. Обновляем карточку; сохранённые работы остаются в подробном ДЗ.</section>
   return <section className="weekend-math-slot" aria-label={title}>
-    <header><div><span className="weekend-math-kicker">Работа на субботу и воскресенье</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · урок {shortDate(lessonDate || page.targetDate)} · сдать {shortDate(dueDate)}</p></div></header>
+    <header><div><span className="weekend-math-kicker">{preparationThrough ? completed ? 'Сделано · проверено' : `Подготовка к ${shortDate(preparationThrough)}` : 'Работа на субботу и воскресенье'}</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · урок {shortDate(lessonDate || page.targetDate)}{!preparationThrough && ` · сдать ${shortDate(dueDate)}`}</p></div></header>
     {error && <p className="weekend-math-error" role="alert">{error}</p>}
     {subjects.map((subject) => subject.tasks.filter((task) => task.problems?.length).map((task) => {
       const taskLinks = page.materialLinks?.[task.id] ?? []
