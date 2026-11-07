@@ -1,8 +1,9 @@
+/** @see ../../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../../docs/decisions/olympiad-domain-ldd-2026-10-27.md */
 /** Local Log-Driven Development; observations never grant access.
  * @see ../../docs/modules/families/browser-access-trace.md
  * @see ../../docs/decisions/photo-storage-ldd-2026-10-22.md */
-const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed', 'photo.storage', 'help.interaction', 'lesson.interaction', 'olympiad.interaction'] as const
+const events = ['app.loaded', 'identity.resolved', 'identity.changed', 'access.resolved', 'role.selected', 'route.selected', 'view.rendered', 'access.failed', 'photo.storage', 'photo.transfer', 'help.interaction', 'lesson.interaction', 'olympiad.interaction'] as const
 type EventName = typeof events[number]
 const roles = ['parent', 'student', 'mixed', 'none', 'unknown', 'pending']
 const sources = ['local', 'memory', 'device-server', 'grant-server', 'member-server', 'member-cache', 'profile', 'entry', 'route', 'card', 'storage', 'app']
@@ -31,6 +32,7 @@ export function formatAccessLog(row: TraceEvent): string {
     'role.selected': 'Choose the interface from profile membership', 'route.selected': 'Open the resource for the selected identity',
     'view.rendered': 'Observe the committed task card projection', 'access.failed': 'Access operation failed; preserve safe error code',
     'photo.storage': 'Observe local photo storage operation; this does not affect access authority',
+    'photo.transfer': `Observe photo transfer stage: ${detail.action ?? 'unknown'}`,
     'help.interaction': `Observe photo help interaction: ${detail.action ?? 'unknown'}`,
     'lesson.interaction': `Observe lesson interaction: ${detail.action ?? 'unknown'}`,
     'olympiad.interaction': `Observe olympiad interaction: ${detail.action ?? 'unknown'}`,
@@ -45,6 +47,11 @@ const key = 'education-access-trace-v1'
 const maxAge = 24 * 60 * 60_000
 function safeDetail(input: AccessDetail, event?: EventName): AccessDetail {
   const output: AccessDetail = {}
+  if (event === 'photo.transfer') {
+    if (['waiting-link', 'reading-local', 'missing-local', 'checking-source', 'sending', 'put-complete', 'confirming', 'uploaded', 'failed'].includes(input.action ?? '')) output.action = input.action
+    if (['none', 'auth-pending', 'device-mismatch', 'missing-local', 'source-read', 'local-read', 'source-timeout', 'url-expired', 'transfer-error'].includes(input.code ?? '')) output.code = input.code
+    return output
+  }
   if (event === 'olympiad.interaction') {
     if (typeof input.action === 'string' && (olympiadActions as readonly string[]).includes(input.action)) output.action = input.action
     if (typeof input.context === 'string' && (helpContexts as readonly string[]).includes(input.context)) output.context = input.context

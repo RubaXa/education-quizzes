@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /**
  * @see ../docs/services/web-app/README.md
@@ -36,6 +37,7 @@ import QuizCard from './components/QuizCard'
 import { quizRoot, type QuizCardAttempt } from '@/lib/quizCardViewModel'
 import { reportUiError } from '@/lib/uiErrors'
 import { traceAccess } from '@/lib/browserAccessTrace'
+import { startPhotoOutboxRecovery } from '@/lib/photoOutbox'
 import QuestionCard from './components/QuizQuestionCard'
 import {wordForm} from './lib/wordForm'
 import './App.css'
@@ -671,6 +673,7 @@ function Home() {
  * @see ../docs/modules/families/access-and-state.md#routes
  */
 function App() {
+  useEffect(startPhotoOutboxRecovery, [])
   const [route, setRoute] = useState<Route>(() => {
     if (!location.hash || location.hash === '#/') {
       const saved = readLastPersonalDashboardRoute()

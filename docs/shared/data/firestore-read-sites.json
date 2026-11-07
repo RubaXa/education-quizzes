@@ -926,7 +926,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#c43126f49a65",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 64,
+    "line": 65,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -938,7 +938,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#827619dfe3f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 125,
+    "line": 126,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -950,7 +950,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#508a07455411",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 125,
+    "line": 126,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -962,7 +962,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 125,
+    "line": 126,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -974,7 +974,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 149,
+    "line": 150,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -986,7 +986,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 199,
+    "line": 200,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -998,7 +998,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 225,
+    "line": 226,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1010,7 +1010,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f8afc49f1528-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 236,
+    "line": 237,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1022,7 +1022,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#4bde4fd9ab7f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 256,
+    "line": 257,
     "api": "admin.get",
     "target": "db.collection('materialBooks').where('sourceSha256', '==', request.sha256)",
     "group": "operator-other",
@@ -1034,7 +1034,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#22c2af0d0f5f",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 260,
+    "line": 261,
     "api": "admin.get",
     "target": "db.doc(`storedObjects/${request.sha256}`)",
     "group": "operator-other",
@@ -1046,7 +1046,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 278,
+    "line": 279,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1058,7 +1058,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#0504d88282f5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 319,
+    "line": 320,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${parsed.studentToken}`)",
     "group": "operator-other",
@@ -1070,7 +1070,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 370,
+    "line": 371,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -1082,7 +1082,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 372,
+    "line": 373,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -1094,7 +1094,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#183e333ab938",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 374,
+    "line": 375,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -1106,7 +1106,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a5383bba29c1-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 380,
+    "line": 381,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${request.deviceUid}`)",
     "group": "operator-other",
@@ -1118,7 +1118,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#a84bae663097-2",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 382,
+    "line": 383,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${session.linkToken}`)",
     "group": "operator-other",
@@ -1130,7 +1130,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#582a3e0cadab",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 384,
+    "line": 385,
     "api": "admin.get",
     "target": "db.doc(`families/${familyId}/members/${grant.personId}`)",
     "group": "operator-other",
@@ -1142,7 +1142,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-3",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 391,
+    "line": 392,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1154,7 +1154,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-4",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 391,
+    "line": 392,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1166,7 +1166,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-5",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 397,
+    "line": 398,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1178,7 +1178,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-6",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 400,
+    "line": 401,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1190,7 +1190,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-7",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 403,
+    "line": 404,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1202,7 +1202,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-8",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 410,
+    "line": 411,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1214,7 +1214,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-9",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 413,
+    "line": 414,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1226,7 +1226,7 @@
   {
     "id": "packages/education-runtime/upload-broker.mjs#admin.get#f58347da3eec-10",
     "file": "packages/education-runtime/upload-broker.mjs",
-    "line": 416,
+    "line": 417,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -8774,7 +8774,7 @@
   {
     "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4",
     "file": "src/lib/photoOutbox.ts",
-    "line": 274,
+    "line": 71,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-outbox",
@@ -8786,7 +8786,7 @@
   {
     "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4-2",
     "file": "src/lib/photoOutbox.ts",
-    "line": 313,
+    "line": 455,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-outbox",
@@ -8794,54 +8794,6 @@
     "policy": "known-transfer-freshness",
     "refresh": "перед PUT только при совпавшем устройстве и наличии локального Blob",
     "note": "Адресная сверка source для известной незавершённой передачи после online/visibility; родитель без исходных байтов не создаёт это чтение."
-  },
-  {
-    "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4-3",
-    "file": "src/lib/photoOutbox.ts",
-    "line": 332,
-    "api": "getDocFromServer",
-    "target": "ref",
-    "group": "client-outbox",
-    "assessment": "justified",
-    "policy": "post-put-atomic-event-guard",
-    "refresh": "после успешного PUT перед bytes_uploaded",
-    "note": "Один source документ защищает атомарную запись события от изменившегося статуса, ссылки или устройства."
-  },
-  {
-    "id": "src/lib/photoOutbox.ts#getDocFromServer#b5d7166d630c",
-    "file": "src/lib/photoOutbox.ts",
-    "line": 336,
-    "api": "getDocFromServer",
-    "target": "doc(db, 'dayOwners', studentToken)",
-    "group": "client-outbox",
-    "assessment": "justified",
-    "policy": "post-put-owner-scope",
-    "refresh": "после успешного PUT перед записью события",
-    "note": "Один dayOwners определяет проверенные family/child координаты существующего source, без доверия к локальной роли."
-  },
-  {
-    "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4-4",
-    "file": "src/lib/photoOutbox.ts",
-    "line": 351,
-    "api": "getDocFromServer",
-    "target": "ref",
-    "group": "client-outbox",
-    "assessment": "justified",
-    "policy": "ambiguous-upload-commit-readback",
-    "refresh": "только при ошибке ответа atomic batch",
-    "note": "Один source receipt различает завершённый commit и настоящую ошибку, исключая повторную заявку."
-  },
-  {
-    "id": "src/lib/photoOutbox.ts#getDocFromServer#dd7af4a275d3",
-    "file": "src/lib/photoOutbox.ts",
-    "line": 375,
-    "api": "getDocFromServer",
-    "target": "doc(db, 'dayUploads', studentToken, 'files', uploadId)",
-    "group": "client-outbox",
-    "assessment": "justified",
-    "policy": "failed-transfer-state-readback",
-    "refresh": "только при ошибке конкретного PUT",
-    "note": "Один source документ перед локальной ошибкой исключает ложный failed после серверного подтверждения или ротации ссылки; это не polling и не scan."
   },
   {
     "id": "src/lib/store.ts#getDoc#43706fdac516",

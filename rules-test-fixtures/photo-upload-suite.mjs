@@ -3,6 +3,7 @@
  * @see ../docs/modules/synchronization/event-queue.md#доступ-и-приватность
  * @see ../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md
  */
+/** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 import { workFileTypes } from '../storage/work-file-types.mjs'
 
 const databasePrefix = '/databases/(default)/documents/'
@@ -63,6 +64,22 @@ export function createPhotoUploadRulesTestSuite() {
   const event = baseDocs[eventPath]
   const source = baseDocs[sourcePath]
   return [
+    ...(() => {
+      const prior = { ...source, status: 'awaiting-upload' }
+      const diagnostic = { phase: 'sending', stage: 'sending', code: 'none', attempt: 1, httpStatus: 0, at: fixture.time }
+      return [
+        { name: 'allows-stage', data: { clientTransfer: diagnostic } },
+        { name: 'denies-url', data: { clientTransfer: { ...diagnostic, href: 'https://private.invalid/secret' } }, deny: true },
+        { name: 'denies-unknown-stage', data: { clientTransfer: { ...diagnostic, phase: 'arbitrary' } }, deny: true },
+        { name: 'denies-status-change', data: { clientTransfer: diagnostic, status: 'pending' }, deny: true },
+        { name: 'denies-time-spoof', data: { clientTransfer: { ...diagnostic, at: '2030-01-01T00:00:00Z' } }, deny: true },
+        { name: 'denies-other-device', data: { clientTransfer: diagnostic }, prior: { ...prior, deviceUid: 'other' }, deny: true },
+        { name: 'denies-parent', data: { clientTransfer: diagnostic }, docs: documents({ memberRole: 'parent' }), deny: true },
+        { name: 'denies-other-child', data: { clientTransfer: diagnostic }, docs: documents({ ownerChildId: 'other' }), deny: true },
+      ].map(row => requestCase({ name: `photo-diagnostics-${row.name}`, path: sourcePath, method: 'update',
+        priorResource: row.prior ?? prior, resource: { ...(row.prior ?? prior), ...row.data },
+        docs: row.docs ?? baseDocs, expectation: row.deny ? 'DENY' : 'ALLOW' }))
+    })(),
     ...Object.keys(workFileTypes).filter(type => !type.startsWith('image/')).map(contentType => {
       const docs = documents({ source: { contentType, originalName: 'Решение' } })
       return requestCase({ name: `student-source-allows-${contentType}`, path: sourcePath, resource: docs[sourcePath], docs })

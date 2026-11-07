@@ -15,6 +15,7 @@ const harness = vi.hoisted(() => ({
 }))
 
 vi.mock('firebase/firestore', () => ({
+  serverTimestamp: () => 'server-time',
   doc: (_db: unknown, ...parts: string[]) => ({ path: parts.join('/') }),
   getDocFromServer: async (ref: { path: string }) => {
     if (harness.nextReadError) {
@@ -38,7 +39,7 @@ vi.mock('firebase/firestore', () => ({
 }))
 vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'student-device' } }) }))
 vi.mock('./firebase', () => ({ db: {} }))
-vi.mock('./browserAccessTrace', () => ({ tracePhotoStorage: (...args: unknown[]) => harness.photoTraces.push(args) }))
+vi.mock('./browserAccessTrace', () => ({ tracePhotoStorage: (...args: unknown[]) => harness.photoTraces.push(args), traceAccess: vi.fn() }))
 vi.mock('./educationEventProducer', () => ({
   prepareEducationEvent: async (input: { operationId: string }) => ({ ...input, eventId: 'e'.repeat(64) }),
   stagePreparedEducationEvent: (_batch: unknown, event: { eventId: string; eventType: string; operationId: string }) => harness.events.push(event),
@@ -49,7 +50,7 @@ vi.mock('./uiErrors', () => ({ reportUiError: (cause: unknown) => { if (cause in
   ? cause.message : 'Действие не выполнено. Повторите попытку.' } }))
 
 import WorkPhotoGallery from '../components/WorkPhotoGallery'
-import { getPhotoTransferUiSnapshot, localPhotoForTransfer, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer, savePhotoForTransfer } from './photoOutbox'
+import { getPhotoTransferUiSnapshot, localPhotoForTransfer, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer, savePhotoForTransfer, recoverLocalPhotoTransfers } from './photoOutbox'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const studentToken = 'day-token'
@@ -97,6 +98,46 @@ function injectFakeDatabaseOnce(database: IDBDatabase) {
 }
 
 describe('photo transfer recovery', () => {
+  it('finds a persisted photo and resumes it from the home route without a day subscription', async () => {
+    harness.fetch.mockResolvedValueOnce({ ok: true, status: 201 })
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    harness.docs.set(sourcePath, requested())
+    await recoverLocalPhotoTransfers()
+    await vi.waitFor(() => expect(harness.docs.get(sourcePath)?.status).toBe('uploaded'))
+    expect(harness.fetch).toHaveBeenCalledTimes(1)
+    expect(harness.fetch.mock.calls[0][1].body).toMatchObject({ marker: blob.marker })
+  })
+
+  it('keeps a request waiting for its URL and finds the later URL without another day snapshot', async () => {
+    harness.fetch.mockResolvedValueOnce({ ok: true, status: 201 })
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    harness.docs.set(sourcePath, { ...requested(), status: 'requested', upload: undefined })
+    await recoverLocalPhotoTransfers()
+    expect(harness.fetch).not.toHaveBeenCalled()
+    harness.docs.set(sourcePath, requested())
+    await recoverLocalPhotoTransfers()
+    await vi.waitFor(() => expect(harness.docs.get(sourcePath)?.status).toBe('uploaded'))
+    expect(harness.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('records missing local bytes rather than leaving a silent awaiting-upload state', async () => {
+    resumePhotoTransfer(studentToken, uploadId, requested())
+    await vi.waitFor(() => expect(harness.docs.get(sourcePath)?.clientTransfer?.phase).toBe('missing-local'))
+    expect(getPhotoTransferUiSnapshot().get(sourceKey)?.phase).toBe('failed')
+    expect(harness.events).toHaveLength(0)
+    expect(harness.fetch).not.toHaveBeenCalled()
+    expect(JSON.stringify(harness.docs.get(sourcePath)?.clientTransfer)).not.toContain('https:')
+  })
+
+  it('does not turn diagnostic-only snapshots into an immediate retry loop', async () => {
+    await savePhotoForTransfer(studentToken, uploadId, blob)
+    harness.fetch.mockResolvedValue({ ok: false, status: 503 })
+    resumePhotoTransfer(studentToken, uploadId, requested())
+    await vi.waitFor(() => expect(getPhotoTransferUiSnapshot().get(sourceKey)?.phase).toBe('failed'))
+    resumePhotoTransfer(studentToken, uploadId, harness.docs.get(sourcePath) as ReturnType<typeof requested>)
+    await new Promise(resolve => setTimeout(resolve, 20))
+    expect(harness.fetch).toHaveBeenCalledTimes(1)
+  })
   afterEach(() => vi.restoreAllMocks())
 
   beforeEach(async () => {
@@ -325,7 +366,7 @@ describe('photo transfer recovery', () => {
       expect(harness.fetch.mock.calls[1][1].body).toMatchObject({ size: blob.size, type: blob.type, marker: blob.marker })
       expect(harness.events).toHaveLength(1)
       expect(harness.events[0]).toMatchObject({ eventType: 'upload.bytes_uploaded', operationId: `upload-transfer:${uploadId}:uploaded` })
-      expect(harness.writes[0].value.status).toBe('uploaded')
+      expect(harness.writes.find(write => write.value.status === 'uploaded')?.value.status).toBe('uploaded')
     } finally { await act(async () => root.unmount()) }
   })
 
@@ -407,7 +448,7 @@ describe('photo transfer recovery', () => {
     const localError = getPhotoTransferUiSnapshot().get(sourceKey)
     expect(localError).toMatchObject({ phase: 'failed', message: 'Действие не выполнено. Повторите попытку.' })
     if (localError?.phase === 'failed') expect(localError.message).toBe('Действие не выполнено. Повторите попытку.')
-    expect(harness.writes).toHaveLength(0)
+    expect(harness.writes.filter(write => !write.value.clientTransfer)).toHaveLength(0)
     expect(harness.events).toHaveLength(0)
     expect(harness.fetch).not.toHaveBeenCalled()
   })
@@ -430,7 +471,7 @@ describe('photo transfer recovery', () => {
     expect(openCalls).toBe(1)
     expect(harness.errors).toHaveLength(0)
     expect(harness.fetch).not.toHaveBeenCalled()
-    expect(harness.writes).toHaveLength(0)
+    expect(harness.writes.filter(write => !write.value.clientTransfer)).toHaveLength(0)
     expect(harness.events).toHaveLength(0)
     expect(harness.docs.get(sourcePath)?.status).toBe('awaiting-upload')
   })

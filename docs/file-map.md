@@ -1,5 +1,9 @@
 # Карта файлов, контрактов и потребителей
 
+| Файл | Спецификация | Назначение | Потребитель |
+|---|---|---|---|
+| [docs/decisions/photo-outbox-route-recovery-2026-11-07.md](decisions/photo-outbox-route-recovery-2026-11-07.md) | [Хранение](modules/materials/storage-privacy.md) | Восстановление сохранённых фото с любого маршрута и диагностика стадий | App; outbox; Rules; оператор |
+
 | [docs/decisions/photo-transfer-revision-race-2026-11-07.md](decisions/photo-transfer-revision-race-2026-11-07.md) | [Восстановление фото](services/upload-worker/README.md) | Причина гонки ревизий и сохранение уже принятой передачи | Разработчик; оператор |
 
 | Файл | Спецификация | Назначение | Потребитель |

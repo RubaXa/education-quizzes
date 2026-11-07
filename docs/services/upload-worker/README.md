@@ -27,6 +27,12 @@ code:
 
 ## Photo recovery
 
+Клиентское восстановление с любого маршрута и last-stage диагностика описаны в
+[решении07.11](../../decisions/photo-outbox-route-recovery-2026-11-07.md).
+`photo-transfer inspect` показывает clientTransfer.phase/stage/code/at/attempt/httpStatus
+и время выдачи ссылки. client-not-observed означает отсутствие новой клиентской
+диагностики, а не отсутствие локального файла. Не копировать upload.href в вывод.
+
 Новая заявка проходит прежний строгий Rules create с текущей planRevision.
 После допуска публикация другой версии дня не отменяет передачу того же taskId:
 broker допускает исходную положительную ревизию не выше текущей, сохраняя её в заявке.

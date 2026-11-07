@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../docs/decisions/photo-transfer-revision-race-2026-11-07.md */
 /** Exact-source recovery of an admitted upload; never edits bytes or grades.
  * @see ../docs/services/upload-worker/README.md#photo-recovery
@@ -25,7 +26,13 @@ export async function inspectPhotoTransfer({ db, disk, dayToken, uploadId }) {
       revisionChanged: upload.planRevision !== page.planRevision, authorizedNow: allowed,
       taskPresent: page.taskIds?.includes(upload.taskId) === true,
       storageConfirmed: upload.storage?.state === 'stored', remoteFilePresent: remote?.type === 'file',
-      originalError: upload.error ?? null } }
+      originalError: upload.error ?? null,
+      clientTransfer: upload.clientTransfer ? {
+        phase: upload.clientTransfer.phase, stage: upload.clientTransfer.stage, code: upload.clientTransfer.code,
+        attempt: upload.clientTransfer.attempt, httpStatus: upload.clientTransfer.httpStatus,
+        at: upload.clientTransfer.at?.toDate?.().toISOString() ?? null,
+      } : { phase: 'client-not-observed' },
+      linkIssuedAt: upload.upload?.issuedAt?.toDate?.().toISOString() ?? null } }
 }
 
 export async function recoverPhotoTransfer(deps) {

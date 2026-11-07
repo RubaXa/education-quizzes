@@ -1,7 +1,38 @@
 {
   "files": {
-    "scripts/photo-transfer.mjs": {"sha256":"3aada776e78899ab72fd1e2a9c44a7591b09d8c95e072dabfc11da2fd9b08138","record":"docs/decisions/photo-transfer-revision-race-2026-11-07.md","specs":["docs/services/upload-worker/README.md"],"tests":["storage/photo-transfer-recovery.test.mjs","storage/direct-upload.test.mjs","packages/education-runtime/upload-broker.test.mjs"],"authorization":{"status":"direct-request","evidence":"Родитель 07.11.2026 прямо поручил исправить сбой загрузки №121 и при необходимости запросить повтор передачи в приложении."}},
-    "storage/photo-transfer-recovery.mjs": {"sha256":"cf600d9afa162c270188d6505d39a40c2708a8303f738deb06284f496ccef182","record":"docs/decisions/photo-transfer-revision-race-2026-11-07.md","specs":["docs/services/upload-worker/README.md"],"tests":["storage/photo-transfer-recovery.test.mjs","storage/direct-upload.test.mjs","packages/education-runtime/upload-broker.test.mjs"],"authorization":{"status":"direct-request","evidence":"Родитель 07.11.2026 прямо поручил исправить сбой загрузки №121 и при необходимости запросить повтор передачи в приложении."}},
+    "scripts/photo-transfer.mjs": {
+      "sha256": "3aada776e78899ab72fd1e2a9c44a7591b09d8c95e072dabfc11da2fd9b08138",
+      "record": "docs/decisions/photo-transfer-revision-race-2026-11-07.md",
+      "specs": [
+        "docs/services/upload-worker/README.md"
+      ],
+      "tests": [
+        "storage/photo-transfer-recovery.test.mjs",
+        "storage/direct-upload.test.mjs",
+        "packages/education-runtime/upload-broker.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель 07.11.2026 прямо поручил исправить сбой загрузки №121 и при необходимости запросить повтор передачи в приложении."
+      }
+    },
+    "storage/photo-transfer-recovery.mjs": {
+      "sha256": "8e536d33994acf70eefe36525f66c981665120a6e3ee0440066ccc9220e86394",
+      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
+      "specs": [
+        "docs/services/upload-worker/README.md",
+        "docs/modules/materials/storage-privacy.md"
+      ],
+      "tests": [
+        "src/lib/photoOutbox.test.tsx",
+        "src/lib/browserAccessTrace.test.ts",
+        "storage/photo-transfer-recovery.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
+      }
+    },
     "sync/preparation-window.mjs": {
       "sha256": "1e1e445f412e13a74c231761619ce68f0dc4e87401cbc88163b88ca92357a771",
       "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
@@ -20,9 +51,16 @@
     "sync/dispatch-workspace.mjs": {
       "sha256": "5343e5f977d83617b4a0d4ee41b6d3497dc197013044948e14965f705bdc5efc",
       "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
-      "specs": ["docs/services/telegram-bot/education-sync-dispatch.md"],
-      "tests": ["scripts/education-sync-dispatch.test.mjs"],
-      "authorization": {"status":"direct-request","evidence":"Родитель05.11.2026 прямо согласовал одну активную обработку, серверную очередь и локальные пакеты с прогрессом."}
+      "specs": [
+        "docs/services/telegram-bot/education-sync-dispatch.md"
+      ],
+      "tests": [
+        "scripts/education-sync-dispatch.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель05.11.2026 прямо согласовал одну активную обработку, серверную очередь и локальные пакеты с прогрессом."
+      }
     },
     "day/learner-flow.mjs": {
       "sha256": "a1bfd262a8e5846243f599e9b64d9bc5eff70915d520dab97cd3ff01ff20867e",
@@ -2529,18 +2567,20 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "297e6d0cb30e167035797d3dcb85f1504ebad0857b296688f1c1dd8942628a30",
-      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "sha256": "4759d1a5f4d1a7cccc6391190184a6a0fbc4b0cd1a8c067a06c4b2a3a49de2de",
+      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
       "specs": [
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/services/upload-worker/README.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/components/QuizQuestionCard.test.tsx"
+        "src/lib/photoOutbox.test.tsx",
+        "src/lib/browserAccessTrace.test.ts",
+        "storage/photo-transfer-recovery.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
       }
     },
     "src/DayDashboard.css": {
@@ -3987,21 +4027,20 @@
       }
     },
     "src/lib/browserAccessTrace.ts": {
-      "sha256": "fa9378a04bab2d32b5db3863562373694c4b784cb2e2f65aee5b5b10849600df",
-      "record": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md",
+      "sha256": "6857172741c45fc7db29a51874b0e373a8d422b316722f825ca6f1cf6abd4fa9",
+      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/services/upload-worker/README.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "day/family-assignment.test.mjs",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/browserAccessTrace.test.ts"
+        "src/lib/photoOutbox.test.tsx",
+        "src/lib/browserAccessTrace.test.ts",
+        "storage/photo-transfer-recovery.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил показывать в карточке задачи оригинальный фрагмент загруженной учеником фотографии."
+        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
       }
     },
     "src/lib/dayCompatibility.ts": {
@@ -4470,24 +4509,20 @@
       }
     },
     "src/lib/photoOutbox.ts": {
-      "sha256": "5f52ab95075db5baa1705f4ec36f06a45985277d1403475d9a6e0bdafeab0ca8",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "c3983098fdca90e604739a7dbc24e87420ad0d515972def09ae2885818706561",
+      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
       "specs": [
-        "docs/shared/media-storage.md",
+        "docs/services/upload-worker/README.md",
         "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "src/lib/photoOutbox.test.tsx",
+        "src/lib/browserAccessTrace.test.ts",
+        "storage/photo-transfer-recovery.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
       }
     },
     "src/lib/photoUploadPolicy.ts": {
@@ -5737,18 +5772,20 @@
       }
     },
     "scripts/photo-outbox-chromium-integration.mjs": {
-      "sha256": "2c4a4656b1a8be35864f2e2d57904bd23b328f7ddf87318934ae3012354197be",
-      "record": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md",
+      "sha256": "36c770f4f989ef624fda8d6f9255700a9dc8e23d5d7f6bc3c1e92e9c7da5ecb0",
+      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/shared/toolchain.md"
+        "docs/services/upload-worker/README.md",
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.browser.integration.test.ts"
+        "src/lib/photoOutbox.test.tsx",
+        "src/lib/browserAccessTrace.test.ts",
+        "storage/photo-transfer-recovery.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 22.10.2026: закрепить повторный дефект загрузки изображений интеграционными тестами."
+        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
       }
     },
     "day/mixed-assignment.mjs": {

@@ -1,13 +1,14 @@
 /** @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md
  * @see ../../docs/decisions/photo-indexeddb-recovery-2026-10-22.md
  */
-import { doc, getDocFromServer, writeBatch } from 'firebase/firestore'
+import { doc, getDocFromServer, writeBatch, serverTimestamp } from 'firebase/firestore'
+import type { DocumentReference, DocumentData } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
 import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 import { fetchWithRetry } from './networkRetry'
 import { reportUiError } from './uiErrors'
-import { tracePhotoStorage } from './browserAccessTrace'
+import { tracePhotoStorage, traceAccess } from './browserAccessTrace'
 
 type OutboxEntry = { id: string; file: Blob }
 export type UploadState = { status: string; upload?: { href?: string; issuedAt?: unknown }; deviceUid?: string; taskId?: string }
@@ -21,6 +22,98 @@ const indexedDbAttemptCount = 2
 const listeners = new Set<() => void>()
 let uiStates: ReadonlyMap<string, PhotoTransferUiState> = new Map()
 let lifecycleInstalled = false
+let recoveryRunning = false
+let recoveryOffset = 0
+const attempts = new Map<string, number>()
+const diagnosticWrites = new Map<string, Promise<void>>()
+const lastDiagnostic = new Map<string, string>()
+const lastStage = new Map<string, TransferPhase>()
+const pendingDiagnostic = new Map<string, Record<string, unknown>>()
+type TransferPhase = 'waiting-link' | 'reading-local' | 'missing-local' | 'checking-source' | 'sending' | 'put-complete' | 'confirming' | 'uploaded' | 'failed'
+
+/** @see ../../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
+function transferDiagnostic(studentToken: string, uploadId: string, data: UploadState, phase: TransferPhase, code = 'none', httpStatus = 0) {
+  traceAccess('photo.transfer', { action: phase, code })
+  if (!getAuth().currentUser?.uid || getAuth().currentUser?.uid !== data.deviceUid) return
+  const id = key(studentToken, uploadId), attempt = Math.min(attempts.get(id) ?? 0, 10000)
+  if (phase !== 'failed') lastStage.set(id, phase)
+  const stage = lastStage.get(id) ?? phase
+  const fingerprint = `${phase}:${code}:${attempt}:${httpStatus}`
+  if (lastDiagnostic.get(id) === fingerprint) return
+  lastDiagnostic.set(id, fingerprint)
+  pendingDiagnostic.set(id, { phase, stage, code, attempt, httpStatus })
+  if (diagnosticWrites.has(id)) return
+  const next = (async () => {
+    while (pendingDiagnostic.has(id)) {
+      const value = pendingDiagnostic.get(id)!
+      pendingDiagnostic.delete(id)
+      try {
+        const batch = writeBatch(db)
+        batch.update(doc(db, 'dayUploads', studentToken, 'files', uploadId), {
+          clientTransfer: { ...value, at: serverTimestamp() },
+        })
+        await batch.commit()
+      } catch { /* Diagnosis failure never stops the original bytes. */ }
+    }
+  })()
+  diagnosticWrites.set(id, next)
+  void next.finally(() => { if (diagnosticWrites.get(id) === next) diagnosticWrites.delete(id) })
+}
+
+async function bounded<T>(operation: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([operation, new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(Object.assign(new Error('Сервер не ответил вовремя. Снимок сохранён; передача повторится.'), { code: 'deadline-exceeded' })), 15000)
+    })])
+  } finally { clearTimeout(timer) }
+}
+function boundedRead(ref: DocumentReference<DocumentData>) { return bounded(getDocFromServer(ref)) }
+
+/** Recover only this browser's persisted IDs, not all family uploads. */
+export async function recoverLocalPhotoTransfers() {
+  if (recoveryRunning || !getAuth().currentUser || navigator.onLine === false || document.visibilityState !== 'visible') return
+  recoveryRunning = true
+  try {
+    const ids = await outboxOperation('localPhotoForTransfer', 'readonly', store => store.getAllKeys())
+    if (!ids.length) { recoveryOffset = 0; return }
+    const start = recoveryOffset % ids.length
+    recoveryOffset = (start + 8) % ids.length
+    for (let i = 0; i < Math.min(8, ids.length); i++) {
+      const id = String(ids[(start + i) % ids.length]), split = id.indexOf(':')
+      if (split < 1 || active.has(id)) continue
+      const studentToken = id.slice(0, split), uploadId = id.slice(split + 1)
+      try {
+        const snapshot = await boundedRead(doc(db, 'dayUploads', studentToken, 'files', uploadId))
+        if (snapshot.exists()) {
+          const data = snapshot.data() as UploadState
+          if (uiStates.get(id)?.phase === 'failed' && data.deviceUid === getAuth().currentUser?.uid && data.status === 'awaiting-upload') {
+            void retryPhotoTransfer(studentToken, uploadId).catch(() => {})
+          } else resumePhotoTransfer(studentToken, uploadId, data)
+        }
+      } catch { traceAccess('photo.transfer', { action: 'failed', code: 'source-read' }) }
+    }
+  } catch { traceAccess('photo.transfer', { action: 'failed', code: 'local-read' }) }
+  finally { recoveryRunning = false }
+}
+
+/** One application-level pump, including home/reload and iOS pageshow. */
+export function startPhotoOutboxRecovery() {
+  const wake = () => { void recoverLocalPhotoTransfers() }
+  window.addEventListener('online', wake)
+  window.addEventListener('pageshow', wake)
+  window.addEventListener('focus', wake)
+  document.addEventListener('visibilitychange', wake)
+  const timer = window.setInterval(wake, 30000)
+  wake()
+  return () => {
+    window.clearInterval(timer)
+    window.removeEventListener('online', wake)
+    window.removeEventListener('pageshow', wake)
+    window.removeEventListener('focus', wake)
+    document.removeEventListener('visibilitychange', wake)
+  }
+}
 
 function key(studentToken: string, uploadId: string) { return `${studentToken}:${uploadId}` }
 function sourceKey(studentToken: string, uploadId: string) { return `${studentToken}:${uploadId}` }
@@ -89,7 +182,7 @@ function installLifecycleWake() {
       if (knownTransfers.get(id) !== item) continue
       const running = active.get(id)
       if (running) running.wakeRequested = true
-      else resumePhotoTransfer(item.studentToken, item.uploadId, item.data)
+      else void retryPhotoTransfer(item.studentToken, item.uploadId).catch(() => {})
     }
   }
   window.addEventListener('online', wake)
@@ -259,7 +352,10 @@ export function resumePhotoTransfer(studentToken: string, uploadId: string, data
     if (['pending', 'reviewed', 'deleted'].includes(data.status)) void removePhotoFromOutbox(studentToken, uploadId).catch(() => {})
     return
   }
+  if (data.status === 'requested') { transferDiagnostic(studentToken, uploadId, data, 'waiting-link'); return }
   if (data.status !== 'awaiting-upload' || !data.upload?.href) return
+  // Diagnostic-only snapshots cannot create an immediate failure/retry loop.
+  if (isCurrentAwaiting(id, data) && uiStates.get(id)?.phase === 'failed') return
   installLifecycleWake()
   rememberTransfer(id, { studentToken, uploadId, data })
   void runPhotoTransfer(id, studentToken, uploadId, data, false).catch(() => {})
@@ -271,7 +367,7 @@ export async function retryPhotoTransfer(studentToken: string, uploadId: string)
   const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
   let attempted: UploadState | undefined
   try {
-    const current = await getDocFromServer(ref)
+    const current = await boundedRead(ref)
     if (!current.exists()) { forgetTransfer(id); throw new Error('Заявка на этот файл уже отсутствует.') }
     const data = current.data() as UploadState
     if (['pending', 'reviewed', 'deleted', 'uploaded'].includes(data.status)) { forgetTransfer(id); return }
@@ -300,17 +396,22 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
     const ref = doc(db, 'dayUploads', studentToken, 'files', uploadId)
     const uid = getAuth().currentUser?.uid
     if (!uid || uid !== data.deviceUid) {
+      traceAccess('photo.transfer', { action: 'failed', code: !uid ? 'auth-pending' : 'device-mismatch' })
       if (manual) throw new Error('Откройте эту страницу на устройстве, где выбрали файл, чтобы продолжить передачу.')
       forgetTransfer(id)
       return
     }
+    attempts.set(id, (attempts.get(id) ?? 0) + 1)
+    transferDiagnostic(studentToken, uploadId, data, 'reading-local')
     const file = await localPhotoForTransfer(studentToken, uploadId)
     if (!file) {
+      transferDiagnostic(studentToken, uploadId, data, 'missing-local', 'missing-local')
       if (manual) throw new Error('Исходный файл остался на устройстве, где его выбрали. Откройте страницу там, чтобы повторить передачу.')
-      forgetTransfer(id)
+      setUiState(id, { phase: 'failed', message: 'Сохранённый файл не найден на этом устройстве. Открой исходное устройство или выбери тот же снимок.' })
       return
     }
-    const latestBefore = await getDocFromServer(ref)
+    transferDiagnostic(studentToken, uploadId, data, 'checking-source')
+    const latestBefore = await boundedRead(ref)
     if (!latestBefore.exists()) { forgetTransfer(id); return }
     const currentBefore = latestBefore.data() as UploadState
     if (currentBefore.status !== 'awaiting-upload' || transferVersion(currentBefore) !== transferVersion(data)) {
@@ -326,14 +427,17 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
     }
     if (!validUploadHref(href)) throw new Error('Некорректная ссылка Яндекс.Диска.')
     setUiState(id, { phase: 'sending' })
+    transferDiagnostic(studentToken, uploadId, data, 'sending')
     const response = await fetchWithRetry(href, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } }, { attempts: 4, timeoutMs: 120_000 })
+    transferDiagnostic(studentToken, uploadId, data, 'put-complete', 'none', response.status)
     if (response.status === 403) throw new Error('Ссылка загрузки устарела. Файл сохранён на этом устройстве; ожидаем новую ссылку.')
     if (!response.ok && response.status !== 409) throw new Error(`Яндекс.Диск отклонил файл: HTTP ${response.status}.`)
-    const latest = await getDocFromServer(ref)
+    transferDiagnostic(studentToken, uploadId, data, 'confirming')
+    const latest = await boundedRead(ref)
     if (latest.data()?.status === 'awaiting-upload' && transferVersion(latest.data() as UploadState) === transferVersion(data)) {
       const taskId = latest.data()?.taskId ?? data.taskId
       const currentUid = getAuth().currentUser?.uid
-      const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
+      const owner = await boundedRead(doc(db, 'dayOwners', studentToken))
       const { familyId, childId } = owner.data() ?? {}
       if (!taskId || !currentUid || currentUid !== latest.data()?.deviceUid || !owner.exists() || typeof familyId !== 'string' || typeof childId !== 'string') {
         throw new Error('Не удалось подтвердить семейную привязку передачи файла на этом устройстве.')
@@ -345,7 +449,7 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
       const batch = writeBatch(db)
       batch.update(ref, { status: 'uploaded', eventOperationId: operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 })
       stagePreparedEducationEvent(batch, envelope)
-      try { await batch.commit() }
+      try { await bounded(batch.commit()) }
       catch (cause) {
         try {
           const committed = await getDocFromServer(ref)
@@ -358,6 +462,7 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
         throw cause
       }
       forgetTransfer(id)
+      transferDiagnostic(studentToken, uploadId, data, 'uploaded')
     } else if (latest.data()?.status === 'awaiting-upload' && latest.data()?.upload?.href
       && latest.data()?.deviceUid === getAuth().currentUser?.uid) {
       rememberTransfer(id, { studentToken, uploadId, data: latest.data() as UploadState })
@@ -370,9 +475,12 @@ async function runPhotoTransfer(id: string, studentToken: string, uploadId: stri
     await promise
     if (uiStates.get(id)?.phase === 'sending') setUiState(id, null)
   } catch (cause) {
+    const code = cause instanceof Error && cause.message.startsWith('Ссылка загрузки устарела') ? 'url-expired'
+      : cause && typeof cause === 'object' && 'code' in cause && cause.code === 'deadline-exceeded' ? 'source-timeout' : 'transfer-error'
+    transferDiagnostic(studentToken, uploadId, data, 'failed', code)
     let sourceStillCurrent = true
     try {
-      const latest = await getDocFromServer(doc(db, 'dayUploads', studentToken, 'files', uploadId))
+      const latest = await boundedRead(doc(db, 'dayUploads', studentToken, 'files', uploadId))
       const latestData = latest.exists() ? latest.data() as UploadState : undefined
       if (latestData?.status === 'awaiting-upload' && latestData.upload?.href) {
         if (transferVersion(latestData) !== transferVersion(data) && latestData.deviceUid === getAuth().currentUser?.uid) {

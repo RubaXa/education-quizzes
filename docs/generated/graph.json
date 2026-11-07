@@ -2310,6 +2310,36 @@
       "path": "docs/decisions/photo-indexeddb-recovery-2026-10-22.md"
     },
     {
+      "id": "decision.photo-outbox-route-recovery-2026-11-07",
+      "status": "accepted",
+      "implementation": "partial",
+      "parent": "module.materials.storage-privacy",
+      "uses": [
+        "service.upload-worker"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "created": "2026-11-07",
+      "updated": "2026-11-07",
+      "consumers": [
+        "Photo outbox; App; operator"
+      ],
+      "code": [
+        "src/lib/photoOutbox.ts",
+        "src/lib/browserAccessTrace.ts",
+        "src/App.tsx",
+        "storage/photo-transfer-recovery.mjs",
+        "rules-test-fixtures/photo-upload-suite.mjs",
+        "firestore.rules"
+      ],
+      "path": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md"
+    },
+    {
       "id": "decision.photo-storage-ldd-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -15924,6 +15954,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.photo-outbox-route-recovery-2026-11-07",
+      "to": "service.upload-worker",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-storage-ldd-2026-10-22",
       "to": "module.families.browser-access-trace",
       "type": "uses"
@@ -17275,6 +17310,11 @@
     },
     {
       "from": "file:firestore.rules",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
@@ -18131,6 +18171,11 @@
     {
       "from": "file:rules-test-fixtures/early-development-suite.mjs",
       "to": "module.families.early-development",
+      "type": "implements"
+    },
+    {
+      "from": "file:rules-test-fixtures/photo-upload-suite.mjs",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "implements"
     },
     {
@@ -19166,6 +19211,11 @@
     {
       "from": "file:src/App.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "implements"
     },
     {
@@ -20935,6 +20985,11 @@
     },
     {
       "from": "file:src/lib/browserAccessTrace.ts",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/browserAccessTrace.ts",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "implements"
     },
@@ -21381,6 +21436,11 @@
     {
       "from": "file:src/lib/photoOutbox.ts",
       "to": "decision.photo-indexeddb-recovery-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoOutbox.ts",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "implements"
     },
     {
@@ -22011,6 +22071,11 @@
     {
       "from": "file:storage/photo-placement.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-transfer-recovery.mjs",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "implements"
     },
     {
@@ -23081,6 +23146,11 @@
     {
       "from": "module.materials.storage-privacy",
       "to": "decision.photo-indexeddb-recovery-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "contains"
     },
     {

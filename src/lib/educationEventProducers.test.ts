@@ -34,7 +34,7 @@ vi.mock('firebase/firestore', () => ({
           const current = harness.docs.get(write.path) ?? {}
           harness.docs.set(write.path, write.method === 'update' ? { ...current, ...write.value } : write.value)
         }
-        if (harness.failNextCommitAfterApply) {
+        if (harness.failNextCommitAfterApply && writes.some(write => write.path.startsWith('educationEvents/'))) {
           harness.failNextCommitAfterApply = false
           throw new Error('network response lost after commit')
         }
@@ -250,7 +250,7 @@ describe('Firestore education event producers', () => {
     await vi.waitFor(() => expect(harness.docs.get(path)?.status).toBe('uploaded'))
     const source = harness.docs.get(path)
     const events = eventDocs().map(([, event]) => event)
-    expect(harness.batches[1]).toHaveLength(2)
+    expect(harness.batches.find(batch => batch.some(write => write.value.eventType === 'upload.bytes_uploaded'))).toHaveLength(2)
     expect(source?.eventOperationId).toBe(`upload-transfer:${uploadId}:uploaded`)
     expect(events).toHaveLength(2)
     expect(events[1]).toMatchObject({ eventType: 'upload.bytes_uploaded', eventId: source?.eventReceiptId,

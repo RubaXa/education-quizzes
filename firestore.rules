@@ -1133,6 +1133,7 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // @see docs/decisions/photo-outbox-route-recovery-2026-11-07.md
     match /dayUploads/{studentToken}/files/{uploadId} {
       allow get, list: if dayUploadOwner(studentToken);
       allow create: if dayUploadOwner(studentToken)
@@ -1159,7 +1160,21 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/dayPages/$(studentToken))
         && get(/databases/$(database)/documents/dayPages/$(studentToken)).data.kind == 'student'
         && (
-          (resource.data.status == 'awaiting-upload'
+          (resource.data.status in ['requested', 'awaiting-upload', 'uploaded']
+            && resource.data.deviceUid == request.auth.uid
+            && get(memberPath(get(/databases/$(database)/documents/dayOwners/$(studentToken)).data.familyId)).data.role == 'student'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clientTransfer'])
+            && request.resource.data.clientTransfer.keys().hasOnly(['phase', 'stage', 'code', 'attempt', 'httpStatus', 'at'])
+            && request.resource.data.clientTransfer.keys().hasAll(['phase', 'stage', 'code', 'attempt', 'httpStatus', 'at'])
+            && request.resource.data.clientTransfer.stage in ['waiting-link', 'reading-local', 'missing-local', 'checking-source', 'sending', 'put-complete', 'confirming', 'uploaded', 'failed']
+            && request.resource.data.clientTransfer.phase in ['waiting-link', 'reading-local', 'missing-local', 'checking-source', 'sending', 'put-complete', 'confirming', 'uploaded', 'failed']
+            && request.resource.data.clientTransfer.code in ['none', 'missing-local', 'source-timeout', 'url-expired', 'transfer-error']
+            && request.resource.data.clientTransfer.attempt is int
+            && request.resource.data.clientTransfer.attempt >= 0 && request.resource.data.clientTransfer.attempt <= 10000
+            && request.resource.data.clientTransfer.httpStatus is int
+            && request.resource.data.clientTransfer.httpStatus >= 0 && request.resource.data.clientTransfer.httpStatus <= 599
+            && request.resource.data.clientTransfer.at == request.time)
+          || (resource.data.status == 'awaiting-upload'
             && resource.data.deviceUid == request.auth.uid
             && request.resource.data.status == 'uploaded'
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
