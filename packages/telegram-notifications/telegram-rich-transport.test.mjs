@@ -4,7 +4,8 @@ import { renderNotificationParts } from './domain/renderer.mjs'
 import { NotificationService } from './application/notifications.mjs'
 
 const part = renderNotificationParts({ eventType: 'upload.confirmed', source: 'firestore', privacyClass: 'family-summary', fields: { title: 'Упражнение' }, navigationContext: { kind: 'day', dayToken: 'demo-day' } }, 'family')[0]
-const legacyRichPart = { ...part }
+const legacyKeyboard = { buttons: [{ text: 'Открыть день', url: 'https://rubaxa.github.io/education-quizzes/#/day/demo-day' }] }
+const legacyRichPart = { ...part, keyboard: legacyKeyboard }
 delete legacyRichPart.format
 
 function fakeApi(sendRichMessage) {
@@ -57,7 +58,7 @@ describe('Telegram Rich Messages transport', () => {
     await expect(delivery.send({ chatId: 1, part: legacyRichPart })).resolves.toMatchObject({ method: 'sendMessage', format: 'html-fallback' })
     expect(api.calls[0][1]).toBe(part.html)
     expect(api.calls[0][2].parse_mode).toBe('HTML')
-    expect(api.calls[0][2].reply_markup.inline_keyboard).toEqual([part.keyboard.buttons])
+    expect(api.calls[0][2].reply_markup.inline_keyboard).toEqual([legacyKeyboard.buttons])
   })
 
   it('sends new compact parts directly as newline-controlled HTML', async () => {
@@ -89,9 +90,9 @@ describe('Telegram Rich Messages transport', () => {
     expect(api.calls[0][2].reply_parameters).toEqual({ message_id: 8, allow_sending_without_reply: true })
     expect(api.calls[0][2].reply_markup).toBeUndefined()
 
-    const legacyDayAction = { ...legacyUiKit, keyboard: part.keyboard }
+    const legacyDayAction = { ...legacyUiKit, keyboard: legacyKeyboard }
     await delivery.send({ chatId: 1, part: legacyDayAction })
-    expect(api.calls[1][2].reply_markup.inline_keyboard).toEqual([part.keyboard.buttons])
+    expect(api.calls[1][2].reply_markup.inline_keyboard).toEqual([legacyKeyboard.buttons])
 
     const rich = { ...legacyUiKit, format: undefined, keyboard: undefined, rich_message: {
       blocks: [{ type: 'paragraph', text: 'legacy message' }, { type: 'buttons', buttons: [{ text: 'UI Kit', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit', style: 'primary' }] }],

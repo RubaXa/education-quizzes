@@ -14,13 +14,13 @@ it('fits three short task entries into a compact shared production digest', () =
     review('№1 · Книги на полках', 'needs-fix'),
     review('№5 · Периметр прямоугольника', 'verified'),
   ])
-  expect(digest?.text.split('\n')).toEqual([
-    'Ученик А · 3 изменения',
+  expect(digest?.text).toBe([
+    'Ученик А · Результаты проверки',
     'Математика',
-    '🟢 №3 · Шестьдесят горшков — проверено',
-    '🟠 №1 · Книги на полках — нужна правка',
-    '🟢 №5 · Периметр прямоугольника — проверено',
-  ])
+    '№3 · Шестьдесят горшков\n✅ Зачтено',
+    '№1 · Книги на полках\n✏️ Нужно исправить',
+    '№5 · Периметр прямоугольника\n✅ Зачтено',
+  ].join('\n'))
   expect(digest?.text).not.toMatch(/\n{2,}|Education|Проверка работы/)
 })
 
@@ -51,7 +51,8 @@ it('keeps long names and task titles available while wrapping at 320px', () => {
   expect(text).toContain('font-size:1rem')
   expect(text).toContain('font-weight:400')
   expect(header).toContain('font-weight:700')
-  expect(text).toContain('white-space:pre-wrap')
+  expect(text).toContain('white-space:normal')
+  expect(css.match(/\.edu-telegram-work\s*\{([^}]*)\}/)?.[1]).toContain('white-space:pre-wrap')
   expect(text).toContain('overflow-wrap:anywhere')
   expect(text).toContain('word-break:break-word')
   expect(css).toContain('@media(max-width:420px)')

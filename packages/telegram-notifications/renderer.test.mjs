@@ -49,9 +49,9 @@ describe('notification renderers', () => {
 
   it('generates only checked day action links and has no UI Kit demo action', () => {
     const upload = renderNotificationParts(event('upload.confirmed', { title: 'Работа' }, { navigationContext: { kind: 'day', dayToken: 'day-22' } }), 'family')[0]
-    expect(upload.keyboard.buttons[0].url).toBe('https://rubaxa.github.io/education-quizzes/#/day/day-22')
+    expect(upload.keyboard).toBeUndefined()
     const demo = renderNotificationParts(event('homework.assigned', { title: 'Условная работа' }), 'family', { demo: true, action: { label: 'Открыть пример', url: 'https://rubaxa.github.io/education-quizzes/#/ui-kit' } })[0]
-    expect(demo.plaintext).toContain('Пример · 1 изменение')
+    expect(demo.plaintext).toContain('Пример · Обновления')
     expect(demo.plaintext).toContain('📅 Новое домашнее задание')
     expect(demo.plaintext.match(/Пример/g)).toHaveLength(1)
     expect(demo.keyboard).toBeUndefined()
@@ -78,11 +78,11 @@ describe('notification renderers', () => {
     }))
     const parts = renderNotificationDigestParts(events, 'family')
     expect(parts.length).toBeGreaterThan(1)
-    const titles = parts.flatMap((part) => part.plaintext.split('\n').slice(2))
+    const titles = parts.flatMap((part) => part.plaintext.split('\n').slice(2).filter(line => line.startsWith('№')))
     expect(titles).toHaveLength(50)
     for (let index = 1; index <= 50; index += 1) expect(titles.join('\n')).toContain(`Задание ${index}`)
     for (const part of parts) {
-      const rows = part.plaintext.split('\n').slice(2)
+      const rows = part.plaintext.split('\n').slice(2).filter(line => line.startsWith('№'))
       expect(rows.length).toBeLessThanOrEqual(6)
       expect([...part.plaintext].length).toBeLessThanOrEqual(1200)
       expect(part.plaintext).toMatch(/часть \d+\/\d+/)

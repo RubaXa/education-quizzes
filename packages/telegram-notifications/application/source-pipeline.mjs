@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 import { createHash } from 'node:crypto'
 import { diffCompleteSnapshots } from '../domain/diff.mjs'
 import { EVENT_TYPES } from '../domain/events.mjs'
@@ -65,7 +66,7 @@ export class SourcePipeline {
       const records = mergeKnownRecords(lease.baseline?.records ?? [], currentRecords)
       if (records.length > this.maxRecords) return incompleteResult(lease.sequence ?? 0, scopeKey, 'source_snapshot_too_large')
       const current = { complete: true, observationSequence: sequence, observedAt: this.clock().toISOString(),
-        sourceProjectionVersion: 2, reviewProjectionVersion: 2, records }
+        sourceProjectionVersion: 2, reviewProjectionVersion: 3, records }
       let events = []
       if (this.mode === 'notify' && (lease.baseline || origin === 'live')) {
         const priorRecords = lease.baseline?.records ?? []
@@ -200,7 +201,7 @@ export function normalizeSourceRecords(records) {
     assignment: new Set(['childName', 'subject', 'title', 'occurredLabel']),
     upload: new Set(['childName', 'subject', 'title', 'status', 'occurredLabel']),
     quiz: new Set(['childName', 'subject', 'title', 'status']),
-    review: new Set(['childName', 'subject', 'title', 'occurredLabel', 'status', 'summary', 'nextStep']),
+    review: new Set(['childName', 'subject', 'title', 'occurredLabel', 'status', 'summary', 'nextStep', 'answerResult', 'argumentResult', 'confirmed', 'focus']),
     probe: new Set(),
   }
   for (const record of records) {
@@ -230,7 +231,7 @@ export function normalizeSourceRecords(records) {
     if (record.fields !== undefined && (!record.fields || typeof record.fields !== 'object' || Array.isArray(record.fields)
       || Object.keys(record.fields).some((key) => !fieldsByKind[record.kind].has(key)))) return null
     const fields = {}
-    for (const key of ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep']) {
+    for (const key of ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep', 'answerResult', 'argumentResult', 'confirmed', 'focus']) {
       const value = record.fields?.[key]
       if (typeof value === 'string' && value.length <= 500) fields[key] = sanitizeText(value).slice(0, ['summary', 'nextStep'].includes(key) ? 300 : 500)
       else if (value !== undefined) return null
@@ -238,7 +239,7 @@ export function normalizeSourceRecords(records) {
     const navigationContext = record.kind === 'upload' && record.navigationContext?.kind === 'day'
       && isValidEducationDayToken(record.navigationContext.dayToken)
       ? { kind: 'day', dayToken: record.navigationContext.dayToken } : null
-    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), ...(record.workRef ? { workRef: { ...record.workRef } } : {}), fields, ...(navigationContext ? { navigationContext } : {}) })
+    safe.push({ recordKey: record.recordKey, kind: record.kind, ...(record.eventType ? { eventType: record.eventType } : {}), ...(record.occurredAt ? { occurredAt: record.occurredAt } : {}), ...(record.semanticHash ? { semanticHash: record.semanticHash } : {}), ...(record.legacySemanticHash && /^[a-f0-9]{64}$/.test(record.legacySemanticHash) ? { legacySemanticHash: record.legacySemanticHash } : {}), ...(record.workRef ? { workRef: { ...record.workRef } } : {}), fields, ...(navigationContext ? { navigationContext } : {}) })
   }
   return safe
 }
@@ -268,7 +269,7 @@ function shouldDiffRecord(record, before, { origin, previousProjectionVersion, p
     // another accepted review can be new even when its public status is unchanged.
     if (!before) return origin === 'live'
     if (before.fields?.status !== record.fields?.status) return true
-    if (previousReviewProjectionVersion !== 2) return false
+    if (previousReviewProjectionVersion !== 3) return previousReviewProjectionVersion === 2 && Boolean(record.legacySemanticHash && before.semanticHash !== record.legacySemanticHash)
     return before.semanticHash !== record.semanticHash
   }
   if (record.eventType) return true

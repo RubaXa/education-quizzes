@@ -1,3 +1,4 @@
+/* @see ../docs/decisions/telegram-result-blocks-2026-11-07.md */
 /** Browser regression for the Telegram UI Kit at mobile and narrow desktop widths.
  * Run with: node scripts/check-telegram-preview-viewport.mjs
  * @see ../docs/shared/design/telegram.md#компактная-сводка
@@ -71,10 +72,13 @@ try {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: true })
       await send('Page.navigate', { url: `http://127.0.0.1:${port}/#/ui-kit` })
       await delay(1000)
-      await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const button=[...document.querySelectorAll('nav button')].find(item=>item.textContent.includes('Telegram-уведомления'));if(!button)throw Error('Telegram UI Kit section missing');button.click()})()` })
-      await delay(100)
-      await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Шаблон уведомления"]');if(!select)throw Error('template selector missing');select.value='review';select.dispatchEvent(new Event('change',{bubbles:true}))})()` })
-      await delay(100)
+      let previewReady = false
+      for (let attempt = 0; attempt < 50; attempt++) {
+        const ready = await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{if(document.querySelector('select[aria-label="Содержание уведомления"]'))return true;const button=[...document.querySelectorAll('nav button')].find(item=>item.textContent.includes('Telegram-уведомления'));button?.click();return false})()` })
+        if (ready.result?.value === true) { previewReady = true; break }
+        await delay(100)
+      }
+      if (!previewReady) throw new Error('Telegram UI Kit did not become ready')
 
       for (const mode of ['short', 'long', 'no-context']) {
         const changed = await send('Runtime.evaluate', { returnByValue: true, expression: `(()=>{const select=document.querySelector('select[aria-label="Содержание уведомления"]');if(!select)throw Error('content selector missing');select.value=${JSON.stringify(mode)};select.dispatchEvent(new Event('input',{bubbles:true}));select.dispatchEvent(new Event('change',{bubbles:true}));return true})()` })
@@ -88,13 +92,13 @@ try {
           mode !== 'no-context' && (!layout.message || layout.message.left < layout.stage.left || layout.message.right > layout.stage.right + 1 || layout.text.scroll > layout.text.client + 1)) {
           throw new Error(`Telegram preview overflow at ${width}px (${mode}): ${JSON.stringify(layout)}`)
         }
-        if (mode === 'short' && width >= 390 && layout.message.height > 200) throw new Error(`Short digest is too tall at ${width}px: ${JSON.stringify(layout)}`)
-        if (mode === 'short' && width === 320 && layout.message.height > 240) throw new Error(`Short digest exceeds the narrow-screen height budget: ${JSON.stringify(layout)}`)
+        if (mode === 'short' && width >= 390 && layout.message.height > 450) throw new Error(`Short digest is too tall at ${width}px: ${JSON.stringify(layout)}`)
+        if (mode === 'short' && width === 320 && layout.message.height > 450) throw new Error(`Short digest exceeds the narrow-screen height budget: ${JSON.stringify(layout)}`)
         if (mode !== 'no-context' && (!layout.historyText || Number.parseFloat(layout.historyFontSize) < 16 || Number.parseFloat(layout.historyFontSize) > 17 || Number(layout.historyFontWeight) !== 400)) {
           throw new Error(`Linked history must use normal 16–17px text: ${JSON.stringify(layout)}`)
         }
-        if (mode === 'short' && (layout.lines < 5 || layout.lines > 6 || !layout.content.includes('№3 · Шестьдесят горшков') || !layout.content.includes('№1 · Книги на полках — Ожидало проверки → нужна правка'))) {
-          throw new Error(`Short digest lost its task rows: ${JSON.stringify(layout)}`)
+        if (mode === 'short' && (!layout.content.includes('❌ Ответ неверный') || !layout.content.includes('Ответ верный · ход неполный') || !layout.content.includes('✅ Зачтено'))) {
+          throw new Error(`Mixed result lost its meaning: ${JSON.stringify(layout)}`)
         }
         if (mode === 'long' && (!layout.content.includes('обратным действием') || !layout.content.includes('демонстрационное имя') || layout.overflowWrap !== 'anywhere')) {
           throw new Error(`Long digest did not retain and wrap its content: ${JSON.stringify(layout)}`)
