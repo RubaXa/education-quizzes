@@ -862,18 +862,20 @@
       }
     },
     "packages/education-presentation/notification.mjs": {
-      "sha256": "fbc5ac06f39aafda652eca19fcbdb1971e66f3f897bda00ed53dab7e7a3a8a1a",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "82ebea7a3bb80a1316d14cfc58b7f9a3a3ec8614c5626de9f4ae12e3880afe8b",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/education-presentation/notification.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/education-runtime/credentials.mjs": {
@@ -1045,19 +1047,20 @@
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
-      "sha256": "4eb589e5d559beee4cdda5736899c4e3dbc43d526cc1b7c463cb157cabd53274",
-      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "sha256": "3e492bb65bc59cfda24418048189ee2f913d2ee7f549f9cc77591aa6ba1ddace",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Пользователь19.10 сообщил повторную задержку Firebase upload → Telegram/EducationSync и ранее разрешил Luna исправления, тесты, проверки и выпуск main с обновлением постоянного процесса."
+        "status": "approved-mockup",
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/adapters/memory.mjs": {
@@ -1182,19 +1185,20 @@
       }
     },
     "packages/telegram-notifications/adapters/source-firestore.mjs": {
-      "sha256": "546eb5cbee59505e2a01c0ec8c350fbedd3cd2746f0e2a43bba7007d49c46120",
-      "record": "docs/decisions/upload-lifecycle-continuation-2026-10-30.md",
+      "sha256": "130acf3bef05761ce2da2c108b557f20ed8199600823b22d2ebc2aaa58186cfd",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "sync/upload-lifecycle.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель30.10.2026 поручил автоматическую отмену удалённых фото и продолжение проверки после загрузки запрошенных страниц, сохраняя действующий разбор всех загруженных материалов."
+        "status": "approved-mockup",
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/adapters/source-inventory-firestore.mjs": {
@@ -1350,52 +1354,54 @@
       }
     },
     "packages/telegram-notifications/application/source-pipeline.mjs": {
-      "sha256": "e53abf24f46ae6bf12243d953bf39acd71ebf451d097a53d70317b88668247ea",
-      "record": "docs/decisions/telegram-sync-recovery-2026-10-19.md",
+      "sha256": "a86ddae02d3d1fad993470e3d088542d6f9d1f96a914b8fbd3f840503595981e",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/operations.md",
-        "docs/shared/server-runtime.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/operation-deadline.test.mjs",
-        "packages/telegram-notifications/adapters/worker-loop.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Пользователь19.10 требует через Luna исправить зависание, подключить автоматический EducationSync, проверить реальные Mesh notifications, добавить tests/specs и выпустить main."
+        "status": "approved-mockup",
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/domain/diff.mjs": {
-      "sha256": "a55627a30c97870d844af9f44e6da676d4c354f12e0254949b6cce8f8cfa7d4e",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "a5de3e282dbc4b41c3a42f65287f4c44b424d002f62112187e19d3865d482335",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/domain/events.mjs": {
-      "sha256": "8acc66f83680759485072b615b51da13bbfd7baee069d49f56e0622030f6ef91",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "0e7cf0bd91fe22420c5b1f68a3e304b83993a83d99b55830fbde6246041391f4",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/notifications.test.mjs",
-        "packages/telegram-notifications/source-pipeline.test.mjs"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/domain/ports.mjs": {
@@ -1427,19 +1433,20 @@
       }
     },
     "packages/telegram-notifications/domain/renderer.mjs": {
-      "sha256": "018278fe103cc72a63c8370779e2e9215eb9ebd90acd583157286db3b98ab38c",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "06fd562f361ffa59aff01b8d566bdd4b4980a16ec0c0c4bb752d14fc79389080",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "packages/telegram-notifications/renderer.test.mjs",
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
         "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
@@ -1934,18 +1941,20 @@
       }
     },
     "scripts/check-telegram-preview-viewport.mjs": {
-      "sha256": "a880584e2d2a1e8a1d2799dc026b8c95960c5b167eade67de51030239d85ffa9",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "395302f914a3590fa4caed8becdbc469d64ad3428865ff2dddef1daed9cf8568",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "src/components/TelegramNotificationPreview.layout.test.ts"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "scripts/connect.mjs": {
@@ -3765,35 +3774,37 @@
       }
     },
     "src/components/TelegramNotificationPreview.css": {
-      "sha256": "0d8343d1a32fde66a575a41918042b411eb928ff2aec1af275321593c1f802ea",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "c44f71c0325f5300258d68e679a3ee630024abbb28725142b11063a1bde23fd6",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "src/components/TelegramNotificationPreview.layout.test.ts",
-        "src/UiKit.test.tsx"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "src/components/TelegramNotificationPreview.tsx": {
-      "sha256": "a17629fe0048a66b2cee728d33ab96e90f72e363f5ab9331cd273abd3af7eafe",
-      "record": "docs/decisions/telegram-linked-work-history-2026-10-18.md",
+      "sha256": "b5ae2db55706fb5706d083d386c8bc2a762a0361c8e7a21c91c52bc419205c71",
+      "record": "docs/decisions/telegram-result-blocks-2026-11-07.md",
       "specs": [
-        "docs/services/telegram-bot/work-history.md",
-        "docs/shared/design/telegram.md"
+        "docs/shared/design/telegram.md",
+        "docs/services/telegram-bot/work-history.md"
       ],
       "tests": [
-        "src/components/TelegramNotificationPreview.layout.test.ts",
-        "src/UiKit.test.tsx"
+        "packages/education-presentation/notification.test.mjs",
+        "packages/telegram-notifications/source-pipeline.test.mjs",
+        "packages/telegram-notifications/notifications.test.mjs"
       ],
       "authorization": {
         "status": "approved-mockup",
-        "evidence": "Пользователь18.10.2026 выбрал сводку изменений и связанную историю каждой работы, прямо потребовал убрать кнопку UI Kit, внедрить через Luna, обновить спецификации/тесты и выпустить в main с согласованием сессий."
+        "evidence": "Родитель07.11 одобрил визуальную рекомендацию «По работе в блоке» и смешанный итог; ранее потребовал понятные самодостаточные результаты, группировку событий одной минуты и убрать общую кнопку дня."
       }
     },
     "src/components/WorkPhotoGallery.css": {

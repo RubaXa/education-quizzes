@@ -158,3 +158,5 @@ The shared event consumer uses bounded pages and per-event fenced claims. It dra
 ## Подмодули
 
 При фактическом росте event catalog его следует выделить в `events/<source-or-domain>.md`; схемы сериализации и миграции — в `storage/schema-migrations.md`. Не заводить такие документы до появления конкретного контракта, требующего самостоятельного жизненного цикла.
+
+07.11: review projection version3 добавляет только публичные `mathReasoning.answer/argument` и `studentFeedback.confirmed/focus` в плоские allowlist поля answerResult/argumentResult/confirmed/focus. Их изменение входит в semantic fingerprint, checkedAt по-прежнему не входит. Старый baseline с той же оценкой статуса обогащается один раз тихо, без исторической рассылки; изменение статуса и новая live работа остаются событиями; для baseline v2 совместимый legacySemanticHash сохраняет новое фото/изменение прежнего summary даже во время миграции. Закрытые parent документы не читаются.

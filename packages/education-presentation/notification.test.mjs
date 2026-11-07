@@ -55,7 +55,7 @@ describe('shared notification presentation', () => {
     const review = getNotificationDigestPresentation([{ eventType: 'review.changed', fields: {
       childName: 'Ученик А', subject: 'Математика', title: '№ 3 · Книги на разных полках', status: 'needs-fix',
     } }])
-    expect(review.text).toBe('Ученик А · 1 изменение\nМатематика\n🟠 № 3 · Книги на разных полках — нужна правка')
+    expect(review.text).toBe('Ученик А · Результаты проверки\nМатематика\n№ 3 · Книги на разных полках\n✏️ Нужно исправить')
     expect(getNotificationDigestPresentation([{ eventType: 'review.changed', fields: { childName: 'Ученик А', status: 'verified' } }])).toBeNull()
 
     const mixed = getNotificationDigestPresentation([
@@ -77,11 +77,11 @@ describe('shared notification presentation', () => {
       { eventType: 'review.changed', workRef: ref, fields: { childName: 'Ученик А', subject: 'Спецкурс', title: 'Книги', status: 'needs-fix', previousStatus: 'waiting', nextStep: 'Добавь объяснение <второго случая> https://private.example/token=abc' } },
       { eventType: 'review.changed', workRef: ref, fields: { childName: 'Ученик А', subject: 'Спецкурс', title: 'Периметр', status: 'verified', previousStatus: 'needs-fix', summary: 'Проверено.' } },
     ])
-    expect(digest.header).toBe('Ученик А · 2 изменения')
+    expect(digest.header).toBe('Ученик А · Результаты проверки')
     expect(digest.context).toBe('Спецкурс')
-    expect(digest.entries[0].text).toContain('Ожидало проверки → нужна правка')
+    expect(digest.entries[0].text).toContain('✏️ Нужно исправить')
     expect(digest.entries[0].text).toContain('[ссылка скрыта]')
-    expect(digest.entries[1].text).toContain('Нужна правка → проверено')
+    expect(digest.entries[1].text).toContain('✅ Зачтено')
     expect(digest.entries.map(entry => entry.workRef)).toEqual([ref, ref])
     expect(getNotificationDigestPresentation([{ eventType: 'upload.confirmed', fields: { title: 'Работа', photoCount: 12 } }]).text).not.toContain('12')
     expect(getNotificationDigestPresentation([{ eventType: 'grade.created', fields: { value: '5' } }]).text).toContain('📝')
@@ -101,7 +101,7 @@ describe('shared notification presentation', () => {
       { eventType: 'upload.confirmed', workRef: workA, fields: { title: 'Старое событие' } },
     ])
     expect(digest.changeCount).toBe(6)
-    expect(digest.header).toBe('6 изменений')
+    expect(digest.header).toBe('Фото получены')
     expect(digest.entries).toHaveLength(4)
     expect(digest.entries.map((entry) => entry.uploadCount)).toEqual([3, 1, 1, 1])
     expect(digest.entries[0].workOrders).toEqual([
@@ -110,7 +110,7 @@ describe('shared notification presentation', () => {
       `2026-10-18T10:00:00.000Z:${'3'.repeat(64)}`,
     ])
     expect(digest.entries.map((entry) => entry.workRef?.id ?? null)).toEqual([workA.id, workB.id, null, workA.id])
-    expect(digest.entries[0].text).toContain('получено 3 файла · ждут проверки')
+    expect(digest.entries[0].text).toContain('получено 3 файла для проверки')
     expect(digest.text.match(/Задача 64/g)).toHaveLength(2)
   })
 
@@ -131,7 +131,23 @@ describe('shared notification presentation', () => {
     expect(mixedDates.context).toBe('')
     expect(mixedDates.entries.map(entry => entry.text)).toEqual(expect.arrayContaining([expect.stringContaining('16 октября'), expect.stringContaining('17 октября')]))
     const event = index => ({ eventType: 'review.changed', fields: { childName: 'Ученик А', subject: 'Математика', title: `№${index}`, status: 'verified' } })
-    expect(getNotificationDigestPresentation(Array.from({ length: 21 }, (_, index) => event(index))).header).toBe('Ученик А · 21 изменение')
-    expect(getNotificationDigestPresentation(Array.from({ length: 22 }, (_, index) => event(index))).header).toBe('Ученик А · 22 изменения')
+    expect(getNotificationDigestPresentation(Array.from({ length: 21 }, (_, index) => event(index))).header).toBe('Ученик А · Результаты проверки')
+    expect(getNotificationDigestPresentation(Array.from({ length: 22 }, (_, index) => event(index))).header).toBe('Ученик А · Результаты проверки')
   })
+})
+
+// @see ../../docs/shared/design/telegram.md#визуальная-система
+it('explains mixed review outcomes without inventing acceptance from a correct answer', () => {
+  const fields = { childName: 'Ученик А', subject: 'Спецкурс' }
+  const digest = getNotificationDigestPresentation([
+    { eventType: 'review.changed', fields: { ...fields, title: '№1', status: 'needs-fix', answerResult: 'incorrect', confirmed: 'Вычисления верные.', focus: 'Перепутаны этажи и пролёты.' } },
+    { eventType: 'review.changed', fields: { ...fields, title: '№3', status: 'partial', answerResult: 'correct', argumentResult: 'incomplete', focus: 'Не объяснён второй случай.' } },
+    { eventType: 'review.changed', fields: { ...fields, title: '№4', status: 'verified', confirmed: 'Ответ и ход решения верные.' } },
+  ])
+  expect(digest.text).toContain('❌ Ответ неверный')
+  expect(digest.text).toContain('Вычисления верные.')
+  expect(digest.text).toContain('✏️ Ответ верный · ход неполный')
+  expect(digest.text).toContain('✅ Зачтено')
+  expect(digest.text).not.toMatch(/изменени|→|Проверено/)
+  expect(digest.entries.filter(entry => entry.result === '✅ Зачтено')).toHaveLength(1)
 })

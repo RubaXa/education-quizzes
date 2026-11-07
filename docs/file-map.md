@@ -212,7 +212,7 @@
 | Файл | Спецификация | Зачем существует | Потребитель |
 |---|---|---|---|
 | [docs/decisions/telegram-compact-digest-2026-10-18.md](decisions/telegram-compact-digest-2026-10-18.md) | [Telegram дизайн](shared/design/telegram.md) | Причина регрессии, компактная сводка и критерии приёмки | Разработчик; оператор; UI Kit |
-| [docs/services/telegram-bot/work-history.md](services/telegram-bot/work-history.md) | [Telegram service](services/telegram-bot/README.md) | Сводка, точная идентичность работы, reply plan, receipt и изоляция истории | Worker; UI Kit; оператор |
+| [docs/services/telegram-bot/work-history.md](services/telegram-bot/work-history.md) | [Telegram service](services/telegram-bot/README.md) | Сводка блоков, точная идентичность работы, receipt и изоляция истории | Worker; UI Kit; оператор |
 | [docs/decisions/telegram-linked-work-history-2026-10-18.md](decisions/telegram-linked-work-history-2026-10-18.md) | [Telegram дизайн](shared/design/telegram.md) | Выбор сводки и связанной истории, запрет UI Kit кнопки, приёмка | Разработчик; оператор |
 | [packages/telegram-notifications/adapters/work-history-firestore.mjs](../packages/telegram-notifications/adapters/work-history-firestore.mjs) | [История работы](services/telegram-bot/work-history.md) | Fenced stream lease и транзакционные pointers фактически доставленных работ | Firestore outbox |
 | [packages/telegram-notifications/operations/review-check.mjs](../packages/telegram-notifications/operations/review-check.mjs) | [Операции бота](services/telegram-bot/operations.md) | Read-only агрегированная диагностика контекста проверок и групповой доставки | Оператор Education |
@@ -1319,3 +1319,5 @@
 | [packages/education-connect/lib/prompts.test.mjs](../packages/education-connect/lib/prompts.test.mjs) | [Локальная диагностика](decisions/local-connect-diagnostics-2026-11-01.md) | Unicode Backspace, длина без секрета и явное экранированное начало пароля | Vitest |
 
 | [docs/decisions/linked-quiz-parent-guide-2026-11-01.md](decisions/linked-quiz-parent-guide-2026-11-01.md) | [Карточка дня](modules/school-diary/day-page.md) | Сохранение закрытого родительского разбора при показе задания одной цепочкой теста | Родитель; DayPage |
+
+| [docs/decisions/telegram-result-blocks-2026-11-07.md](decisions/telegram-result-blocks-2026-11-07.md) | [Telegram дизайн](shared/design/telegram.md) | Одобренные блоки смешанного результата, минутная сводка и границы миграции | Renderer; UI Kit; оператор |

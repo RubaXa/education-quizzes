@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 import { createHash } from 'node:crypto'
 import { createDomainEvent, EVENT_TYPES } from './events.mjs'
 import { isValidEducationDayToken } from '../../education-presentation/notification.mjs'
@@ -38,7 +39,7 @@ export function diffCompleteSnapshots({ source, scopeKey, familyId, childId, pre
 }
 
 const EVENT_TYPE_SET = new Set(EVENT_TYPES)
-const fieldKeys = ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep']
+const fieldKeys = ['childName', 'subject', 'title', 'value', 'status', 'occurredLabel', 'summary', 'nextStep', 'answerResult', 'argumentResult', 'confirmed', 'focus']
 function validSnapshot(snapshot) {
   if (!snapshot || snapshot.complete !== true || !Array.isArray(snapshot.records) || !Number.isSafeInteger(snapshot.observationSequence) || snapshot.observationSequence < 0) return false
   const seen = new Set()

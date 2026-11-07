@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 /** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 import { createHash } from 'node:crypto'
 import { taskContext } from '../../education-runtime/task-context.mjs'
@@ -163,9 +164,9 @@ export function createFirestoreSourceAdapter(db, { baseBackoffMs = 1_000, maxBac
     if (!resolved.context) return INVALID_SOURCE_STATE
     const semanticHash = reviewFingerprint(data)
     if (!semanticHash) return INVALID_SOURCE_STATE
-    return { recordKey: sourceRecordKey('review', scope.dayToken, scope.recordId), kind: 'review', eventType: 'review.changed', semanticHash,
+    return { recordKey: sourceRecordKey('review', scope.dayToken, scope.recordId), kind: 'review', eventType: 'review.changed', semanticHash, legacySemanticHash: reviewFingerprint(data, false),
       workRef: dayTaskWorkRef(scope),
-      fields: { ...(childName ? { childName } : {}), ...resolved.context, status: data.status,
+      fields: { ...(childName ? { childName } : {}), ...resolved.context, status: data.status, ...reviewMeaning(data),
         ...(publicDetail(data.summary) ? { summary: publicDetail(data.summary) } : {}),
         ...(publicDetail(data.nextStep) ? { nextStep: publicDetail(data.nextStep) } : {}) } }
   }
@@ -338,9 +339,19 @@ function validDayToken(value) { return typeof value === 'string' && /^[A-Za-z0-9
 function fieldMask(kind) {
   if (kind === 'quiz') return ['familyId', 'childId', 'status', 'startedAt', 'submittedAt', 'title', 'subject']
   if (kind === 'upload') return ['status', 'taskId', 'storage.provider', 'storage.state', 'storage.syncedAt']
-  return ['status', 'checkedAt', 'taskId', 'purpose', 'uploadIds', 'summary', 'nextStep', 'done']
+  return ['status', 'checkedAt', 'taskId', 'purpose', 'uploadIds', 'summary', 'nextStep', 'done', 'studentFeedback.confirmed', 'studentFeedback.focus', 'mathReasoning.answer', 'mathReasoning.argument']
 }
-function reviewFingerprint(data) {
+function reviewMeaning(data) {
+  const fields = {}
+  if (['correct', 'incorrect', 'uncertain'].includes(data.mathReasoning?.answer)) fields.answerResult = data.mathReasoning.answer
+  if (['sufficient', 'incomplete', 'not-shown', 'unreadable', 'not-required'].includes(data.mathReasoning?.argument)) fields.argumentResult = data.mathReasoning.argument
+  for (const key of ['confirmed', 'focus']) {
+    const value = publicDetail(data.studentFeedback?.[key])
+    if (value) fields[key] = value
+  }
+  return fields
+}
+function reviewFingerprint(data, includeMeaning = true) {
   let uploadIds = []
   if (data.uploadIds !== undefined) {
     if (!Array.isArray(data.uploadIds) || data.uploadIds.length > 100
@@ -353,7 +364,7 @@ function reviewFingerprint(data) {
   const summary = publicText(data.summary)
   const nextStep = publicText(data.nextStep)
   if (summary === null || nextStep === null) return null
-  return createHash('sha256').update(JSON.stringify({ version: 2, status: data.status, uploadIds, summary, nextStep })).digest('hex')
+  return createHash('sha256').update(JSON.stringify({ version: 2, status: data.status, uploadIds, summary, nextStep, ...(includeMeaning ? reviewMeaning(data) : {}) })).digest('hex')
 }
 const INVALID_SOURCE_STATE = Symbol('invalid_source_state')
 function project(scope, data, childName = '') {

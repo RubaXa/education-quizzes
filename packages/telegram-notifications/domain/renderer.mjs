@@ -1,6 +1,7 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 /* @see ../../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 /** @see ../../../docs/services/telegram-bot/delivery.md#структурный-вид */
-import { getNotificationPresentation, getNotificationDigestPresentation, validateNotificationAction, isValidWorkRef, isValidWorkOrder } from '../../education-presentation/notification.mjs'
+import { getNotificationDigestPresentation, validateNotificationAction, isValidWorkRef, isValidWorkOrder } from '../../education-presentation/notification.mjs'
 
 const LABELS = Object.freeze({
   'schedule.created': 'Добавлено расписание', 'schedule.changed': 'Изменено расписание', 'schedule.cancelled': 'Расписание отменено',
@@ -79,7 +80,8 @@ export function renderNotificationDigestParts(events, audience, { maxChars = 120
     const linesForPart = factsForPart.map((fact) => fact.text)
     const partHeader = partCount > 1 ? `${header ? `${header} · ` : ''}часть ${index + 1}/${partCount}` : header
     const plainText = [partHeader, context, ...linesForPart].filter(Boolean).join('\n')
-    const html = `${partHeader ? `<b>${escapeHtml(partHeader)}</b>${context || linesForPart.length ? '\n' : ''}` : ''}${context ? `${escapeHtml(context)}${linesForPart.length ? '\n' : ''}` : ''}${linesForPart.map(escapeHtml).join('\n')}`
+    const html = [partHeader ? `<b>${escapeHtml(partHeader)}</b>` : '', escapeHtml(context), ...factsForPart.map((fact) =>
+      fact.blockTitle ? `<blockquote><b>${escapeHtml(fact.blockTitle)}</b>\n${escapeHtml(fact.text.slice(fact.blockTitle.length + 1))}</blockquote>` : escapeHtml(fact.text))].filter(Boolean).join('\n')
     const blocks = [{ type: 'paragraph', text: plainText }]
     const workRefs = [...new Map(factsForPart.map((entry) => entry.workRef).filter(isValidWorkRef).map((ref) => [ref.id, ref])).values()]
     const workOrderBindings = factsForPart.filter((entry) => isValidWorkRef(entry.workRef))
@@ -89,18 +91,6 @@ export function renderNotificationDigestParts(events, audience, { maxChars = 120
       ...(workRefs.length ? { workRefs } : {}), ...(workOrderBindings.length ? { workOrderBindings } : {}) }
     return part
   })
-  const event = events[0]
-  const actionCandidate = !demo && events.length === 1 ? getNotificationPresentation(event).action : null
-  if (actionCandidate) {
-    const validAction = validateNotificationAction(actionCandidate, { demo })
-    if (validAction) {
-      const part = parts[0]
-      part.keyboard = { buttons: [{ text: validAction.label, url: validAction.url }] }
-      part.actionKind = demo && validAction.url.endsWith('#/ui-kit') ? 'demo' : 'education'
-      if (part.actionKind === 'education') part.navigationContext = { kind: 'day', dayToken: event.navigationContext.dayToken }
-      part.rich_message.blocks.push({ type: 'buttons', buttons: [{ text: validAction.label, url: validAction.url, style: 'primary' }] })
-    }
-  }
   return parts
 }
 
@@ -113,7 +103,7 @@ export function notificationMessageVersion(parts) {
 
 export function isValidNotificationPart(part) {
   if (!part || typeof part !== 'object' || Array.isArray(part)
-    || !validText(part.plaintext, 3900) || !validText(part.html, 24000) || /<(?!\/?(?:b|i)>)/i.test(part.html)
+    || !validText(part.plaintext, 3900) || !validText(part.html, 24000) || /<(?!\/?(?:b|i|blockquote)>)/i.test(part.html)
     || (part.html.match(/<b>/g)?.length ?? 0) !== (part.html.match(/<\/b>/g)?.length ?? 0)
     || (part.html.match(/<i>/g)?.length ?? 0) !== (part.html.match(/<\/i>/g)?.length ?? 0)
     || !part.rich_message || !Array.isArray(part.rich_message.blocks) || !part.rich_message.blocks.length
@@ -122,6 +112,7 @@ export function isValidNotificationPart(part) {
     || (part.format === 'html' && (part.rich_message.blocks.filter((block) => block?.type === 'heading' || block?.type === 'divider' || block?.type === 'footer').length > 0
       || part.rich_message.blocks.filter((block) => block?.type === 'paragraph').length !== 1))
     || part.rich_message.blocks.length > 20 || part.rich_message.media !== undefined || typeof part.demo !== 'boolean') return false
+  if ((part.html.match(/<blockquote>/g)?.length ?? 0) !== (part.html.match(/<\/blockquote>/g)?.length ?? 0)) return false
   for (const block of part.rich_message.blocks) {
     if (block?.type === 'divider') { if (Object.keys(block).length !== 1) return false; continue }
     if (block?.type === 'heading') {

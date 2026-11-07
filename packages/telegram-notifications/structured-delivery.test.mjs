@@ -118,7 +118,7 @@ describe('durable structured notification delivery', () => {
     const db = new Firestore({ projectId: 'demo-project' })
     const parts = renderNotificationParts(event(), 'family')
     const job = { messageVersion: 2, messageParts: parts }
-    expect(parts[0].keyboard).toEqual({ buttons: [{ text: 'Открыть день', url: 'https://rubaxa.github.io/education-quizzes/#/day/demo-day' }] })
+    expect(parts[0].keyboard).toBeUndefined()
     expect(() => assertNoNestedArrays(job)).not.toThrow()
     expect(() => db.batch().create(db.doc('telegramNotificationOutbox/demo-job'), job)).not.toThrow()
 

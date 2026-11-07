@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 /* @see ../../docs/decisions/telegram-compact-digest-2026-10-18.md */
 /** @see ../../docs/shared/design/telegram.md#визуальная-система @see ../../docs/shared/design/statuses.md#matrix */
 export const STATUS_PRESENTATION = Object.freeze({
@@ -98,7 +99,9 @@ export function getNotificationDigestPresentation(events) {
     previousStatus: previousStatus ? { id: previousStatus, label: STATUS_PRESENTATION[previousStatus].label, emoji: STATUS_PRESENTATION[previousStatus].emoji } : null,
     previousValue: validGrade(fields.previousValue) || null,
     previousTitle: safeString(fields.previousTitle, 300) || null,
-    detail: safeString(fields.nextStep, 180) || safeString(fields.summary, 180) || null,
+    detail: safeString(fields.focus, 180) || safeString(fields.nextStep, 180) || safeString(fields.summary, 180) || null,
+    confirmed: safeString(fields.confirmed, 180) || null,
+    answerResult: fields.answerResult, argumentResult: fields.argumentResult,
     workRef: isValidWorkRef(event?.workRef) ? { ...event.workRef } : null,
     workOrder: isValidWorkOrder(event) ? `${new Date(event.detectedAt).toISOString()}:${event.eventId}` : null,
     workOrders: isValidWorkOrder(event) ? [`${new Date(event.detectedAt).toISOString()}:${event.eventId}`] : [],
@@ -126,18 +129,21 @@ export function getNotificationDigestPresentation(events) {
   const dueLabels = [...new Set(entries.map((entry) => entry.occurredLabel).filter(Boolean))]
   const dueContext = entries.every((entry) => entry.occurredLabel) && dueLabels.length === 1 ? dueLabels[0] : null
   const changeCount = valid.length
-  const header = [childName, `${changeCount} ${pluralChanges(changeCount)}`].filter(Boolean).join(' · ')
+  const reviewsOnly = entries.every((entry) => entry.eventType === 'review.changed')
+  const uploadsOnly = entries.every((entry) => entry.eventType === 'upload.confirmed')
+  const header = [childName, reviewsOnly ? 'Результаты проверки' : uploadsOnly ? 'Фото получены' : 'Обновления'].filter(Boolean).join(' · ')
   const context = [subject, dueContext].filter(Boolean).join(' · ')
   const rows = entries.map((entry) => {
     const identity = [entry.childName && childName === null ? entry.childName : null,
       entry.subject && subject === null ? entry.subject : null].filter(Boolean).join(' · ')
     if (entry.eventType === 'review.changed') {
-      const status = entry.status.label.toLocaleLowerCase('ru-RU')
-      const previousLabel = entry.previousStatus?.id === 'waiting' ? 'Ожидало проверки' : entry.previousStatus?.label
-      const result = entry.previousStatus ? `${previousLabel} → ${status}` : entry.reviewChangeKind === 'updated' ? `разбор обновлён · ${status}` : status
-      return `${entry.status.emoji} ${[identity, entry.title ?? entry.previousTitle].filter(Boolean).join(' · ')} — ${result}${entry.detail ? `\n${entry.detail}` : ''}`
+      const outcome = reviewOutcome(entry)
+      entry.blockTitle = [identity, entry.title ?? entry.previousTitle].filter(Boolean).join(' · ')
+      entry.result = outcome
+      const details = [...new Set([entry.confirmed, entry.detail].filter(Boolean))]
+      return `${entry.blockTitle}\n${outcome}${details.length ? `\n${details.join('\n')}` : ''}`
     }
-    if (entry.eventType === 'upload.confirmed') return `📷 ${[identity, entry.title].filter(Boolean).join(' · ') || 'Фото работы'} — получено ${entry.uploadCount} ${pluralFiles(entry.uploadCount)} · ждут проверки`
+    if (entry.eventType === 'upload.confirmed') return `📷 ${[identity, entry.title].filter(Boolean).join(' · ') || 'Фото работы'} — получено ${entry.uploadCount} ${pluralFiles(entry.uploadCount)} для проверки`
     if (entry.eventType.startsWith('grade.')) {
       const context = [identity, entry.title].filter(Boolean).join(' · ')
       const result = entry.value ? (entry.eventType === 'grade.changed'
@@ -197,11 +203,14 @@ function formatOccurred(label) {
   return `К ${['воскресенью', 'понедельнику', 'вторнику', 'среде', 'четвергу', 'пятнице', 'субботе'][date.getUTCDay()]}, ${date.getUTCDate()} ${month}`
 }
 function validGrade(value) { return typeof value === 'string' && /^[1-5](?:[+-])?$/.test(value.trim()) ? value.trim() : '' }
-function pluralChanges(count) {
-  const lastTwo = count % 100
-  if (lastTwo >= 11 && lastTwo <= 14) return 'изменений'
-  const last = count % 10
-  return last === 1 ? 'изменение' : last >= 2 && last <= 4 ? 'изменения' : 'изменений'
+function reviewOutcome(entry) {
+  if (entry.status.id === 'complete') return '✅ Зачтено'
+  if (entry.answerResult === 'incorrect') return '❌ Ответ неверный'
+  if (entry.answerResult === 'correct' && ['incomplete', 'not-shown'].includes(entry.argumentResult)) return '✏️ Ответ верный · ход неполный'
+  if (entry.argumentResult === 'unreadable') return '🔎 Ход решения не удаётся прочитать'
+  if (entry.status.id === 'partial') return '✏️ Часть зачтена · нужно дополнить'
+  if (entry.status.id === 'needs-fix') return '✏️ Нужно исправить'
+  return '🔎 Недостаточно данных для проверки'
 }
 function pluralFiles(count) {
   const lastTwo = count % 100

@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 import { createHash } from 'node:crypto'
 import { isValidEducationDayToken } from '../../education-presentation/notification.mjs'
 
@@ -72,7 +73,7 @@ const safeFields = (eventType, fields) => {
     'homework.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
     'homework.cancelled': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel'],
     'upload.confirmed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel', 'previousStatus'],
-    'review.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel', 'status', 'previousStatus', 'summary', 'nextStep', 'changeKind'],
+    'review.changed': ['childName', 'subject', 'title', 'previousTitle', 'occurredLabel', 'status', 'previousStatus', 'summary', 'nextStep', 'changeKind', 'answerResult', 'argumentResult', 'confirmed', 'focus'],
     'quiz.started': ['childName', 'subject', 'title', 'status'],
     'quiz.submitted': ['childName', 'subject', 'title', 'status'],
     'technical.probe': [],
@@ -80,7 +81,9 @@ const safeFields = (eventType, fields) => {
   for (const key of allowedByType[eventType] ?? []) {
     if (typeof fields[key] === 'string' && fields[key].trim()) result[key] = sanitizeField(fields[key]).slice(0, 500)
   }
-  for (const key of ['summary', 'nextStep']) if (typeof result[key] === 'string') result[key] = result[key].slice(0, 300)
+  if (!['correct', 'incorrect', 'uncertain'].includes(result.answerResult)) delete result.answerResult
+  if (!['sufficient', 'incomplete', 'not-shown', 'unreadable', 'not-required'].includes(result.argumentResult)) delete result.argumentResult
+  for (const key of ['summary', 'nextStep', 'confirmed', 'focus']) if (typeof result[key] === 'string') result[key] = result[key].slice(0, 300)
   if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.status)) delete result.status
   if (eventType === 'review.changed' && !['verified', 'needs-fix', 'partial', 'cannot-assess'].includes(result.previousStatus)) delete result.previousStatus
   if (eventType === 'upload.confirmed' && result.previousStatus !== 'confirmed') delete result.previousStatus

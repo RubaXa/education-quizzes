@@ -1,5 +1,6 @@
+/* @see ../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 /* @see ../../docs/decisions/telegram-compact-digest-2026-10-18.md */
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { getNotificationDigestPresentation, NOTIFICATION_EXAMPLES } from '../../packages/education-presentation/notification.mjs'
 import type { NotificationEvent } from '../../packages/education-presentation/notification.mjs'
 import './TelegramNotificationPreview.css'
@@ -29,11 +30,11 @@ function demoEvents(exampleId: string, mode: ContentMode): NotificationEvent[] {
       subject: mode === 'long' ? 'Математика: многозначные числа и действия с величинами' : 'Спецкурс',
       occurredLabel: 'Задание к 2026-10-22',
     }
-    const titles = ['№3 · Шестьдесят горшков', '№1 · Книги на полках', '№5 · Периметр']
+    const titles = ['№1 · Этажи соседей', '№3 · Цифровые часы', '№4 · Блины']
     return titles.map((sampleTitle, index) => ({
       eventType: 'review.changed', source: 'demo', workRef: index === 1 ? demoWorkRef : { ...demoWorkRef, id: String(index + 1).padStart(64, '0') },
       fields: { ...common, title: mode === 'long' ? `№${index + 1} · ${longText}` : sampleTitle,
-        status: index === 1 ? 'needs-fix' : 'verified', ...(index === 1 ? { previousStatus: 'waiting', nextStep: 'Не объяснён второй случай.' } : {}) },
+        status: index === 2 ? 'verified' : 'needs-fix', answerResult: index === 0 ? 'incorrect' : 'correct', argumentResult: index === 1 ? 'incomplete' : 'sufficient', ...(index === 0 ? { confirmed: 'Вычисления верные.', focus: 'Перепутаны этажи и пролёты.' } : index === 1 ? { focus: 'Не объяснён второй случай.' } : { confirmed: 'Ответ и ход решения верные.' }) },
     }))
   }
   const fields: Record<string, unknown> = { ...example.event.fields, childName: 'Ученик А', subject: 'Математика' }
@@ -71,12 +72,11 @@ export default function TelegramNotificationPreview() {
     <div className="edu-telegram-stage">
       {digest?.text ? <>
         <article className="edu-telegram-message" aria-label={`Предпросмотр сводки: ${digest.childName ?? ''}`}>
-          <pre className="edu-telegram-message-text"><strong className="edu-telegram-message-header">{digest.header}</strong>{digest.context && <>{'\n'}<span className="edu-telegram-message-context">{digest.context}</span></>}{'\n'}{digest.entries.map(entry => entry.text).join('\n')}</pre>
+          <div className="edu-telegram-message-text"><strong className="edu-telegram-message-header">{digest.header}</strong>{digest.context && <>{'\n'}<span className="edu-telegram-message-context">{digest.context}</span></>}{'\n'}{digest.entries.map((entry, index) => <Fragment key={index}>{index > 0 && '\n'}{entry.blockTitle ? <blockquote className="edu-telegram-work"><strong>{entry.blockTitle}</strong>{'\n'}{entry.text.slice(entry.blockTitle.length + 1)}</blockquote> : <p>{entry.text}</p>}</Fragment>)}</div>
         </article>
         {history.length > 0 && <div className="edu-telegram-history" aria-label="Связанная история одной работы">
           <h3>История одной работы</h3>
           <div className="edu-telegram-history-chat">{history.map((item, index) => <article className="edu-telegram-history-bubble" key={index}>
-            {item.reply && <div className="edu-telegram-reply">↪ {item.reply}</div>}
             <pre className="edu-telegram-history-text">{item.text}</pre>
             <time>{item.time}</time>
           </article>)}</div>

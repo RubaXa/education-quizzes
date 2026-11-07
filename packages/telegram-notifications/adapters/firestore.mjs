@@ -1,3 +1,4 @@
+/* @see ../../../docs/decisions/telegram-result-blocks-2026-11-07.md */
 import { randomBytes } from 'node:crypto'
 import { createHash } from 'node:crypto'
 import { FieldValue } from '@google-cloud/firestore'
@@ -337,9 +338,7 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
           ...(gate.fence ? { workHistoryFence: gate.fence } : {}) }
       }
       const eventsForDigest = eventDocs.map((snap) => snap.data())
-      const buckets = await workHistory.historyBucketsInTransaction(tx, { ...first, telegramUserId: first.telegramUserId }, eventsForDigest)
-      const messageParts = buckets.flatMap((bucket) => renderNotificationDigestParts(bucket.events, 'family')
-        .map((part) => ({ ...part, ...(bucket.replyToMessageId ? { replyToMessageId: bucket.replyToMessageId } : {}) })))
+      const messageParts = renderNotificationDigestParts(eventsForDigest, 'family')
       const messageVersion = notificationMessageVersion(messageParts)
       if (!messageVersion) {
         tx.update(groupRef, { state: 'dead_letter', safeErrorCode: 'group_render_invalid', failedAt: now })
@@ -419,7 +418,7 @@ export function createFirestoreAdapters(db, { eventCollection = 'telegramNotific
           const groupId = reusable ? pointer.activeGroupId : `group_${createHash('sha256').update(JSON.stringify([groupKeys[i], event.eventId])).digest('hex')}`
           const groupRef = groups.doc(groupId)
           const firstEventAt = reusable ? active.firstEventAt : acceptedAt
-          const flushAt = new Date(Math.min(nowMs + 30_000, Date.parse(firstEventAt) + 60_000)).toISOString()
+          const flushAt = new Date(Date.parse(firstEventAt) + 60_000).toISOString()
           if (!reusable) tx.create(groupRef, { groupId, state: 'open', groupingKey: groupKeys[i],
             familyId: job.familyId, personId: job.personId, childId: job.childId, linkId: job.linkId,
             telegramUserId: job.telegramUserId, firstEventAt, lastEventAt: acceptedAt, flushAt,

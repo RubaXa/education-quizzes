@@ -477,7 +477,7 @@ describe('Telegram notification vertical slice', () => {
         sourceEventKey: `grade-${index}`, sourceRevision: 'revision', eventType: 'grade.created', privacyClass: 'family-summary',
         detectedAt: instant, fields: { childName: 'Ученик А', subject: 'Математика', value: String(index + 3) } }))
       expect(accepted).toMatchObject({ created: true, queued: 1,
-        nextDueAt: new Date(Date.parse(now) + [30_000, 50_000, 60_000][index]).toISOString() })
+        nextDueAt: new Date(Date.parse(now) + 60_000).toISOString() })
       instant = new Date(Date.parse(instant) + 20_000).toISOString()
     }
     const rows = [...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationOutbox/')).map(([, row]) => row)
@@ -530,10 +530,10 @@ describe('Telegram notification vertical slice', () => {
     await submit('a-update', workA, 'Работа A')
     await submit('b-update', workB, 'Работа B')
     await flush()
-    const chainedParts = sent.slice(-2).map((row) => row.part)
-    expect(chainedParts).toHaveLength(2)
-    expect(chainedParts.map((part) => part.replyToMessageId).sort()).toEqual([100, 101])
-    expect(chainedParts.every((part) => part.workRefs?.length === 1)).toBe(true)
+    const chainedParts = sent.slice(2).map((row) => row.part)
+    expect(chainedParts).toHaveLength(1)
+    expect(chainedParts[0].replyToMessageId).toBeUndefined()
+    expect(chainedParts.every((part) => part.workRefs?.length === 2)).toBe(true)
     const history = [...db.records.entries()].filter(([path]) => path.startsWith('telegramNotificationWorkHistory/')).map(([, row]) => row)
     const messageForA = sent.find((row) => row.part.workRefs?.some((ref) => ref.id === workA.id) && row.messageId > 101).messageId
     for (const workRef of [workA, workB]) {
@@ -583,25 +583,25 @@ describe('Telegram notification vertical slice', () => {
     await submit('gate-first')
     const firstGroup = [...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationGroups/'))[1]
     instant = new Date(Date.parse(firstGroup.flushAt) + 1).toISOString()
-    const first = await adapters.outbox.claim({ workerId: 'gate-test', now: instant, leaseMs: 60_000 })
+    const first = await adapters.outbox.claim({ workerId: 'gate-test', now: instant, leaseMs: 120_000 })
     expect(first).toMatchObject({ isDigest: true, workHistoryFence: 1 })
 
     const receipt = { messageId: 200 }
     await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: 'wrong-token',
-      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('stale_lease')
+      index: 0, receipt, now: instant, leaseMs: 120_000 })).rejects.toThrow('stale_lease')
     expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
     await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
-      index: 0, receipt, now: new Date(Date.parse(instant) + 60_001).toISOString(), leaseMs: 60_000 })).rejects.toThrow('stale_lease')
+      index: 0, receipt, now: new Date(Date.parse(instant) + 120_001).toISOString(), leaseMs: 120_000 })).rejects.toThrow('stale_lease')
     expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
     const [streamPath, streamBeforeTamper] = [...db.records.entries()].find(([path]) => path.startsWith('telegramNotificationWorkStreams/'))
     await db.doc(streamPath).set({ ...streamBeforeTamper, leaseTokenHash: 'tampered-token-hash' })
     await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
-      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('work_history_gate_lost')
+      index: 0, receipt, now: instant, leaseMs: 120_000 })).rejects.toThrow('work_history_gate_lost')
     expect((await db.doc(`telegramNotificationOutbox/${first.jobId}`).get()).data().partReceipts).toHaveLength(0)
     expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
     await db.doc(streamPath).set({ ...streamBeforeTamper, fence: streamBeforeTamper.fence + 1 })
     await expect(adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
-      index: 0, receipt, now: instant, leaseMs: 60_000 })).rejects.toThrow('work_history_gate_lost')
+      index: 0, receipt, now: instant, leaseMs: 120_000 })).rejects.toThrow('work_history_gate_lost')
     expect((await db.doc(`telegramNotificationOutbox/${first.jobId}`).get()).data().partReceipts).toHaveLength(0)
     expect([...db.records.entries()].some(([path]) => path.startsWith('telegramNotificationWorkHistory/'))).toBe(false)
     await db.doc(streamPath).set(streamBeforeTamper)
@@ -609,14 +609,15 @@ describe('Telegram notification vertical slice', () => {
     await submit('gate-next')
     const nextGroup = [...db.records.entries()].filter(([path, row]) => path.startsWith('telegramNotificationGroups/') && row.state === 'open').map(([, row]) => row)[0]
     instant = new Date(Date.parse(nextGroup.flushAt) + 1).toISOString()
-    await expect(adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 60_000 })).resolves.toBeNull()
+    await expect(adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 120_000 })).resolves.toBeNull()
 
     await adapters.outbox.savePartReceipt({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
-      index: 0, receipt, now: instant, leaseMs: 60_000 })
+      index: 0, receipt, now: instant, leaseMs: 120_000 })
     await adapters.outbox.finish({ jobId: first.jobId, workerId: 'gate-test', leaseToken: first.leaseToken,
       result: { state: 'sent' }, now: instant })
-    const next = await adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 60_000 })
-    expect(next).toMatchObject({ isDigest: true, messageParts: [expect.objectContaining({ replyToMessageId: 200 })] })
+    const next = await adapters.outbox.claim({ workerId: 'second-worker', now: instant, leaseMs: 120_000 })
+    expect(next.isDigest).toBe(true)
+    expect(next.messageParts[0].replyToMessageId).toBeUndefined()
   })
 
   it('reacquires the same digest gate after a rate-limit retry and restart', async () => {
@@ -686,7 +687,8 @@ describe('Telegram notification vertical slice', () => {
     await submit('e-first', workA); await flush()
     await submit('f-first', workB); await flush()
     const initialMessages = Object.fromEntries(sends.map(({ workId, messageId }) => [workId, messageId]))
-    await submit('e-update', workA); await submit('f-update', workB)
+    for (let i = 0; i < 6; i += 1) await submit(`e-update-${i}`, i === 0 ? workA : { kind: 'day-task', id: String(i).repeat(64) }, new Date(Date.parse(instant) + i).toISOString())
+    await submit('f-update', workB, new Date(Date.parse(instant) + 6).toISOString())
     failWorkId = workB.id
     await flush()
     const retryJob = [...db.records.entries()].find(([path, row]) => path.startsWith('telegramNotificationOutbox/') && row.isDigest && row.state === 'retry_wait')[1]
@@ -741,7 +743,8 @@ describe('Telegram notification vertical slice', () => {
     for (const row of linkedRows) {
       const chatId = row.telegramUserId
       const update = sent.find((item) => item.chatId === chatId && item.messageId !== firstByChat[chatId])
-      expect(update.part.replyToMessageId).toBe(firstByChat[chatId])
+      expect(update.part.replyToMessageId).toBeUndefined()
+      expect(firstByChat[chatId]).toBeGreaterThan(0)
       expect(row.messageId).toBe(update.messageId)
     }
   })
@@ -855,7 +858,7 @@ describe('Telegram notification vertical slice', () => {
     for (let index = 0; index < 4; index += 1) await concurrentService.accept(createDomainEvent({ source: 'firestore', scopeKey: 'scope', familyId: 'family-a', childId: 'child-a',
       sourceEventKey: `race-${index}`, sourceRevision: 'r1', eventType: 'grade.created', privacyClass: 'family-summary', detectedAt: now,
       fields: { subject: 'Математика', value: '5' } }))
-    const raceNow = new Date(Date.parse(now) + 31_000).toISOString()
+    const raceNow = new Date(Date.parse(now) + 61_000).toISOString()
     const workers = await Promise.all(['worker-a', 'worker-b'].map((workerId) => concurrentAdapters.outbox.claim({ workerId, now: raceNow, leaseMs: 1000 })))
     expect(workers.filter(Boolean)).toHaveLength(1)
     expect(workers.filter(Boolean)[0]).toMatchObject({ isDigest: true, eventJobIds: expect.any(Array) })

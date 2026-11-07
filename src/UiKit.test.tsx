@@ -157,30 +157,28 @@ it('matches all seven templates through the shared compact digest and keeps cont
   await act(async()=>{template.value=example.id;template.dispatchEvent(new Event('change',{bubbles:true}))})
   const output=host.querySelector('.edu-telegram-message-text')?.textContent ?? ''
   if(example.id==='review'){
-   expect(output.split('\n')).toEqual([
-    'Ученик А · 3 изменения',
-    'Спецкурс · К четвергу, 22 октября',
-    '🟢 №3 · Шестьдесят горшков — проверено',
-    '🟠 №1 · Книги на полках — Ожидало проверки → нужна правка',
-    'Не объяснён второй случай.',
-    '🟢 №5 · Периметр — проверено',
-   ])
+   expect(host.querySelectorAll('.edu-telegram-work')).toHaveLength(3)
+   expect(output).toContain('❌ Ответ неверный')
+   expect(output).toContain('✏️ Ответ верный · ход неполный')
+   expect(output).toContain('✅ Зачтено')
+   expect(output).toContain('Вычисления верные.')
+   expect(output).toContain('Не объяснён второй случай.')
    expect(host.querySelectorAll('.edu-telegram-history-bubble')).toHaveLength(3)
-   expect(host.querySelector('.edu-telegram-history')?.textContent).toContain('📷 №1 · Книги на полках — получено 1 файл · ждут проверки')
+   expect(host.querySelector('.edu-telegram-history')?.textContent).toContain('📷 №1 · Книги на полках — получено 1 файл для проверки')
    expect(host.querySelector('.edu-telegram-history')?.textContent).toContain('Объяснение добавлено. Замечание снято.')
   }else{
    const fields:Record<string,unknown>={...example.event.fields,childName:'Ученик А',subject:'Математика'}
    const event={...example.event,source:'demo',fields}
    const model=getNotificationDigestPresentation([event])
    expect(model?.text).toBe(output)
-   expect(model?.header).toContain('Ученик А · 1 изменение')
+   expect(model?.header).toContain('Ученик А ·')
    expect(model?.context).toContain('Математика')
   }
   expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('a[href]')).toHaveLength(0)
   expect(host.querySelector('.edu-telegram-message-heading')).toBeNull()
  }
  await act(async()=>{template.value='upload';template.dispatchEvent(new Event('change',{bubbles:true}))})
- expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('получено 1 файл · ждут проверки')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('получено 1 файл для проверки')
  expect(host.querySelector('.edu-telegram-message-text')?.textContent).not.toContain('проверено')
  expect(host.textContent).toContain('Демонстрация. Шрифт и цвета Telegram задаёт выбранная тема клиента.')
  const content=host.querySelector<HTMLSelectElement>('select[aria-label="Содержание уведомления"]')!
@@ -192,7 +190,7 @@ it('matches all seven templates through the shared compact digest and keeps cont
  expect(host.querySelector('.edu-telegram-no-message')?.textContent).toContain('не включено в Telegram-сводку')
  await act(async()=>{template.value='review';template.dispatchEvent(new Event('change',{bubbles:true}))})
  await act(async()=>{content.value='short';content.dispatchEvent(new Event('change',{bubbles:true}))})
- expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('№3 · Шестьдесят горшков')
+ expect(host.querySelector('.edu-telegram-message-text')?.textContent).toContain('№1 · Этажи соседей')
  expect(host.querySelector('.edu-telegram-stage')?.querySelectorAll('.edu-telegram-action, a[href]')).toHaveLength(0)
  expect(fetchMock).not.toHaveBeenCalled()
  vi.unstubAllGlobals()

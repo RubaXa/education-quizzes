@@ -295,7 +295,7 @@ describe('source observation pipeline', () => {
     db.set('dayPages/day-a', { kind: 'student', familyId: 'family-a', childId: 'child-a', viewTokens: { student: 'day-a', parent: 'parent-day-a' },
       date: '2026-10-17', taskIds: ['task-a'], subjects: [{ name: 'Математика', tasks: [{ id: 'task-a', title: 'Одинаковое название' }] }] })
     db.set('dayUploads/day-a/files/upload-a', { taskId: 'task-a', status: 'pending', storage: { provider: 'yandex-disk', state: 'stored', syncedAt: new Date(now) } })
-    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'needs-fix', summary: 'Проверь вычисление', nextStep: 'Исправь последнюю строку' })
+    db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'needs-fix', summary: 'Проверь вычисление', nextStep: 'Исправь последнюю строку', mathReasoning: { answer: 'correct', argument: 'incomplete' }, studentFeedback: { confirmed: 'Вычисления верные.', focus: 'Не объяснён второй случай.', privateAnswer: 'SECRET_KEY' } })
     const source = createFirestoreSourceAdapter(db)
     const checkpoints = new MemoryCheckpoints()
     const accepted = []
@@ -307,6 +307,10 @@ describe('source observation pipeline', () => {
     db.set('dayProgress/day-a/items/task-a', { taskId: 'task-a', status: 'verified', summary: 'Всё исправлено', nextStep: 'Можно продолжать' })
     await expect(pipeline.process(reviewScope, { origin: 'live' })).resolves.toMatchObject({ status: 'advanced', events: 1 })
 
+    expect(accepted[1].fields).toMatchObject({ answerResult: 'correct', argumentResult: 'incomplete', confirmed: 'Вычисления верные.', focus: 'Не объяснён второй случай.' })
+    expect(renderNotificationParts(accepted[1], 'family')[0].html).toContain('<blockquote><b>Одинаковое название</b>')
+    expect(renderNotificationParts(accepted[1], 'family')[0].plaintext).toContain('Ответ верный · ход неполный')
+    expect(JSON.stringify(accepted)).not.toContain('SECRET_KEY')
     expect(accepted).toHaveLength(3)
     const refs = accepted.map((item) => item.workRef)
     expect(refs[0]).toEqual(refs[1])
@@ -379,7 +383,7 @@ describe('source observation pipeline', () => {
     expect(observation.records).toEqual([expect.objectContaining({ kind: 'review', eventType: 'review.changed', workRef: expect.objectContaining({ kind: 'day-task', id: expect.stringMatching(/^[a-f0-9]{64}$/) }), fields: { subject: 'Математика', title: 'Упражнение № 3', status: 'verified', summary: 'Подтверждённый вывод', nextStep: 'Проверь запись' } })])
     expect(JSON.stringify(observation.records)).not.toMatch(/secret|history/)
     expect(db.reads).toContain('dayProgress/day-a/items/task-a')
-    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt,taskId,purpose,uploadIds,summary,nextStep,done')
+    expect(db.reads).toContain('fieldMask:dayProgress/day-a/items/task-a:status,checkedAt,taskId,purpose,uploadIds,summary,nextStep,done,studentFeedback.confirmed,studentFeedback.focus,mathReasoning.answer,mathReasoning.argument')
     expect(db.reads.some((path) => path.includes('dayReviewPrivate'))).toBe(false)
     const firstHash = observation.records[0].semanticHash
     expect(JSON.stringify(observation.records)).not.toMatch(/upload-a|upload-z|history/)
@@ -430,12 +434,12 @@ describe('source observation pipeline', () => {
   it('does not emit a review again for checkedAt-only changes or quiet context enrichment', async () => {
     const checkpoints = new MemoryCheckpoints()
     const reviewKey = 'c'.repeat(64)
-    const baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, records: [{ recordKey: reviewKey, kind: 'review',
+    const baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, reviewProjectionVersion: 2, records: [{ recordKey: reviewKey, kind: 'review',
       eventType: 'review.changed', semanticHash: 'a'.repeat(64), fields: { childName: 'Ученик A', status: 'verified' } }] }
     checkpoints.ensure('scope-a', 'notify').sequence = 1
     checkpoints.ensure('scope-a', 'notify').baseline = baseline
     let reviewedRecord = {
-        recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64),
+        recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64), legacySemanticHash: 'a'.repeat(64),
         fields: { childName: 'Ученик A', subject: 'Математика', title: '№ 3', occurredLabel: 'К пятнице', status: 'verified' },
     }
     const source = { kind: 'firestore', scopeKey: () => 'scope-a', async validateScope() { return true }, async observe() { return {
@@ -446,7 +450,7 @@ describe('source observation pipeline', () => {
     const outcome = await pipeline.process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' })
     expect(outcome).toMatchObject({ status: 'advanced', events: 0, scopeKey: 'scope-a', sequence: 2 })
     expect(accept).not.toHaveBeenCalled()
-    expect(checkpoints.row('scope-a', 'notify').baseline).toMatchObject({ reviewProjectionVersion: 2,
+    expect(checkpoints.row('scope-a', 'notify').baseline).toMatchObject({ reviewProjectionVersion: 3,
       records: [expect.objectContaining({ semanticHash: 'b'.repeat(64) })] })
     reviewedRecord = { ...reviewedRecord, semanticHash: 'c'.repeat(64), fields: { ...reviewedRecord.fields, status: 'needs-fix' } }
     await expect(pipeline.process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
@@ -454,7 +458,7 @@ describe('source observation pipeline', () => {
     expect(accept).toHaveBeenCalledTimes(1)
     expect(accept.mock.calls[0][0].fields.status).toBe('needs-fix')
     expect(accept.mock.calls[0][0].fields.changeKind).toBeUndefined()
-    expect(renderNotificationParts(accept.mock.calls[0][0], 'family')[0].plaintext).toContain('🟠 № 3 — Проверено → нужна правка')
+    expect(renderNotificationParts(accept.mock.calls[0][0], 'family')[0].plaintext).toContain('№ 3\n✏️ Нужно исправить')
   })
 
   it('emits a same-status review fingerprint change, persists it, and stays quiet after restart', async () => {
@@ -462,7 +466,7 @@ describe('source observation pipeline', () => {
     const reviewKey = 'e'.repeat(64)
     const row = checkpoints.ensure('scope-a', 'notify')
     row.sequence = 1
-    row.baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, reviewProjectionVersion: 2,
+    row.baseline = { complete: true, observationSequence: 1, sourceProjectionVersion: 2, reviewProjectionVersion: 3,
       records: [{ recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'a'.repeat(64),
         fields: { childName: 'Ученик A', subject: 'Математика', title: '№ 3', status: 'verified' } }] }
     const record = { recordKey: reviewKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64),
@@ -477,7 +481,7 @@ describe('source observation pipeline', () => {
       .resolves.toMatchObject({ status: 'advanced', events: 1 })
     expect(accepted).toHaveLength(1)
     expect(accepted[0].fields).toMatchObject({ ...record.fields, previousStatus: 'verified', previousTitle: '№ 3', changeKind: 'updated' })
-    expect(renderNotificationParts(accepted[0], 'family')[0].plaintext).toContain('🟢 № 3 — Проверено → проверено')
+    expect(renderNotificationParts(accepted[0], 'family')[0].plaintext).toContain('№ 3\n✅ Зачтено')
     expect(checkpoints.row('scope-a', 'notify').baseline.records[0].semanticHash).toBe('b'.repeat(64))
 
     await expect(makePipeline('worker-b').process({ familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }, { origin: 'live' }))
@@ -884,3 +888,23 @@ class FakeCollection {
   select() { return this }
   async get() { this.db.reads.push(this.path); const prefix = `${this.path}/`; const docs = [...this.db.records.entries()].filter(([path]) => path.startsWith(prefix) && !path.slice(prefix.length).includes('/')).map(([path, data]) => new FakeSnapshot(new FakeDocument(this.db, path), data)); return { docs, size: docs.length } }
 }
+
+// @see ../../docs/services/telegram-bot/ports-and-events.md
+it('preserves a real same-status legacy change during review meaning migration', async () => {
+  const checkpoints = new MemoryCheckpoints()
+  const recordKey = 'a'.repeat(64)
+  const fields = { childName: 'Ученик А', subject: 'Математика', title: '№1', status: 'verified' }
+  const record = { recordKey, kind: 'review', eventType: 'review.changed', semanticHash: 'b'.repeat(64), legacySemanticHash: 'c'.repeat(64), fields: { ...fields, answerResult: 'correct', confirmed: 'Исправление принято.' } }
+  const old = checkpoints.ensure('migration-scope', 'notify')
+  old.sequence = 1
+  old.baseline = { complete: true, observationSequence: 1, reviewProjectionVersion: 2, records: [{ ...record, semanticHash: 'a'.repeat(64), fields }] }
+  const source = { kind: 'firestore', scopeKey: () => 'migration-scope', async validateScope() { return true }, async observe() {
+    return { source: 'firestore', scopeKey: 'migration-scope', familyId: 'family-a', childId: 'child-a', completeness: 'complete', records: [record] }
+  } }
+  const accepted = []
+  const pipeline = new SourcePipeline({ source, checkpoints, accept: async event => accepted.push(event), mode: 'notify', workerId: 'migration-test', clock: () => new Date(now) })
+  const scope = { familyId: 'family-a', childId: 'child-a', kind: 'progress', dayToken: 'day-a', recordId: 'task-a' }
+  expect(await pipeline.process(scope, { origin: 'live' })).toMatchObject({ status: 'advanced', events: 1 })
+  expect(accepted[0].fields).toMatchObject({ answerResult: 'correct', confirmed: 'Исправление принято.' })
+  expect(await pipeline.process(scope, { origin: 'live' })).toMatchObject({ status: 'advanced', events: 0 })
+})
