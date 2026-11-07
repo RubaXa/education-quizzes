@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import OlympiadHome from './OlympiadHome'
 import { watchOlympiadHistoryIndex } from '@/lib/olympiad/historyStore'
 import type { HistoryIndexEntry } from '@/lib/olympiad/historyTypes'
@@ -14,7 +14,8 @@ vi.mock('@/lib/browserAccessTrace', () => ({ traceOlympiad: vi.fn() }))
 vi.mock('@/lib/olympiad/historyStore',()=>({watchOlympiadHistoryIndex:vi.fn(),watchOlympiadHistory:vi.fn(),requestHistoryFile:vi.fn()}))
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const host = document.createElement('div'); let root: ReturnType<typeof createRoot> | undefined
-afterEach(async () => { if (root) await act(async () => root!.unmount()); root = undefined; host.remove(); host.innerHTML = ''; vi.resetAllMocks() })
+beforeEach(()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-11-01T12:00:00+03:00'))})
+afterEach(async () => { if (root) await act(async () => root!.unmount()); root = undefined; host.remove(); host.innerHTML = ''; vi.resetAllMocks(); vi.useRealTimers() })
 const publicItems = [{ id: 'shared', title: 'Общая олимпиада', deadline: '2026-11-05', gradeLevels:[5,6] }, { id: 'future', title: 'Другая олимпиада', deadline: null, gradeLevels:[6] }]
 const familyTask = { id:'task', title:'Семейная подготовка', dueDate:'2026-11-05', projectionSourceDate:'2026-11-04', learningContext:{kind:'olympiad' as const,id:'shared'},testTokens:[] }
 function fixture(role:'parent'|'student', selected:string[] = [], items: import('@/lib/educationStore').PublicOlympiad[] = publicItems, history:HistoryIndexEntry[] = []) {

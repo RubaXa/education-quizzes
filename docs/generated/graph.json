@@ -2368,6 +2368,35 @@
       "path": "docs/decisions/photo-transfer-recovery-2026-10-22.md"
     },
     {
+      "id": "decision.photo-transfer-revision-race-2026-11-07",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-07",
+      "updated": "2026-11-07",
+      "parent": "service.upload-worker",
+      "uses": [
+        "module.materials.storage-privacy"
+      ],
+      "consumers": [
+        "upload worker",
+        "operator"
+      ],
+      "code": [
+        "storage/direct-upload.mjs",
+        "packages/education-runtime/upload-broker.mjs",
+        "storage/photo-transfer-recovery.mjs",
+        "scripts/photo-transfer.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-transfer-revision-race-2026-11-07.md"
+    },
+    {
       "id": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "status": "accepted",
       "implementation": "partial",
@@ -7632,6 +7661,13 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:scripts/photo-transfer.mjs",
+      "path": "scripts/photo-transfer.mjs",
+      "kind": "artifact",
+      "purpose": "Адресная диагностика и повтор той же заявки",
+      "consumer": "Оператор"
+    },
+    {
       "id": "file:scripts/privacy-exceptions.mjs",
       "path": "scripts/privacy-exceptions.mjs",
       "kind": "artifact",
@@ -10471,6 +10507,20 @@
       "path": "storage/photo-placement.test.mjs",
       "kind": "verification",
       "purpose": "Единственное покрытие, ревизии, идемпотентность и владелец",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:storage/photo-transfer-recovery.mjs",
+      "path": "storage/photo-transfer-recovery.mjs",
+      "kind": "artifact",
+      "purpose": "CAS с текущими правами, queue event и адресный запрос в приложении",
+      "consumer": "CLI; runtime"
+    },
+    {
+      "id": "file:storage/photo-transfer-recovery.test.mjs",
+      "path": "storage/photo-transfer-recovery.test.mjs",
+      "kind": "verification",
+      "purpose": "Гонка ревизий, идемпотентность и отказ чужому/снятому доступу",
       "consumer": "Vitest"
     },
     {
@@ -14384,7 +14434,9 @@
         "module.materials.storage-privacy",
         "shared.data.firestore"
       ],
-      "sections": [],
+      "sections": [
+        "photo-recovery"
+      ],
       "created": "2026-10-16",
       "updated": "2026-10-19",
       "consumers": [
@@ -14395,7 +14447,9 @@
       "code": [
         "scripts/direct-upload-worker.mjs",
         "scripts/install-upload-worker.mjs",
-        "packages/education-runtime/upload-broker.mjs"
+        "packages/education-runtime/upload-broker.mjs",
+        "scripts/photo-transfer.mjs",
+        "storage/photo-transfer-recovery.mjs"
       ],
       "path": "docs/services/upload-worker/README.md"
     },
@@ -15882,6 +15936,11 @@
     {
       "from": "decision.photo-transfer-recovery-2026-10-22",
       "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "decision.photo-transfer-revision-race-2026-11-07",
+      "to": "module.materials.storage-privacy",
       "type": "uses"
     },
     {
@@ -17706,6 +17765,11 @@
     },
     {
       "from": "file:packages/education-runtime/upload-broker.mjs",
+      "to": "decision.photo-transfer-revision-race-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-runtime/upload-broker.mjs",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
@@ -18737,6 +18801,16 @@
     {
       "from": "file:scripts/photo-outbox-chromium-integration.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/photo-transfer.mjs",
+      "to": "decision.photo-transfer-revision-race-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/photo-transfer.mjs",
+      "to": "service.upload-worker",
       "type": "implements"
     },
     {
@@ -21871,6 +21945,11 @@
     },
     {
       "from": "file:storage/direct-upload.mjs",
+      "to": "decision.photo-transfer-revision-race-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/direct-upload.mjs",
       "to": "module.materials.storage-privacy",
       "type": "implements"
     },
@@ -21932,6 +22011,16 @@
     {
       "from": "file:storage/photo-placement.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-transfer-recovery.mjs",
+      "to": "decision.photo-transfer-revision-race-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-transfer-recovery.mjs",
+      "to": "service.upload-worker",
       "type": "implements"
     },
     {
@@ -26146,12 +26235,22 @@
     },
     {
       "from": "service.upload-worker",
+      "to": "decision.photo-transfer-revision-race-2026-11-07",
+      "type": "contains"
+    },
+    {
+      "from": "service.upload-worker",
       "to": "file:packages/education-runtime/upload-broker.test.mjs",
       "type": "verified-by"
     },
     {
       "from": "service.upload-worker",
       "to": "file:scripts/install-upload-worker.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.upload-worker",
+      "to": "file:storage/photo-transfer-recovery.test.mjs",
       "type": "verified-by"
     },
     {

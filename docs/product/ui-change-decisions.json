@@ -1,5 +1,7 @@
 {
   "files": {
+    "scripts/photo-transfer.mjs": {"sha256":"3aada776e78899ab72fd1e2a9c44a7591b09d8c95e072dabfc11da2fd9b08138","record":"docs/decisions/photo-transfer-revision-race-2026-11-07.md","specs":["docs/services/upload-worker/README.md"],"tests":["storage/photo-transfer-recovery.test.mjs","storage/direct-upload.test.mjs","packages/education-runtime/upload-broker.test.mjs"],"authorization":{"status":"direct-request","evidence":"Родитель 07.11.2026 прямо поручил исправить сбой загрузки №121 и при необходимости запросить повтор передачи в приложении."}},
+    "storage/photo-transfer-recovery.mjs": {"sha256":"cf600d9afa162c270188d6505d39a40c2708a8303f738deb06284f496ccef182","record":"docs/decisions/photo-transfer-revision-race-2026-11-07.md","specs":["docs/services/upload-worker/README.md"],"tests":["storage/photo-transfer-recovery.test.mjs","storage/direct-upload.test.mjs","packages/education-runtime/upload-broker.test.mjs"],"authorization":{"status":"direct-request","evidence":"Родитель 07.11.2026 прямо поручил исправить сбой загрузки №121 и при необходимости запросить повтор передачи в приложении."}},
     "sync/preparation-window.mjs": {
       "sha256": "1e1e445f412e13a74c231761619ce68f0dc4e87401cbc88163b88ca92357a771",
       "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
@@ -977,7 +979,7 @@
       }
     },
     "packages/education-runtime/upload-broker.mjs": {
-      "sha256": "3ff57baa7dccda49d88f96072b06b16c5f04add0a9fa237a929a6ef7cefe46c0",
+      "sha256": "e1e151b7e96ec7837cd136022015696168eea5c53c7adaaf7cff639fdee56bc8",
       "record": "docs/decisions/olympiad-history-2026-10-31.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
@@ -5018,7 +5020,7 @@
       }
     },
     "storage/direct-upload.mjs": {
-      "sha256": "cd9efa43a9e05a8a2265d7408a0a0c6b713169fc6b47fc83a9918584b1ab4c5d",
+      "sha256": "24fe4a4e2e58ec93d58647d39c304a0b0a798418f4bafc188d21297e01bf992c",
       "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
       "specs": [
         "docs/shared/media-storage.md",

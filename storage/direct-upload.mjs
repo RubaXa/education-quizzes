@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/photo-transfer-revision-race-2026-11-07.md */
 /**
  * @see ../docs/shared/media-storage.md
  */
@@ -26,7 +27,11 @@ export function validPhotoRequest(request, page) {
     && (request.originalName === undefined || typeof request.originalName === 'string' && request.originalName.length > 0 && request.originalName.length <= 160)
     && Number.isInteger(request?.size) && request.size > 0 && request.size <= 25_000_000
     && /^[a-f0-9]{64}$/.test(request?.sha256 ?? '')
-    && Number.isInteger(request?.planRevision) && request.planRevision === page.planRevision
+    // Rules admit a new request against the current revision. A later day
+    // publication must not invalidate its bytes or rebind its original revision.
+    // The broker still checks current ownership, membership and task existence.
+    && Number.isInteger(request?.planRevision) && request.planRevision > 0
+    && Number.isInteger(page.planRevision) && request.planRevision <= page.planRevision
 }
 
 export function matchesPhoto(bytes, request) {
