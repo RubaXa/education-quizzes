@@ -67,3 +67,10 @@ Receipt восстановленной заявки не означает, чт�
 | `storage/family-book-upload.mjs` | family-book request → validated path and content fingerprint | [Family library](../../modules/materials/family-library.md) |
 | `storage/direct-upload.mjs` | photo request → validated image upload contract | [Storage/privacy](../../modules/materials/storage-privacy.md) |
 | `storage/yandex-disk.mjs` | authorized disk operation → remote object metadata/content | [Storage/privacy](../../modules/materials/storage-privacy.md) |
+
+
+08.11: [Восстановление после входа](../../decisions/photo-auth-resume-2026-11-08.md).
+Outbox pump просыпается по onAuthStateChanged, а не только таймеру/focus.
+awaiting-upload со ссылкой означает ожидание байтов, не активный PUT. Inspect
+разделяет serverStage и clientObservedAfterLink; старый waiting-link не скрывает
+готовую ссылку и не доказывает потерю Blob. Доставка подтверждается отдельно.

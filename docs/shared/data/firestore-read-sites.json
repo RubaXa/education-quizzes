@@ -8786,7 +8786,7 @@
   {
     "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4",
     "file": "src/lib/photoOutbox.ts",
-    "line": 71,
+    "line": 72,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-outbox",
@@ -8798,7 +8798,7 @@
   {
     "id": "src/lib/photoOutbox.ts#getDocFromServer#cfa10e9c66f4-2",
     "file": "src/lib/photoOutbox.ts",
-    "line": 455,
+    "line": 461,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-outbox",

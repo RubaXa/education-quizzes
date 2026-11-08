@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/photo-auth-resume-2026-11-08.md */
 /** Real IndexedDB transfer regression in an isolated Chromium profile.
  * @see ../docs/decisions/photo-indexeddb-recovery-2026-10-22.md
  * @see ../docs/modules/materials/storage-privacy.md#upload-queue
@@ -31,7 +32,8 @@ const uiErrorsId = '\0virtual:photo-outbox-ui-errors'
 const accessTraceId = '\0virtual:photo-outbox-access-trace'
 
 const fixtureSource = `
-import { savePhotoForTransfer, localPhotoForTransfer, resumePhotoTransfer, recoverLocalPhotoTransfers, getPhotoTransferUiSnapshot } from '/src/lib/photoOutbox.ts'
+import { savePhotoForTransfer, localPhotoForTransfer, resumePhotoTransfer, startPhotoOutboxRecovery, getPhotoTransferUiSnapshot } from '/src/lib/photoOutbox.ts'
+import { restoreAuth } from 'firebase/auth'
 globalThis.__photoIntegrationState = { docs: new Map(), commits: [], injectedAborts: 0, injectedModes: [] }
 const state = globalThis.__photoIntegrationState
 const studentToken = 'integration-day'
@@ -67,9 +69,11 @@ globalThis.__photoIntegration = {
     await savePhotoForTransfer(studentToken, uploadId, new Blob([bytes], { type: 'image/jpeg' }))
     const writeRecovered = restoreWrite()
     const restoreRead = failNextTransaction('readonly')
-    await recoverLocalPhotoTransfers()
+    const stopRecovery = startPhotoOutboxRecovery()
+    restoreAuth()
     const deadline = Date.now() + 7000
     while (state.docs.get(sourcePath)?.status !== 'uploaded' && Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, 10))
+    stopRecovery()
     const readRecovered = restoreRead()
     const stored = await localPhotoForTransfer(studentToken, uploadId)
     const storedText = stored ? await stored.text() : null
@@ -122,7 +126,10 @@ export function writeBatch() {
   }
 }
 `
-const authSource = `export const getAuth = () => ({ currentUser: { uid: 'integration-student' } })`
+const authSource = `const auth = { currentUser: null }; const callbacks = new Set();
+export const getAuth = () => auth;
+export const onAuthStateChanged = (_auth, callback) => { callbacks.add(callback); return () => callbacks.delete(callback); };
+export const restoreAuth = () => { auth.currentUser = { uid: 'integration-student' }; for (const cb of callbacks) cb(auth.currentUser); };`
 const eventProducerSource = `
 import { doc } from 'firebase/firestore'
 import { db } from './firebase'

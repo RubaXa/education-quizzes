@@ -153,3 +153,15 @@ describe('own photo actions', () => {
     } finally { await act(async () => root.unmount()) }
   })
 })
+
+
+it('shows a ready upload link as waiting for device bytes rather than claiming an active transfer', async () => {
+  const host = document.createElement('div'), root = createRoot(host)
+  const upload = { id: 'day:waiting', taskId: 'task', status: 'awaiting-upload', upload: { href: 'https://uploader.yandex.net/ready' } } as DayUpload
+  try {
+    await act(async () => root.render(<WorkPhotoGallery taskTitle="Работа" studentToken="day" uploads={[upload]} localPhotos={[]} now={0} initialSelectedId={upload.id} />))
+    expect(host.textContent).toContain('Ссылка готова. Сервер ждёт файл с устройства отправки.')
+    expect(host.textContent).not.toContain('Оригинал передаётся с устройства отправки')
+    expect(host.textContent).not.toContain('1 загружается')
+  } finally { await act(async () => root.unmount()) }
+})

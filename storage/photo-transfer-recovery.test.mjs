@@ -67,3 +67,14 @@ describe('exact photo transfer recovery', () => {
     expect(f.writes).toEqual([])
   })
 })
+
+
+it('separates a ready server link from stale client waiting-link diagnostics', async () => {
+  const f = fixture(), stamp = text => ({ toDate: () => new Date(text) })
+  f.rows.set(path, { ...f.rows.get(path), status: 'awaiting-upload', upload: { href: 'secret-upload-url', issuedAt: stamp('2026-11-08T10:00:00Z') },
+    clientTransfer: { phase: 'waiting-link', at: stamp('2026-11-07T18:39:27Z'), attempt: 0 } })
+  const { summary } = await inspectPhotoTransfer(f)
+  expect(summary).toMatchObject({ serverStage: 'link-ready', clientObservedAfterLink: false, deliveryStage: 'client-not-observed-after-link' })
+  expect(JSON.stringify(summary)).not.toContain('secret-upload-url')
+  expect(f.writes).toEqual([])
+})

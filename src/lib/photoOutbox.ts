@@ -1,9 +1,10 @@
+/** @see ../../docs/decisions/photo-auth-resume-2026-11-08.md */
 /** @see ../../docs/decisions/photo-transfer-recovery-2026-10-22.md
  * @see ../../docs/decisions/photo-indexeddb-recovery-2026-10-22.md
  */
 import { doc, getDocFromServer, writeBatch, serverTimestamp } from 'firebase/firestore'
 import type { DocumentReference, DocumentData } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { db } from './firebase'
 import { prepareEducationEvent, stagePreparedEducationEvent } from './educationEventProducer'
 import { fetchWithRetry } from './networkRetry'
@@ -99,7 +100,10 @@ export async function recoverLocalPhotoTransfers() {
 
 /** One application-level pump, including home/reload and iOS pageshow. */
 export function startPhotoOutboxRecovery() {
-  const wake = () => { void recoverLocalPhotoTransfers() }
+  let stopped = false
+  const wake = () => { if (!stopped) void recoverLocalPhotoTransfers() }
+  // App mounts before persisted Firebase auth is restored on cold iOS startup.
+  const stopAuth = onAuthStateChanged(getAuth(), wake)
   window.addEventListener('online', wake)
   window.addEventListener('pageshow', wake)
   window.addEventListener('focus', wake)
@@ -107,6 +111,8 @@ export function startPhotoOutboxRecovery() {
   const timer = window.setInterval(wake, 30000)
   wake()
   return () => {
+    stopped = true
+    stopAuth()
     window.clearInterval(timer)
     window.removeEventListener('online', wake)
     window.removeEventListener('pageshow', wake)
