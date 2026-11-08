@@ -9,6 +9,18 @@ const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 function output() { let value = ''; return { write: (part) => { value += part }, value: () => value } }
 
 describe('education sync dispatch CLI', () => {
+  it('resumes here atomically and writes a private claim without queueing a chat message', async () => {
+    const root = mkdtempSync(resolve(tmpdir(), 'education-resume-here-')), out = output()
+    const store = { resumeBlocked: vi.fn(async () => ({ status: 'claimed' })) }
+    try {
+      expect(await main(['resume-here', '--request', REQUEST], { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education', EDUCATION_SYNC_PROJECT_ROOT: root },
+        out, err: output(), createDb: () => ({ terminate: async () => {} }), createStore: () => store })).toBe(0)
+      const result = JSON.parse(out.value())
+      expect(result.status).toBe('claimed')
+      expect(statSync(result.claimPath).mode & 0o077).toBe(0)
+      expect(store.resumeBlocked).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, tokenHash: expect.stringMatching(/^[a-f0-9]{64}$/) }))
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
   it('continues locally, cleans only acknowledged batch files, and releases the claim only when empty', async () => {
     const root = mkdtempSync(resolve(tmpdir(), 'education-drainer-'))
     const out = output(), err = output()
@@ -131,8 +143,8 @@ describe('education sync dispatch CLI', () => {
     try {
       await main(['claim', '--request', REQUEST], deps)
       const claimPath = JSON.parse(out.value()).claimPath
-      await main(['block', '--request', REQUEST, '--claim-file', claimPath, '--reason', 'permission_required'], deps)
-      expect(store.blockClaim).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, reasonCode: 'permission_required' }))
+      await main(['block', '--request', REQUEST, '--claim-file', claimPath, '--reason', 'permission_required', '--operation', 'data-publication', '--denial-ref', 'tool-policy:call_denied_123'], deps)
+      expect(store.blockClaim).toHaveBeenCalledWith(expect.objectContaining({ requestId: REQUEST, reasonCode: 'permission_required', permissionBlock: { operation: 'data-publication', denialRef: 'tool-policy:call_denied_123' } }))
       expect(JSON.parse(readFileSync(resolve(root, '.local/education-sync-dispatch/work', REQUEST, 'progress.json'), 'utf8')).phase).toBe('blocked')
       out.value = () => ''
       expect(await main(['resume', '--request', REQUEST], deps)).toBe(0)
@@ -207,4 +219,19 @@ describe('education sync dispatch CLI', () => {
       createInventory: () => ({ enumerate: async () => ({ complete: false, registeredChildren: [] }) }),
     })).rejects.toThrow('event_owner_unverified')
   })
+})
+
+it('keeps the private claim and progress when an unevidenced permission block is rejected', async () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'education-permission-rejected-')), out = output(), err = output()
+  const store = { claimRequest: async () => ({ status: 'claimed' }), blockClaim: vi.fn(async () => ({ status: 'permission_evidence_required' })) }
+  const deps = { env: { TELEGRAM_FIRESTORE_PROJECT_ID: 'petr-education', EDUCATION_SYNC_PROJECT_ROOT: root }, out, err,
+    createDb: () => ({ terminate: async () => {} }), createStore: () => store }
+  try {
+    await main(['claim', '--request', REQUEST], deps)
+    const claimPath = JSON.parse(out.value()).claimPath
+    expect(await main(['block', '--request', REQUEST, '--claim-file', claimPath, '--reason', 'permission_required'], deps)).toBe(1)
+    expect(existsSync(claimPath)).toBe(true)
+    const progress = JSON.parse(readFileSync(resolve(root, '.local/education-sync-dispatch/work', REQUEST, 'progress.json'), 'utf8'))
+    expect(progress.phase).toBe('claimed')
+  } finally { rmSync(root, { recursive: true, force: true }) }
 })

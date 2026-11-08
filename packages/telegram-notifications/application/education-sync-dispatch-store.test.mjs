@@ -56,6 +56,26 @@ const iso = (offsetMs = 0) => new Date(base + offsetMs).toISOString()
 const digest = (n) => n.toString(16).padStart(64, '0')
 
 describe('Firestore EducationSync dispatch store state machine', () => {
+  it('keeps arrivals in the common pool and emits no wake while either drainer is active', async () => {
+    for (const execution of ['running', 'queued', 'sending']) {
+      const { db, store } = setup()
+      db.documents.set('educationSyncDispatch/current', { status: 'blocked', blockedReasonCode: 'source_unavailable', generation: 2,
+        pendingKinds: ['mesh'], sendingGeneration: 1, sendingKinds: ['mesh'], debounceUntil: iso(),
+        actionLane: { status: execution, requestId: 'active-action', workflowLeaseUntil: iso(60000), leaseUntil: iso(60000),
+          actionAfterGeneration: 0, actionThroughGeneration: 1, sendingGeneration: 1 } })
+      await store.recordMeshChange({ eventDigest: digest(9000), now: iso(1), debounceUntil: iso(2) })
+      expect(await store.claim({ now: iso(3), workerId: 'new-worker' })).toBeNull()
+      expect(await store.read()).toMatchObject({ pendingKinds: ['mesh'], actionLane: { status: execution, requestId: 'active-action' } })
+    }
+  })
+  it('resumes a blocked request directly under one claim without a queue-message window', async () => {
+    const { db, store } = setup()
+    db.documents.set('educationSyncDispatch/current', { status: 'blocked', blockedReasonCode: 'permission_required', requestId: 'same-request',
+      generation: 2, sendingGeneration: 1, sendingKinds: ['mesh'], pendingKinds: ['mesh'], debounceUntil: iso() })
+    expect(await store.resumeBlocked({ requestId: 'same-request', now: iso(1), tokenHash: digest(9001) })).toMatchObject({ status: 'claimed' })
+    expect(await store.claim({ now: iso(2), workerId: 'transport' })).toBeNull()
+    expect(await store.read()).toMatchObject({ status: 'running', requestId: 'same-request', sendingGeneration: 1, pendingKinds: ['mesh'] })
+  })
   it('does not enqueue another wake after ten minutes of waiting in the chat queue', async () => {
     const { store } = setup()
     await store.recordMeshChange({ eventDigest: digest(2000), now: iso(), debounceUntil: iso() })
@@ -316,7 +336,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     await store.recordMeshChange({ eventDigest: digest(40), now: iso(), debounceUntil: iso(20_000) })
     const original = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
     await store.claimRequest({ requestId: original.requestId, tokenHash: digest(41), now: iso(22_000) })
-    await store.blockClaim({ requestId: original.requestId, tokenHash: digest(41), reasonCode: 'permission_required', now: iso(23_000) })
+    await store.blockClaim({ requestId: original.requestId, tokenHash: digest(41), reasonCode: 'permission_required', permissionBlock: { operation: 'source-access', denialRef: 'tool-policy:call_denied_123' }, now: iso(23_000) })
     await store.recordMeshChange({ eventDigest: digest(42), now: iso(24_000), debounceUntil: iso(44_000) })
     await store.resumeBlocked({ requestId: original.requestId, now: iso(45_000) })
     const resumed = await store.claim({ now: iso(45_001), workerId: 'worker-b' })
@@ -349,7 +369,7 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     const dispatch = await store.claim({ now: iso(21_000), workerId: 'worker-a' })
     await store.claimRequest({ requestId: dispatch.requestId, tokenHash: digest(41), now: iso(22_000) })
     expect(await store.blockClaim({ requestId: dispatch.requestId, tokenHash: digest(41),
-      reasonCode: 'permission_required', now: iso(23_000) })).toEqual({ status: 'blocked', reasonCode: 'permission_required' })
+      reasonCode: 'permission_required', permissionBlock: { operation: 'source-access', denialRef: 'tool-policy:call_denied_123' }, now: iso(23_000) })).toEqual({ status: 'blocked', reasonCode: 'permission_required' })
 
     await store.recordMeshChange({ eventDigest: digest(42), now: iso(30_000), debounceUntil: iso(50_000) })
     expect(await store.read()).toMatchObject({ status: 'blocked', generation: 2, requestId: dispatch.requestId,
@@ -461,4 +481,46 @@ describe('Firestore EducationSync dispatch store state machine', () => {
     expect(await store.blockClaim({ requestId: dispatch.requestId, tokenHash: digest(51),
       reasonCode: 'permission_required', now: iso(6 * 60 * 60_000 + 23_000) })).toEqual({ status: 'invalid_claim' })
   })
+})
+
+it('cannot park the whole queue behind an unevidenced permission request', async () => {
+  const { store } = setup()
+  await store.recordMeshChange({ eventDigest: digest(9001), now: iso(), debounceUntil: iso() })
+  const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+  const args = { requestId: wake.requestId, tokenHash: digest(9002), now: iso(2) }
+  await store.claimRequest(args)
+  const before = await store.read()
+  expect(await store.blockClaim({ ...args, now: iso(3), reasonCode: 'permission_required' })).toEqual({ status: 'permission_evidence_required' })
+  expect(await store.read()).toEqual(before)
+  expect(await store.blockClaim({ ...args, now: iso(4), reasonCode: 'permission_required', permissionBlock: {
+    operation: 'reconcile-day', denialRef: 'tool-policy:call_example_123',
+  } })).toEqual({ status: 'standard_operation_authorized' })
+  expect(await store.read()).toEqual(before)
+})
+
+it('clears current block diagnostics on resume and completion while keeping the historical reason', async () => {
+  const { db, store } = setup()
+  await store.recordMeshChange({ eventDigest: digest(9011), now: iso(), debounceUntil: iso() })
+  const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+  const path = [...db.documents.keys()].find(key => key.startsWith('educationSyncDispatch/'))
+  const state = await store.read()
+  db.documents.set(path, { ...state, status: 'blocked', blockedReasonCode: 'permission_required', blockedAt: iso(2), lastErrorCode: 'queue_ack_expired' })
+  expect(await store.resumeBlocked({ requestId: wake.requestId, now: iso(3), tokenHash: digest(9012) })).toMatchObject({ status: 'claimed' })
+  expect(await store.read()).toMatchObject({ status: 'running', blockedReasonCode: null, blockedAt: null, lastErrorCode: null,
+    lastResolvedBlock: { reasonCode: 'permission_required', resolvedAt: iso(3) } })
+  await store.completeClaim({ requestId: wake.requestId, tokenHash: digest(9012), now: iso(4) })
+  expect(await store.read()).toMatchObject({ status: 'completed', blockedReasonCode: null, blockedAt: null, lastErrorCode: null })
+})
+
+it('preserves a concrete external policy denial with its operation until an explicit resume', async () => {
+  const { store } = setup()
+  await store.recordMeshChange({ eventDigest: digest(9021), now: iso(), debounceUntil: iso() })
+  const wake = await store.claim({ now: iso(1), workerId: 'worker' })
+  const args = { requestId: wake.requestId, tokenHash: digest(9022), now: iso(2) }
+  await store.claimRequest(args)
+  const permissionBlock = { operation: 'data-publication', denialRef: 'tool-policy:call_denied_123' }
+  expect(await store.blockClaim({ ...args, now: iso(3), reasonCode: 'permission_required', permissionBlock }))
+    .toEqual({ status: 'blocked', reasonCode: 'permission_required' })
+  expect(await store.read()).toMatchObject({ status: 'blocked', permissionBlock })
+  expect(await store.claim({ now: iso(4), workerId: 'other' })).toBeNull()
 })

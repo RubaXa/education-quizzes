@@ -1238,7 +1238,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 21,
+    "line": 22,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1250,7 +1250,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-2",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 30,
+    "line": 31,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1262,7 +1262,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-3",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 49,
+    "line": 50,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1274,7 +1274,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#10dc9c274e6c",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 60,
+    "line": 61,
     "api": "admin.get",
     "target": "familyLinks.where('telegramUserId', '==', senderId)",
     "group": "operator-other",
@@ -1286,7 +1286,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-4",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 70,
+    "line": 71,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1298,7 +1298,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-5",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 79,
+    "line": 80,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1310,7 +1310,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-6",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 91,
+    "line": 92,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1322,7 +1322,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 104,
+    "line": 105,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1334,7 +1334,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-8",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 104,
+    "line": 105,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1346,7 +1346,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-9",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 104,
+    "line": 105,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1358,7 +1358,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-10",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 113,
+    "line": 114,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1370,7 +1370,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-11",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 115,
+    "line": 116,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1382,7 +1382,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-12",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 127,
+    "line": 128,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1394,7 +1394,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-13",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 144,
+    "line": 145,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1406,7 +1406,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-14",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 149,
+    "line": 150,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1418,7 +1418,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#428aa877ac7a",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 161,
+    "line": 162,
     "api": "admin.get",
     "target": "accounts.doc(String(senderId))",
     "group": "operator-other",
@@ -1430,7 +1430,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-15",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 185,
+    "line": 186,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1442,7 +1442,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#8469b696c4b5",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 209,
+    "line": 210,
     "api": "admin.get",
     "target": "jobs.doc(jobId)",
     "group": "operator-other",
@@ -1454,7 +1454,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#70a1e544d455",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 214,
+    "line": 215,
     "api": "admin.get",
     "target": "(cursor ? query.startAfter(cursor) : query).limit(20)",
     "group": "operator-other",
@@ -1466,7 +1466,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-16",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 246,
+    "line": 247,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1478,7 +1478,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#79f1478d85f7",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 266,
+    "line": 267,
     "api": "admin.get",
     "target": "jobs.where('state', '==', 'leased').where('leaseUntil', '<=', now).limit(200)",
     "group": "operator-other",
@@ -1490,7 +1490,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-17",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 268,
+    "line": 269,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1502,7 +1502,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-18",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 288,
+    "line": 289,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1514,7 +1514,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-19",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 293,
+    "line": 294,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1526,7 +1526,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-20",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 308,
+    "line": 309,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1538,7 +1538,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-21",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 316,
+    "line": 317,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1550,7 +1550,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-22",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 373,
+    "line": 372,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1562,7 +1562,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-23",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 376,
+    "line": 375,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1574,7 +1574,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-24",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 377,
+    "line": 376,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1586,7 +1586,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-25",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 378,
+    "line": 377,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1598,7 +1598,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-26",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 383,
+    "line": 382,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1610,7 +1610,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-27",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 386,
+    "line": 385,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1622,7 +1622,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-28",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 390,
+    "line": 389,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -1634,7 +1634,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#ee8efaa3a706",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 441,
+    "line": 440,
     "api": "admin.get",
     "target": "familyLinks.where('familyId', '==', event.familyId)",
     "group": "operator-other",
@@ -1646,7 +1646,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#e06f851a5504",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 456,
+    "line": 455,
     "api": "admin.get",
     "target": "familyLinks.doc(linkId)",
     "group": "operator-other",
@@ -1658,7 +1658,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#203c2b3aac79",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 460,
+    "line": 459,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -1670,7 +1670,7 @@
   {
     "id": "packages/telegram-notifications/adapters/firestore.mjs#admin.get#879f6af19111-29",
     "file": "packages/telegram-notifications/adapters/firestore.mjs",
-    "line": 470,
+    "line": 469,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2222,7 +2222,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.getAll#5718b4ad2931",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 11,
+    "line": 12,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -2234,7 +2234,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#f2c4103d5d1b",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 29,
+    "line": 30,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}`)",
     "group": "operator-other",
@@ -2246,7 +2246,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.get#8f6404b39725",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 30,
+    "line": 31,
     "api": "admin.get",
     "target": "db.doc(`families/${scope.familyId}/children/${scope.childId}`)",
     "group": "operator-other",
@@ -2258,7 +2258,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#100795890a98",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 201,
+    "line": 202,
     "api": "admin.onSnapshot",
     "target": "ref",
     "group": "operator-other",
@@ -2270,7 +2270,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-firestore.mjs#admin.onSnapshot#f3e4a8891798",
     "file": "packages/telegram-notifications/adapters/source-firestore.mjs",
-    "line": 239,
+    "line": 240,
     "api": "admin.onSnapshot",
     "target": "query",
     "group": "operator-other",
@@ -2414,7 +2414,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#85afab9eb9a1",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 62,
+    "line": 64,
     "api": "admin.get",
     "target": "this.db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -2426,7 +2426,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#85afab9eb9a1-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 68,
+    "line": 70,
     "api": "admin.get",
     "target": "this.db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -2438,7 +2438,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#54bb826a8ac0",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 69,
+    "line": 71,
     "api": "admin.get",
     "target": "(await uploadDeletionRef(this.db, event))",
     "group": "operator-other",
@@ -2450,7 +2450,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 200,
+    "line": 202,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2462,7 +2462,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 202,
+    "line": 204,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2474,7 +2474,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 238,
+    "line": 240,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2486,7 +2486,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 239,
+    "line": 241,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2498,7 +2498,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-5",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 240,
+    "line": 242,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2510,7 +2510,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-6",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 241,
+    "line": 243,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2522,7 +2522,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 242,
+    "line": 244,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2534,7 +2534,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-8",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 243,
+    "line": 245,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2546,7 +2546,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-9",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 244,
+    "line": 246,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2558,7 +2558,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-10",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 245,
+    "line": 247,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2570,7 +2570,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 301,
+    "line": 303,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2582,7 +2582,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 306,
+    "line": 308,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2594,7 +2594,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#c30cbab590f4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 321,
+    "line": 323,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -2606,7 +2606,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-11",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 331,
+    "line": 333,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2618,7 +2618,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-12",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 385,
+    "line": 392,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2630,7 +2630,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-13",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 402,
+    "line": 409,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2642,7 +2642,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-14",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 418,
+    "line": 425,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2654,7 +2654,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-15",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 454,
+    "line": 461,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2666,7 +2666,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 469,
+    "line": 476,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2678,7 +2678,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#c30cbab590f4-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 483,
+    "line": 490,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -2690,7 +2690,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#58861734446e",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 485,
+    "line": 492,
     "api": "admin.get",
     "target": "db.doc(`operatorSyncJobs/${eventDoc.data().jobId}`)",
     "group": "operator-other",
@@ -2702,7 +2702,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-16",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 493,
+    "line": 500,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2714,7 +2714,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-17",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 557,
+    "line": 564,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2726,7 +2726,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-18",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 575,
+    "line": 582,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2738,7 +2738,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-19",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 603,
+    "line": 616,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2750,7 +2750,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-20",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 625,
+    "line": 641,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -3710,7 +3710,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0d183d2a62fd",
     "file": "scripts/day.mjs",
-    "line": 128,
+    "line": 130,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', targetDate)",
     "group": "operator-other",
@@ -3722,7 +3722,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c60f4a6b345d",
     "file": "scripts/day.mjs",
-    "line": 130,
+    "line": 132,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/members`)",
     "group": "operator-other",
@@ -3734,7 +3734,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5bb656fcc1fa",
     "file": "scripts/day.mjs",
-    "line": 134,
+    "line": 136,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-other",
@@ -3746,7 +3746,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601",
     "file": "scripts/day.mjs",
-    "line": 153,
+    "line": 155,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -3758,7 +3758,7 @@
   {
     "id": "scripts/day.mjs#admin.getAll#df0f1fa06683",
     "file": "scripts/day.mjs",
-    "line": 223,
+    "line": 225,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -3770,7 +3770,7 @@
   {
     "id": "scripts/day.mjs#admin.get#11d923b08f99",
     "file": "scripts/day.mjs",
-    "line": 234,
+    "line": 236,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', source.targetDate)",
     "group": "operator-other",
@@ -3782,7 +3782,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5bb656fcc1fa-2",
     "file": "scripts/day.mjs",
-    "line": 239,
+    "line": 241,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-other",
@@ -3794,7 +3794,7 @@
   {
     "id": "scripts/day.mjs#admin.get#391f19017fb7",
     "file": "scripts/day.mjs",
-    "line": 239,
+    "line": 241,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${indexTokens[role]}`)",
     "group": "operator-other",
@@ -3806,7 +3806,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0d183d2a62fd-2",
     "file": "scripts/day.mjs",
-    "line": 259,
+    "line": 261,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', targetDate)",
     "group": "operator-other",
@@ -3818,7 +3818,7 @@
   {
     "id": "scripts/day.mjs#admin.get#391f19017fb7-2",
     "file": "scripts/day.mjs",
-    "line": 262,
+    "line": 264,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${indexTokens[role]}`)",
     "group": "operator-other",
@@ -3830,7 +3830,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0d027bdc9f02",
     "file": "scripts/day.mjs",
-    "line": 590,
+    "line": 592,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${token}`)",
     "group": "operator-other",
@@ -3842,7 +3842,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5bb656fcc1fa-3",
     "file": "scripts/day.mjs",
-    "line": 590,
+    "line": 592,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-other",
@@ -3854,7 +3854,7 @@
   {
     "id": "scripts/day.mjs#admin.get#f649ff051277",
     "file": "scripts/day.mjs",
-    "line": 598,
+    "line": 600,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${token}/items/${entry.id}`)",
     "group": "operator-other",
@@ -3866,7 +3866,7 @@
   {
     "id": "scripts/day.mjs#admin.get#facaa2d1f595",
     "file": "scripts/day.mjs",
-    "line": 599,
+    "line": 601,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${token}/files`)",
     "group": "operator-other",
@@ -3878,7 +3878,7 @@
   {
     "id": "scripts/day.mjs#admin.get#8eb4bac34a12",
     "file": "scripts/day.mjs",
-    "line": 600,
+    "line": 602,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${token}/items/${entry.id}`)",
     "group": "operator-other",
@@ -3890,7 +3890,7 @@
   {
     "id": "scripts/day.mjs#admin.get#f6c9862b64d5",
     "file": "scripts/day.mjs",
-    "line": 642,
+    "line": 646,
     "api": "admin.get",
     "target": "db.collection(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/tasks`).where('dueDate', '==', source.targetDate)",
     "group": "operator-other",
@@ -3902,7 +3902,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5db9d002ef15",
     "file": "scripts/day.mjs",
-    "line": 652,
+    "line": 656,
     "api": "admin.get",
     "target": "db.doc(`sourceAccounts/${legacyOwner.sourceAccountId}`)",
     "group": "operator-other",
@@ -3914,7 +3914,7 @@
   {
     "id": "scripts/day.mjs#admin.get#138501c82477",
     "file": "scripts/day.mjs",
-    "line": 653,
+    "line": 657,
     "api": "admin.get",
     "target": "db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}`)",
     "group": "operator-other",
@@ -3926,7 +3926,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b01114dde8f9",
     "file": "scripts/day.mjs",
-    "line": 654,
+    "line": 658,
     "api": "admin.get",
     "target": "db.doc(`sourceIdentities/${createHash('sha256').update(`mesh-child:${legacyOwner.sourcePersonId}`).digest('hex')}`)",
     "group": "operator-other",
@@ -3938,7 +3938,7 @@
   {
     "id": "scripts/day.mjs#admin.get#09003f5f66b1",
     "file": "scripts/day.mjs",
-    "line": 677,
+    "line": 681,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${pair.student}/items/${taskId}`)",
     "group": "operator-other",
@@ -3950,7 +3950,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342",
     "file": "scripts/day.mjs",
-    "line": 745,
+    "line": 749,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -3962,7 +3962,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5a6fcbd97732",
     "file": "scripts/day.mjs",
-    "line": 746,
+    "line": 750,
     "api": "admin.get",
     "target": "db.doc(`families/${legacyOwner.familyId}/children/${legacyOwner.childId}/books/${bookId}`)",
     "group": "operator-other",
@@ -3974,7 +3974,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654",
     "file": "scripts/day.mjs",
-    "line": 748,
+    "line": 752,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -3986,7 +3986,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b0179f856a33",
     "file": "scripts/day.mjs",
-    "line": 760,
+    "line": 764,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -3998,7 +3998,7 @@
   {
     "id": "scripts/day.mjs#admin.get#7a1b15f1eae9",
     "file": "scripts/day.mjs",
-    "line": 760,
+    "line": 764,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.parent}`)",
     "group": "operator-other",
@@ -4010,7 +4010,7 @@
   {
     "id": "scripts/day.mjs#admin.get#930ecfd7c494",
     "file": "scripts/day.mjs",
-    "line": 791,
+    "line": 795,
     "api": "admin.get",
     "target": "db.doc(`assignments/${token}`)",
     "group": "operator-other",
@@ -4022,7 +4022,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6741413a8c6f",
     "file": "scripts/day.mjs",
-    "line": 806,
+    "line": 810,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -4034,7 +4034,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c60f4a6b345d-2",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/members`)",
     "group": "operator-other",
@@ -4046,7 +4046,7 @@
   {
     "id": "scripts/day.mjs#admin.get#689238336cf3",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -4058,7 +4058,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b40d6f36abf2",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "taskRef",
     "group": "operator-other",
@@ -4070,7 +4070,7 @@
   {
     "id": "scripts/day.mjs#admin.get#08bb69099dfe",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "studentRef",
     "group": "operator-other",
@@ -4082,7 +4082,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b4fd976cf37f",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "parentRef",
     "group": "operator-other",
@@ -4094,7 +4094,7 @@
   {
     "id": "scripts/day.mjs#admin.get#48590ef7ce25",
     "file": "scripts/day.mjs",
-    "line": 899,
+    "line": 903,
     "api": "admin.get",
     "target": "guideRef",
     "group": "operator-other",
@@ -4106,7 +4106,7 @@
   {
     "id": "scripts/day.mjs#admin.get#3ce2c49fc3b6",
     "file": "scripts/day.mjs",
-    "line": 907,
+    "line": 911,
     "api": "admin.get",
     "target": "db.doc(`families/${owner.familyId}/children/${owner.childId}/tasks/${task.learnerOrigin.intakeTaskId}`)",
     "group": "operator-other",
@@ -4118,7 +4118,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5d42461bf30f",
     "file": "scripts/day.mjs",
-    "line": 909,
+    "line": 913,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${pair.student}/files/${id}`)",
     "group": "operator-other",
@@ -4130,7 +4130,7 @@
   {
     "id": "scripts/day.mjs#admin.get#930ecfd7c494-2",
     "file": "scripts/day.mjs",
-    "line": 920,
+    "line": 924,
     "api": "admin.get",
     "target": "db.doc(`assignments/${token}`)",
     "group": "operator-other",
@@ -4142,7 +4142,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9cef2489c1af",
     "file": "scripts/day.mjs",
-    "line": 933,
+    "line": 937,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${pair.student}/items/${task.id}`)",
     "group": "operator-other",
@@ -4154,7 +4154,7 @@
   {
     "id": "scripts/day.mjs#admin.get#1bec16d7c453",
     "file": "scripts/day.mjs",
-    "line": 934,
+    "line": 938,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${pair.student}/items/${task.id}`)",
     "group": "operator-other",
@@ -4166,7 +4166,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9fd007412988",
     "file": "scripts/day.mjs",
-    "line": 935,
+    "line": 939,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${pair.student}/files`)",
     "group": "operator-other",
@@ -4178,7 +4178,7 @@
   {
     "id": "scripts/day.mjs#admin.get#12a52c86eca6",
     "file": "scripts/day.mjs",
-    "line": 952,
+    "line": 956,
     "api": "admin.get",
     "target": "db.collection(`families/${owner.familyId}/children/${owner.childId}/tasks`).where('dueDate', '==', task.dueDate)",
     "group": "operator-other",
@@ -4190,7 +4190,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c577e552e098",
     "file": "scripts/day.mjs",
-    "line": 967,
+    "line": 971,
     "api": "admin.get",
     "target": "dashboardRefs[role]",
     "group": "operator-other",
@@ -4202,7 +4202,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4214,7 +4214,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-2",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4226,7 +4226,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-3",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4238,7 +4238,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-4",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4250,7 +4250,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-5",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4262,7 +4262,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-6",
     "file": "scripts/day.mjs",
-    "line": 1004,
+    "line": 1008,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4274,7 +4274,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-7",
     "file": "scripts/day.mjs",
-    "line": 1005,
+    "line": 1009,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4286,7 +4286,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-8",
     "file": "scripts/day.mjs",
-    "line": 1006,
+    "line": 1010,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4298,7 +4298,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b40d6f36abf2-2",
     "file": "scripts/day.mjs",
-    "line": 1041,
+    "line": 1045,
     "api": "admin.get",
     "target": "taskRef",
     "group": "operator-other",
@@ -4310,7 +4310,7 @@
   {
     "id": "scripts/day.mjs#admin.get#08bb69099dfe-2",
     "file": "scripts/day.mjs",
-    "line": 1041,
+    "line": 1045,
     "api": "admin.get",
     "target": "studentRef",
     "group": "operator-other",
@@ -4322,7 +4322,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b4fd976cf37f-2",
     "file": "scripts/day.mjs",
-    "line": 1041,
+    "line": 1045,
     "api": "admin.get",
     "target": "parentRef",
     "group": "operator-other",
@@ -4334,7 +4334,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c577e552e098-2",
     "file": "scripts/day.mjs",
-    "line": 1044,
+    "line": 1048,
     "api": "admin.get",
     "target": "dashboardRefs[role]",
     "group": "operator-other",
@@ -4346,7 +4346,7 @@
   {
     "id": "scripts/day.mjs#admin.get#14268b5cf397",
     "file": "scripts/day.mjs",
-    "line": 1080,
+    "line": 1084,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${slot.dayToken}`)",
     "group": "operator-other",
@@ -4358,7 +4358,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c1d38bdef84a",
     "file": "scripts/day.mjs",
-    "line": 1116,
+    "line": 1120,
     "api": "admin.get",
     "target": "dashboard",
     "group": "operator-other",
@@ -4370,7 +4370,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5bb656fcc1fa-4",
     "file": "scripts/day.mjs",
-    "line": 1122,
+    "line": 1126,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-other",
@@ -4382,7 +4382,7 @@
   {
     "id": "scripts/day.mjs#admin.get#db54559082ef",
     "file": "scripts/day.mjs",
-    "line": 1137,
+    "line": 1141,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${tokens[role]}`)",
     "group": "operator-other",
@@ -4394,7 +4394,7 @@
   {
     "id": "scripts/day.mjs#admin.get#820456f4888c",
     "file": "scripts/day.mjs",
-    "line": 1155,
+    "line": 1159,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${student}/files`)",
     "group": "operator-other",
@@ -4406,7 +4406,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-2",
     "file": "scripts/day.mjs",
-    "line": 1199,
+    "line": 1203,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4418,7 +4418,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-9",
     "file": "scripts/day.mjs",
-    "line": 1225,
+    "line": 1229,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4430,7 +4430,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-10",
     "file": "scripts/day.mjs",
-    "line": 1231,
+    "line": 1235,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4442,7 +4442,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6c0b158163c5",
     "file": "scripts/day.mjs",
-    "line": 1316,
+    "line": 1320,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair[role]}`)",
     "group": "operator-other",
@@ -4454,7 +4454,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342-2",
     "file": "scripts/day.mjs",
-    "line": 1336,
+    "line": 1340,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -4466,7 +4466,7 @@
   {
     "id": "scripts/day.mjs#admin.get#63c7a8fb5d66",
     "file": "scripts/day.mjs",
-    "line": 1341,
+    "line": 1345,
     "api": "admin.get",
     "target": "db.doc(`families/${page.familyId}/children/${page.childId}/books/${bookId}`)",
     "group": "operator-other",
@@ -4478,7 +4478,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654-2",
     "file": "scripts/day.mjs",
-    "line": 1346,
+    "line": 1350,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -4490,7 +4490,7 @@
   {
     "id": "scripts/day.mjs#admin.get#dfec82eee869",
     "file": "scripts/day.mjs",
-    "line": 1350,
+    "line": 1354,
     "api": "admin.get",
     "target": "db.doc(`families/${page.familyId}/children/${page.childId}/bookPages/${ref}`)",
     "group": "operator-other",
@@ -4502,7 +4502,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-3",
     "file": "scripts/day.mjs",
-    "line": 1409,
+    "line": 1413,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4514,7 +4514,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-11",
     "file": "scripts/day.mjs",
-    "line": 1427,
+    "line": 1431,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4526,7 +4526,7 @@
   {
     "id": "scripts/day.mjs#admin.get#c7d7435abda3",
     "file": "scripts/day.mjs",
-    "line": 1434,
+    "line": 1438,
     "api": "admin.get",
     "target": "item.ref",
     "group": "operator-other",
@@ -4538,7 +4538,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6c0b158163c5-2",
     "file": "scripts/day.mjs",
-    "line": 1447,
+    "line": 1451,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair[role]}`)",
     "group": "operator-other",
@@ -4550,7 +4550,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5e24e07e8342-3",
     "file": "scripts/day.mjs",
-    "line": 1462,
+    "line": 1466,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}`)",
     "group": "operator-other",
@@ -4562,7 +4562,7 @@
   {
     "id": "scripts/day.mjs#admin.get#51062aaf2654-3",
     "file": "scripts/day.mjs",
-    "line": 1462,
+    "line": 1466,
     "api": "admin.get",
     "target": "db.doc(`materialBooks/${bookId}/pages/${pdfPage}`)",
     "group": "operator-other",
@@ -4574,7 +4574,7 @@
   {
     "id": "scripts/day.mjs#admin.get#49c73dd03fd2",
     "file": "scripts/day.mjs",
-    "line": 1463,
+    "line": 1467,
     "api": "admin.get",
     "target": "db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${ref}`)",
     "group": "operator-other",
@@ -4586,7 +4586,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-12",
     "file": "scripts/day.mjs",
-    "line": 1480,
+    "line": 1484,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4598,7 +4598,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-13",
     "file": "scripts/day.mjs",
-    "line": 1483,
+    "line": 1487,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4610,7 +4610,7 @@
   {
     "id": "scripts/day.mjs#admin.get#be13baad11ac",
     "file": "scripts/day.mjs",
-    "line": 1498,
+    "line": 1502,
     "api": "admin.get",
     "target": "db.doc(`families/${pages[0].familyId}/children/${pages[0].childId}/bookPages/${item.ref}`)",
     "group": "operator-other",
@@ -4622,7 +4622,7 @@
   {
     "id": "scripts/day.mjs#admin.get#6741413a8c6f-2",
     "file": "scripts/day.mjs",
-    "line": 1511,
+    "line": 1515,
     "api": "admin.get",
     "target": "ownerRef",
     "group": "operator-other",
@@ -4634,7 +4634,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-4",
     "file": "scripts/day.mjs",
-    "line": 1511,
+    "line": 1515,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4646,7 +4646,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-14",
     "file": "scripts/day.mjs",
-    "line": 1528,
+    "line": 1532,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4658,7 +4658,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-15",
     "file": "scripts/day.mjs",
-    "line": 1528,
+    "line": 1532,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4670,7 +4670,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-5",
     "file": "scripts/day.mjs",
-    "line": 1534,
+    "line": 1538,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4682,7 +4682,7 @@
   {
     "id": "scripts/day.mjs#admin.get#85635064fcc5",
     "file": "scripts/day.mjs",
-    "line": 1582,
+    "line": 1586,
     "api": "admin.get",
     "target": "db.collection(`families/${upgradeOwner.familyId}/children/${upgradeOwner.childId}/tasks`) .where('dueDate', '==', item.source.targetDate)",
     "group": "operator-other",
@@ -4694,7 +4694,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-16",
     "file": "scripts/day.mjs",
-    "line": 1588,
+    "line": 1592,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4706,7 +4706,7 @@
   {
     "id": "scripts/day.mjs#admin.get#5201b6a3d601-6",
     "file": "scripts/day.mjs",
-    "line": 1588,
+    "line": 1592,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -4718,7 +4718,7 @@
   {
     "id": "scripts/day.mjs#admin.get#3646d6fb0b16",
     "file": "scripts/day.mjs",
-    "line": 1645,
+    "line": 1649,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${item.pair[role]}`)",
     "group": "operator-other",
@@ -4730,7 +4730,7 @@
   {
     "id": "scripts/day.mjs#admin.get#49617dc35575",
     "file": "scripts/day.mjs",
-    "line": 1649,
+    "line": 1653,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`)",
     "group": "operator-other",
@@ -4742,7 +4742,7 @@
   {
     "id": "scripts/day.mjs#admin.get#689238336cf3-2",
     "file": "scripts/day.mjs",
-    "line": 1677,
+    "line": 1681,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${pair.student}`)",
     "group": "operator-other",
@@ -4754,7 +4754,7 @@
   {
     "id": "scripts/day.mjs#admin.get#b0179f856a33-2",
     "file": "scripts/day.mjs",
-    "line": 1677,
+    "line": 1681,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${pair.student}`)",
     "group": "operator-other",
@@ -4766,7 +4766,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9ee93dba1e4b",
     "file": "scripts/day.mjs",
-    "line": 1678,
+    "line": 1682,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`)",
     "group": "operator-other",
@@ -4778,7 +4778,7 @@
   {
     "id": "scripts/day.mjs#admin.get#cb2cd707a60a",
     "file": "scripts/day.mjs",
-    "line": 1680,
+    "line": 1684,
     "api": "admin.get",
     "target": "eventCollection.where('taskId', '==', taskId).limit(100)",
     "group": "operator-other",
@@ -4790,7 +4790,7 @@
   {
     "id": "scripts/day.mjs#admin.get#a80fee27328f",
     "file": "scripts/day.mjs",
-    "line": 1684,
+    "line": 1688,
     "api": "admin.get",
     "target": "eventCollection.where('taskId', '==', taskId).limit(100).startAfter(page.docs.at(-1))",
     "group": "operator-other",
@@ -4802,7 +4802,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-17",
     "file": "scripts/day.mjs",
-    "line": 1724,
+    "line": 1728,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4814,7 +4814,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-18",
     "file": "scripts/day.mjs",
-    "line": 1724,
+    "line": 1728,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4826,7 +4826,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-19",
     "file": "scripts/day.mjs",
-    "line": 1724,
+    "line": 1728,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4838,7 +4838,7 @@
   {
     "id": "scripts/day.mjs#admin.get#0e9ab1bd809b-20",
     "file": "scripts/day.mjs",
-    "line": 1724,
+    "line": 1728,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -4850,7 +4850,7 @@
   {
     "id": "scripts/day.mjs#admin.get#9d8e3043fb30",
     "file": "scripts/day.mjs",
-    "line": 1736,
+    "line": 1740,
     "api": "admin.get",
     "target": "eventSnap.ref",
     "group": "operator-other",
@@ -4886,7 +4886,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#9441ebbcf2fa",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 128,
+    "line": 133,
     "api": "admin.get",
     "target": "db.collection('telegramNotificationEvents').doc(eventId)",
     "group": "operator-other",
@@ -4898,7 +4898,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#c573803dc1ae",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 156,
+    "line": 161,
     "api": "admin.get",
     "target": "selected",
     "group": "operator-other",
@@ -6950,7 +6950,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#a3750996ffdd",
     "file": "scripts/sync-project.mjs",
-    "line": 161,
+    "line": 164,
     "api": "admin.get",
     "target": "db.collection(`families/${target.familyId}/children/${target.childId}/tasks`) .where('dueDate', '>=', dates[0]).where('dueDate', '<=', dates.at(-1))",
     "group": "operator-sync",
@@ -6962,7 +6962,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#ddaa06b20bbd",
     "file": "scripts/sync-project.mjs",
-    "line": 173,
+    "line": 176,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${token}`)",
     "group": "operator-sync",
@@ -6974,7 +6974,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#4e894d48fdca",
     "file": "scripts/sync-project.mjs",
-    "line": 195,
+    "line": 198,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-sync",
@@ -6986,7 +6986,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#efe6ef9926c8",
     "file": "scripts/sync-project.mjs",
-    "line": 219,
+    "line": 222,
     "api": "admin.get",
     "target": "snapshot.ref",
     "group": "operator-sync",
@@ -6998,7 +6998,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18",
     "file": "scripts/sync-project.mjs",
-    "line": 363,
+    "line": 366,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -7010,7 +7010,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#16193df213d4",
     "file": "scripts/sync-project.mjs",
-    "line": 383,
+    "line": 386,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs').where('runId', '==', runId)",
     "group": "operator-sync",
@@ -7020,9 +7020,21 @@
     "note": "Операторский путь: проверить кратность и размер результата в реальном прогоне; при повторе использовать адресный ID/локальный снимок с ревизией."
   },
   {
+    "id": "scripts/sync-project.mjs#admin.get#4016429218e6",
+    "file": "scripts/sync-project.mjs",
+    "line": 408,
+    "api": "admin.get",
+    "target": "statusRef({ familyId, childId })",
+    "group": "operator-sync",
+    "assessment": "justified",
+    "policy": "exact-family-child-current-run",
+    "refresh": "explicit-ack-day",
+    "note": "One statusRef for explicit family/child must match the manifest run before ack-day; complete 42-day manifest and publication audit are also required. No polling or listener."
+  },
+  {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18-2",
     "file": "scripts/sync-project.mjs",
-    "line": 407,
+    "line": 423,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -7862,7 +7874,7 @@
   {
     "id": "src/lib/dayDashboardStore.ts#onSnapshot#f50728f05c6a",
     "file": "src/lib/dayDashboardStore.ts",
-    "line": 50,
+    "line": 51,
     "api": "onSnapshot",
     "target": "doc(db, 'dayDashboards', token)",
     "group": "client-day",
@@ -9802,6 +9814,42 @@
     "policy": "not-firestore",
     "refresh": "not applicable: in-memory Map lookup",
     "note": "Обычный Map.get для ожидаемой ревизии дня; preceding instanceof Map guard подтверждает локальную структуру. Нет Firestore SDK вызова или сети."
+  },
+  {
+    "id": "sync/reconciliation-ack.mjs#admin.get#ba82da48a4cf",
+    "file": "sync/reconciliation-ack.mjs",
+    "line": 11,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-owner-run-revision",
+    "refresh": "explicit-ack-day",
+    "note": "One deterministic reconcile-day job: preflight, transactional owner/run/date/fingerprint and reason fence, then exact readback after fresh both-role publication audit; no listeners or global scan."
+  },
+  {
+    "id": "sync/reconciliation-ack.mjs#admin.get#726ca7b49d9e",
+    "file": "sync/reconciliation-ack.mjs",
+    "line": 19,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-owner-run-revision",
+    "refresh": "explicit-ack-day",
+    "note": "One deterministic reconcile-day job: preflight, transactional owner/run/date/fingerprint and reason fence, then exact readback after fresh both-role publication audit; no listeners or global scan."
+  },
+  {
+    "id": "sync/reconciliation-ack.mjs#admin.get#ba82da48a4cf-2",
+    "file": "sync/reconciliation-ack.mjs",
+    "line": 28,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "exact-owner-run-revision",
+    "refresh": "explicit-ack-day",
+    "note": "One deterministic reconcile-day job: preflight, transactional owner/run/date/fingerprint and reason fence, then exact readback after fresh both-role publication audit; no listeners or global scan."
   },
   {
     "id": "sync/school-calendar-publication.mjs#admin.getAll#6d9b0686baaf",

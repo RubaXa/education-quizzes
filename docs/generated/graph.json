@@ -3130,6 +3130,34 @@
       "path": "docs/decisions/student-review-step-2026-11-01.md"
     },
     {
+      "id": "decision.sync-permission-scope-2026-11-08",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-08",
+      "updated": "2026-11-08",
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "service.telegram-bot.education-sync-dispatch"
+      ],
+      "consumers": [
+        "operator"
+      ],
+      "code": [
+        "sync/reconciliation-ack.mjs",
+        "scripts/sync-project.mjs",
+        "scripts/education-sync-dispatch.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/sync-permission-scope-2026-11-08.md"
+    },
+    {
       "id": "decision.sync-phase-report-2026-10-29",
       "status": "accepted",
       "implementation": "implemented",
@@ -3648,6 +3676,34 @@
         "согласование"
       ],
       "path": "docs/decisions/upload-photo-timestamp-2026-10-21.md"
+    },
+    {
+      "id": "decision.verified-reconciliation-ack-2026-11-06",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-06",
+      "updated": "2026-11-06",
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "service.telegram-bot.education-sync-dispatch"
+      ],
+      "consumers": [
+        "operator"
+      ],
+      "code": [
+        "sync/reconciliation-ack.mjs",
+        "scripts/sync-project.mjs",
+        "scripts/education-sync-dispatch.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/verified-reconciliation-ack-2026-11-06.md"
     },
     {
       "id": "decision.weekend-special-course-2026-10-18",
@@ -11042,6 +11098,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:sync/reconciliation-ack.mjs",
+      "path": "sync/reconciliation-ack.mjs",
+      "kind": "artifact",
+      "purpose": "Адресное подтверждение проверенной ревизии reconcile-day после аудита обеих ролей",
+      "consumer": "sync-project CLI"
+    },
+    {
+      "id": "file:sync/reconciliation-ack.test.mjs",
+      "path": "sync/reconciliation-ack.test.mjs",
+      "kind": "verification",
+      "purpose": "Проверки гонок fingerprint/run/owner, отказа публикации и безопасного повтора",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/run-context.mjs",
       "path": "sync/run-context.mjs",
       "kind": "artifact",
@@ -16212,6 +16282,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.sync-permission-scope-2026-11-08",
+      "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "uses"
+    },
+    {
       "from": "decision.sync-phase-report-2026-10-29",
       "to": "service.operator-cli",
       "type": "uses"
@@ -16424,6 +16499,11 @@
     {
       "from": "decision.upload-photo-timestamp",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.verified-reconciliation-ack-2026-11-06",
+      "to": "service.telegram-bot.education-sync-dispatch",
       "type": "uses"
     },
     {
@@ -18078,12 +18158,22 @@
     },
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.sync-permission-scope-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
     },
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "decision.upload-lifecycle-continuation-2026-10-30",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.verified-reconciliation-ack-2026-11-06",
       "type": "implements"
     },
     {
@@ -18763,12 +18853,22 @@
     },
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.sync-permission-scope-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "decision.sync-phase-report-2026-10-29",
       "type": "implements"
     },
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "decision.sync-single-drainer-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.verified-reconciliation-ack-2026-11-06",
       "type": "implements"
     },
     {
@@ -19219,6 +19319,16 @@
     {
       "from": "file:scripts/sync-project.mjs",
       "to": "decision.pupil-vacations-2026-10-19",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "decision.sync-permission-scope-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-project.mjs",
+      "to": "decision.verified-reconciliation-ack-2026-11-06",
       "type": "implements"
     },
     {
@@ -22572,6 +22682,21 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/reconciliation-ack.mjs",
+      "to": "decision.sync-permission-scope-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/reconciliation-ack.mjs",
+      "to": "decision.verified-reconciliation-ack-2026-11-06",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/reconciliation-ack.mjs",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/run-context.mjs",
       "to": "module.synchronization.global-sync",
       "type": "implements"
@@ -24833,6 +24958,16 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decision.sync-permission-scope-2026-11-08",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "decision.verified-reconciliation-ack-2026-11-06",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "decisions.project-publication-audit-2026-10-21",
       "type": "contains"
     },
@@ -24874,6 +25009,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "file:sync/publication-audit.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:sync/reconciliation-ack.test.mjs",
       "type": "verified-by"
     },
     {
