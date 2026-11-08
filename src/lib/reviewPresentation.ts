@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/photo-auth-resume-2026-11-08.md */
 import type { DayUpload, DayWorkReview } from './dayStore'
 import { formatReviewProse } from './reviewProse'
 
@@ -149,4 +150,15 @@ export function activeProcessing(review: DayWorkReview | undefined, uploads: Day
   if (!processing) return null
   const pending = new Set(uploads.filter((upload) => upload.status === 'pending').map((upload) => upload.id.split(':').at(-1)))
   return processing.uploadIds.some((id) => pending.has(id)) ? processing : null
+}
+
+/** Server request state does not prove that an originating browser is sending bytes.
+ * @see ../../docs/services/upload-worker/README.md#photo-recovery */
+export function photoTransferMessage(upload: DayUpload, locallySending = false): string {
+  if (upload.status === 'uploaded') return 'Файл передан. Сервер проверяет получение.'
+  if (upload.status === 'requested' || upload.status === 'awaiting-upload' && !upload.upload?.href) return 'Готовим ссылку передачи. Снимок сохранён на устройстве отправки.'
+  if (upload.status === 'awaiting-upload') return locallySending
+    ? 'Передаём сохранённый файл. Повторно выбирать фото не нужно.'
+    : 'Ссылка готова. Сервер ждёт файл с устройства отправки.'
+  return ''
 }

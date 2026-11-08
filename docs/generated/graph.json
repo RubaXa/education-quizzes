@@ -2312,6 +2312,37 @@
       "path": "docs/decisions/personal-tutoring-2026-10-30.md"
     },
     {
+      "id": "decision.photo-auth-resume-2026-11-08",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-08",
+      "updated": "2026-11-08",
+      "parent": "service.upload-worker",
+      "uses": [
+        "module.materials.storage-privacy"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "operator"
+      ],
+      "code": [
+        "src/lib/photoOutbox.ts",
+        "src/lib/reviewPresentation.ts",
+        "src/components/WorkPhotoGallery.tsx",
+        "storage/photo-transfer-recovery.mjs",
+        "scripts/photo-outbox-chromium-integration.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/photo-auth-resume-2026-11-08.md"
+    },
+    {
       "id": "decision.photo-indexeddb-recovery-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -16092,6 +16123,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.photo-auth-resume-2026-11-08",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
       "from": "decision.photo-indexeddb-recovery-2026-10-22",
       "to": "decision.photo-storage-ldd-2026-10-22",
       "type": "uses"
@@ -19083,6 +19119,11 @@
     },
     {
       "from": "file:scripts/photo-outbox-chromium-integration.mjs",
+      "to": "decision.photo-auth-resume-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/photo-outbox-chromium-integration.mjs",
       "to": "decision.photo-indexeddb-recovery-2026-10-22",
       "type": "implements"
     },
@@ -20878,6 +20919,11 @@
     },
     {
       "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.photo-auth-resume-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
       "to": "decision.photo-transfer-recovery-2026-10-22",
       "type": "implements"
     },
@@ -21708,6 +21754,11 @@
     },
     {
       "from": "file:src/lib/photoOutbox.ts",
+      "to": "decision.photo-auth-resume-2026-11-08",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/photoOutbox.ts",
       "to": "decision.photo-indexeddb-recovery-2026-10-22",
       "type": "implements"
     },
@@ -21869,6 +21920,11 @@
     {
       "from": "file:src/lib/reviewConversation.ts",
       "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
+      "to": "decision.photo-auth-resume-2026-11-08",
       "type": "implements"
     },
     {
@@ -22349,6 +22405,11 @@
     {
       "from": "file:storage/photo-placement.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-transfer-recovery.mjs",
+      "to": "decision.photo-auth-resume-2026-11-08",
       "type": "implements"
     },
     {
@@ -26625,6 +26686,11 @@
       "from": "service.telegram-bot",
       "to": "shared.toolchain",
       "type": "uses"
+    },
+    {
+      "from": "service.upload-worker",
+      "to": "decision.photo-auth-resume-2026-11-08",
+      "type": "contains"
     },
     {
       "from": "service.upload-worker",

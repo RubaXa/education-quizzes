@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/photo-auth-resume-2026-11-08.md */
 /** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../docs/decisions/photo-transfer-revision-race-2026-11-07.md */
 /** Exact-source recovery of an admitted upload; never edits bytes or grades.
@@ -32,7 +33,13 @@ export async function inspectPhotoTransfer({ db, disk, dayToken, uploadId }) {
         attempt: upload.clientTransfer.attempt, httpStatus: upload.clientTransfer.httpStatus,
         at: upload.clientTransfer.at?.toDate?.().toISOString() ?? null,
       } : { phase: 'client-not-observed' },
-      linkIssuedAt: upload.upload?.issuedAt?.toDate?.().toISOString() ?? null } }
+      linkIssuedAt: upload.upload?.issuedAt?.toDate?.().toISOString() ?? null,
+      serverStage: upload.status === 'awaiting-upload' && upload.upload?.href ? 'link-ready' : upload.status,
+      clientObservedAfterLink: upload.upload?.issuedAt && upload.clientTransfer?.at
+        ? upload.clientTransfer.at.toDate().getTime() >= upload.upload.issuedAt.toDate().getTime() : null,
+      deliveryStage: upload.status === 'awaiting-upload' && upload.upload?.href
+        && (!upload.clientTransfer?.at || upload.clientTransfer.at.toDate().getTime() < (upload.upload.issuedAt?.toDate?.().getTime() ?? 0))
+        ? 'client-not-observed-after-link' : upload.clientTransfer?.phase ?? 'client-not-observed' } }
 }
 
 export async function recoverPhotoTransfer(deps) {

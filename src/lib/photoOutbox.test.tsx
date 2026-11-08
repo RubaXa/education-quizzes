@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const harness = vi.hoisted(() => ({
+  auth: { currentUser: { uid: 'student-device' } as { uid: string } | null },
+  authListeners: new Set<() => void>(),
   docs: new Map<string, Record<string, any>>(),
   events: [] as Array<{ eventId: string; eventType: string; operationId: string }>,
   writes: [] as Array<{ path: string; value: Record<string, any> }>,
@@ -37,7 +39,7 @@ vi.mock('firebase/firestore', () => ({
     }
   },
 }))
-vi.mock('firebase/auth', () => ({ getAuth: () => ({ currentUser: { uid: 'student-device' } }) }))
+vi.mock('firebase/auth', () => ({ getAuth: () => harness.auth, onAuthStateChanged: (_auth: unknown, callback: () => void) => { harness.authListeners.add(callback); return () => harness.authListeners.delete(callback) } }))
 vi.mock('./firebase', () => ({ db: {} }))
 vi.mock('./browserAccessTrace', () => ({ tracePhotoStorage: (...args: unknown[]) => harness.photoTraces.push(args), traceAccess: vi.fn() }))
 vi.mock('./educationEventProducer', () => ({
@@ -50,7 +52,7 @@ vi.mock('./uiErrors', () => ({ reportUiError: (cause: unknown) => { if (cause in
   ? cause.message : 'Действие не выполнено. Повторите попытку.' } }))
 
 import WorkPhotoGallery from '../components/WorkPhotoGallery'
-import { getPhotoTransferUiSnapshot, localPhotoForTransfer, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer, savePhotoForTransfer, recoverLocalPhotoTransfers } from './photoOutbox'
+import { getPhotoTransferUiSnapshot, localPhotoForTransfer, removePhotoFromOutbox, resumePhotoTransfer, retryPhotoTransfer, savePhotoForTransfer, recoverLocalPhotoTransfers, startPhotoOutboxRecovery } from './photoOutbox'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const studentToken = 'day-token'
@@ -527,4 +529,25 @@ describe('photo transfer recovery', () => {
     expect(harness.fetch).toHaveBeenCalledTimes(1)
     expect(harness.events).toHaveLength(0)
   })
+})
+
+
+it('resumes the same saved blob immediately when auth restores after App mounts, and detaches on unmount', async () => {
+  harness.fetch.mockReset(); harness.docs.clear(); harness.writes.length = 0; harness.events.length = 0
+  harness.fetch.mockResolvedValue({ ok: true, status: 201 })
+  await savePhotoForTransfer(studentToken, uploadId, blob)
+  harness.docs.set(sourcePath, requested())
+  harness.docs.set(ownerPath, { familyId: 'family', childId: 'child' })
+  harness.auth.currentUser = null
+  const stop = startPhotoOutboxRecovery()
+  try {
+    expect(harness.authListeners.size).toBe(1)
+    expect(harness.fetch).not.toHaveBeenCalled()
+    harness.auth.currentUser = { uid: 'student-device' }
+    for (const callback of harness.authListeners) callback()
+    await vi.waitFor(() => expect(harness.docs.get(sourcePath)?.status).toBe('uploaded'))
+    expect(harness.fetch).toHaveBeenCalledTimes(1)
+    expect(harness.fetch.mock.calls[0][1].body.marker).toBe('original-photo-bytes')
+  } finally { stop(); harness.auth.currentUser = { uid: 'student-device' } }
+  expect(harness.authListeners.size).toBe(0)
 })

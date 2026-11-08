@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/photo-auth-resume-2026-11-08.md](decisions/photo-auth-resume-2026-11-08.md) | [Восстановление фото](services/upload-worker/README.md) | Холодный вход, прежний Blob и честное ожидание устройства | App; оператор |
 | [sync/reconciliation-ack.mjs](../sync/reconciliation-ack.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Адресное подтверждение проверенной ревизии reconcile-day после аудита обеих ролей | sync-project CLI |
 | [sync/reconciliation-ack.test.mjs](../sync/reconciliation-ack.test.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Проверки гонок fingerprint/run/owner, отказа публикации и безопасного повтора | Vitest |
 | [docs/decisions/verified-reconciliation-ack-2026-11-06.md](decisions/verified-reconciliation-ack-2026-11-06.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Решение об адресном закрытии проверенных дат и единой активной сессии | Оператор; разработчик |
