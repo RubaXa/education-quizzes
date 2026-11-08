@@ -2,6 +2,10 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [sync/reconciliation-ack.mjs](../sync/reconciliation-ack.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Адресное подтверждение проверенной ревизии reconcile-day после аудита обеих ролей | sync-project CLI |
+| [sync/reconciliation-ack.test.mjs](../sync/reconciliation-ack.test.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Проверки гонок fingerprint/run/owner, отказа публикации и безопасного повтора | Vitest |
+| [docs/decisions/verified-reconciliation-ack-2026-11-06.md](decisions/verified-reconciliation-ack-2026-11-06.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Решение об адресном закрытии проверенных дат и единой активной сессии | Оператор; разработчик |
+| [docs/decisions/sync-permission-scope-2026-11-08.md](decisions/sync-permission-scope-2026-11-08.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Область запрета, проверенное закрытие и очистка активной диагностики | Dispatcher; оператор |
 | [docs/decisions/continuous-course-preparation-2026-11-07.md](decisions/continuous-course-preparation-2026-11-07.md) | [Общий жизненный цикл](modules/synchronization/task-routing.md) | Причина потери спецкурса, непрерывная подготовка и отдельная сдача тетради | Оператор; разработчик |
 | [sync/preparation-window.d.mts](../sync/preparation-window.d.mts) | [Общий жизненный цикл](modules/synchronization/task-routing.md) | Типы общей политики подготовки для клиентского потребителя | Dashboard |
 

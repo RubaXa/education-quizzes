@@ -209,3 +209,9 @@ Mesh credentials resolver адресно проверяет семью, ребё
 Персональный блок31.10 читает те же history views. Архивный файл запрашивается только по нажатию доказательства через прежний broker. Импорт preparation добавляет один адресный get tasks/{next.taskId} на рекомендацию, проверяя семейную область, активность и олимпиаду; нет новых фоновых/клиентских чтений.
 
 07.11, Telegram review: расширена только маска уже существующего адресного getAll dayProgress четырьмя полями studentFeedback.confirmed/focus и mathReasoning.answer/argument. Новых документов/подписок нет; cold/warm число чтений прежнее, размер публичной проекции ограничен. Причина — уведомление теряло смысл результата после разделения public/private. dayReviewPrivate не читается. Композиция digest больше не требует чтения work-history pointers; запись receipts/fencing остаётся. Проверка: source-pipeline privacy и mixed-outcome transport tests.
+
+
+08.11: ack-day читает один детерминированный operatorSyncJobs/reconcile-day:
+preflight, транзакционное CAS и post-write readback. До записи выполняется
+существующий адресный аудит публикации обеих ролей. Нет новых подписок, polling
+или глобального сканирования. run/owner/date/fingerprint и причина блока проверяются повторно.

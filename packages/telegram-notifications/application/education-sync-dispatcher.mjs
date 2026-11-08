@@ -1,7 +1,9 @@
+/** @see ../../../docs/decisions/sync-permission-scope-2026-11-08.md */
 /** @see ../../../docs/decisions/sync-single-drainer-2026-11-05.md */
 /** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
 /** @see ../../../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../../../docs/decisions/independent-action-dispatch-2026-10-21.md */
+/** @see ../../../docs/decisions/verified-reconciliation-ack-2026-11-06.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { spawn } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
@@ -331,6 +333,11 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
+        // Every recovery lane shares the one chat-drainer exclusion gate.
+        const active = execution => execution?.status === 'queued'
+          || execution?.status === 'running' && execution.workflowLeaseUntil > now
+          || execution?.status === 'sending' && execution.leaseUntil > now
+        if (active(state) || active(state.actionLane)) return null
         const later = claimAfterBlockedAction({ tx, ref, state, now, workerId })
         if (later) return later
         const separated = claimBlockedMixedActions({ tx, ref, state, now, workerId })
@@ -507,7 +514,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
               completedActionGeneration: currentLane.gapPrior ? state.completedActionGeneration ?? 0 : Math.max(state.completedActionGeneration ?? 0, frozenThrough),
               pendingActionAfterGeneration: null, pendingActionThroughGeneration: null,
               pendingKinds: pendingKinds.filter(kind => kind !== 'action'),
-              actionLane: { ...currentLane, status: 'running', sendingGeneration: pendingThrough,
+              actionLane: { ...currentLane, ...resolvedBlockPatch(currentLane, now), status: 'running', sendingGeneration: pendingThrough,
                 actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
                 lastCompletedBatch: { generation: expectedGeneration, completedAt: now },
                 workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString(), heartbeatAt: now },
@@ -517,7 +524,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           tx.set(ref, { ...state, completedActionGeneration: currentLane.gapPrior ? state.completedActionGeneration ?? 0 : Math.max(state.completedActionGeneration ?? 0, frozenThrough),
             pendingActionAfterGeneration: pendingAfter, pendingActionThroughGeneration: pendingThrough, pendingKinds,
             actionAfterGeneration: pendingAfter, actionThroughGeneration: pendingThrough,
-            actionLane: { ...currentLane, status: 'completed', claimTokenHash: null, workflowLeaseUntil: null,
+            actionLane: { ...currentLane, ...resolvedBlockPatch(currentLane, now), status: 'completed', claimTokenHash: null, workflowLeaseUntil: null,
               leaseUntil: null, retryAt: null, completedAt: now } }, { merge: false })
           return { status: 'completed', scope: 'action' }
         }
@@ -531,7 +538,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         if (drain && pending) {
           const kinds = currentState.pendingKinds ?? []
           const generation = currentState.generation
-          tx.set(ref, { ...currentState, status: 'running',
+          tx.set(ref, { ...currentState, ...resolvedBlockPatch(currentState, now), status: 'running',
             completedActionGeneration: Math.max(currentState.completedActionGeneration ?? 0, completedActions),
             lastCompletedBatch: { generation: expectedGeneration, completedAt: now },
             sendingGeneration: generation, sendingKinds: kinds,
@@ -544,7 +551,7 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           return { status: 'continued', generation, workKinds: kinds,
             needsFullVerification: kinds.includes('mesh') || kinds.includes('work') }
         }
-        tx.set(ref, { ...currentState, status: pending ? 'pending' : 'completed', completedRequestId: requestId,
+        tx.set(ref, { ...currentState, ...resolvedBlockPatch(currentState, now), status: pending ? 'pending' : 'completed', completedRequestId: requestId,
           completedAt: now, requestId: null, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null, leaseUntil: null,
           completedActionGeneration: Math.max(currentState.completedActionGeneration ?? 0, completedActions),
           sendingKinds: null, sendingGeneration: null, sendingActionAfterGeneration: null, sendingActionThroughGeneration: null,
@@ -569,18 +576,20 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         return { status: 'pending' }
       })
     },
-    async blockClaim({ requestId, tokenHash, reasonCode, now }) {
+    async blockClaim({ requestId, tokenHash, reasonCode, now, permissionBlock = null }) {
       if (!['permission_required', 'source_unavailable', 'manual_review_required'].includes(reasonCode)) return { status: 'invalid_reason' }
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
         const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
         if (actionLane) {
           if (actionLane.claimTokenHash !== tokenHash || actionLane.status !== 'running' || !(actionLane.workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+          const permissionError = validatePermissionBlock(reasonCode, permissionBlock)
+          if (permissionError) return { status: permissionError }
           const sourceIssue = reasonCode === 'source_unavailable'
             ? makeSourceIssue({ requestId, attemptedGeneration: actionLane.sourceAttemptGeneration ?? actionLane.sendingGeneration,
               currentGeneration: snap.data().generation, blockedAt: now }) : null
           tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'blocked', blockedReasonCode: reasonCode,
-            blockedAt: now, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null,
+            blockedAt: now, permissionBlock: reasonCode === 'permission_required' ? permissionBlock : null, claimTokenHash: null, workflowLeaseUntil: null, retryAt: null,
             ...(sourceIssue ? { sourceBlock: sourceIssue } : {}) },
             ...(sourceIssue ? { lastSourceBlock: sourceIssue,
               sourceBlockHistory: appendSourceBlock(snap.data().sourceBlockHistory, sourceIssue) } : {}) }, { merge: false })
@@ -588,36 +597,43 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().claimTokenHash !== tokenHash
           || snap.data().status !== 'running' || !(snap.data().workflowLeaseUntil > now)) return { status: 'invalid_claim' }
+        const permissionError = validatePermissionBlock(reasonCode, permissionBlock)
+        if (permissionError) return { status: permissionError }
         const sourceIssue = reasonCode === 'source_unavailable'
           ? makeSourceIssue({ requestId, attemptedGeneration: snap.data().sourceAttemptGeneration ?? snap.data().sendingGeneration,
             currentGeneration: snap.data().generation, blockedAt: now }) : null
         tx.set(ref, { ...snap.data(), status: 'blocked', blockedReasonCode: reasonCode, blockedAt: now,
+          permissionBlock: reasonCode === 'permission_required' ? permissionBlock : null,
           claimTokenHash: null, workflowLeaseUntil: null, retryAt: null,
           ...(sourceIssue ? { lastSourceBlock: sourceIssue,
             sourceBlockHistory: appendSourceBlock(snap.data().sourceBlockHistory, sourceIssue) } : {}) }, { merge: false })
         return { status: 'blocked', reasonCode }
       })
     },
-    async resumeBlocked({ requestId, now }) {
+    async resumeBlocked({ requestId, now, tokenHash = null }) {
+      if (tokenHash !== null && !/^[a-f0-9]{64}$/.test(tokenHash)) throw new Error('invalid_claim_token')
       return db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
         const actionLane = snap.exists && snap.data().actionLane?.requestId === requestId ? snap.data().actionLane : null
         if (actionLane) {
+          if (['running', 'queued', 'sending', 'uncertain'].includes(snap.data().status)) return { status: 'action_busy' }
           if (actionLane.status !== 'blocked') return { status: 'not_blocked' }
-          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, status: 'pending', blockedReasonCode: null,
+          tx.set(ref, { ...snap.data(), actionLane: { ...actionLane, ...resolvedBlockPatch(actionLane, now), status: tokenHash ? 'running' : 'pending', blockedReasonCode: null,
+            ...(tokenHash ? { claimTokenHash: tokenHash, claimedAt: now, workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString() } : {}),
             resumedAt: now, retryAt: null } }, { merge: false })
-          return { status: 'pending', requestId, scope: 'action' }
+          return { status: tokenHash ? 'claimed' : 'pending', requestId, scope: 'action' }
         }
         if (!snap.exists || snap.data().requestId !== requestId || snap.data().status !== 'blocked') return { status: 'not_blocked' }
         const state = snap.data()
         if (['sending', 'queued', 'running', 'uncertain', 'pending', 'blocked'].includes(state.actionLane?.status)) return { status: 'action_busy' }
         const coalesceMeshGeneration = isExplicitMeshSourceUnavailableBlock(state, state.pendingKinds)
-        tx.set(ref, { ...state, status: 'pending', blockedReasonCode: null, resumedAt: now,
+        tx.set(ref, { ...state, ...resolvedBlockPatch(state, now), status: tokenHash ? 'running' : 'pending', blockedReasonCode: null, resumedAt: now,
+          ...(tokenHash ? { claimTokenHash: tokenHash, claimedAt: now, workflowLeaseUntil: new Date(Date.parse(now) + 6 * 60 * 60_000).toISOString() } : {}),
           ...(coalesceMeshGeneration ? { sendingGeneration: state.generation,
             pendingKinds: state.pendingKinds.filter((kind) => kind !== 'mesh'), resumeTrigger: 'operator_resume_mesh_coalesced' } : {}),
           retryAt: null,
           debounceUntil: state.debounceUntil > now ? state.debounceUntil : now }, { merge: false })
-        return { status: 'pending', requestId }
+        return { status: tokenHash ? 'claimed' : 'pending', requestId }
       })
     },
     async fail({ requestId, workerId, now, retryAt }) {
@@ -650,7 +666,7 @@ export function buildMessage(requestId, claimScriptPath = '/PATH/scripts/educati
   const independentAction = _workKinds.length === 1 && _workKinds[0] === 'action' && _batch.independentSourceBlock === true
   const instruction = independentAction ? `Process this exact Firebase action batch independently; the unrelated Mesh source is blocked and must not prevent this work. Run ${run(`tasks --request ${requestId} --claim-file ${claimFile}`)}, follow the private manifest, verify source and both roles, and preserve the Mesh block. Do not mark the full source cycle complete.` : [fullSyncInstruction, meshInstruction, actionInstruction].filter(Boolean).join(' ')
   const continuation = `This is one queue-draining session. New events remain in the server queue; do not enqueue chat messages. The tasks command returns generation and a private batch directory. Update progress and heartbeat using ${run(`progress --request ${requestId} --claim-file ${claimFile} --phase review`)} (choose the actual phase). After publication, both-role readback and final inbox verification for that batch, acknowledge exactly its generation using ${run(`next --request ${requestId} --claim-file ${claimFile} --generation GENERATION_FROM_TASKS`)}. If continued, keep the same claim and immediately run tasks again, then process the NEW frozen manifest. Do not expand a frozen batch. Perform another full verification only when needsFullVerification is true; otherwise handle the next Firebase batch using the current full-cycle receipts. If completed, the queue was atomically empty and the lock released: stop. Never acknowledge unfinished work. A stale_batch response requires rereading tasks, never guessing the next generation. Local batch files are removed only after server acknowledgement; source files and history are preserved.`
-  return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. ${continuation} Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required`)} (use source_unavailable or manual_review_required when those apply). For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
+  return `${instruction} This message is only a dispatch request. Request ID: ${requestId}. First claim it with: ${run(`claim --request ${requestId}`)}. If the result is busy, running, completed, blocked, or anything other than claimed, stop without syncing. Keep the private claim file path returned by claim. Renew the claim with ${run(`heartbeat --request ${requestId} --claim-file ${claimFile}`)} between long workflow stages. ${continuation} Block only for a genuine runtime/credentials failure, an explicit external tool policy denial, or a human review requirement that applies beyond the already authorized standard flow; do not block to ask for per-file confirmation. Verified internal reconcile-day tasks close through sync:project ack-day after fresh publication and both-role readback; queued or obsolete permission status is not a reason to ask again. An unrelated Git/PWA release permission must not block this queue. Report the actual blocker and run ${run(`block --request ${requestId} --claim-file ${claimFile} --reason source_unavailable`)} (use manual_review_required for a genuine human review requirement). Only an explicit external tool policy denial allows ${run(`block --request ${requestId} --claim-file ${claimFile} --reason permission_required --operation source-access --denial-ref tool-policy:CALL_ID`)}; identify the actual operation and denial call. For an ordinary retryable workflow failure, use ${run(`fail --request ${requestId} --claim-file ${claimFile}`)}. A successful queue acknowledgement never means the sync completed.`
 }
 
 const ACTION_KINDS = Object.freeze({
@@ -885,3 +901,16 @@ function safeCodexEnvironment(env) {
 function isUuid(value) { return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value) }
 function dispatchError(code) { const error = new Error(code); error.code = code; return error }
 function safeCode(error) { return ['codex_spawn_failed', 'codex_timeout', 'codex_output_limit', 'codex_exit_nonzero'].includes(error?.code) ? error.code : 'codex_dispatch_failed' }
+
+function validatePermissionBlock(reasonCode, proof) {
+  if (reasonCode !== 'permission_required') return null
+  if (['reconcile-day', 'ack-day', 'next', 'complete', 'per-file-confirmation'].includes(proof?.operation)) return 'standard_operation_authorized'
+  return ['source-access', 'material-sync', 'data-publication', 'action-processing'].includes(proof?.operation)
+    && /^tool-policy:[A-Za-z0-9_-]{4,128}$/.test(proof?.denialRef ?? '') ? null : 'permission_evidence_required'
+}
+
+function resolvedBlockPatch(state, now) {
+  return { blockedReasonCode: null, blockedAt: null, permissionBlock: null, lastErrorCode: null,
+    ...(state.blockedReasonCode ? { lastResolvedBlock: { reasonCode: state.blockedReasonCode,
+      blockedAt: state.blockedAt ?? null, permissionBlock: state.permissionBlock ?? null, resolvedAt: now } } : {}) }
+}

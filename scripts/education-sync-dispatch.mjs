@@ -1,7 +1,9 @@
+/** @see ../docs/decisions/sync-permission-scope-2026-11-08.md */
 /** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/decisions/source-wait-generations-2026-10-22.md */
 /** @see ../docs/decisions/independent-action-dispatch-2026-10-21.md */
 /** @see ../docs/decisions/sync-single-drainer-2026-11-05.md */
+/** @see ../docs/decisions/verified-reconciliation-ack-2026-11-06.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -35,6 +37,8 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = state ? summarize(state) : { status: 'idle', generation: 0 }
     } else if (command === 'claim' && validRequest(values.request) && Object.keys(values).length === 1) {
       result = await claimRequest(store, root, values.request)
+    } else if (command === 'resume-here' && validRequest(values.request) && Object.keys(values).length === 1) {
+      result = await claimRequest(store, root, values.request, true)
     } else if (command === 'enqueue-event' && /^[a-f0-9]{64}$/.test(values['event-id'] ?? '') && Object.keys(values).length === 1) {
       result = await enqueueExistingEvent(db, store, values['event-id'])
     } else if (command === 'events' && Object.keys(values).length === 1 && Number.isFinite(Date.parse(values.since ?? ''))) {
@@ -80,10 +84,10 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       }
     } else if (command === 'block' && validRequest(values.request) && typeof values['claim-file'] === 'string'
       && ['permission_required', 'source_unavailable', 'manual_review_required'].includes(values.reason)
-      && Object.keys(values).length === 3) {
+      && Object.keys(values).every(key => ['request', 'claim-file', 'reason', 'operation', 'denial-ref'].includes(key))) {
       const claim = readClaimFile(root, values['claim-file'], values.request)
       const tokenHash = createHash('sha256').update(claim.token).digest('hex')
-      result = await store.blockClaim({ requestId: values.request, tokenHash, reasonCode: values.reason, now: new Date().toISOString() })
+      result = await store.blockClaim({ requestId: values.request, tokenHash, reasonCode: values.reason, permissionBlock: values.operation || values['denial-ref'] ? { operation: values.operation ?? null, denialRef: values['denial-ref'] ?? null } : null, now: new Date().toISOString() })
       if (result.status === 'blocked') {
         writeDispatchProgress(root, values.request, { phase: 'blocked' })
         result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
@@ -93,7 +97,7 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       result = await store.resumeBlocked({ requestId: values.request, now: new Date().toISOString() })
     } else throw new Error('usage_invalid')
     out.write(`${JSON.stringify(result)}\n`)
-    return ['invalid_claim', 'stale_request', 'stale_batch', 'invalid_reason', 'not_blocked', 'incomplete_actions', 'action_busy'].includes(result.status) ? 1 : 0
+    return ['permission_evidence_required', 'standard_operation_authorized', 'invalid_claim', 'stale_request', 'stale_batch', 'invalid_reason', 'not_blocked', 'incomplete_actions', 'action_busy'].includes(result.status) ? 1 : 0
   } catch (error) {
     err.write(`${safeError(error)}\n`)
     return 1
@@ -102,10 +106,11 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
   }
 }
 
-async function claimRequest(store, projectRoot, requestId) {
+async function claimRequest(store, projectRoot, requestId, resumeHere = false) {
   const token = randomUUID()
   const tokenHash = createHash('sha256').update(token).digest('hex')
-  const result = await store.claimRequest({ requestId, tokenHash, now: new Date().toISOString() })
+  const input = { requestId, tokenHash, now: new Date().toISOString() }
+  const result = resumeHere ? await store.resumeBlocked(input) : await store.claimRequest(input)
   if (result.status !== 'claimed') return result
   const claimPath = resolve(projectRoot, '.local/education-sync-dispatch/claims', `${requestId}.json`)
   const temporary = `${claimPath}.${randomUUID()}.tmp`
@@ -233,7 +238,7 @@ function parse(tokens) {
   const result = {}
     for (let index = 0; index < tokens.length; index += 1) {
     const name = tokens[index]
-    if (!['--request', '--claim-file', '--event-id', '--reason', '--since', '--generation', '--phase'].includes(name) || result[name.slice(2)] !== undefined
+    if (!['--request', '--claim-file', '--event-id', '--reason', '--since', '--generation', '--phase', '--operation', '--denial-ref'].includes(name) || result[name.slice(2)] !== undefined
       || typeof tokens[index + 1] !== 'string' || tokens[index + 1].startsWith('--')) throw new Error('usage_invalid')
     result[name.slice(2)] = tokens[++index]
   }

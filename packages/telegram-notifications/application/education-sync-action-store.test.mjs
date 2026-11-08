@@ -395,3 +395,20 @@ describe('typed EducationSync action batch', () => {
     expect(tasks.tasks.map((task) => task.eventId)).toEqual([event(3).eventId])
   })
 })
+
+it('requires concrete permission evidence for the action lane and preserves an independent source block on resume', async () => {
+  const db = new FakeDb(), store = createFirestoreEducationSyncStore(db)
+  const requestId = 'action-permission', tokenHash = 'a'.repeat(64)
+  db.rows.set('educationSyncDispatch/current', { status: 'blocked', blockedReasonCode: 'source_unavailable',
+    blockedAt: now, lastErrorCode: 'source_old', actionLane: { requestId, status: 'running', claimTokenHash: tokenHash,
+      workflowLeaseUntil: '2026-10-19T12:00:00.000Z' } })
+  expect(await store.blockClaim({ requestId, tokenHash, now, reasonCode: 'permission_required' }))
+    .toEqual({ status: 'permission_evidence_required' })
+  const permissionBlock = { operation: 'action-processing', denialRef: 'tool-policy:call_action_denied' }
+  expect(await store.blockClaim({ requestId, tokenHash, now, reasonCode: 'permission_required', permissionBlock }))
+    .toMatchObject({ status: 'blocked', scope: 'action' })
+  expect(await store.resumeBlocked({ requestId, tokenHash, now })).toMatchObject({ status: 'claimed', scope: 'action' })
+  expect(await store.read()).toMatchObject({ status: 'blocked', blockedReasonCode: 'source_unavailable', lastErrorCode: 'source_old',
+    actionLane: { status: 'running', blockedReasonCode: null, blockedAt: null, permissionBlock: null, lastErrorCode: null,
+      lastResolvedBlock: { reasonCode: 'permission_required', permissionBlock } } })
+})

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/sync-permission-scope-2026-11-08.md */
 /** @see ../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 /**
  * @see ../docs/modules/synchronization/README.md
@@ -29,11 +30,13 @@ import { persistMeshCapture } from '../sync/artifact-capture.mjs'
 import { buildDayDashboardIndex } from '../day/dashboard-index.mjs'
 import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
 import { assertPublicationDashboardOwner, pendingPublicationDates, projectExpectedByDateToWindow, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from '../sync/publication-audit.mjs'
-import { enqueueSyncJob, setSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
+import { enqueueSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 import { reuseRunContext } from '../sync/run-context.mjs'
 import { calendarFailure, calendarShape, captureSchoolCalendar, normalizeSchoolCalendar } from '../sync/school-calendar.mjs'
 import { publishSchoolCalendar } from '../sync/school-calendar-publication.mjs'
 import { resolveProjectAuditSourcePath, runProjectPublicationAudit } from '../sync/project-audit.mjs'
+/** @see ../docs/decisions/verified-reconciliation-ack-2026-11-06.md */
+import { acknowledgeReconciledDay } from '../sync/reconciliation-ack.mjs'
 
 /** Global source collection. Enrichment and publication remain separate checked phases.
  * @see ../docs/modules/synchronization/global-sync.md#inventory
@@ -49,7 +52,7 @@ const runDir = resolve(local, 'project-sync')
 const legacyCodec = auditMode ? null : createLegacyMeshCredentialCodec({ familyAccessPath: resolve(local, 'family-access.json'),
   credentialsPath: resolve(local, 'diary', 'secret.json') })
 const meshSessions = auditMode ? null : createMeshSessionService({ db, connectionsDir: connections, legacyCodec, telemetry })
-if (!['plan', 'collect', 'calendar', 'phase', 'audit'].includes(command)) throw new Error('Использование: npm run sync:project -- plan | collect | calendar | phase --run ID --family ID --child ID --to PHASE | audit --run ID')
+if (!['plan', 'collect', 'calendar', 'phase', 'audit', 'ack-day'].includes(command)) throw new Error('Использование: sync:project plan|collect|calendar|phase|audit|ack-day --run ID --family ID --child ID --date YYYY-MM-DD')
 
 // Timings are confined to the private run manifest. These count adapter
 // operations, not underlying HTTP requests or billed Firestore document reads.
@@ -385,13 +388,26 @@ async function markPhase() {
       return item.kind === 'reconcile-day' && item.runId === runId && item.familyId === familyId
         && item.childId === childId && item.status !== 'done'
     })
-    for (const item of queued) await setSyncJob(db, item.id, 'done', 'readback-verified', { evidence: 'both-role-dashboard-index-and-day-readback' })
+    for (const item of queued) await acknowledgeReconciledDay(db, { runId, familyId, childId, date: item.data().sourceId,
+      auditPublication: () => auditPublishedDays(job.sourceDir, dates, manifest.startedFor, newTiming(), target, { requireOwnedDashboards: true }) })
   }
   const reason = phase === 'blocked' ? option('--reason') : null
   if (phase === 'blocked' && !/^[a-z][a-z0-9-]{2,80}$/.test(reason ?? '')) throw new Error('Для остановки нужна краткая причина.')
   await status(target, runId, phase, { reason, ...(phase === 'complete' ? { verifiedAt: Timestamp.now() } : {}) })
   writeJson(runDir, `phase-${runId}-${familyId}-${childId}.json`, { runId, familyId, childId, phase, reason, recordedAt: new Date().toISOString() })
   console.log(JSON.stringify({ phase, recorded: true }))
+}
+
+async function acknowledgeDay() {
+  const runId = option('--run'), familyId = option('--family'), childId = option('--child'), date = option('--date')
+  if (!/^\d{4}-\d{2}-\d{2}-[a-f0-9-]{36}$/.test(runId ?? '')) throw new Error('invalid_run')
+  const manifest = readJson(runDir, `run-${runId}.json`)
+  const job = manifest?.jobs?.find(item => item.familyId === familyId && item.childId === childId)
+  const dates = dateWindow(manifest?.startedFor)
+  if (!job || dates.length !== 42 || !dates.includes(date) || job.checkedDates !== 42
+    || (await statusRef({ familyId, childId }).get()).data()?.runId !== runId) throw new Error('reconciliation_scope_invalid')
+  console.log(JSON.stringify(await acknowledgeReconciledDay(db, { runId, familyId, childId, date,
+    auditPublication: () => auditPublishedDays(job.sourceDir, dates, manifest.startedFor, newTiming(), { familyId, childId }, { requireOwnedDashboards: true }) })))
 }
 
 async function auditRunPublication() {
@@ -425,7 +441,8 @@ async function auditRunPublication() {
   if (receipt.blockedCount || receipt.pendingCount) process.exitCode = 2
 }
 
-if (command === 'audit') await auditRunPublication()
+if (command === 'ack-day') await acknowledgeDay()
+else if (command === 'audit') await auditRunPublication()
 else if (command === 'phase') await markPhase()
 else {
 const runTiming = newTiming()
