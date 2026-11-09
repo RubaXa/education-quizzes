@@ -1042,9 +1042,10 @@
 
 | [docs/decisions/audio-compact-controls-2026-10-23.md](decisions/audio-compact-controls-2026-10-23.md) | [Аудиобиблиотека](modules/materials/audio-library.md) | Одобренный компактный макет, источник решения и сохранение сценариев | AudioPlayer; UI Kit; выпуск |
 
-| [storage/photo-placement.mjs](../storage/photo-placement.mjs) | [Привязка фото](modules/materials/storage-privacy.md) | Проверенное исправление места фотографии с историей и readback | Reviewer; submissions CLI |
+| [storage/photo-placement.mjs](../storage/photo-placement.mjs) | [Привязка фото](modules/materials/storage-privacy.md) | Проверенное исправление места фото; сохранение исходной привязки при публикации покрытия через новую ревизию | Reviewer; submissions CLI |
 | [storage/photo-placement.test.mjs](../storage/photo-placement.test.mjs) | [Привязка фото](modules/materials/storage-privacy.md) | Единственное покрытие, ревизии, идемпотентность и владелец | Vitest |
 | [docs/decisions/reviewed-photo-placement-2026-10-26.md](decisions/reviewed-photo-placement-2026-10-26.md) | [Привязка фото](modules/materials/storage-privacy.md) | Прямое требование автоматического исправления карточки | Оператор; разработчик |
+| [docs/decisions/review-coverage-revision-2026-11-09.md](decisions/review-coverage-revision-2026-11-09.md) | [Привязка фото](modules/materials/storage-privacy.md) | Сохранение исходной ревизии фото при публикации проверенного покрытия | Reviewer; submissions CLI |
 
 | [docs/plans/ui-component-decomposition-2026-10-27.md](plans/ui-component-decomposition-2026-10-27.md) | [Система компонентов](shared/design/components.md) | Аудит и очередь декомпозиции карточек, фото и помощи | Frontend; автор экранов |
 | [docs/product/olympiad-preparation.md](product/olympiad-preparation.md) | [Сценарий подготовки](product/olympiad-preparation.md) | Проект олимпиадного блока, страниц, обучения, родительского обзора и статусов | Семья; Education agent; frontend |

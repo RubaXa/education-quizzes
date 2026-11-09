@@ -2386,18 +2386,20 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "3af0fdf4f5bda0a1de703a409ead5e3aa059bb82ec690bd5fc7382f0f157e85f",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "sha256": "489f87cfba85fcd39b1c6eee7f8423436a3d7a7eb4d497312dfb7bf860e252eb",
+      "record": "docs/decisions/review-coverage-revision-2026-11-09.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/help-request-resolution.test.mjs"
+        "storage/photo-placement.test.mjs",
+        "storage/review-coverage.test.mjs",
+        "storage/review-readback.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
+        "evidence": "Dispatch09.11:стандартная синхронизация полученных материалов без перефайловых подтверждений,сохранение оригиналов и публикация проверенного результата."
       }
     },
     "scripts/sync-books.mjs": {
@@ -6182,17 +6184,20 @@
       }
     },
     "storage/photo-placement.mjs": {
-      "sha256": "4c276b36b65fd81e9a7f090139e67a3bd65f5694b0793c233815335e2767527e",
-      "record": "docs/decisions/reviewed-photo-placement-2026-10-26.md",
+      "sha256": "bd2f1da28cc4b9f06e704dc6752a6e17f8a76407fa79bff9cc606fb80348b447",
+      "record": "docs/decisions/review-coverage-revision-2026-11-09.md",
       "specs": [
         "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "storage/photo-placement.test.mjs"
+        "storage/photo-placement.test.mjs",
+        "storage/review-coverage.test.mjs",
+        "storage/review-readback.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь26.10 прямо потребовал автоматически переносить ошибочно загруженную работу в правильную карточку."
+        "evidence": "Dispatch09.11:стандартная синхронизация полученных материалов без перефайловых подтверждений,сохранение оригиналов и публикация проверенного результата."
       }
     },
     "src/components/OlympiadCatalog.tsx": {

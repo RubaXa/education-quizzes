@@ -1,4 +1,5 @@
 /** @see ../docs/decisions/reviewed-photo-placement-2026-10-26.md */
+/** @see ../docs/decisions/review-coverage-revision-2026-11-09.md */
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 export function photoPlacementPatch(photo, { fromTaskId, toTaskId, taskIds, planRevision, reason, now, reviewComplete = false }) {
   if (!taskIds?.includes(toTaskId) || !taskIds.includes(fromTaskId) || fromTaskId === toTaskId
@@ -12,6 +13,15 @@ export function photoPlacementPatch(photo, { fromTaskId, toTaskId, taskIds, plan
   if (photo.taskId !== fromTaskId) throw new Error('photo_placement_changed')
   return { taskId: toTaskId, originalTaskId: photo.originalTaskId ?? fromTaskId,
     placementHistory: [...(photo.placementHistory ?? []).slice(-9), { fromTaskId, toTaskId, reason: reason.trim(), correctedAt: now }] }
+}
+
+/** Coverage is authoritative for a completed review; placement keeps its original revision.
+ * The caller has validated the current owned page, pending uploads and every covered task.
+ * A newer page must not force a stale upload through the stricter relocation operation.
+ */
+export function reviewPublicationPlacementPatch(photo, request) {
+  if (photo.planRevision !== request.planRevision) return null
+  return photoPlacementPatch(photo, { ...request, reviewComplete: true })
 }
 
 /** Correct placement within one owned day; preserve bytes, upload ID, review and source history. */

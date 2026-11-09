@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { photoPlacementPatch, relocateReviewedPhoto } from './photo-placement.mjs'
+import { photoPlacementPatch, reviewPublicationPlacementPatch, relocateReviewedPhoto } from './photo-placement.mjs'
 
 const photo = { taskId: 'task-a', planRevision: 3, status: 'reviewed', storage: { state: 'stored', sha256: 'original' }, coveredTaskIds: ['task-b'] }
 const request = { fromTaskId: 'task-a', toTaskId: 'task-b', taskIds: ['task-a', 'task-b'], planRevision: 3, reason: 'Reviewer confirmed the actual task from the full photograph.', now: 'now' }
@@ -16,6 +16,21 @@ describe('photo placement after content review', () => {
   })
   it('allows the same correction atomically as a completed review', () => {
     expect(photoPlacementPatch({ ...photo, status: 'pending' }, { ...request, reviewComplete: true })).toMatchObject({ taskId: 'task-b' })
+  })
+  it('publishes reviewed coverage across a page revision without rewriting the original placement', () => {
+    const pending = { ...photo, status: 'pending' }
+    const newerPage = { ...request, planRevision: 4 }
+    expect(reviewPublicationPlacementPatch(pending, newerPage)).toBeNull()
+    const saved = { ...pending, ...reviewPublicationPlacementPatch(pending, newerPage),
+      status: 'reviewed', coveredTaskIds: ['task-b'] }
+    expect(saved).toMatchObject({ taskId: 'task-a', planRevision: 3, status: 'reviewed', coveredTaskIds: ['task-b'] })
+    expect(saved.storage).toEqual(photo.storage)
+    expect(() => photoPlacementPatch(saved, newerPage)).toThrow('photo_placement_unproven')
+  })
+  it('retains automatic placement and all its proof gates within the same revision', () => {
+    expect(reviewPublicationPlacementPatch({ ...photo, status: 'pending' }, request)).toMatchObject({ taskId: 'task-b' })
+    expect(() => reviewPublicationPlacementPatch({ ...photo, coveredTaskIds: ['task-a', 'task-b'] }, request))
+      .toThrow('photo_placement_unproven')
   })
   it('checks the owned student day and revision before writing, then verifies the saved photo', async () => {
     const docs = new Map(); const token = 'x'.repeat(30), uploadId = 'u'.repeat(30)
