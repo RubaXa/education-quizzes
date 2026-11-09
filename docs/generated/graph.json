@@ -1379,6 +1379,30 @@
       "path": "docs/decisions/informatics-assessment-2026-11-01.md"
     },
     {
+      "id": "decision.known-part-review-2026-11-09",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-09",
+      "updated": "2026-11-09",
+      "consumers": [
+        "Education agent"
+      ],
+      "code": [
+        "src/lib/materialRequest.ts",
+        "scripts/submissions.mjs"
+      ],
+      "parent": "module.materials.material-clarification",
+      "uses": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/known-part-review-2026-11-09.md"
+    },
+    {
       "id": "decision.ldd-copy-button-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -9889,7 +9913,7 @@
       "id": "file:src/lib/materialRequest.ts",
       "path": "src/lib/materialRequest.ts",
       "kind": "artifact",
-      "purpose": "Валидация и состояния запроса источника",
+      "purpose": "Валидация запроса источника и ограниченной проверки известной части",
       "consumer": "DayPage; day; submissions; queue"
     },
     {
@@ -19322,6 +19346,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.known-part-review-2026-11-09",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decision.moving-preparation-window-2026-11-05",
       "type": "implements"
     },
@@ -21687,6 +21716,11 @@
     },
     {
       "from": "file:src/lib/materialRequest.ts",
+      "to": "decision.known-part-review-2026-11-09",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/materialRequest.ts",
       "to": "module.materials.material-clarification",
       "type": "implements"
     },
@@ -23549,6 +23583,11 @@
       "from": "module.materials.family-library",
       "to": "module.materials.storage-privacy",
       "type": "uses"
+    },
+    {
+      "from": "module.materials.material-clarification",
+      "to": "decision.known-part-review-2026-11-09",
+      "type": "contains"
     },
     {
       "from": "module.materials.material-clarification",

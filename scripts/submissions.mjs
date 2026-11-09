@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/known-part-review-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/review-coverage-revision-2026-11-09.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
@@ -412,8 +413,9 @@ function validateStudentFeedback(review) {
 function resultRecord(review, previous, now, date, planRevision) {
   const priorReviews = previous?.status || previous?.purpose === 'source-material' ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
   if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20) }
-  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview, tutoringPlan } = review
+  const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview, tutoringPlan, workScope } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+    ...(workScope ? { workScope } : {}),
     ...(checkableStageIds ? { checkableStageIds } : {}),
     ...(requirementChecks ? { requirementChecks } : {}),
     ...(mathReasoning ? { mathReasoning } : {}), ...(studentFeedback ? { studentFeedback } : {}),
