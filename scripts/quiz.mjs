@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/concept-short-omission-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
@@ -14,7 +15,7 @@ import { assignmentShapeErrors } from '../day/data-contract.mjs'
 import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
-import { canonicalShortKeyRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
+import { canonicalShortKeyRepair, conceptShortOmissionRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
 import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { learningContext } from '../assessment/learning-context.mjs'
@@ -542,7 +543,7 @@ async function exportAttempt(learnerToken, outputPath) {
 }
 
 /** @see ../docs/modules/assessments/quizzes.md#canonical-short-repair */
-async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false, studentPersonId) {
+async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false, studentPersonId, conceptOnly = false) {
   if (!learnerToken || !requestPath) fail('Нужны токен и JSON доказательств.')
   const request = loadJson(requestPath)
   const owner = assignmentOwner(studentPersonId)
@@ -553,7 +554,7 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOn
   if (!assignmentDoc.exists || !keyDoc.exists) fail('Назначение или ключ отсутствует.')
   const assignment = assignmentDoc.data(), key = keyDoc.data(), review = reviewDoc.data() ?? null
   assertQuizOwner(assignment, owner)
-  const repaired = guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
+  const repaired = conceptOnly ? conceptShortOmissionRepair(assignment, key, request) : guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
   const before = summarize(grade(assignment, key, review))
   const after = summarize(grade(assignment, repaired.key, review))
   if (guidanceOnly && JSON.stringify(before) !== JSON.stringify(after)) fail('Разбор не может менять оценку.')
@@ -606,6 +607,7 @@ try {
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
+  else if (command === 'accept-concept-omission') await repairCanonicalShortAnswers(first, second, false, third === '--apply' ? undefined : third, true)
   else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true, third === '--apply' ? undefined : third)
   else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json [PERSON_ID] | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {

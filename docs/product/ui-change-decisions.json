@@ -113,8 +113,8 @@
       }
     },
     "assessment/canonical-short-key.mjs": {
-      "sha256": "2b56fffdc8d26c5ae73440eab1afdd6544becc7eabcc9bdd80ab1c2e5473a3a0",
-      "record": "docs/decisions/canonical-short-key-repair-2026-10-19.md",
+      "sha256": "55eddeb9862b34ff01fb2fc9fc97702f9a4ea22ab4db9307826e820443b64aed",
+      "record": "docs/decisions/concept-short-omission-2026-11-09.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
       ],
@@ -123,7 +123,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 поручил полный EducationSync28f41614 с приложенным навыком:проверить технические нули до выводов об ошибках,при отсутствии операции добавить узкую штатную команду с контрактом и тестом."
+        "evidence": "Текущий полный EducationSync разрешает стандартную проверку и публикацию; навык требует сначала отделить описку от содержательной ошибки и добавить узкую штатную операцию с тестом, если её нет."
       }
     },
     "assessment/decision-graph.mjs": {
@@ -2306,17 +2306,17 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "e65d11060bc602763ae9052ac24bc97b5d91a7336f5e3c306748f564826b8ffe",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "sha256": "a5c2762dfea7cf0c5f07a3904ed5b1e5d6965c5f71efab6bb142086f5aff27a5",
+      "record": "docs/decisions/concept-short-omission-2026-11-09.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "assessment/followup-contract.test.mjs"
+        "assessment/canonical-short-key.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель просил проверить внешний вид тестов; мобильная проверка05.11 обнаружила обрезанный заголовок. Исправляется только название без изменения работы."
+        "evidence": "Текущий полный EducationSync разрешает стандартную проверку и публикацию; навык требует сначала отделить описку от содержательной ошибки и добавить узкую штатную операцию с тестом, если её нет."
       }
     },
     "scripts/release-note.mjs": {

@@ -31,3 +31,11 @@ describe('canonical short key recovery', () => {
     expect(() => canonicalShortKeyRepair({ ...assignment, questions: [{ id: 'flood', kind: 'single' }] }, key, request)).toThrow()
   })
 })
+
+// @see ../docs/modules/assessments/quizzes.md#concept-short-omission
+import { conceptShortOmissionRepair } from './canonical-short-key.mjs'
+describe('reviewed concept omission', () => {
+  const input = () => ({ assignment: { status:'submitted', testId:'case', assessment:{mode:'ordinary'}, questions:[{id:'term',kind:'short'}],answers:{term:'Скзание'} }, key:{entries:{term:{correct:'сказание',accepted:['сказание']},other:{correct:'x'}}}, request:{testId:'case',questionId:'term',observedAnswer:'Скзание',criterion:'concept-only',semanticChecked:true,spellingNotAssessed:true,reason:'Concept identified, spelling not assessed',evidenceRefs:['original:page']} })
+  it('changes only this observed submitted variant and is idempotent',()=>{const {assignment:a,key:k,request:r}=input();const before=JSON.stringify(a);const v=conceptShortOmissionRepair(a,k,r);expect(v.key.entries.term.accepted).toEqual(['сказание','Скзание']);expect(v.key.entries.other).toEqual(k.entries.other);expect(JSON.stringify(a)).toBe(before);expect(conceptShortOmissionRepair(a,v.key,r).changed).toEqual([])})
+  it.each(['identity','open','dictation','spelling','answer','substitution','evidence'])('rejects unsafe %s',kind=>{const {assignment:a,key:k,request:r}=input();if(kind==='identity')r.testId='other';if(kind==='open')a.status='open';if(kind==='dictation')a.assessment.mode='dictation';if(kind==='spelling')r.spellingNotAssessed=false;if(kind==='answer')r.observedAnswer='another';if(kind==='substitution'){a.answers.term='скозание';r.observedAnswer='скозание'}if(kind==='evidence')r.evidenceRefs=[];expect(()=>conceptShortOmissionRepair(a,k,r)).toThrow()})
+})
