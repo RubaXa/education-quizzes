@@ -260,7 +260,7 @@
 | [assessment/followup-contract.mjs](../assessment/followup-contract.mjs) | [Зачёт и продолжение](modules/assessments/assessment-decision-graph.md) | Покрытие каждой ошибки, безопасная ревизия не начатого теста и исключение локальных доказательств из ключа/readback | `scripts/quiz.mjs` |
 | [assessment/followup-contract.test.mjs](../assessment/followup-contract.test.mjs) | [Зачёт и продолжение](modules/assessments/assessment-decision-graph.md) | Регрессия полного провала, покрытия ошибок и запрета переписывать начатую попытку | Vitest; выпуск |
 | [assessment/question-copy.mjs](../assessment/question-copy.mjs) | [Тесты](modules/assessments/quizzes.md) | Поиск повторяющейся вводной фразы и инструкции в заголовках вопросов | `scripts/quiz.mjs` |
-| [assessment/canonical-short-key.mjs](../assessment/canonical-short-key.mjs) | [Тесты](modules/assessments/quizzes.md) | Узкое добавление уже заданного correct в accepted после смысловой сверки | `scripts/quiz.mjs` |
+| [assessment/canonical-short-key.mjs](../assessment/canonical-short-key.mjs) | [Тесты](modules/assessments/quizzes.md) | Канонический correct и адресный единичный пропуск буквы в concept-only ответе; CAS/readback сохраняют попытку | `scripts/quiz.mjs` |
 | [assessment/question-guidance.mjs](../assessment/question-guidance.mjs) | [Разбор программы](modules/assessments/quizzes.md) | Проверка объяснения с кодом, трассой и без пустого ввода | Автор теста; CLI |
 | [assessment/question-guidance.test.mjs](../assessment/question-guidance.test.mjs) | [Тесты](modules/assessments/quizzes.md) | Источник, отсутствие заглушки, полный охват и сохранность ответа/ключа | Vitest |
 | [src/components/QuizResultCard.test.tsx](../src/components/QuizResultCard.test.tsx) | [Тесты](modules/assessments/quizzes.md) | Сквозной grader → карточка: адресный разбор, источник и закрытое решение | Vitest |
@@ -1327,3 +1327,5 @@
 | [docs/decisions/linked-quiz-parent-guide-2026-11-01.md](decisions/linked-quiz-parent-guide-2026-11-01.md) | [Карточка дня](modules/school-diary/day-page.md) | Сохранение закрытого родительского разбора при показе задания одной цепочкой теста | Родитель; DayPage |
 
 | [docs/decisions/telegram-result-blocks-2026-11-07.md](decisions/telegram-result-blocks-2026-11-07.md) | [Telegram дизайн](shared/design/telegram.md) | Одобренные блоки смешанного результата, минутная сводка и границы миграции | Renderer; UI Kit; оператор |
+
+| [docs/decisions/concept-short-omission-2026-11-09.md](decisions/concept-short-omission-2026-11-09.md) | [Тесты](modules/assessments/quizzes.md) | Граница адресной сверки пропуска буквы и сохранения ответа | Оператор; разработчик |

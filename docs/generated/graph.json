@@ -862,6 +862,33 @@
       "path": "docs/decisions/compact-review-ui-kit-2026-10-31.md"
     },
     {
+      "id": "decision.concept-short-omission",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-09",
+      "updated": "2026-11-09",
+      "parent": "module.assessments.quizzes",
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [
+        "assessment/canonical-short-key.mjs",
+        "scripts/quiz.mjs"
+      ],
+      "uses": [
+        "module.assessments.quizzes"
+      ],
+      "sections": [
+        "решение",
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/concept-short-omission-2026-11-09.md"
+    },
+    {
       "id": "decision.continuous-course-preparation-2026-11-07",
       "status": "accepted",
       "implementation": "implemented",
@@ -4920,7 +4947,7 @@
       "id": "file:assessment/canonical-short-key.mjs",
       "path": "assessment/canonical-short-key.mjs",
       "kind": "artifact",
-      "purpose": "Узкое добавление уже заданного correct в accepted после смысловой сверки",
+      "purpose": "Канонический correct и адресный единичный пропуск буквы в concept-only ответе; CAS/readback сохраняют попытку",
       "consumer": "`scripts/quiz.mjs`"
     },
     {
@@ -11461,6 +11488,7 @@
       "sections": [
         "question-guidance",
         "canonical-short-repair",
+        "concept-short-omission",
         "публикация-без-новой-версии-приложения",
         "попытка-и-вопросы",
         "возврат-из-теста",
@@ -15668,6 +15696,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.concept-short-omission",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
       "from": "decision.continuous-course-preparation-2026-11-07",
       "to": "module.school-diary.dashboard",
       "type": "uses"
@@ -16700,6 +16733,11 @@
     {
       "from": "file:AGENTS.md",
       "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/canonical-short-key.mjs",
+      "to": "decision.concept-short-omission",
       "type": "implements"
     },
     {
@@ -19205,6 +19243,11 @@
     {
       "from": "file:scripts/quiz-access.mjs",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
+      "to": "decision.concept-short-omission",
       "type": "implements"
     },
     {
@@ -22945,6 +22988,11 @@
     {
       "from": "module.assessments.quizzes",
       "to": "decision.canonical-short-key-repair-2026-10-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "decision.concept-short-omission",
       "type": "contains"
     },
     {
