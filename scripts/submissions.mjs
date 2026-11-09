@@ -1,4 +1,5 @@
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
+/** @see ../docs/decisions/review-coverage-revision-2026-11-09.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/decisions/reviewed-photo-placement-2026-10-26.md */
 /**
@@ -18,7 +19,7 @@ import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { resolveSubmission } from '../storage/submission-inbox.mjs'
 import { reviewCoverage } from '../storage/review-coverage.mjs'
-import { photoPlacementPatch, relocateReviewedPhoto } from '../storage/photo-placement.mjs'
+import { reviewPublicationPlacementPatch, relocateReviewedPhoto } from '../storage/photo-placement.mjs'
 import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { tutoringPlanErrors } from '../storage/tutoring-decision.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
@@ -529,9 +530,9 @@ async function publishReview(filename) {
     const photo = photos[index].data()
     const proven = coverage?.get(id)
     const placement = proven?.taskIds.length === 1 && proven.taskIds[0] !== photo.taskId
-      ? photoPlacementPatch({ ...photo, coveredTaskIds: proven.taskIds }, {
+      ? reviewPublicationPlacementPatch({ ...photo, coveredTaskIds: proven.taskIds }, {
         fromTaskId: photo.taskId, toTaskId: proven.taskIds[0], taskIds: page.taskIds,
-        planRevision: review.planRevision, reason: proven.observed, now, reviewComplete: true }) : null
+        planRevision: review.planRevision, reason: proven.observed, now }) : null
     batch.update(ref, { status: 'reviewed', reviewedAt: now, processingTaskIds: FieldValue.delete(),
       ...(placement ?? {}),
       ...(coverage ? { coveredTaskIds: coverage.get(id).taskIds, coverageNote: coverage.get(id).observed } : {}) })

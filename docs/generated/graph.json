@@ -2731,6 +2731,31 @@
       "path": "docs/decisions/released-stage-parity-2026-10-20.md"
     },
     {
+      "id": "decision.review-coverage-revision-2026-11-09",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-09",
+      "updated": "2026-11-09",
+      "parent": "module.materials.storage-privacy",
+      "uses": [],
+      "consumers": [
+        "EducationSync reviewer",
+        "operator CLI"
+      ],
+      "code": [
+        "storage/photo-placement.mjs",
+        "scripts/submissions.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/review-coverage-revision-2026-11-09.md"
+    },
+    {
       "id": "decision.review-prose-coverage-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -10684,7 +10709,7 @@
       "id": "file:storage/photo-placement.mjs",
       "path": "storage/photo-placement.mjs",
       "kind": "artifact",
-      "purpose": "Проверенное исправление места фотографии с историей и readback",
+      "purpose": "Проверенное исправление места фото; сохранение исходной привязки при публикации покрытия через новую ревизию",
       "consumer": "Reviewer; submissions CLI"
     },
     {
@@ -19264,6 +19289,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.review-coverage-revision-2026-11-09",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decision.reviewed-photo-placement-2026-10-26",
       "type": "implements"
     },
@@ -22399,6 +22429,11 @@
     },
     {
       "from": "file:storage/photo-placement.mjs",
+      "to": "decision.review-coverage-revision-2026-11-09",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/photo-placement.mjs",
       "to": "decision.reviewed-photo-placement-2026-10-26",
       "type": "implements"
     },
@@ -23525,6 +23560,11 @@
     {
       "from": "module.materials.storage-privacy",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
+      "type": "contains"
+    },
+    {
+      "from": "module.materials.storage-privacy",
+      "to": "decision.review-coverage-revision-2026-11-09",
       "type": "contains"
     },
     {
