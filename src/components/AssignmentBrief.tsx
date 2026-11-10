@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-decoding-2026-11-10.md */
 import type { DayMaterialLink, DayTask } from '@/lib/dayStore'
 import './AssignmentBrief.css'
 
@@ -13,6 +14,16 @@ export default function AssignmentBrief({ task, materialLinks = [], compact = fa
   const olympiad = task.learningContext?.kind === 'olympiad'
   const exact = familyAssigned ? task.detail.trim() : task.meshText?.trim() || task.detail.trim()
   const hasTextbook = !familyAssigned && materialLinks.some((link) => link.sourceType === 'textbook-page')
+  const decoded = !familyAssigned && !olympiad && hasTextbook ? task.learnerFlow : undefined
+  if (decoded) return <div className="day-assignment-brief">
+    <div className="day-assignment-brief-heading"><strong>Что сделать</strong><span>По учебнику</span></div>
+    <p>{decoded.goal}</p>
+    <small className="day-assignment-explanation">{decoded.scope} {decoded.boundary}</small>
+    <details className="day-assignment-brief-compact">
+      <summary>Запись МЭШ и источник</summary><p>{exact}</p>
+      <p>{decoded.source.label}: «{decoded.source.excerpt}»</p>
+    </details>
+  </div>
   // @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
   // The assignment title already appears in ProblemGroup; keep the exact MESH
   // wording available without giving it a second prominent card.

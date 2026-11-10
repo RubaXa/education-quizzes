@@ -2386,20 +2386,17 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "489f87cfba85fcd39b1c6eee7f8423436a3d7a7eb4d497312dfb7bf860e252eb",
-      "record": "docs/decisions/review-coverage-revision-2026-11-09.md",
+      "sha256": "24bcff5a2517c34ea604b9473251009f027877e4430f6bc4e740c5df1e8dd447",
+      "record": "docs/decisions/known-part-review-2026-11-09.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/photo-placement.test.mjs",
-        "storage/review-coverage.test.mjs",
-        "storage/review-readback.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Dispatch09.11:стандартная синхронизация полученных материалов без перефайловых подтверждений,сохранение оригиналов и публикация проверенного результата."
+        "evidence": "Пользователь: всё доступное обработать и закрыть, только действительно недостающее запросить; уже присланное повторно не просить."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2793,20 +2790,17 @@
       }
     },
     "src/components/AssignmentBrief.tsx": {
-      "sha256": "4eab748436137e9fa1d71d764c7a6e1bf48ca37710a15780e7a6021753cea546",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "240c1f954a8c829d0363d15f0b7f56183779f941e285b752874efd652c9389cb",
+      "record": "docs/decisions/assignment-decoding-2026-11-10.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "src/components/AssignmentBrief.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель 10.11 требует извлекать и выписывать действия из учебника в карточку вместо сокращений МЭШ."
       }
     },
     "src/components/CodeBlock.tsx": {
@@ -4401,26 +4395,17 @@
       }
     },
     "src/lib/materialRequest.ts": {
-      "sha256": "f8918c37ae0fefb27c960318870f80d4c24269450c02fc71461d3148f14d2562",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "283b8e9f35705fa38589d78c989baa780556553bfcf447ce733e82794b2d963d",
+      "record": "docs/decisions/known-part-review-2026-11-09.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/lib/materialRequest.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Пользователь: всё доступное обработать и закрыть, только действительно недостающее запросить; уже присланное повторно не просить."
       }
     },
     "src/lib/networkRetry.ts": {

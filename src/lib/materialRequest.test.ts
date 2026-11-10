@@ -26,3 +26,23 @@ describe('a source request is separate from completion',()=>{
     expect(sourceReviewErrors({status:'verified'},{})).toEqual([])
   })
 })
+
+/** @see ../../docs/modules/materials/material-clarification.md */
+describe('work arriving under an independent material request', () => {
+  const scopedTask = { ...task, learnerFlow: { scope: 'Учебник, страница 37, упражнения 4–5.', source: { pageId: 'starlight-6-2022:37' } } }
+  const work = { status: 'partial', uploadIds: ['letter'], workScope: { kind: 'known-part', requestId: 'notes-1', sourceRef: 'starlight-6-2022:37', scope: 'Учебник, страница 37, упражнения 4–5.', observedContent: 'На снимке собственное письмо, а не страница тетради.' } }
+  it('permits the existing confirmed part while keeping the request open', () => {
+    expect(sourceReviewErrors(work, scopedTask)).toEqual([])
+    expect(materialRequestView(scopedTask, [{status:'reviewed'}], work)?.phase).toBe('waiting')
+    expect(scopedTask.materialRequest.state).toBe('open')
+  })
+  it('rejects full completion and complete coverage with a missing source', () => {
+    expect(sourceReviewErrors({...work,status:'verified'}, scopedTask)).not.toEqual([])
+    expect(sourceReviewErrors({...work,workCoverage:{state:'complete'}}, scopedTask)).not.toEqual([])
+  })
+  it('requires the exact request and already published source and scope', () => {
+    for (const patch of [{requestId:'other'}, {sourceRef:'unknown-source'}, {scope:'Whole workbook'}, {observedContent:''}])
+      expect(sourceReviewErrors({...work,workScope:{...work.workScope,...patch}}, scopedTask)).not.toEqual([])
+    expect(sourceReviewErrors(work, task)).not.toEqual([])
+  })
+})

@@ -768,7 +768,7 @@
 | [src/lib/materialPageCache.test.ts](../src/lib/materialPageCache.test.ts) | [Проверка local-first](services/web-app/local-first-verification.md) | Целостность кеша страниц в поддельной IndexedDB | Vitest; разработчик |
 | [src/lib/materialPageCache.ts](../src/lib/materialPageCache.ts) | [Матрица ревизий](shared/data/revisions.md) | Локальный набор опубликованных страниц по семейной привязке и её ревизии | `FamilyLibrary.tsx` |
 | [src/lib/materialRequest.test.ts](../src/lib/materialRequest.test.ts) | [Уточнение материала](modules/materials/material-clarification.md) | Регрессия границ источника и оценки | Vitest |
-| [src/lib/materialRequest.ts](../src/lib/materialRequest.ts) | [Уточнение материала](modules/materials/material-clarification.md) | Валидация и состояния запроса источника | DayPage; day; submissions; queue |
+| [src/lib/materialRequest.ts](../src/lib/materialRequest.ts) | [Уточнение материала](modules/materials/material-clarification.md) | Валидация запроса источника и ограниченной проверки известной части | DayPage; day; submissions; queue |
 | [src/lib/networkRetry.ts](../src/lib/networkRetry.ts) | [Устойчивость сети](modules/materials/storage-privacy.md) | Ограниченные повторы клиентских запросов к Диску и учёт `Retry-After` | `familyBookUpload`; `photoOutbox`; `yandexPublic` |
 | [src/lib/notificationThreads.test.ts](../src/lib/notificationThreads.test.ts) | [Центр обновлений](modules/notifications/inbox.md) | Границы группировки и сохранность событий | Vitest; разработчик |
 | [src/lib/notificationThreads.ts](../src/lib/notificationThreads.ts) | [Центр обновлений](modules/notifications/inbox.md) | Группировка повторных событий по заданию без удаления источников | `NotificationBell` |
@@ -1329,3 +1329,7 @@
 | [docs/decisions/telegram-result-blocks-2026-11-07.md](decisions/telegram-result-blocks-2026-11-07.md) | [Telegram дизайн](shared/design/telegram.md) | Одобренные блоки смешанного результата, минутная сводка и границы миграции | Renderer; UI Kit; оператор |
 
 | [docs/decisions/concept-short-omission-2026-11-09.md](decisions/concept-short-omission-2026-11-09.md) | [Тесты](modules/assessments/quizzes.md) | Граница адресной сверки пропуска буквы и сохранения ответа | Оператор; разработчик |
+
+| [docs/decisions/known-part-review-2026-11-09.md](decisions/known-part-review-2026-11-09.md) | [Уточнение материала](modules/materials/material-clarification.md) | Решение о проверке известной части при открытом запросе | Operator CLI |
+
+| [docs/decisions/assignment-decoding-2026-11-10.md](decisions/assignment-decoding-2026-11-10.md) | [Предметный путь](modules/reviews/subject-aware-guidance.md) | Расшифрованное действие из учебника перед МЭШ | AssignmentBrief |
