@@ -46,3 +46,21 @@ describe('teacher wording in a numbered sheet', () => {
     expect(html).not.toContain('МЭШ')
   })
 })
+
+
+it('shows the verified textbook requirements before raw MESH in both role usages', () => {
+  const decoded = { ...task, learnerFlow: { version: 1, scope: 'Учебник, страница 37, упражнения 4–5.',
+    goal: 'Напиши Georgia письмо о любимом блюде своей страны, 80–100 слов: ингредиенты, приготовление и вкус.',
+    boundary: 'Страницы 16–17 тетради ещё ожидаются.', meshExcerpt: 'упр.4 и 5',
+    source: {pageId: 'book:37', label: 'Учебник семьи, страница 37', excerpt: 'favourite dish from your country'}, stages: [] } } as DayTask
+  for (const compact of [true, false]) {
+    const html = renderToStaticMarkup(<AssignmentBrief task={decoded} compact={compact} materialLinks={[{sourceType:'textbook-page'} as never]} />)
+    expect(html).toContain('<strong>Что сделать</strong>')
+    expect(html.indexOf(decoded.learnerFlow!.goal)).toBeLessThan(html.indexOf('Запись МЭШ и источник'))
+    expect(html).toContain('своей страны')
+    expect(html).toContain('Страницы 16–17 тетради ещё ожидаются.')
+    expect(html).toContain(task.meshText)
+  }
+  const html=renderToStaticMarkup(<AssignmentBrief task={decoded} />)
+  expect(html).not.toContain('<strong>Что сделать</strong>')
+})

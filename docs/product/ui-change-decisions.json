@@ -2790,20 +2790,17 @@
       }
     },
     "src/components/AssignmentBrief.tsx": {
-      "sha256": "4eab748436137e9fa1d71d764c7a6e1bf48ca37710a15780e7a6021753cea546",
-      "record": "docs/decisions/olympiad-practice-queue-2026-10-28.md",
+      "sha256": "240c1f954a8c829d0363d15f0b7f56183779f941e285b752874efd652c9389cb",
+      "record": "docs/decisions/assignment-decoding-2026-11-10.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/reviews/subject-aware-guidance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx"
+        "src/components/AssignmentBrief.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 утвердил список задач, загрузку решения и очередь фотографий и поручил реализовать без дополнительных вопросов."
+        "evidence": "Родитель 10.11 требует извлекать и выписывать действия из учебника в карточку вместо сокращений МЭШ."
       }
     },
     "src/components/CodeBlock.tsx": {

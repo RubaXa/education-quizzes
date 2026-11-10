@@ -339,6 +339,29 @@
       "path": "docs/decisions/accepted-help-closure-2026-10-25.md"
     },
     {
+      "id": "decision.assignment-decoding-2026-11-10",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-10",
+      "updated": "2026-11-10",
+      "consumers": [
+        "Education agent"
+      ],
+      "code": [
+        "src/components/AssignmentBrief.tsx"
+      ],
+      "parent": "module.reviews.subject-aware-guidance",
+      "uses": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/assignment-decoding-2026-11-10.md"
+    },
+    {
       "id": "decision.audio-compact-controls-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -19711,6 +19734,11 @@
     },
     {
       "from": "file:src/components/AssignmentBrief.tsx",
+      "to": "decision.assignment-decoding-2026-11-10",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentBrief.tsx",
       "to": "decision.family-essay-assignment-2026-10-20",
       "type": "implements"
     },
@@ -24388,6 +24416,11 @@
       "from": "module.reviews.special-course-card-overlay",
       "to": "module.reviews.card-generation-policy",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
+      "to": "decision.assignment-decoding-2026-11-10",
+      "type": "contains"
     },
     {
       "from": "module.reviews.subject-aware-guidance",

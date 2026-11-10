@@ -1331,3 +1331,5 @@
 | [docs/decisions/concept-short-omission-2026-11-09.md](decisions/concept-short-omission-2026-11-09.md) | [Тесты](modules/assessments/quizzes.md) | Граница адресной сверки пропуска буквы и сохранения ответа | Оператор; разработчик |
 
 | [docs/decisions/known-part-review-2026-11-09.md](decisions/known-part-review-2026-11-09.md) | [Уточнение материала](modules/materials/material-clarification.md) | Решение о проверке известной части при открытом запросе | Operator CLI |
+
+| [docs/decisions/assignment-decoding-2026-11-10.md](decisions/assignment-decoding-2026-11-10.md) | [Предметный путь](modules/reviews/subject-aware-guidance.md) | Расшифрованное действие из учебника перед МЭШ | AssignmentBrief |
