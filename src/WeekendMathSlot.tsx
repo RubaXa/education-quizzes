@@ -133,7 +133,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
     {subjects.flatMap(subject => subject.tasks).filter(task => !task.problems?.length && task.kind === 'check' && task.testToken).map(task => {
       const chain = quizChain(tests.find(test => test.token === task.testToken), tests)
       const latest = chain.at(-1)
-      return <TaskDisclosure key={task.id} id={`weekend-${task.id}`} title={task.title} status={<ResultBadge input={latest ? quizResultInput(latest) : { kind: 'waiting' }} showPoints />} meta={task.detail}>
+      return <TaskDisclosure key={task.id} id={`weekend-${task.id}`} title={task.title} status={<ResultBadge input={latest ? quizResultInput(latest) : { kind: 'waiting' }} showPoints />}>
         {latest ? <QuizCard chain={chain} parent={parent} headingProvided={task.title} /> : <p className="day-loading">Загружаем самопроверку…</p>}
       </TaskDisclosure>
     })}

@@ -2718,7 +2718,7 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "f88d863227f4a6fa343e357b1a9c3555a37df356ba9594c701067a7d2119edec",
+      "sha256": "8745b1e3c38c2e789bda601a9eb25bea18e3de9cf9ae5c23f3594da14e1a98e7",
       "record": "docs/decisions/weekend-self-check-2026-11-14.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md",

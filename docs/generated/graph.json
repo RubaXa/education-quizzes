@@ -5050,7 +5050,7 @@
       "id": "file:assessment/followup-contract.mjs",
       "path": "assessment/followup-contract.mjs",
       "kind": "artifact",
-      "purpose": "Покрытие каждой ошибки, безопасная ревизия не начатого теста и исключение локальных доказательств из ключа/readback",
+      "purpose": "Покрытие ошибок, защищённая ревизия до начала, отдельная правка названия/тем без смены ключа и условий",
       "consumer": "`scripts/quiz.mjs`"
     },
     {
