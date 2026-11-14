@@ -64,6 +64,7 @@ describe('weekend source-selected practice', () => {
     try {
       await act(async () => draw())
       expect(host.textContent).toContain('Лексикология')
+      expect(host.textContent).not.toContain('Выполни на выходных')
       expect(host.textContent).not.toContain('Сделано · проверено')
       expect(host.querySelector('input[type=file]')).toBeNull()
       quizScene.scores = { 'quiz-token': { points: 1, maxPoints: 1 } }
