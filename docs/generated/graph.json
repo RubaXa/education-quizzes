@@ -3836,6 +3836,34 @@
       "path": "docs/decisions/verified-reconciliation-ack-2026-11-06.md"
     },
     {
+      "id": "decision.weekend-self-check-2026-11-14",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-14",
+      "updated": "2026-11-14",
+      "consumers": [
+        "Education operator",
+        "student",
+        "parent"
+      ],
+      "code": [
+        "day/dashboard-index.mjs",
+        "src/WeekendMathSlot.tsx"
+      ],
+      "parent": "module.school-diary.dashboard",
+      "uses": [
+        "module.assessments.assessment-decision-graph"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/weekend-self-check-2026-11-14.md"
+    },
+    {
       "id": "decision.weekend-special-course-2026-10-18",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -10650,8 +10678,8 @@
       "id": "file:src/WeekendMathSlot.tsx",
       "path": "src/WeekendMathSlot.tsx",
       "kind": "artifact",
-      "purpose": "Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком",
-      "consumer": "Ученик; родитель; `ProblemGroup`"
+      "purpose": "Перечисленные ID своего урока: листы с фото либо общая карточка самопроверки с живой цепочкой, без нового фото",
+      "consumer": "Ученик; родитель; `ProblemGroup`; `QuizCard`"
     },
     {
       "id": "file:storage/audio-library.mjs",
@@ -16648,6 +16676,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.weekend-self-check-2026-11-14",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "decision.weekend-special-course-2026-10-18",
       "to": "module.reviews.card-generation-policy",
       "type": "uses"
@@ -17005,6 +17038,11 @@
     {
       "from": "file:day/dashboard-index.mjs",
       "to": "decision.family-essay-assignment-2026-10-20",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/dashboard-index.mjs",
+      "to": "decision.weekend-self-check-2026-11-14",
       "type": "implements"
     },
     {
@@ -22429,6 +22467,11 @@
     },
     {
       "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decision.weekend-self-check-2026-11-14",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
       "to": "decisions.upload-origin-links-2026-10-18",
       "type": "implements"
     },
@@ -24616,6 +24659,11 @@
       "from": "module.reviews",
       "to": "shared.data.firestore",
       "type": "uses"
+    },
+    {
+      "from": "module.school-diary.dashboard",
+      "to": "decision.weekend-self-check-2026-11-14",
+      "type": "contains"
     },
     {
       "from": "module.school-diary.dashboard",

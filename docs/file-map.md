@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/weekend-self-check-2026-11-14.md](decisions/weekend-self-check-2026-11-14.md) | [Dashboard](modules/school-diary/dashboard.md) | Решение о выходной самопроверке любого предмета в той же карточке и цепочке | Автор; оператор; разработчик |
 | [docs/decisions/photo-auth-resume-2026-11-08.md](decisions/photo-auth-resume-2026-11-08.md) | [Восстановление фото](services/upload-worker/README.md) | Холодный вход, прежний Blob и честное ожидание устройства | App; оператор |
 | [sync/reconciliation-ack.mjs](../sync/reconciliation-ack.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Адресное подтверждение проверенной ревизии reconcile-day после аудита обеих ролей | sync-project CLI |
 | [sync/reconciliation-ack.test.mjs](../sync/reconciliation-ack.test.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Проверки гонок fingerprint/run/owner, отказа публикации и безопасного повтора | Vitest |
@@ -640,7 +641,7 @@
 | [src/components/GradeAverageSlider.tsx](../src/components/GradeAverageSlider.tsx) | [UI Kit](shared/design/ui-kit.md) | Локальный слайдер 2,00–5,00 для динамической проверки компонентов шкалы среднего | UI Kit |
 | [src/components/GradeAverageSlider.css](../src/components/GradeAverageSlider.css) | [UI Kit](shared/design/ui-kit.md) | Доступный стиль поля диапазона, маркеров, подтверждений и живого результата | GradeAverageSlider |
 | [src/WeekendMathSlot.css](../src/WeekendMathSlot.css) | [Адаптивная карточка](modules/reviews/adaptive-problem-card.md) | Оформление общего слота математики | `src/WeekendMathSlot.tsx` |
-| [src/WeekendMathSlot.tsx](../src/WeekendMathSlot.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Переиспользуемая карточка только перечисленных ID своего урока с фото, проверками и сроком | Ученик; родитель; `ProblemGroup` |
+| [src/WeekendMathSlot.tsx](../src/WeekendMathSlot.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Перечисленные ID своего урока: листы с фото либо общая карточка самопроверки с живой цепочкой, без нового фото | Ученик; родитель; `ProblemGroup`; `QuizCard` |
 | [src/WeekendMathSlot.test.tsx](../src/WeekendMathSlot.test.tsx) | [Dashboard](modules/school-diary/dashboard.md) | Обе роли выходного спецкурса, выбор учителя, семейное включение и сохранность всех номеров | Vitest; общий `ProblemGroup` |
 | [docs/decisions/weekend-special-course-2026-10-18.md](decisions/weekend-special-course-2026-10-18.md) | [Dashboard](modules/school-diary/dashboard.md) | Причина восстановления выходного слота и единого подсчёта | Агент; оператор синхронизации |
 | [src/components/ArtifactAvatar.css](../src/components/ArtifactAvatar.css) | [Статусы фотографии](modules/school-diary/day-page.md) | Общая миниатюра и положение значка состояния | `src/components/ArtifactAvatar.tsx` |
