@@ -64,6 +64,20 @@ export function titleOnlyQuizRevision({ current, spec, owner, answerKey, index, 
   return {assignment:title,preview:title,index:title}
 }
 
+/** Remove an answer-bearing topic label from an unopened quiz. The content,
+ * answer key, owner, URL and all other metadata must remain byte-for-byte equal.
+ * @see ../docs/modules/assessments/quizzes.md#question-guidance */
+export function topicsOnlyQuizRevision({ current, spec, owner, answerKey, index, revisedAt }) {
+  const proposed = openQuizRevision({ current, spec, owner, revisedAt })
+  const withoutTopics = questions => questions.map(({ topic: _topic, ...question }) => question)
+  if (!isDeepStrictEqual(withoutTopics(current.questions), withoutTopics(proposed.assignment.questions))
+    || ['title', 'description', 'visual', 'reading'].some(field => !isDeepStrictEqual(current[field] ?? null, proposed.assignment[field] ?? null))
+    || !isDeepStrictEqual(answerKey?.entries, proposed.answerKey.entries)
+    || !isDeepStrictEqual(index?.board, spec.board)) throw new Error('Только темы: содержание, ключ или план списка изменился.')
+  const patch = { questions: proposed.assignment.questions, revisedAt }
+  return { assignment: patch, preview: patch, index: { revisedAt } }
+}
+
 export function assertOpenRevisionReadback({ assignment, answerKey, preview, indexes, spec }) {
   const ids = spec.questions.map((question) => question.id)
   const sameIds = (questions) => JSON.stringify(questions?.map((question) => question.id)) === JSON.stringify(ids)

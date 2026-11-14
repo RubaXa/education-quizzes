@@ -143,7 +143,7 @@
       }
     },
     "assessment/followup-contract.mjs": {
-      "sha256": "ac1c578cf474c34cd7e997d90ec4ee27c8a157cfaa6efc0ee1dfa1c8ad7ac865",
+      "sha256": "4b805a3d04ad52cbc1c9c5f9bf38565bf38a81f2a9aac7e70d4cd32aabe8b1ce",
       "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
@@ -2306,8 +2306,8 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "a5c2762dfea7cf0c5f07a3904ed5b1e5d6965c5f71efab6bb142086f5aff27a5",
-      "record": "docs/decisions/concept-short-omission-2026-11-09.md",
+      "sha256": "226eca9f5798b435e76101422ba65eed57a324a150e360f72b645a816d00d25a",
+      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
       "specs": [
         "docs/modules/assessments/quizzes.md"
       ],
