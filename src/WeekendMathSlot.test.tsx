@@ -6,9 +6,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DayPageData, DayUpload, DayWorkReview } from './lib/dayStore'
 import type { ParentCompletionEvent } from './lib/parentCompletion'
 import WeekendMathSlot from './WeekendMathSlot'
+import type { Assignment } from './lib/quiz'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 const scene = vi.hoisted(() => ({ page: null as DayPageData | null, role: 'parent', decisions: [] as ParentCompletionEvent[], uploads: [] as DayUpload[], reviews: [] as DayWorkReview[] }))
+const quizScene = vi.hoisted(() => ({ tests: {} as Record<string, Assignment>, scores: {} as Record<string, { points: number; maxPoints: number }>, ready: true }))
+vi.mock('./lib/useDayQuizOutcomes', () => ({ useDayQuizOutcomes: () => ({ ...quizScene, boardEntries: [], results: {} }) }))
 vi.mock('./lib/dayStore', async (original) => ({
   ...await original<typeof import('./lib/dayStore')>(),
   watchDayPage: (_token: string, changed: (page: DayPageData) => void) => { changed(scene.page!); return () => {} },
@@ -32,6 +35,9 @@ beforeEach(() => {
   scene.decisions = []
   scene.uploads = []
   scene.reviews = []
+  quizScene.tests = {}
+  quizScene.scores = {}
+  quizScene.ready = true
   scene.page = { targetDate: '2026-10-19', studentToken: 'student-token', subjects: [{ id: 'math', name: 'Математика', icon: '∑', summary: '', tasks: [{
     id: 'combinatorics', title: 'Комбинаторика', detail: 'Реши сколько получится', source: 'МЭШ', kind: 'check', status: 'unknown',
     practiceVariants: Array.from({ length: 8 }, (_, i) => ({ id: `v${i + 1}`, title: `№${i + 1}`, optionalByTeacher: { sourceRef: 'sheet', excerpt: 'Реши сколько получится' } })),
@@ -48,6 +54,23 @@ async function renderSlot(parent = true, options: { preparationThrough?: string;
 }
 
 describe('weekend source-selected practice', () => {
+  it.each([false, true])('renders the same self-check without a photo demand and keeps pending written answers visible, parent=%s', async parent => {
+    scene.role = parent ? 'parent' : 'student'
+    scene.page = { targetDate: '2026-11-16', subjects: [{ id: 'russian', name: 'Русский язык', tasks: [{ id: 'control', kind: 'check', title: 'Лексикология', detail: 'Выполни на выходных', testToken: 'quiz-token' }] }] } as DayPageData
+    quizScene.tests = { 'quiz-token': { testId: 'test', title: 'Лексикология', subject: 'Русский язык', status: 'submitted', answers: { written: 'Моя мысль' }, questions: [{ id: 'written', kind: 'long', prompt: 'Объясни значение', points: 1 }] } as unknown as Assignment }
+    const host = document.createElement('div'); document.body.append(host)
+    const root = createRoot(host)
+    const draw = () => root.render(<WeekendMathSlot token="day" taskIds={['control']} parent={parent} dueDate="2026-11-16" title="Русский на выходные" preparationThrough="2026-11-15" selectedDate="2026-11-17" />)
+    try {
+      await act(async () => draw())
+      expect(host.textContent).toContain('Лексикология')
+      expect(host.textContent).not.toContain('Сделано · проверено')
+      expect(host.querySelector('input[type=file]')).toBeNull()
+      quizScene.scores = { 'quiz-token': { points: 1, maxPoints: 1 } }
+      await act(async () => draw())
+      expect(host.textContent).toBe('')
+    } finally { act(() => root.unmount()); host.remove() }
+  })
   it.each([false, true])('retains unfinished optional work after Tuesday without a new photo requirement, parent=%s', async (parent) => {
     scene.role = parent ? 'parent' : 'student'
     const { host, close } = await renderSlot(parent, { preparationThrough: '2026-10-13', selectedDate: '2026-10-20' })

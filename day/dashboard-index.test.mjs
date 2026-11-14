@@ -27,6 +27,20 @@ it('retains an owned calendar across day republishing and rejects another child�
 })
 
 describe('dashboard homework references', () => {
+  it('projects a source-linked self-check into both weekend roles without inventing photo problems', () => {
+    const local = mkdtempSync(resolve(tmpdir(), 'education-weekend-quiz-'))
+    try {
+      mkdirSync(resolve(local, 'diary'))
+      const source = { targetDate: '2026-11-16', subjects: [{ id: 'russian', name: 'Русский язык', tasks: [{ id: 'control', kind: 'check', testToken: 'quiz-token', lessonDate: '2026-11-16' }] }],
+        testPlacements: [{ token: 'quiz-token', taskId: 'control', subjectId: 'russian' }],
+        weekendSlot: { dates: ['2026-11-14', '2026-11-15'], title: 'Подготовка к контрольной', taskIds: ['control'] } }
+      writeFileSync(resolve(local, 'day-source-2026-11-15.json'), JSON.stringify(source))
+      for (const role of ['student', 'parent']) expect(buildDayDashboardIndex(local, { '2026-11-15': { [role]: role + '-page' } }, role, new Date('2026-11-14T10:00:00Z')).weekendWork).toContainEqual(expect.objectContaining({ dayToken: role + '-page', taskIds: ['control'], dueDate: '2026-11-16' }))
+      source.testPlacements = []
+      writeFileSync(resolve(local, 'day-source-2026-11-15.json'), JSON.stringify(source))
+      expect(() => buildDayDashboardIndex(local, { '2026-11-15': { student: 'page' } }, 'student')).toThrow('Выходная работа')
+    } finally { rmSync(local, { recursive: true, force: true }) }
+  })
   it('keeps continuous preparation linked to the original Thursday page on Monday and beyond its lesson week', () => {
     const local = mkdtempSync(resolve(tmpdir(), 'education-continuous-'))
     try {

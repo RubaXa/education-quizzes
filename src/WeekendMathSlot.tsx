@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/weekend-self-check-2026-11-14.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import TaskWorkEvidence from '@/components/TaskWorkEvidence'
 import { workFileContentType } from '../storage/work-file-types.mjs'
@@ -5,7 +6,13 @@ import { workFileContentType } from '../storage/work-file-types.mjs'
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
 /* @see ../docs/decisions/upload-origin-links-2026-10-18.md */
 /* @see ../docs/decisions/photo-upload-authorization-and-freshness-2026-10-20.md */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
+import { quizChain, quizResultInput, type QuizCardAttempt } from '@/lib/quizCardViewModel'
+import { quizPassed } from '@/lib/quizCompletion'
+import QuizCard from '@/components/QuizCard'
+import TaskDisclosure from '@/components/TaskDisclosure'
+import { ResultBadge } from '@/components/ui/result'
 import { removePendingDayPhoto, requestDayHelp, uploadDayPhoto, uploadMatchesTask, watchDayHelp, watchDayPage, watchDayTaskGuides } from '@/lib/dayStore'
 import type { DayHelp, DayPageData, ParentTaskPrivate } from '@/lib/dayStore'
 import { dayHelpSessionRole } from '@/lib/personalAccess'
@@ -33,6 +40,26 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const [local, setLocal] = useState<LocalPhoto[]>([])
   const previewUrls = useRef(new Set<string>())
   const [error, setError] = useState('')
+  // Use the same canonical assignment and live continuation chain as the day.
+  // No photo requirement is manufactured for a self-check.
+  const quizPage = useMemo(() => {
+    if (!page) return undefined
+    const tasks = page.subjects.flatMap(subject => subject.tasks).filter(task => taskIds.includes(task.id) && task.kind === 'check' && task.testToken)
+    if (!tasks.length) return undefined
+    return { ...page, subjects: page.subjects.map(subject => ({ ...subject, tasks: tasks.filter(task => subject.tasks.includes(task)) })),
+      testPlacements: page.testPlacements?.filter(placement => tasks.some(task => task.id === placement.taskId)) }
+  }, [page, taskIds])
+  const quizOutcomes = useDayQuizOutcomes(quizPage, page?.targetDate ?? '', setError)
+  const tests: QuizCardAttempt[] = Object.entries(quizOutcomes.tests).map(([quizToken, assignment]) => {
+    const entry = quizOutcomes.boardEntries.find(item => item.token === quizToken)
+    const score = quizOutcomes.scores[quizToken]
+    return { token: quizToken, testId: assignment.testId, linkedToTestId: assignment.linkedToTestId,
+      title: entry?.title ?? assignment.title, description: assignment.description, slug: entry?.slug ?? '', previewToken: entry?.previewToken,
+      status: assignment.status, answered: Object.values(assignment.answers ?? {}).filter(answer => answer !== '' && (!Array.isArray(answer) || answer.length > 0)).length,
+      total: assignment.questions.length, points: score?.points, maxPoints: score?.maxPoints, results: quizOutcomes.results?.[quizToken],
+      createdAt: assignment.createdAt, startedAt: assignment.startedAt, updatedAt: assignment.updatedAt, submittedAt: assignment.submittedAt,
+      followupRequested: Boolean(assignment.followupRequestedAt), familyOptional: Boolean(assignment.familyOptional) }
+  })
   const { studentToken, evidenceKey, uploads, reviews, evidencePages, ready: evidenceReady } = useDayEvidence(page, token, setError)
   const guidance = useTaskGuidance(studentToken, helpRole, setError)
   const taskPrivate = parent && helpRole === 'parent' && guideSnapshot.token === studentToken ? guideSnapshot.guides : {}
@@ -89,6 +116,11 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const requested = new Set(taskIds)
   const subjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => requested.has(task.id)) })).filter((subject) => subject.tasks.length)
   const completed = requested.size > 0 && subjects.flatMap(subject => subject.tasks).length === requested.size && subjects.flatMap(subject => subject.tasks).every(task => {
+    if (!task.problems?.length && task.kind === 'check' && task.testToken) {
+      const latest = quizChain(tests.find(test => test.token === task.testToken), tests).at(-1)
+      return quizOutcomes.ready && latest?.status === 'submitted' && !latest.followupRequested
+        && latest.points != null && latest.maxPoints != null && quizPassed({ points: latest.points, maxPoints: latest.maxPoints })
+    }
     const all = task.problems ?? []
     const required = all.filter(problem => !problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events))
     return summarizeProblemGroup(all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).activeCount === 0 && summarizeProblemGroup(required.length ? required : all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).complete
@@ -98,6 +130,13 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   return <section className="weekend-math-slot" aria-label={title}>
     <header><div><span className="weekend-math-kicker">{preparationThrough ? completed ? 'Сделано · проверено' : `Подготовка к ${shortDate(preparationThrough)}` : 'Работа на субботу и воскресенье'}</span><h2>{title}</h2><p>{subjects.map((subject) => subject.name).join(' · ')} · урок {shortDate(lessonDate || page.targetDate)}{!preparationThrough && ` · сдать ${shortDate(dueDate)}`}</p></div></header>
     {error && <p className="weekend-math-error" role="alert">{error}</p>}
+    {subjects.flatMap(subject => subject.tasks).filter(task => !task.problems?.length && task.kind === 'check' && task.testToken).map(task => {
+      const chain = quizChain(tests.find(test => test.token === task.testToken), tests)
+      const latest = chain.at(-1)
+      return <TaskDisclosure key={task.id} id={`weekend-${task.id}`} title={task.title} status={<ResultBadge input={latest ? quizResultInput(latest) : { kind: 'waiting' }} showPoints />} meta={task.detail}>
+        {latest ? <QuizCard chain={chain} parent={parent} headingProvided={task.title} /> : <p className="day-loading">Загружаем самопроверку…</p>}
+      </TaskDisclosure>
+    })}
     {subjects.map((subject) => subject.tasks.filter((task) => task.problems?.length).map((task) => {
       const taskLinks = page.materialLinks?.[task.id] ?? []
       const teacherLinks = taskLinks.filter((link) => link.sourceType === 'teacher-attachment' && canReadInside(link))

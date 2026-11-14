@@ -283,8 +283,8 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "a257966f4d58cc1cc3625771043ac2be74767938a432a04c9b8fb879f049cd4c",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "162056d303f02397d1e2de8f6fbcf30671b5034ced0cf3c393e62723dcb8779a",
+      "record": "docs/decisions/weekend-self-check-2026-11-14.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
@@ -2718,8 +2718,8 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "f6b572a3539083dd76271d23e50e422f394db7a6a47bec36dadf5711d3dcea30",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "f88d863227f4a6fa343e357b1a9c3555a37df356ba9594c701067a7d2119edec",
+      "record": "docs/decisions/weekend-self-check-2026-11-14.md",
       "specs": [
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
@@ -2731,7 +2731,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Родитель14.11.2026 прямо просит выходную подготовку к понедельничной контрольной по русскому, аналогично спецкурсу. Сохраняются прежние листы, фотографии, зачёты и общие ролевые правила."
       }
     },
     "src/components/ArtifactAvatar.css": {

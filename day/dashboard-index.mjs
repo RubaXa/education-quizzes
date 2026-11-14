@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/weekend-self-check-2026-11-14.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -133,7 +134,9 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
     }
     const tasks = source.subjects?.flatMap((subject) => subject.tasks ?? []) ?? []
     const selected = slot.taskIds.map((id) => tasks.find((task) => task.id === id))
-    if (selected.some((task) => !task || !task.problems?.length || (task.lessonDate ?? source.targetDate) !== source.targetDate)) {
+    if (selected.some((task) => !task || (!task.problems?.length && !(task.kind === 'check' && task.testToken
+      && source.testPlacements?.some(placement => placement.taskId === task.id && placement.token === task.testToken)))
+      || (task.lessonDate ?? source.targetDate) !== source.targetDate)) {
       throw new Error(`Выходная работа ${name} ссылается на отсутствующее или перенесённое задание. Обновите её привязку до публикации.`)
     }
     const dueDates = new Set(selected.map((task) => task.dueDate || source.targetDate))
