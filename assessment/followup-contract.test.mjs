@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision } from './followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision } from './followup-contract.mjs'
 import { followupQuestionCount } from '../src/lib/quizCompletion.ts'
 
 const spec = { slug: 'same-link', subject: 'История', linkedToTestId: 'source', title: 'Новый раунд',
@@ -16,6 +16,22 @@ followupCoverage: { sourceTestId: 'source', errors: [
 ] } }
 
 describe('follow-up coverage and unopened revision', () => {
+  it('repairs only answer-bearing topic labels on an unopened diagnostic, never a key or attempt', () => {
+    const ordinary = { ...spec, linkedToTestId: undefined }
+    const owner = { familyId: 'f', childId: 'c' }
+    const initial = openQuizRevision({ current: { ...owner, status: 'open', slug: spec.slug, subject: spec.subject }, spec: ordinary, owner, revisedAt: 'before' })
+    const current = { ...owner, ...initial.assignment, status: 'open', slug: spec.slug, subject: spec.subject }
+    const args = { current, spec: { ...ordinary, questions: ordinary.questions.map(question => ({ ...question, topic: 'Значение слова' })) }, owner, answerKey: initial.answerKey, index: initial.index, revisedAt: 'now' }
+    const patch = topicsOnlyQuizRevision(args)
+    expect(patch.assignment.questions.every(question => question.topic === 'Значение слова')).toBe(true)
+    expect(patch).not.toHaveProperty('answerKey')
+    expect(patch.assignment).not.toHaveProperty('answers')
+    expect(() => topicsOnlyQuizRevision({ ...args, spec: { ...args.spec, questions: [{ ...args.spec.questions[0], prompt: 'Changed' }, ...args.spec.questions.slice(1)] } })).toThrow('содержание')
+    expect(() => topicsOnlyQuizRevision({ ...args, answerKey: { entries: {} } })).toThrow('ключ')
+    expect(() => topicsOnlyQuizRevision({ ...args, current: { ...current, startedAt: 'already' } })).toThrow('без сохранённых ответов')
+    expect(() => topicsOnlyQuizRevision({ ...args, current: { ...current, answers: { 'new-a': 'a' } } })).toThrow('без сохранённых ответов')
+    expect(() => topicsOnlyQuizRevision({ ...args, owner: { ...owner, childId: 'other' } })).toThrow('владельца')
+  })
   it('allows only a title change on an unstarted ordinary test', () => {
     const ordinary={...spec,linkedToTestId:undefined}
     const owner={familyId:'f',childId:'c'}

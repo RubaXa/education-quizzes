@@ -12,7 +12,7 @@ import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision } from '../assessment/followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, conceptShortOmissionRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
@@ -357,9 +357,11 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   const spec = loadJson(specPath)
   const plan = validateSpec(spec, specPath)
   const titleOnly = process.argv.includes('--title-only')
-  if (!titleOnly && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения.')
+  const topicsOnly = process.argv.includes('--topics-only')
+  if (titleOnly && topicsOnly) fail('Выберите только один вид правки метаданных.')
+  if (!titleOnly && !topicsOnly && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения.')
   const owner = assignmentOwner(studentPersonId)
-  if (!titleOnly) await inspectedFollowupSource(spec, plan, owner)
+  if (!titleOnly && !topicsOnly) await inspectedFollowupSource(spec, plan, owner)
   const ownerToken = dashboardToken()
   const assignmentRef = db.doc(`assignments/${learnerToken}`)
   const keyRef = db.doc(`answerKeys/${learnerToken}`)
@@ -382,12 +384,13 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
     ])
     const indexDocs = [ownerIndexDoc, ...additionalIndexDocs]
     if (!previewDoc.exists || indexDocs.some((doc) => !doc.exists)) fail('Не все ролевые индексы и предпросмотр существуют.')
-    const patch = titleOnly ? titleOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
+    const patch = topicsOnly ? topicsOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
+      : titleOnly ? titleOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
       : openQuizRevision({ current: assignmentDoc.data(), spec, owner, revisedAt })
     const shapeErrors = assignmentShapeErrors({ ...assignmentDoc.data(), ...patch.assignment })
     if (shapeErrors.length) fail(`Ревизия нарушает модель назначения: ${shapeErrors.join(' ')}`)
     transaction.update(assignmentRef, patch.assignment)
-    if (!titleOnly) transaction.update(keyRef, patch.answerKey)
+    if (!titleOnly && !topicsOnly) transaction.update(keyRef, patch.answerKey)
     transaction.update(previewRef, patch.preview)
     indexRefs.forEach((ref) => transaction.update(ref, patch.index))
     readbackRefs = [assignmentRef, keyRef, previewRef, ...indexRefs]
