@@ -127,6 +127,7 @@ it('demonstrates the shared calendar with local selection and explicit synthetic
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Календарь и каникулы')!.click())
  expect(host.textContent).toContain('Условный пример, не календарь семьи')
+ expect(host.querySelector('.birthday-greeting')?.textContent).toContain('С днём рождения, Саша!')
  expect(host.querySelectorAll('.day-dashboard-vacation')).toHaveLength(1)
  await act(async()=>host.querySelector<HTMLButtonElement>('[data-date="2026-10-26"]')!.click())
  expect(host.querySelector('[role="status"]')?.textContent).toBe('Выбрана дата: 2026-10-26')

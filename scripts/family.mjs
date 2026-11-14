@@ -11,6 +11,7 @@ import { syncChildAccess } from './lib/access-projection.mjs'
 import { inspectFamilyAccess } from './lib/inspect-family-access.mjs'
 import { roleDiagnostics } from './lib/role-diagnostics.mjs'
 import { enableEarlyDevelopment } from './lib/early-development.mjs'
+import { setChildBirthday } from './lib/child-birthday.mjs'
 import { inheritFamilyBooks } from '../storage/family-book-inheritance.mjs'
 import { assertLearningRouteIdentity, learningDayAliases, learningRouteIdentity } from '../day/learning-route-identity.mjs'
 
@@ -296,6 +297,7 @@ async function attachCurrentDay(familyId, childId) {
 }
 
 switch (command) {
+  case 'set-birthday': console.log(JSON.stringify(await setChildBirthday(db, registry, { familyId: args[0], childId: args[1], birthday: args[2] }))); break
   case 'create': await createFamily(args[0], args[1]); break
   case 'add-parent': await addParent(args[0], args[1], args[2]); break
   case 'add-child': await addChild(args[0], args[1], args[2]); break
@@ -312,5 +314,5 @@ switch (command) {
   case 'revoke-old-links': await revokeOldLinks(args[0], args[1]); break
   case 'revoke-links': await revokeLinks(args[0], args[1]); break
   case 'attach-current-day': await attachCurrentDay(args[0], args[1]); break
-  default: fail('Команды: create <имя ребёнка> <имя родителя>; add-parent <familyId> <имя> <childIds>; add-child <familyId> <имя> [parentIds]; link <familyId> <parentId> <childId>; issue-link <personId>; link-url <personId>; link-status <personId>; revoke-old-links <personId> --confirmed; revoke-links <personId> --force; attach-current-day <familyId> <childId>')
+  default: fail('Команды: set-birthday <familyId> <childId> <MM-DD>; create <имя ребёнка> <имя родителя>; add-parent <familyId> <имя> <childIds>; add-child <familyId> <имя> [parentIds]; link <familyId> <parentId> <childId>; issue-link <personId>; link-url <personId>; link-status <personId>; revoke-old-links <personId> --confirmed; revoke-links <personId> --force; attach-current-day <familyId> <childId>')
 }

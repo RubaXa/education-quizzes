@@ -1,3 +1,4 @@
+/** @see ../../docs/modules/families/README.md#birthday */
 
 /**
  * @see ../../docs/modules/families/early-development.md
@@ -22,6 +23,8 @@ export type PersonalChild = {
   displayName: string
   role: 'parent' | 'student'
   learningMode?: 'school' | 'early-development'
+  birthday?: string
+  timezone?: string
   dashboardToken?: string
   dayToken?: string
   dashboardTokens?: { student?: string; parent?: string }
@@ -438,6 +441,8 @@ export async function loadPersonalProfile(session: PersonalSession): Promise<Per
         const shortcutData = child.data().learningMode === 'early-development' ? {} : shortcut.data()
         children.push({
           familyId, childId, role,
+          ...(typeof child.data().birthday === 'string' ? { birthday: child.data().birthday } : {}),
+          ...(typeof child.data().timezone === 'string' ? { timezone: child.data().timezone } : {}),
           ...(child.data().learningMode === 'early-development' ? { learningMode: 'early-development' as const } : {}),
           displayName: typeof child.data().displayName === 'string' ? child.data().displayName : 'Ученик',
           dashboardToken: typeof shortcutData?.dashboardToken === 'string' ? shortcutData?.dashboardToken : undefined,
