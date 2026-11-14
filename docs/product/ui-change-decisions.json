@@ -2095,21 +2095,18 @@
       }
     },
     "scripts/family.mjs": {
-      "sha256": "36ee2f8fef6b8b96faf99ede141523446f0ed23049eaf87bf42d66ad50b4556c",
-      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "sha256": "8846279a06d960badb2154dd0f973b2551f3c8bb7b2934e2da0970c2f064ca7c",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
       "specs": [
-        "docs/modules/families/early-development.md"
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/lib/early-development.test.mjs",
-        "src/lib/earlyDevelopmentStore.test.ts",
-        "src/components/ParentHome.early.test.tsx",
-        "src/components/EarlyDevelopment.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx"
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     },
     "scripts/firestore-read-index.mjs": {
@@ -2682,18 +2679,18 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "27be6ce976fed9272ef79b83041cd49f6a6207dd208a11947f8d0030b2250987",
-      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "sha256": "a8e4fb4c97424d2a27226f32b668eba6d2500001af6249f82c0b8c3fe1f043a0",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
       "specs": [
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "src/components/QuizQuestionCard.test.tsx"
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3115,21 +3112,18 @@
       }
     },
     "src/components/LearningRoute.tsx": {
-      "sha256": "534957d8d4b41455c53782e3085321f5d71836ee82330424ba1edc1f22ef92b8",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "6ff7920b0bb3d928de292a6b8873a00683d5b096775cf7803d11710014fd4d98",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/components.md"
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "src/components/OlympiadHome.integration.test.tsx",
-        "src/components/OlympiadPage.integration.test.tsx",
-        "src/components/LearningRoute.integration.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь сообщил со скриншотами о переносе вкладок, неразличимых карточках олимпиад и неработающем переходе и потребовал исправить."
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     },
     "src/components/LinkedWorkPhotos.css": {
@@ -4485,21 +4479,18 @@
       }
     },
     "src/lib/personalAccess.ts": {
-      "sha256": "d0cf60902f8e828f125909c257782f1dc121769558c57f1bb9de85540b0bbfe9",
-      "record": "docs/decisions/early-development-live-2026-10-22.md",
+      "sha256": "cd346a6577ff704012e93dca6e4b6a274f75e9e1e61fe8903eb4922015bb6493",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
       "specs": [
-        "docs/modules/families/early-development.md"
+        "docs/modules/families/README.md"
       ],
       "tests": [
-        "scripts/lib/early-development.test.mjs",
-        "src/lib/earlyDevelopmentStore.test.ts",
-        "src/components/ParentHome.early.test.tsx",
-        "src/components/EarlyDevelopment.test.tsx",
-        "src/components/PersonalEntry.role.integration.test.tsx"
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.10 утвердил конкретный сценарий Сегодня/Программа/Дневник и прямо поручил рабочее подключение с телефона, GitHub/публикацию; Google/Firebase отдельно подтверждены."
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     },
     "src/lib/photoOutbox.ts": {
@@ -7984,6 +7975,51 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель08.11.2026 потребовал устранить зависание на старом permission_required и закрывать проверенные внутренние задачи без его участия."
+      }
+    },
+    "src/components/BirthdayTheme.tsx": {
+      "sha256": "78e714162bbbe2483d849a9e86a5600a8c287b8917bd80bef139f4870c37edcf",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
+      "specs": [
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
+      }
+    },
+    "src/components/BirthdayTheme.css": {
+      "sha256": "fc782267d741b27994616e2fdb2e414a520ad769bffacb21785e35a77e71fdfc",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
+      "specs": [
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
+      }
+    },
+    "scripts/lib/child-birthday.mjs": {
+      "sha256": "9c102f2349a818afa63cfcc2fcc52044ca966ee97bcc453883e3d86642712ed0",
+      "record": "docs/decisions/birthday-theme-2026-11-14.md",
+      "specs": [
+        "docs/modules/families/README.md"
+      ],
+      "tests": [
+        "src/components/BirthdayTheme.test.tsx",
+        "scripts/lib/child-birthday.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     }
   }

@@ -546,6 +546,32 @@
       "path": "docs/decisions/authenticated-learning-routes-2026-10-18.md"
     },
     {
+      "id": "decision.birthday-theme-2026-11-14",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-14",
+      "updated": "2026-11-14",
+      "parent": "module.families",
+      "uses": [
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "parent",
+        "student"
+      ],
+      "code": [
+        "src/components/BirthdayTheme.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/birthday-theme-2026-11-14.md"
+    },
+    {
       "id": "decision.browser-role-ldd-2026-10-18",
       "status": "accepted",
       "implementation": "partial",
@@ -7868,6 +7894,20 @@
       "consumer": "`family.mjs`; `connect.mjs`; operator CLI"
     },
     {
+      "id": "file:scripts/lib/child-birthday.mjs",
+      "path": "scripts/lib/child-birthday.mjs",
+      "kind": "artifact",
+      "purpose": "Подтверждённая дата и адресный readback",
+      "consumer": "family CLI"
+    },
+    {
+      "id": "file:scripts/lib/child-birthday.test.mjs",
+      "path": "scripts/lib/child-birthday.test.mjs",
+      "kind": "verification",
+      "purpose": "Scope и сохранность профиля",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:scripts/lib/early-development.mjs",
       "path": "scripts/lib/early-development.mjs",
       "kind": "artifact",
@@ -8307,6 +8347,27 @@
       "kind": "artifact",
       "purpose": "Компактная панель54px, один Play, меню текущей скорости, volume popover и повтор",
       "consumer": "ДЗ; библиотека; UI Kit"
+    },
+    {
+      "id": "file:src/components/BirthdayTheme.css",
+      "path": "src/components/BirthdayTheme.css",
+      "kind": "artifact",
+      "purpose": "Компактный статичный праздничный фон",
+      "consumer": "BirthdayTheme"
+    },
+    {
+      "id": "file:src/components/BirthdayTheme.test.tsx",
+      "path": "src/components/BirthdayTheme.test.tsx",
+      "kind": "verification",
+      "purpose": "Полночь, scope и календарные границы",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/components/BirthdayTheme.tsx",
+      "path": "src/components/BirthdayTheme.tsx",
+      "kind": "artifact",
+      "purpose": "Поздравление выбранного ребёнка в его локальные сутки",
+      "consumer": "LearningRoute; UI Kit"
     },
     {
       "id": "file:src/components/CodeBlock.tsx",
@@ -11665,7 +11726,10 @@
         "src/lib/educationStore.ts",
         "src/lib/homeworkStatus.ts",
         "src/lib/personalAccess.ts",
-        "src/lib/useParentChildOverview.ts"
+        "src/lib/useParentChildOverview.ts",
+        "src/components/BirthdayTheme.tsx",
+        "src/components/BirthdayTheme.css",
+        "scripts/lib/child-birthday.mjs"
       ],
       "parent": "product.education",
       "uses": [
@@ -11673,6 +11737,7 @@
         "module.materials.family-library"
       ],
       "sections": [
+        "birthday",
         "education-данные-семьи-и-права-доступа",
         "источник-истины",
         "адреса-документов-версия-2",
@@ -15676,6 +15741,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.birthday-theme-2026-11-14",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.browser-role-ldd-2026-10-18",
       "to": "module.families.browser-access-trace",
       "type": "uses"
@@ -19196,6 +19266,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/lib/child-birthday.mjs",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/lib/early-development.mjs",
       "to": "module.families.early-development",
       "type": "implements"
@@ -19813,6 +19888,21 @@
     {
       "from": "file:src/components/AudioPlayer.tsx",
       "to": "module.materials.audio-library",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/BirthdayTheme.css",
+      "to": "module.families",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/BirthdayTheme.tsx",
+      "to": "decision.birthday-theme-2026-11-14",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/BirthdayTheme.tsx",
+      "to": "module.families",
       "type": "implements"
     },
     {
@@ -23482,6 +23572,11 @@
     },
     {
       "from": "module.families",
+      "to": "decision.birthday-theme-2026-11-14",
+      "type": "contains"
+    },
+    {
+      "from": "module.families",
       "to": "decision.browser-role-ldd-2026-10-18",
       "type": "contains"
     },
@@ -23523,6 +23618,16 @@
     {
       "from": "module.families",
       "to": "file:day/family-dashboard-delta.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families",
+      "to": "file:scripts/lib/child-birthday.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.families",
+      "to": "file:src/components/BirthdayTheme.test.tsx",
       "type": "verified-by"
     },
     {

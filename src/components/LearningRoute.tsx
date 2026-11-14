@@ -14,6 +14,7 @@ import { traceAccessContext, traceAccess, accessTraceError } from '@/lib/browser
 import DayPage from '@/DayPage'
 import DayDashboard from '@/DayDashboard'
 import OlympiadPage from './OlympiadPage'
+import BirthdayTheme from './BirthdayTheme'
 
 export default function LearningRoute({ mode, token, headerReturnTarget, olympiadId }: { mode: LearningMode; token: string; headerReturnTarget?: HTMLDivElement | null; olympiadId?: string }) {
   const [access, setAccess] = useState<LearningAccess | undefined>(() => readCachedLearningAccess(mode, token))
@@ -117,7 +118,7 @@ export default function LearningRoute({ mode, token, headerReturnTarget, olympia
   }, [mode, token, contextRevision, contextAvailable, olympiadId])
   if (error) return <div role="alert">{error} <a href="#/">На главную</a></div>
   if (!access) return null
-  return olympiadId && mode === 'days' ? <OlympiadPage key={`${access.child.familyId}/${access.child.childId}/${access.parent ? 'parent' : 'student'}/${olympiadId}`} familyId={access.child.familyId} childId={access.child.childId} olympiadId={olympiadId} parent={access.parent} dashboardToken={access.token} canonicalToken={access.canonicalToken} />
+  return <BirthdayTheme key={`${access.child.familyId}/${access.child.childId}`} child={access.child}>{olympiadId && mode === 'days' ? <OlympiadPage key={`${access.child.familyId}/${access.child.childId}/${access.parent ? 'parent' : 'student'}/${olympiadId}`} familyId={access.child.familyId} childId={access.child.childId} olympiadId={olympiadId} parent={access.parent} dashboardToken={access.token} canonicalToken={access.canonicalToken} />
     : mode === 'days' ? <DayDashboard token={access.token} parent={access.parent} familyScope={{familyId:access.child.familyId,childId:access.child.childId}} />
-    : <DayPage token={access.token} parent={access.parent} headerReturnTarget={headerReturnTarget ?? null} />
+    : <DayPage token={access.token} parent={access.parent} headerReturnTarget={headerReturnTarget ?? null} />}</BirthdayTheme>
 }

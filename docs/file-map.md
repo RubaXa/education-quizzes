@@ -1334,3 +1334,10 @@
 | [docs/decisions/known-part-review-2026-11-09.md](decisions/known-part-review-2026-11-09.md) | [Уточнение материала](modules/materials/material-clarification.md) | Решение о проверке известной части при открытом запросе | Operator CLI |
 
 | [docs/decisions/assignment-decoding-2026-11-10.md](decisions/assignment-decoding-2026-11-10.md) | [Предметный путь](modules/reviews/subject-aware-guidance.md) | Расшифрованное действие из учебника перед МЭШ | AssignmentBrief |
+
+| [src/components/BirthdayTheme.tsx](../src/components/BirthdayTheme.tsx) | [Семейный день рождения](modules/families/README.md) | Поздравление выбранного ребёнка в его локальные сутки | LearningRoute; UI Kit |
+| [src/components/BirthdayTheme.css](../src/components/BirthdayTheme.css) | [Семейный день рождения](modules/families/README.md) | Компактный статичный праздничный фон | BirthdayTheme |
+| [src/components/BirthdayTheme.test.tsx](../src/components/BirthdayTheme.test.tsx) | [Семейный день рождения](modules/families/README.md) | Полночь, scope и календарные границы | Vitest |
+| [scripts/lib/child-birthday.mjs](../scripts/lib/child-birthday.mjs) | [Семейный день рождения](modules/families/README.md) | Подтверждённая дата и адресный readback | family CLI |
+| [scripts/lib/child-birthday.test.mjs](../scripts/lib/child-birthday.test.mjs) | [Семейный день рождения](modules/families/README.md) | Scope и сохранность профиля | Vitest |
+| [docs/decisions/birthday-theme-2026-11-14.md](decisions/birthday-theme-2026-11-14.md) | [Семейная модель](modules/families/README.md) | Основание праздничной темы и границы | Product; developer |

@@ -1,0 +1,11 @@
+/* @see ../../docs/modules/families/README.md#birthday */
+.birthday-learning{min-width:0}
+.birthday-learning-active{background:radial-gradient(ellipse at top,var(--edu-status-accent-bg),transparent 70%);border-radius:24px}
+.birthday-greeting{position:relative;display:flex;align-items:center;gap:16px;margin:0 0 20px;padding:22px 24px;border:1px solid var(--edu-status-accent-ink);border-radius:24px;background:var(--edu-status-accent-bg);color:var(--edu-status-accent-ink);overflow:hidden}
+.birthday-greeting>div{min-width:0}
+.birthday-greeting h2{margin:3px 0 8px;font-size:clamp(1.3rem,3vw,1.8rem);font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.birthday-greeting p{margin:0;line-height:1.45;max-width:48ch}
+.birthday-greeting .birthday-greeting-eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.03em}
+.birthday-greeting-icon{flex:none;font-size:2.5rem}
+.birthday-greeting-stars{margin-left:auto;font-size:1.7rem;white-space:nowrap;align-self:flex-start}
+@media(max-width:540px){.birthday-greeting{padding:16px;gap:10px;align-items:flex-start}.birthday-greeting-icon{font-size:1.8rem}.birthday-greeting-stars{display:none}}

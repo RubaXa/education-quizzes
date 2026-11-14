@@ -155,3 +155,5 @@ Up-миграция узкая: снимок затрагиваемых связ
 
 
 Ранний режим: canonical `families/{familyId}/children/{childId}.learningMode=early-development`, parent membership `earlyChildIds`. `earlyDevelopment/current` хранит подтверждённую дату рождения, timezone и полную версию программы; `earlyObservations/{id}` и immutable `history/{revisionId}` хранят родительские записи с Timestamp и revision. Доступ ограничен active parent + exact early child scope; browser не меняет план. [Контракт](../../modules/families/early-development.md).
+
+Подтверждённая семейная дата: документ `families/{familyId}/children/{childId}` может содержать `birthday: MM-DD`, `birthdaySource: parent-confirmed`, `birthdayConfirmedAt` и прежний `timezone`. Это календарное оформление, не критерий оценки и не год рождения. Запись и readback — [семейный контракт](../../modules/families/README.md#birthday).
