@@ -7,3 +7,8 @@
 .edu-kit .edu-decision-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:680px){.edu-kit .edu-decision-controls{grid-template-columns:minmax(0,1fr)}.edu-kit .edu-decision-controls>label:first-child{grid-column:auto}}
 @media(max-width:680px){.edu-decision-roles{grid-template-columns:minmax(0,1fr)}}
+
+.edu-decision-layout-inspector{padding:var(--edu-space-3);border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface)}
+.edu-decision-layout-inspector h3,.edu-decision-layout-inspector h4{margin:4px 0 8px}
+.edu-decision-inspector li{margin:6px 0}
+.edu-decision-inspector a{white-space:normal}

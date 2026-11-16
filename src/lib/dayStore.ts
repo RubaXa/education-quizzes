@@ -28,7 +28,7 @@ export type DaySourceResearch = { status: 'candidate' | 'verified' | 'not-found'
 export type DayProblem = {
   id: string; number: number; title: string; detail: string; source: string; variantId?: string;
   original?: { text: string; attachmentRef: string; crop?: DaySourceCrop };
-  support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; firstQuestion: string; revision: number };
+  support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; parts?: {id:string;title:string;facts:{label:string;value:string}[];find:string}[]; firstQuestion: string; revision: number };
   /** Operator source only; publish in role-protected dayTaskGuides, never in either dayPage. */
   sourceResearch?: DaySourceResearch;
   parentGuide?: ParentTaskGuide;

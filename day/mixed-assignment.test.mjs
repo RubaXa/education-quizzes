@@ -97,6 +97,12 @@ it('rejects moving both actions and their alias into a different subject',()=>{
 it('passes the actual publication CLI with both split actions and rejects an omitted action',()=>{
   const {dir,read}=fixture(); buildDaySource(dir,'2026-10-22')
   const run=()=>spawnSync(process.execPath,['scripts/day.mjs','validate','2026-10-22'],{encoding:'utf8',env:{...process.env,EDUCATION_CHILD_WORKSPACE:dir}})
+  // Source discovery alone has not searched the library: publication must wait
+  // for an explicit, bounded account of what is available and genuinely missing.
+  expect(run().stderr).toContain('materialRequest.presentation')
+  const prepared=read()
+  for(const task of prepared.subjects[0].tasks)task.materialRequest.presentation={version:1,available:['Точная запись МЭШ'],missing:[task.meshText],reason:'В проверенной библиотеке нет назначенной страницы этого издания.',action:'Добавь только указанную страницу.',checkedAt:'2026-10-22T10:00:00Z',checkedSources:['Библиотека и сохранённые фото; нужной страницы нет']}
+  write(join(dir,'day-source-2026-10-22.json'),prepared)
   const result=run()
   expect(result.stderr).toBe('')
   expect(result.status).toBe(0)

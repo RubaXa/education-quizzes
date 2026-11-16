@@ -1,0 +1,15 @@
+/* @see ../../docs/modules/materials/material-clarification.md#request-presentation */
+.material-request{min-width:0;overflow-wrap:anywhere}
+.material-request>strong{display:block;font-size:1rem;line-height:1.4}
+.material-request ul{margin:6px 0;padding-inline-start:20px}
+.material-request li+li{margin-top:5px}
+.material-request .material-request-missing{font-weight:700}
+.material-request-facts{margin:12px 0}
+.material-request-facts>div+div{margin-top:12px}
+.material-request-facts dt{font-size:.875rem;font-weight:700;color:var(--edu-ink-muted,var(--edu-ink))}
+.material-request-facts dd{margin:4px 0 0;line-height:1.45}
+.material-request .material-request-action{display:grid;gap:4px;margin:12px 0;line-height:1.45}
+.material-request-continuation{display:block;margin:12px 0;color:var(--edu-problem-heading);font-weight:700}
+.material-request-search{margin-top:12px;font-size:.875rem;line-height:1.45}
+.material-request-search summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+.material-request-search summary:focus-visible,.material-request-continuation:focus-visible{outline:3px solid var(--edu-problem-help-focus);outline-offset:2px}

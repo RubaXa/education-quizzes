@@ -1,9 +1,11 @@
 /** @see ../../docs/decisions/known-part-review-2026-11-09.md */
 /** A tutor asks for context without inventing a teacher requirement or a grade.
  * @see ../../docs/modules/materials/material-clarification.md */
+import {materialRequestPresentationErrors} from '../../packages/education-presentation/task-presentation.mjs'
 export type MaterialRequest = {
   id: string; state: 'open' | 'resolved'; question: string; photoPrompt: string;
   resolvedTopic?: string; uploadIds?: string[];
+  presentation?: import('../../packages/education-presentation/task-presentation.mjs').MaterialRequestPresentation;
 }
 export type SourceAnalysis = {
   requestId: string; topic: string | null; observed: string; quality: string;
@@ -21,6 +23,7 @@ export function materialRequestErrors(task: RequestTask): string[] {
   if (r.state === 'open' && task.testToken) return ['До привязки теста разрешите запрос материала и сохраните источники.']
   if (r.state === 'open' && !['needs-topic','needs-review'].includes(task.assessmentIntent?.state ?? '')) return ['Открытый запрос материала требует незавершённого уточнения задания.']
   if (r.state === 'resolved' && (!r.resolvedTopic?.trim() || !r.uploadIds?.length)) return ['Разрешённый запрос должен сохранить тему и исходные снимки.']
+  if(r.presentation)return materialRequestPresentationErrors(r)
   return []
 }
 export function openMaterialRequest(task: RequestTask): MaterialRequest | undefined {

@@ -27,6 +27,13 @@ function displayFacts(facts: { label: string; value: string }[]) {
   return parsed
 }
 
+/** Same data/find composition for one task and every separately sourced subpart.
+ * @see ../../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
+function FactUnit({facts,find}:{facts:{label:string;value:string}[];find:string}){
+ return <>{!!facts.length&&<div className="problem-statement-facts" aria-label="Дано">{displayFacts(facts).map(fact=><div key={fact.label}><strong>{formatReviewProse(fact.value)}</strong><small>{formatReviewProse(fact.label)}</small></div>)}</div>}
+ {find&&<div className="problem-statement-find"><small>Найти</small><strong>{formatReviewProse(find)}</strong></div>}</>
+}
+
 /** @see ../../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md */
@@ -47,7 +54,6 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     ?? (!original ? links.find((link) => link.sourceType === 'teacher-attachment') : undefined)
   const hasFragment = Boolean(attachment && original?.crop && original.crop.sourceSha256 === attachment.sourceSha256)
   const support = problem.support
-  const facts = support ? displayFacts(support.facts) : []
   const opened = Boolean(support && help && help.revision >= support.revision)
   const finished = review?.status === 'verified' || parentFinished
 
@@ -63,7 +69,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     finally { setRequesting(false) }
   }
 
-  return <div className="problem-statement">
+  return <div className="problem-statement" data-presentation-contract="numbered-problem" data-presentation-layout={support?.parts?.length?'multipart':'single'}>
     <div className="problem-statement-original">
       <div className="problem-statement-label"><BookOpen size={16} aria-hidden="true" /><strong>Условие № {problem.number}</strong></div>
       {originalContent}
@@ -74,8 +80,7 @@ export default function ProblemStatement({ problem, links, parent, help, review,
     </div>
     {support && <div className="problem-statement-education">
       <div className="problem-statement-label"><Lightbulb size={16} aria-hidden="true" /><strong>Как читать условие</strong></div>
-      {!!facts.length && <div className="problem-statement-facts" aria-label="Дано">{facts.map((fact) => <div key={fact.label}><strong>{formatReviewProse(fact.value)}</strong><small>{formatReviewProse(fact.label)}</small></div>)}</div>}
-      {support.find && <div className="problem-statement-find"><small>Найти</small><strong>{formatReviewProse(support.find)}</strong></div>}
+      {support.parts?.length?support.parts.map(part=><section className="problem-statement-part" key={part.id} aria-label={part.title}><h4>{part.title}</h4><FactUnit facts={part.facts} find={part.find}/></section>):<FactUnit facts={support.facts} find={support.find}/>}
       {parent || finished || !onRequestHelp ? null
           : opened ? <div className="problem-statement-help-result"><strong>Первый ориентир</strong><p>{formatReviewProse(support.firstQuestion)}</p><small>Этот вопрос подготовлен к задаче заранее. Твой запрос сохранён для следующего разбора.</small></div>
             : helpAccess === 'checking' ? <p className="problem-statement-rationale">Проверяем личный вход…</p>

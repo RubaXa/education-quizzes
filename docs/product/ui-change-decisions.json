@@ -81,19 +81,20 @@
       }
     },
     "src/components/LearnerFlow.tsx": {
-      "sha256": "ac31aaee1125a5edd122861a9a92910c049f05607d445e373465011d5c8779b4",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "4c3144a3f7399654f1b082a13a8c44b7256686f43e2d1f11a8b349e2d6cc6025",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "src/components/LearnerFlow.test.tsx",
-        "src/components/ReviewActivity.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/components/LearnerFlow.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/components/LearnerFlow.css": {
@@ -1984,23 +1985,21 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "0e99048d8d8d290831b7891ddba30e9fec466530a36c05727ee57ed87d571e8c",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "77649586e66df8cee75f5bd593eb01e389502dd8a0eb88e28a7eea2d0b5be968",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "storage/task-presentation-edit.test.mjs",
+        "storage/parent-guide-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2663,23 +2662,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "dd1260e40688590061d8eed155eacce9adebf8f7c7159d7c80b44420dff7f310",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "f094da4c143eaa3351f98df8d254ddc696c7d18cec368b26fa41d33d015a47c1",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/UiKit.css": {
@@ -3214,32 +3211,21 @@
       }
     },
     "src/components/MaterialRequest.tsx": {
-      "sha256": "0b52e31da13ff984be074054245d58ba3b175030750203aaf582d648f5d8b0b5",
-      "record": "docs/decisions/review-prose-coverage-2026-10-19.md",
+      "sha256": "180b0e9a45f593cdadb97801e612c1e7e334a6405c5913b056d5ced126ba26f2",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/photoUploadPolicy.test.ts",
-        "src/UiKit.test.tsx",
-        "storage/submission-inbox.test.mjs",
-        "storage/review-projection.test.mjs",
-        "storage/review-readback.test.mjs",
-        "day/build-assignments.test.mjs",
-        "src/lib/reviewProse.test.ts",
-        "src/components/ReviewProse.integration.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 подтвердил родительский вход, прислал склейки слов и чисел в разборе и прямо потребовал проверить и исправить их во многих местах."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "0d8d46e83e28005d952a2dbb9e5480da43817de8c243df2dda66fa74b42fa40f"
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/components/NotificationBell.css": {
@@ -3479,42 +3465,39 @@
       }
     },
     "src/components/ProblemStatement.css": {
-      "sha256": "7a639635863fdd2dd6eeceec3260cdf259599eebeaf0cbcd87def9959b0ba41b",
-      "record": "docs/decisions/restore-numbered-original-2026-10-14.md",
+      "sha256": "6e5aee190d5115cb85b506149a222c6a8976383c93d0232e220dbe27d9737f80",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
+        "docs/shared/design/task-presentation.md",
         "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/README.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/components/ProblemStatement.provenance.test.tsx",
-        "src/components/ProblemCard.test.tsx"
-      ],
-      "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 14.10.2026 после просмотра конкретного макета с видимым исходным кропом ответил «Да, стало лучше, очень лучше» и потребовал доделать этот вариант, убрав макетную родительскую кнопку загрузки фото."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "ab327890e91799976872f940600b3f33191ca4cf013c8beb59f8aa559b826677"
-      }
-    },
-    "src/components/ProblemStatement.tsx": {
-      "sha256": "feae75909f2d26e6d93f5ea83ccb1f5358fd8b952d21df37e546ac658fb6ce00",
-      "record": "docs/decisions/olympiad-shared-statement-2026-10-28.md",
-      "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/shared/design/ui-kit.md"
-      ],
-      "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/ProblemTaskCard.contract.test.tsx",
-        "src/UiKit.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 28.10.2026 попросил использовать карточку и условие задачи как в спецкурсе и домашнем задании."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+      }
+    },
+    "src/components/ProblemStatement.tsx": {
+      "sha256": "e6ee5e83e936cdc5e1d961053e36db995111e306baf983fe35b3e6a9d4813f89",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/components/ProblemTaskCard.tsx": {
@@ -4198,23 +4181,21 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "ece3e80c12d3a4bf678d720e4ecf8fdb12f7a338808085082567960cf13c4354",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "1eb00fed176472433053b11d51328433c8617b4a070b3a88ad020679519bb56a",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4430,17 +4411,21 @@
       }
     },
     "src/lib/materialRequest.ts": {
-      "sha256": "283b8e9f35705fa38589d78c989baa780556553bfcf447ce733e82794b2d963d",
-      "record": "docs/decisions/known-part-review-2026-11-09.md",
+      "sha256": "081246cb5573c65f3bd119ffe1477ea1606a45887ceac21c2dbfaabf83d998c7",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь: всё доступное обработать и закрыть, только действительно недостающее запросить; уже присланное повторно не просить."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/lib/networkRetry.ts": {
@@ -4759,20 +4744,21 @@
       }
     },
     "src/lib/reviewProse.ts": {
-      "sha256": "7e0ab67c560da7b4c4b2f6797af9212dbdb48e3e70c54d5dc5b7d55a2efb94fb",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "9b20a968eab0ebaaa0744c4e84c8d2936f4d720be47085781fefe9c0c87c6363",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/tutoring-decision.test.mjs",
-        "storage/review-projection.test.mjs",
-        "sync/event-task-artifact.test.mjs",
-        "src/components/WorkReview.tutoring.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо поручил внедрить персональное объяснение каждой новой работы в основной автоматический конвейер, заменить шаблонные блоки обеих карточек и влить завершённый выпуск."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/lib/roleDiagnostics.ts": {
@@ -7415,20 +7401,21 @@
       }
     },
     "storage/parent-guide-edit.mjs": {
-      "sha256": "91ecb31d4e590b37615e95a81eaffbb2325ec55cb2a9d53949722871cd33207a",
-      "record": "docs/decisions/review-table-storage-2026-10-31.md",
+      "sha256": "837340cd3ec47a87a852cb6c06cf92945149bdc507d2d0ed534ec62c48713e3f",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md",
-        "docs/shared/design/compact-review.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/review-content.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "storage/task-presentation-edit.test.mjs",
+        "storage/parent-guide-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Продолжение прямого запроса родителя о методах, формулах и наглядном разборе; исправление обнаруженного сервером непереносимого формата таблицы перед завершением миграции."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/components/OlympiadOverview.tsx": {
@@ -8269,23 +8256,21 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "c4e58b364245d45d6e2bf26fcb0199d4448a6275d6ceeefacffd476ff65e39a8",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "32cfdddf64f3b4200c95ee213018d2e75d582892858cb70aab65ba835ee273a9",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
@@ -8309,63 +8294,57 @@
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.css": {
-      "sha256": "21fac3ab6fcb4f49096d4592702a843c9192756a478ef1f840211a68ade5a01e",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "bbada544ab31b2b9a00b5464ee37f0374272d2909bf297060c173047f0d81a87",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.tsx": {
-      "sha256": "0fad35b270771bd99061f2993fd5ff68742bc42f052c7aa1e9fdddcfdb7e652b",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "0773c50dab719e2c299b7e9494a605accc5b6fff44efd73bd38ee95fed1ae527",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "src/ui-kit/decisionScenarioFixtures.ts": {
-      "sha256": "10b221e714b53df761259281881ca4c14be63b1c7b49f5a98c0028f5939dac11",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "06a12ed50c4ea19987191a174517c21679d9407b1a1807dbb56320681df341d0",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     },
     "storage/criteria-contract.mjs": {
@@ -8434,6 +8413,78 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь16.11.2026 потребовал пройти все текущие задания по графу, сверить оригиналы, критерии и обе роли, исправить пробелы."
+      }
+    },
+    "packages/education-presentation/task-presentation.mjs": {
+      "sha256": "b01e5d571807c19c950d54176f3861e0ba525ecf37b8e2c99ac2ec3f8672c5dd",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+      }
+    },
+    "scripts/task-presentation.mjs": {
+      "sha256": "f681b5f675373ccfbba72bd081710d42901e8d356c4757bcca13130f22d216ce",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "packages/education-presentation/task-presentation.test.mjs",
+        "storage/task-presentation-edit.test.mjs",
+        "storage/parent-guide-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+      }
+    },
+    "src/components/MaterialRequest.css": {
+      "sha256": "8183090906386ec7067c62ff78831c89d332943f55d9e7c9c22e64463bd9b296",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "packages/education-presentation/task-presentation.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+        "src/components/MaterialRequest.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+      }
+    },
+    "storage/task-presentation-edit.mjs": {
+      "sha256": "307909d5b85d94c30fdd674fb0f1bd3454067303395a507297ca1cbbb7658959",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "specs": [
+        "docs/shared/design/task-presentation.md",
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/materials/material-clarification.md"
+      ],
+      "tests": [
+        "packages/education-presentation/task-presentation.test.mjs",
+        "storage/task-presentation-edit.test.mjs",
+        "storage/parent-guide-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
       }
     }
   }

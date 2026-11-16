@@ -1,12 +1,14 @@
 /** Synthetic source-specific examples; never real assignments or family attempts.
  * @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 import {subjectDecisionProfiles} from '../../sync/subject-decisions.mjs'
-import type {DayTask,ParentTaskGuide} from '@/lib/dayStore'
+import type {DayTask,DayProblem,DayUpload,ParentTaskGuide} from '@/lib/dayStore'
+import type {MaterialRequest} from '@/lib/materialRequest'
+import type {MathExpression,SolutionBlock} from '../../packages/education-presentation/solution-blocks.mjs'
 // condition, method, parent route, safe current question. Every rule has its own example.
 export const decisionExamples:Record<string,[string,string,string,string]>={
- 'math.problem':['В коробке 3 красных карандаша, а синих на 2 больше. Сколько карандашей всего?','Два последовательных сложения','Синих: 3 + 2 = 5. Всего: 3 + 5 = 8. Проверка: учтены обе группы.','Синие уже найдены: 5. Какие две группы нужно объединить?'],
+ 'math.problem':['В коробке 3 красных карандаша, а синих на 2 больше. Сколько карандашей всего?','Два последовательных сложения','Синих: 3 + 2 = 5. Всего: 3 + 5 = 8. Проверка: учтены обе группы.','Какие две группы нужно объединить, чтобы посчитать все карандаши?'],
  'math.theory':['Повторить признаки делимости на 2 и 5.','От признака к применению','Проверить понимание последней цифры и выбор нового примера, а не только формулировку.','Какая часть записи числа нужна для проверки признака?'],
- 'special.sheet':['Из листа решить по желанию № 1: сколько двузначных чисел можно составить из цифр 1 и 2?','Перебор по первой цифре','При первой цифре 1: 11, 12; при первой цифре 2: 21, 22. Всего 4, перебор полный. Решение номера назначено по желанию.','Как разделить варианты по первой цифре, чтобы ничего не пропустить?'],
+ 'special.sheet':['Из листа решить по желанию № 1: сколько двузначных чисел можно составить из цифр 1 и 2, если цифры могут повторяться?','Перебор по первой цифре','При первой цифре 1: 11, 12; при первой цифре 2: 21, 22. Всего 4, перебор полный. Решение номера назначено по желанию.','Как разделить варианты по первой цифре, чтобы ничего не пропустить?'],
  'special.theory':['Повторить правило чётности суммы.','Проверка разных случаев','Тест включает чётное + чётное, нечётное + нечётное и смешанную пару.','Какие два типа слагаемых нужно различать?'],
  'russian.exercise':['Исправить согласование: «В лесу росли высокая берёза».','Связь подлежащего и сказуемого','Подлежащее «берёза» в единственном числе. Сказуемое: «росла». Определение «высокая» уже согласовано.','В каком числе здесь подлежащее?'],
  'russian.vocabulary':['Выучить написание слов: берёза, осина.','Собственная запись слов','Проверить оба слова без показанного написания; назвать место каждой ошибки.','Как запишешь первое слово самостоятельно?'],
@@ -46,7 +48,46 @@ for(const rule of scenarioRules){
  if(rule.id.endsWith('.control'))decisionExamples[rule.id]=[`Подготовиться к контрольной по предмету «${rule.subjectName}» по назначенному образцу.`,'Диагностика навыков образца','Сверить все части образца, собственные ответы и независимую готовность; не выдать готовые решения за выполненный тест.','Какой навык проверяет выбранный пункт образца?']
  if(rule.id.endsWith('.source-classification'))decisionExamples[rule.id]=[`Разобрать назначенный файл по предмету «${rule.subjectName}».`,'Источник → назначение → продукт','Сначала прочитать полный файл: это условие, теория, критерии или работа? Затем подготовить нужные задачи или тест. Один прикреплённый файл не завершает подготовку.','Какое действие назначено в этом материале?']
 }
-export function scenarioData(ruleId:string){
+export type ScenarioVariant='single'|'multipart'
+const expression=(...values:string[]):MathExpression=>({kind:'row',items:values.map(value=>({kind:/^-?\d+(?:[.,]\d+)?$/.test(value)?'number':/^[+−×÷=()]$/.test(value)?'operator':'symbol',value}))})
+const formula=(label:string,...values:string[]):SolutionBlock=>({kind:'formula',label,expression:expression(...values)})
+const prose=(text:string):SolutionBlock=>({kind:'text',text})
+/** The same numbered-problem contract as production: atomic data, named method and typed transitions.
+ * Closed parent stages are never passed to the student component.
+ * @see ../../docs/modules/reviews/method-guided-solutions.md */
+function numberedScenario(ruleId:string,variant:ScenarioVariant,task:DayTask,source:ParentTaskGuide['stages'][number]['source']){
+ const multipart=variant==='multipart'
+ const condition=multipart?'1) На базе было 18 т овощей. В первый день продали в 2 раза меньше, чем во второй. Осталось 3 т. Сколько тонн продали во второй день? 2) Туристы планировали пройти 24 км. До обеда прошли в 3 раза больше, чем после обеда. Осталось пройти 4 км. Сколько километров прошли до обеда?':task.detail
+ const parts=[{id:'vegetables',title:'1. Овощная база',facts:[{label:'Было на базе',value:'18 т'},{label:'Осталось',value:'3 т'},{label:'Первый день относительно второго',value:'В 2 раза меньше'}],find:'Сколько тонн овощей продали во второй день?'},{id:'walk',title:'2. Маршрут туристов',facts:[{label:'План маршрута',value:'24 км'},{label:'Осталось пройти',value:'4 км'},{label:'До обеда относительно после обеда',value:'В 3 раза больше'}],find:'Сколько километров туристы прошли до обеда?'}]
+ const special=ruleId==='special.sheet'
+ const facts=special?[{label:'Доступные цифры',value:'1 и 2'},{label:'Разряды числа',value:'Десятки и единицы'},{label:'Повторение цифр',value:'Разрешено'}]:[{label:'Красных карандашей',value:'3'},{label:'Синих относительно красных',value:'На 2 больше'}]
+ const firstQuestion=multipart?'В первом подпункте какая величина меньше и что удобно обозначить одной частью?':decisionExamples[ruleId][3]
+ const problem:DayProblem={id:task.id,number:1,title:multipart?'Задача № 1 · два подпункта':special?'Задача № 1 · перебор':'Задача № 1 · две группы',detail:condition,source:'Условный оригинал UI Kit',original:{text:condition,attachmentRef:'demo-original'},support:{skill:multipart?'Связать целое и отношение частей':special?'Полный перебор':'Связать две группы и целое',state:'unknown',evidence:'Условный пример: попытки ребёнка нет.',evidenceRefs:[],facts:multipart?[]:facts,find:multipart?'':special?'Сколько разных двузначных чисел можно составить?':'Сколько всего красных и синих карандашей?',...(multipart?{parts}:{}),firstQuestion,revision:1}}
+ const perPart=(label:string,first:SolutionBlock[],second:SolutionBlock[]):SolutionBlock=>({kind:'cases',label,cases:[{label:'1. Овощная база',result:'Каждая строка относится к первому подпункту.',blocks:first},{label:'2. Маршрут туристов',result:'Каждая строка относится ко второму подпункту.',blocks:second}]})
+ const method=multipart?{name:'Целое и отношение частей',reason:'В каждом подпункте известны целое, остаток и отношение двух частей. Сначала найдём одну часть.',steps:['Отделить данные двух подпунктов','Обозначить меньшую величину','Составить равенство для пройденного или проданного','Вернуться к искомой величине и проверить']}:special?{name:'Перебор по первой цифре',reason:'Два разряда и две разрешённые цифры. Разделение по десяткам помогает не повторить и не пропустить число.',steps:['Выбрать цифру десятков','Перебрать обе цифры единиц','Проверить, что все случаи учтены','Посчитать разные числа']}: {name:'От меньшей группы к общему количеству',reason:'Известны красные карандаши и разница. Сначала определим синие, затем объединим группы.',steps:['Различить две группы','Связать синие с красными','Найти число синих','Сложить группы и проверить']}
+ const bodies:SolutionBlock[][]=multipart?[
+ [perPart('Данные подпунктов',[prose('Было 18 т; осталось 3 т; в первый день продано вдвое меньше, чем во второй.')],[prose('План — 24 км; остаток — 4 км; до обеда пройдено втрое больше, чем после.')])],
+ [perPart('Обозначения и связи',[prose('x — проданное в первый день, в тоннах; 2x — во второй. Сумма двух дней равна проданному.'),formula('Продано за два дня','x','+','2','×','x','=','18','−','3')],[prose('y — путь после обеда, в километрах; 3y — до обеда. Сумма двух частей равна пройденному.'),formula('Пройденный путь','3','×','y','+','y','=','24','−','4')])],
+ [perPart('Вычисляем меньшую величину',[formula('Три равные части','3','×','x','=','15'),formula('Первый день','x','=','15','÷','3','=','5')],[formula('Четыре равные части','4','×','y','=','20'),formula('После обеда','y','=','20','÷','4','=','5')])],
+ [perPart('Ответ и обратная проверка',[formula('Второй день, тонн','2','×','5','=','10'),formula('Оба дня и остаток','5','+','10','+','3','=','18'),prose('Ответ: 10 т во второй день; 10 т вдвое больше 5 т.')],[formula('До обеда, километров','3','×','5','=','15'),formula('Обе части и остаток','15','+','5','+','4','=','24'),prose('Ответ: 15 км до обеда; 15 км втрое больше 5 км.')])]
+ ]:special?[
+ [prose('Есть две позиции: десятки и единицы. В каждой можно поставить 1 или 2; повторения разрешены.')],
+ [{kind:'flow',label:'Как перебрать без пропусков',steps:['Зафиксировать цифру десятков','Поставить в единицы 1, затем 2','Повторить для других десятков']}],
+ [{kind:'cases',label:'Две непересекающиеся группы',cases:[{label:'Десятки — 1',result:'Других цифр единиц по условию нет.',blocks:[prose('11, 12')]},{label:'Десятки — 2',result:'Все разрешённые десятки рассмотрены.',blocks:[prose('21, 22')]}]}],
+ [formula('Число вариантов','2','+','2','=','4'),prose('Ответ: 4 числа. Десятки 1 и 2 рассмотрены, в каждой группе обе единицы; повторов между группами нет.')]
+ ]:[
+ [prose('Красных — 3. Синих на 2 больше. Нужно узнать общее число двух групп.')],
+ [prose('b — количество синих карандашей. Прибавка относится к красным, поэтому её нужно прибавить к 3.'),formula('Синие через красные','b','=','3','+','2')],
+ [formula('Количество синих','b','=','5'),prose('Теперь известны обе группы. Для общего количества нужно сложение, а не повторное прибавление разницы.')],
+ [formula('Все карандаши','3','+','5','=','8'),prose('Ответ: 8 карандашей. Проверка: 5 − 3 = 2; обе группы включены в сумму.')]
+ ]
+ const labels=['Дано и что найти','Обозначения и связи','Преобразования','Ответ и проверка']
+ const summaries=multipart?['Два подпункта решаем отдельно.','Выбираем меньшую величину за одну часть.','Равенство даёт меньшую величину в каждом подпункте.','Находим именно запрошенную величину и возвращаемся к условию.']:special?['Различаем две позиции и разрешённые цифры.','Делим варианты по цифре десятков.','В каждой группе перебираем цифру единиц.','Считаем числа и проверяем полноту перебора.']:['Известны одна группа и разница.','Выражаем синие через красные.','Выполняем действие для синей группы.','Складываем обе группы; проверяем разницу.']
+ const roles=['given','relations','calculation','answer'] as const
+ const guide:ParentTaskGuide={kind:'worked-solution',presentation:'math-route',revision:1,overview:method.name,method,stages:bodies.map((blocks,i)=>({id:roles[i],role:roles[i],title:labels[i],expected:summaries[i],blocks,source:{...source,excerpt:condition},hintPreview:firstQuestion,revealPreview:summaries[i]}))}
+ return {problem,guide,question:firstQuestion,task:{...task,title:problem.title,detail:condition,meshText:condition,outputKind:'worked-solution' as const}}
+}
+export function scenarioData(ruleId:string,variant:ScenarioVariant='single'){
  const rule=scenarioRules.find(r=>r.id===ruleId)!
  const example=decisionExamples[ruleId]
  if(!rule||!example)throw Error(`Нет сценария правила ${ruleId}`)
@@ -55,5 +96,25 @@ export function scenarioData(ruleId:string){
  const task:DayTask={id:`demo-${ruleId.replaceAll('.','-')}`,kind:isQuiz?'read':'written',status:'unknown',title:rule.when,detail:condition,meshText:condition,source:'Условный пример UI Kit',decisionRuleIds:[rule.id],outputKind:isQuiz?'reading':'structured-notes',instructionStatus:{state:'reviewed',message:'Условный источник сверен'}}
  const source={kind:'family' as const,label:'Условный источник UI Kit',ref:`demo:${ruleId}`,excerpt:condition}
  const guide:ParentTaskGuide={kind:'structured-notes',presentation:'learning-route',pattern:'source-evidence',revision:1,overview:method,method:{name:method,reason:`Подход соответствует назначению: ${rule.when.toLowerCase()}.`,steps:['Установить данные и требование','Связать данные с критерием','Проверить результат']},stages:[{id:'assignment',title:'Данные и требование',expected:condition,source,hintPreview:question,revealPreview:condition},{id:'evidence',title:'Связь, решение и проверка',expected,source,hintPreview:question,revealPreview:expected,blocks:[{kind:'text',title:method,text:expected}]}]}
- return {rule,task,guide,question,isQuiz}
+ if(ruleId==='math.problem'||ruleId==='special.sheet')return {rule,isQuiz:false,...numberedScenario(ruleId,variant,task,source)}
+ return {rule,task,guide,question,isQuiz,problem:undefined}
 }
+
+/** Missing material is a state, not the permanent product of every source-classification rule.
+ * Exact known wording stays visible; no topic or solution is invented from a missing page.
+ * @see ../../docs/modules/materials/material-clarification.md#request-presentation */
+export function missingSourceScenario(ruleId:string){
+ const {task,rule}=scenarioData(ruleId)
+ const history=rule.subject==='history'
+ const numbered=ruleId==='math.problem'||ruleId==='special.sheet'
+ const assignment=history?'Повторить записи в тетради.':numbered?'Решить № 1 с назначенного листа.':'Выполнить задание по назначенной странице.'
+ const missing=history?'Страница тетради с назначенными записями':numbered?'Условие задачи № 1 с назначенного листа':'Условие на назначенной странице'
+ const reason=history?'По записи «повторить записи в тетради» нельзя установить тему и содержание.':numbered?'Номер без условия не определяет данные задачи и её вопрос.':'Назначение известно, но содержание страницы ещё не установлено.'
+ const action=history?'Добавь фото только страницы с назначенными записями.':numbered?'Добавь фото только задачи № 1 с листа.':'Добавь только недостающую страницу с условием.'
+ const request:MaterialRequest={id:'demo-missing-original',state:'open',question:'Служебный вопрос для старого формата запроса.',photoPrompt:'Служебная подпись фото старого формата.',presentation:{version:1,available:[`Запись учителя: ${assignment}`],missing:[missing],reason,action,checkedAt:'2026-11-16T09:00:00Z',checkedSources:['Условная библиотека учебных материалов','Архив уже присланных файлов UI Kit']}}
+ return {task:{...task,detail:assignment,meshText:assignment,materialRequest:request,assessmentIntent:{state:'needs-topic' as const}},request}
+}
+
+/** A local synthetic original for the real source-context composition, not a remote family file. */
+export const sourceContextUpload:DayUpload={id:'demo-source-context',taskId:'demo-source-context-task',status:'reviewed',originalName:'Условный лист.svg',contentType:'image/svg+xml',dataUrl:`data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240"><rect width="400" height="240" fill="white"/><text x="20" y="45" font-size="22">Условный лист учителя</text><text x="20" y="90" font-size="18">1. Прочитайте фрагмент источника.</text><text x="20" y="125" font-size="18">2. Ответьте по его содержанию.</text><text x="20" y="160" font-size="18">3. Объясните своё рассуждение.</text></svg>')}`}
+export const sourceContextCrop={x:0,y:0,width:400,height:240,sourceWidth:400,sourceHeight:240,sourceSha256:'d'.repeat(64)}

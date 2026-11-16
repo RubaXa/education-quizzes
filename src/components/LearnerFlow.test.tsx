@@ -5,6 +5,14 @@ import { createRoot } from 'react-dom/client'
 import { describe, expect, it } from 'vitest'
 import LearnerFlow from './LearnerFlow'
 describe('learner process support', () => {
+  it('leaves the brief to its existing owner and keeps the geography ending subject neutral', async () => {
+    const host=document.createElement('div');const root=createRoot(host)
+    try{
+      await act(async()=>root.render(<LearnerFlow briefProvided flow={{version:1,scope:'§38: гидросфера',meshExcerpt:'§38',goal:'Объяснить использование воды',boundary:'ЦДЗ отдельно',source:{pageId:'geography:124',label:'Страница 124',excerpt:'Вода'},stages:[{id:'reason',title:'Свяжи причину и последствие',prompt:'Почему загрязнение воды опасно?',hint:'Подумай о потребителях воды.',frame:'Причина → последствие',sourceLabel:'§38'}]}}/>))
+      expect(host.textContent).not.toContain('§38: гидросфера');expect(host.textContent).not.toContain('Объяснить использование воды');expect(host.textContent).not.toContain('ЦДЗ отдельно')
+      expect(host.textContent).toContain('Почему загрязнение воды опасно?');expect(host.textContent).not.toContain('диалог')
+    }finally{await act(async()=>root.unmount())}
+  })
   it('shows one step and resets opt-in scaffolds on navigation without grading', async () => {
     const host = document.createElement('div'); document.body.append(host)
     const root = createRoot(host)

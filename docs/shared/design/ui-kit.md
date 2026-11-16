@@ -9,6 +9,7 @@ consumers:
   - "frontend developer"
   - "screen author / Education agent"
 code:
+  - "src/ui-kit/DecisionScenarioCatalog.tsx"
   - "src/ui-kit/TaskAttachmentsExample.tsx"
   - "src/UiKit.css"
   - "src/UiKit.tsx"
@@ -19,6 +20,8 @@ code:
   - "src/components/GradeAverageSlider.tsx"
 parent: shared.design
 uses:
+  - module.materials.material-clarification
+  - module.reviews.adaptive-problem-card
   - shared.design
   - shared.design.compact-review
   - module.reviews.criteria-and-knowledge
@@ -281,3 +284,14 @@ UI Kit не пишет в Firestore и не оценивает реальног�
 WorkReview, а не копии HTML. Проверка встроенного QuizCard выполняется именно внутри
 рамки потребителя, с production CSS; пустая акцентная шапка при headingProvided убрана.
 Структурное покрытие каталога не означает проверку всех текущих семейных данных.
+
+
+### Presentation-контракт каждого узла и перехода
+
+Каждый node/edge общего [реестра решений](../../modules/reviews/criteria-and-knowledge.md#scenarios) связывается с presentationContract и конкретным UI-сценарием. Инспектор показывает `presentationContractIds`, `uiScenarioIds`, спецификацию и основание решения. Для source/result/context шагов показывается контекст выбранного предмета, а технический шаг явно сообщает отсутствие отдельного семейного экрана. Ручной список нескольких карточек и наличие ID графа не заменяют это покрытие.
+
+Для нумерованной работы используется настоящий `ProblemTaskCard`: оригинал читается один раз, данные и искомое подпунктов разделены через support.parts, закрытый `ParentTaskGuide` содержит предметный метод и типизированные блоки. Для запроса материала используется настоящий `MaterialRequest`: отдельно показаны имеющееся, недостающее, причина, действие и проверенные источники с датой. Карточка с pending-снимком показывает ожидание без повторной просьбы; точный continuation открывает прежнюю карточку. Ученическая проекция не получает закрытый ответ или критерии ни в основном тексте, ни в раскрытиях.
+
+Общие `problemPresentationErrors`, `guidePresentationErrors` и `materialRequestPresentationErrors` проверяют те же данные, что используются штатной публикацией и адресным редактором. Примеры включают длинное многоподпунктное условие, разные профили математического пути, optional-группы, неполный источник и сохранённый зачёт. Rows и typed blocks не дублируют один и тот же разбор. Переключение роли, раскрытия и поля ввода проверяются на реальных компонентах с production CSS на 320/390 px; UI Kit не читает семейные документы для своих условных примеров.
+
+Изменение представления проходит общую трассу «граф → контракт → сценарий → компонент → проверка → спецификация». Gate структуры не доказывает предметную правильность, а локальная демонстрация не подтверждает live deployment. Критерии, попытки и история сохраняются по [контракту адресной коррекции](../../modules/reviews/adaptive-problem-card.md#presentation-gate); новые клиентские чтения ради инспектора не добавляются.

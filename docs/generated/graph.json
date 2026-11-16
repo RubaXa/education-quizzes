@@ -3543,6 +3543,33 @@
       "path": "docs/decisions/sync-task-routing-2026-10-23.md"
     },
     {
+      "id": "decision.task-presentation-contracts-2026-11-16",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "shared.design.task-presentation",
+      "uses": [
+        "module.reviews.adaptive-problem-card",
+        "module.materials.material-clarification",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "reason",
+        "change",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/task-presentation-contracts-2026-11-16.md"
+    },
+    {
       "id": "decision.teacher-choice-practice-2026-10-17",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -6906,6 +6933,27 @@
       "consumer": "Education"
     },
     {
+      "id": "file:packages/education-presentation/task-presentation.d.mts",
+      "path": "packages/education-presentation/task-presentation.d.mts",
+      "kind": "artifact",
+      "purpose": "Типы общего публичного запроса и контракта",
+      "consumer": "TypeScript"
+    },
+    {
+      "id": "file:packages/education-presentation/task-presentation.mjs",
+      "path": "packages/education-presentation/task-presentation.mjs",
+      "kind": "artifact",
+      "purpose": "Общие контракты представления и native validation",
+      "consumer": "Publisher; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/task-presentation.test.mjs",
+      "path": "packages/education-presentation/task-presentation.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сырого условия, multipart и запроса найденных страниц",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:packages/education-runtime/credentials.mjs",
       "path": "packages/education-runtime/credentials.mjs",
       "kind": "artifact",
@@ -8439,6 +8487,13 @@
       "consumer": "Education operator"
     },
     {
+      "id": "file:scripts/task-presentation.mjs",
+      "path": "scripts/task-presentation.mjs",
+      "kind": "artifact",
+      "purpose": "Штатный приватный пакет коррекции представления",
+      "consumer": "Education operator"
+    },
+    {
       "id": "file:scripts/telegram-bot.mjs",
       "path": "scripts/telegram-bot.mjs",
       "kind": "artifact",
@@ -8913,6 +8968,20 @@
       "kind": "artifact",
       "purpose": "Горизонтальная лента назначенных страниц, крупный просмотр и отдельный режим полной книги",
       "consumer": "Страница дня; семейная библиотека"
+    },
+    {
+      "id": "file:src/components/MaterialRequest.css",
+      "path": "src/components/MaterialRequest.css",
+      "kind": "artifact",
+      "purpose": "Общая читаемая группировка найденного и недостающего",
+      "consumer": "MaterialRequest"
+    },
+    {
+      "id": "file:src/components/MaterialRequest.test.tsx",
+      "path": "src/components/MaterialRequest.test.tsx",
+      "kind": "verification",
+      "purpose": "Обе роли и полученное фото без повторной просьбы",
+      "consumer": "Vitest"
     },
     {
       "id": "file:src/components/MaterialRequest.tsx",
@@ -11365,6 +11434,20 @@
       "consumer": "`scripts/storage.mjs`"
     },
     {
+      "id": "file:storage/task-presentation-edit.mjs",
+      "path": "storage/task-presentation-edit.mjs",
+      "kind": "artifact",
+      "purpose": "Адресная коррекция представления с owner/CAS и readback без смены критериев",
+      "consumer": "Operator CLI"
+    },
+    {
+      "id": "file:storage/task-presentation-edit.test.mjs",
+      "path": "storage/task-presentation-edit.test.mjs",
+      "kind": "verification",
+      "purpose": "Защита владельца, неизменных данных, истории и транзакции",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:storage/textbook-catalog.mjs",
       "path": "storage/textbook-catalog.mjs",
       "kind": "artifact",
@@ -12454,7 +12537,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-11-16",
       "consumers": [
         "parent",
         "student",
@@ -12462,6 +12545,7 @@
         "upload worker"
       ],
       "code": [
+        "packages/education-presentation/task-presentation.mjs",
         "day/build.mjs",
         "day/audio-selection-plan.mjs",
         "day/family-source-graph.mjs",
@@ -12482,7 +12566,10 @@
         "storage/submission-inbox.mjs"
       ],
       "parent": "module.materials",
-      "uses": [],
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "shared.design.ui-kit"
+      ],
       "sections": [
         "граф",
         "модель",
@@ -12490,7 +12577,8 @@
         "оценка-материала",
         "состояния-и-роли",
         "штатная-команда-и-пакет",
-        "состояние-реализации"
+        "состояние-реализации",
+        "request-presentation"
       ],
       "path": "docs/modules/materials/material-clarification.md"
     },
@@ -12821,7 +12909,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-10",
-      "updated": "2026-10-16",
+      "updated": "2026-11-16",
       "consumers": [
         "student",
         "parent",
@@ -12829,6 +12917,9 @@
         "submission publisher"
       ],
       "code": [
+        "scripts/task-presentation.mjs",
+        "storage/task-presentation-edit.mjs",
+        "packages/education-presentation/task-presentation.mjs",
         "scripts/day.mjs",
         "scripts/submissions.mjs",
         "src/components/ProblemCard.tsx",
@@ -12841,6 +12932,9 @@
       ],
       "parent": "module.reviews",
       "uses": [
+        "module.materials.material-clarification",
+        "module.reviews.criteria-and-knowledge",
+        "module.reviews.method-guided-solutions",
         "module.reviews.subject-aware-guidance",
         "module.reviews.problem-card-design-decisions"
       ],
@@ -12850,7 +12944,8 @@
         "показ-ученику",
         "происхождение-задачи",
         "выпуск-и-безопасность",
-        "общее-представление-номера"
+        "общее-представление-номера",
+        "presentation-gate"
       ],
       "path": "docs/modules/reviews/adaptive-problem-card.md"
     },
@@ -12932,6 +13027,8 @@
       "updated": "2026-11-16",
       "parent": "module.reviews",
       "uses": [
+        "module.materials.material-clarification",
+        "module.reviews.adaptive-problem-card",
         "module.reviews.review-criteria-provenance",
         "module.synchronization.subject-decision-graph",
         "shared.design.ui-kit"
@@ -15880,6 +15977,39 @@
       "path": "docs/shared/design/student-review-step.md"
     },
     {
+      "id": "shared.design.task-presentation",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "shared.design",
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "module.reviews.adaptive-problem-card",
+        "module.reviews.method-guided-solutions",
+        "module.materials.material-clarification",
+        "shared.design.compact-review",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Education operator",
+        "parent",
+        "student",
+        "UI Kit"
+      ],
+      "code": [
+        "packages/education-presentation/task-presentation.mjs"
+      ],
+      "sections": [
+        "model",
+        "subjects",
+        "graph",
+        "gates",
+        "evidence"
+      ],
+      "path": "docs/shared/design/task-presentation.md"
+    },
+    {
       "id": "shared.design.telegram",
       "status": "accepted",
       "implementation": "implemented",
@@ -15924,6 +16054,7 @@
         "screen author / Education agent"
       ],
       "code": [
+        "src/ui-kit/DecisionScenarioCatalog.tsx",
         "src/ui-kit/TaskAttachmentsExample.tsx",
         "src/UiKit.css",
         "src/UiKit.tsx",
@@ -15935,6 +16066,8 @@
       ],
       "parent": "shared.design",
       "uses": [
+        "module.materials.material-clarification",
+        "module.reviews.adaptive-problem-card",
         "shared.design",
         "shared.design.compact-review",
         "module.reviews.criteria-and-knowledge"
@@ -17119,6 +17252,21 @@
     {
       "from": "decision.sync-single-drainer-2026-11-05",
       "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "decision.task-presentation-contracts-2026-11-16",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "decision.task-presentation-contracts-2026-11-16",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "uses"
+    },
+    {
+      "from": "decision.task-presentation-contracts-2026-11-16",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -18792,6 +18940,26 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-presentation/task-presentation.d.mts",
+      "to": "shared.design.task-presentation",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "shared.design.task-presentation",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-runtime/credentials.mjs",
       "to": "decision.mesh-web-login-2026-11-02",
       "type": "implements"
@@ -20322,6 +20490,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/task-presentation.mjs",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/telegram-bot.mjs",
       "to": "product.notifications",
       "type": "implements"
@@ -20864,6 +21037,11 @@
     {
       "from": "file:src/components/MaterialReader.tsx",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/MaterialRequest.css",
+      "to": "module.materials.material-clarification",
       "type": "implements"
     },
     {
@@ -23082,6 +23260,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
+      "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
       "from": "file:src/ui-kit/decisionScenarioFixtures.ts",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
@@ -23464,6 +23647,11 @@
     {
       "from": "file:storage/submission-storage.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/task-presentation-edit.mjs",
+      "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
     },
     {
@@ -24528,8 +24716,23 @@
     },
     {
       "from": "module.materials.material-clarification",
+      "to": "file:src/components/MaterialRequest.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.materials.material-clarification",
       "to": "file:src/lib/materialRequest.test.ts",
       "type": "verified-by"
+    },
+    {
+      "from": "module.materials.material-clarification",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.materials.material-clarification",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
     },
     {
       "from": "module.materials.materials",
@@ -25118,6 +25321,26 @@
     },
     {
       "from": "module.reviews.adaptive-problem-card",
+      "to": "file:storage/task-presentation-edit.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.adaptive-problem-card",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.adaptive-problem-card",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.adaptive-problem-card",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.adaptive-problem-card",
       "to": "module.reviews.problem-card-design-decisions",
       "type": "uses"
     },
@@ -25230,6 +25453,16 @@
       "from": "module.reviews.criteria-and-knowledge",
       "to": "file:sync/task-audit.test.mjs",
       "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "uses"
     },
     {
       "from": "module.reviews.criteria-and-knowledge",
@@ -28327,6 +28560,46 @@
       "type": "uses"
     },
     {
+      "from": "shared.design.task-presentation",
+      "to": "decision.task-presentation-contracts-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "file:packages/education-presentation/task-presentation.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.task-presentation",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "shared.design.telegram",
       "to": "decision.telegram-compact-digest-2026-10-18",
       "type": "contains"
@@ -28413,6 +28686,16 @@
     },
     {
       "from": "shared.design.ui-kit",
+      "to": "module.materials.material-clarification",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "module.reviews.adaptive-problem-card",
+      "type": "uses"
+    },
+    {
+      "from": "shared.design.ui-kit",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "uses"
     },
@@ -28490,6 +28773,11 @@
       "from": "shared.design",
       "to": "shared.design.statuses",
       "type": "uses"
+    },
+    {
+      "from": "shared.design",
+      "to": "shared.design.task-presentation",
+      "type": "contains"
     },
     {
       "from": "shared.design",
