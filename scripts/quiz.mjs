@@ -2,7 +2,8 @@
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
-import { randomBytes } from 'node:crypto'
+import { randomBytes,createHash } from 'node:crypto'
+import {isDeepStrictEqual} from 'node:util'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
@@ -19,6 +20,9 @@ import { canonicalShortKeyRepair, conceptShortOmissionRepair, correctionFingerpr
 import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { learningContext } from '../assessment/learning-context.mjs'
+import {assertManualQuizReview,assertQuestionRubric,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision,quizSkillId} from '../assessment/manual-review-contract.mjs'
+import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
+/** @see ../docs/modules/reviews/criteria-and-knowledge.md */
 
 const projectId = 'education-9d7c6'
 const site = 'https://rubaxa.github.io/education-quizzes/'
@@ -122,6 +126,7 @@ function validateSpec(spec, specPath) {
     if (typeof question.prompt !== 'string' || !question.prompt.trim()) fail(`Нет текста вопроса ${question.id}.`)
     if (!Number.isFinite(question.points) || question.points <= 0) fail(`Некорректные баллы вопроса ${question.id}.`)
     if (question.kind !== 'long' && question.answer?.correct === undefined) fail(`Нет ключа для вопроса ${question.id}.`)
+    if(question.kind==='long')assertQuestionRubric(question,question.answer)
     if (['single', 'multiple', 'figure'].includes(question.kind) && (!Array.isArray(question.options) || question.options.length < 2)) fail(`Нужно минимум два варианта в ${question.id}.`)
     const answer = question.answer
     if (!answer || typeof answer !== 'object' || Array.isArray(answer)) fail(`Нет разбора для вопроса ${question.id}.`)
@@ -244,6 +249,7 @@ async function create(specPath, studentPersonId) {
   const batch = db.batch()
   batch.create(db.doc(`assignments/${learnerToken}`), assignment)
   batch.create(db.doc(`answerKeys/${learnerToken}`), { entries })
+  batch.create(db.doc(`quizReviewPrivate/${learnerToken}`),{familyId:owner.familyId,childId:owner.childId,rubrics:Object.fromEntries(spec.questions.filter(q=>q.answer?.criteria).map(q=>[q.id,q.answer.criteria]))})
   batch.create(db.doc(`previews/${previewToken}`), {
     testId,
     title: spec.title,
@@ -390,7 +396,10 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
     const shapeErrors = assignmentShapeErrors({ ...assignmentDoc.data(), ...patch.assignment })
     if (shapeErrors.length) fail(`Ревизия нарушает модель назначения: ${shapeErrors.join(' ')}`)
     transaction.update(assignmentRef, patch.assignment)
-    if (!titleOnly && !topicsOnly) transaction.update(keyRef, patch.answerKey)
+    if (!titleOnly && !topicsOnly) {
+      transaction.update(keyRef, patch.answerKey)
+      transaction.set(db.doc(`quizReviewPrivate/${learnerToken}`),{familyId:owner.familyId,childId:owner.childId,rubrics:Object.fromEntries(spec.questions.filter(q=>q.answer?.criteria).map(q=>[q.id,q.answer.criteria]))},{merge:true})
+    }
     transaction.update(previewRef, patch.preview)
     indexRefs.forEach((ref) => transaction.update(ref, patch.index))
     readbackRefs = [assignmentRef, keyRef, previewRef, ...indexRefs]
@@ -531,15 +540,18 @@ async function bindFamily(sourcePath, taskId, studentPersonId) {
 
 async function exportAttempt(learnerToken, outputPath) {
   if (!learnerToken || !outputPath) fail('Использование: npm run quiz -- export TOKEN путь/к/файлу.json')
-  const [assignment, key, review] = await Promise.all([
+  const [assignment, key, review,privateReview] = await Promise.all([
     db.doc(`assignments/${learnerToken}`).get(),
     db.doc(`answerKeys/${learnerToken}`).get(),
     db.doc(`reviews/${learnerToken}`).get(),
+    db.doc(`quizReviewPrivate/${learnerToken}`).get(),
   ])
   if (!assignment.exists) fail('Тест не найден.')
   writeFileSync(resolve(outputPath), JSON.stringify({
+    attemptFingerprint:quizAttemptDigest(assignment.data(),privateQuizKey(key.data(),privateReview.data())),
+    priorReviewFingerprint:quizReviewDigest(privateReview.data()?.entries?privateReview.data():review.data()),
     assignment: assignment.data(),
-    answerKey: key.exists ? key.data() : null,
+    answerKey: key.exists ? privateQuizKey(key.data(),privateReview.data()) : null,
     review: review.exists ? review.data() : null,
   }, null, 2), { mode: 0o600 })
   console.log(`Результат сохранён в ${resolve(outputPath)}`)
@@ -587,11 +599,54 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOn
 async function reviewAttempt(learnerToken, reviewPath) {
   if (!learnerToken) fail('Укажите токен теста.')
   const review = loadJson(reviewPath)
-  if (!review.entries || typeof review.entries !== 'object') fail('В файле разбора нужны entries по id вопросов.')
-  const assignment = await db.doc(`assignments/${learnerToken}`).get()
-  if (!assignment.exists || assignment.data().status !== 'submitted') fail('Отправленная попытка не найдена.')
-  await db.doc(`reviews/${learnerToken}`).set({ ...review, updatedAt: Timestamp.now() })
-  console.log('Разбор опубликован. Он появится по ученической ссылке.')
+  const assignmentRef=db.doc(`assignments/${learnerToken}`),keyRef=db.doc(`answerKeys/${learnerToken}`),reviewRef=db.doc(`reviews/${learnerToken}`)
+  const privateRef=db.doc(`quizReviewPrivate/${learnerToken}`)
+  const [assignmentDoc,keyDoc,privateDoc]=await db.getAll(assignmentRef,keyRef,privateRef)
+  const assignment=assignmentDoc.data(),key=privateQuizKey(keyDoc.data(),privateDoc.data()),criteria=assertManualQuizReview(assignment,key,review)
+  for(const result of grade(assignment,key,publicManualReview(review))){
+    if(result.question.kind==='long'||result.skipped||result.points===null)continue
+    const label=result.question.topic??assignment.subject
+    const skillId=quizSkillId(assignment.subject,label)
+    criteria.push({id:result.question.id,skillId,skillLabel:label,finding:{result:result.points===result.question.points?'confirmed':result.points===0?'not-met':'partial',score:result.points,maxPoints:result.question.points,observation:result.explanation??'Автоматическая сверка по сохранённому ключу',uploadId:`answer:${result.question.id}`,location:`question:${result.question.id}`}})
+  }
+  const observation=learningObservation({owner:assignment,taskId:assignment.testId,attemptRef:assignmentRef.path,sourceRevision:review.attemptFingerprint,criteria,outcome:'quiz-reviewed',helpLevel:'unknown',correctionReason:review.correctionReason??null})
+  const now=Timestamp.now(),knowledge=await prepareLearningWrites(db,[observation],now)
+  const safe=publicManualReview(review)
+  await db.runTransaction(async tx=>{
+    const [a,k,prior,publicPrior]=await Promise.all([tx.get(assignmentRef),tx.get(keyRef),tx.get(privateRef),tx.get(reviewRef)])
+    if(quizAttemptDigest(a.data(),privateQuizKey(k.data(),prior.data()))!==review.attemptFingerprint)fail('Попытка изменилась перед записью.')
+    const revision=assertQuizReviewRevision(prior.data()?.entries?prior.data():publicPrior.data(),review)
+    if(revision==='unchanged')return
+    const history=db.doc(`${privateRef.path}/history/${createHash('sha256').update(JSON.stringify(review)).digest('hex')}`),old=await tx.get(history)
+    if(!old.exists)tx.create(history,{...review,previous:prior.data()?.entries?prior.data():publicPrior.data()??null,observationId:observation.id,updatedAt:now})
+    knowledge.stage(tx)
+    tx.set(privateRef,{attemptFingerprint:review.attemptFingerprint,entries:review.entries,observationId:observation.id,previousObservationId:prior.data()?.observationId??null,updatedAt:now},{merge:true})
+    tx.set(reviewRef,{...safe,updatedAt:now})
+  })
+  const [saved,expert]=await db.getAll(reviewRef,privateRef)
+  if(!isDeepStrictEqual(saved.data()?.entries,safe.entries)||!isDeepStrictEqual(expert.data()?.entries,review.entries))fail('Проверка теста не подтверждена readback.')
+  const receipt=await knowledge.verify()
+  console.log(JSON.stringify({published:true,verified:true,knowledge:receipt}))
+}
+
+async function registerRubric(learnerToken,path){
+ const packet=loadJson(path),assignmentRef=db.doc(`assignments/${learnerToken}`),keyRef=db.doc(`answerKeys/${learnerToken}`),privateRef=db.doc(`quizReviewPrivate/${learnerToken}`)
+ const fingerprint=await db.runTransaction(async tx=>{
+  const [a,k,p]=await Promise.all([tx.get(assignmentRef),tx.get(keyRef),tx.get(privateRef)])
+  if(!a.exists||!k.exists||!a.data().familyId||!a.data().childId||quizAttemptDigest(a.data(),privateQuizKey(k.data(),p.data()))!==packet.attemptFingerprint)fail('Рубрика требует свежую попытку с семейной привязкой.')
+  const questions=a.data().questions.filter(q=>q.kind==='long'),rubrics=packet.entries??{}
+  if(Object.keys(rubrics).length!==questions.length||questions.some(q=>!rubrics[q.id]))fail('Нужны рубрики всех открытых вопросов без посторонних ID.')
+  const entries=Object.fromEntries(Object.entries(k.data().entries).map(([id,value])=>[id,publishedAnswer(value)]))
+  for(const q of questions)assertQuestionRubric(q,{criteria:rubrics[q.id]})
+  const history=db.doc(`quizReviewPrivate/${learnerToken}/rubricHistory/${packet.attemptFingerprint}`),old=await tx.get(history)
+  if(!old.exists)tx.create(history,{priorKey:k.data(),reason:packet.reason??'Полная рубрика перед ручной проверкой',at:Timestamp.now()})
+  tx.update(keyRef,{entries})
+  tx.set(privateRef,{familyId:a.data().familyId,childId:a.data().childId,rubrics},{merge:true})
+  return quizAttemptDigest(a.data(),privateQuizKey({...k.data(),entries},{rubrics}))
+ })
+ const [a,k,p]=await db.getAll(assignmentRef,keyRef,privateRef)
+ if(quizAttemptDigest(a.data(),privateQuizKey(k.data(),p.data()))!==fingerprint)fail('Рубрика не подтверждена readback.')
+ console.log(JSON.stringify({published:true,verified:true,attemptFingerprint:fingerprint}))
 }
 
 try {
@@ -609,6 +664,7 @@ try {
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
+  else if (command === 'rubric') await registerRubric(first,second)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
   else if (command === 'accept-concept-omission') await repairCanonicalShortAnswers(first, second, false, third === '--apply' ? undefined : third, true)
   else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true, third === '--apply' ? undefined : third)

@@ -9,7 +9,8 @@ export function sameReviewAssignmentAfterUpdate(page, correction, currentTask) {
     || correction.familySourceId && correction.familySourceId === currentTask?.familyOrigin?.sourceId
       && correction.assignmentText?.trim() && correction.assignmentText === currentTask.detail)
 }
-export function reviewCorrectionStatusAllowed(previous, next) {
+export function reviewCorrectionStatusAllowed(previous, next, {criteriaFingerprint}={}) {
+  if(previous==='verified'&&next!=='verified')return /^[a-f0-9]{64}$/.test(criteriaFingerprint??'')&&['partial','needs-fix','cannot-assess'].includes(next)
   return previous === next || ['partial:verified', 'partial:cannot-assess', 'needs-fix:cannot-assess',
     'cannot-assess:verified', 'needs-fix:partial'].includes(`${previous}:${next}`)
 }
@@ -31,7 +32,7 @@ export function assertReviewReadback({ entries, planRevision, privateDocs, publi
     }
     for (const key of ['uploadIds', 'sourceAnalysis', 'summary', 'nextStep', 'source', 'items',
       'checkableStageIds', 'requirementChecks', 'mathReasoning', 'studentFeedback', 'assessmentBasis',
-      'challengeReview', 'tutoringPlan']) {
+      'challengeReview', 'tutoringPlan','criteriaFingerprint','criteriaChecks']) {
       if (Object.hasOwn(entry, key) && !isDeepStrictEqual(expert[key], entry[key])) {
         throw new Error(`Review content differs for ${entry.taskId}: ${key}.`)
       }

@@ -63,6 +63,13 @@ describe('stable written-language card contract', () => {
 })
 
 describe('numbered mathematics parent route gate', () => {
+  it('covers the non-consecutive teacher numbers 1,2,4,6,7 without a version opt-in',()=>{
+    const links=[{sourceType:'teacher-attachment',sourceRef:'teacher:sheet',sourceSha256:'a'.repeat(64)}]
+    const task={kind:'written',outputKind:'worked-solution',instructionStatus:{state:'reviewed'},sourceInventory:{resultMode:'written',sources:[{sourceRef:'teacher:sheet',sourceSha256:'a'.repeat(64),evidenceRef:'full-original-read',groups:[{numbers:[1,2,4,6,7]}]}]},problems:[1,2,4,6,7].map(number=>({number}))}
+    expect(sourceInventoryErrors(task,links)).toEqual([])
+    expect(sourceInventoryErrors({...task,problems:task.problems.slice(0,-1)},links)).not.toEqual([])
+    expect(sourceInventoryErrors({...task,problems:[1,2,3,4,5].map(number=>({number}))},links)).not.toEqual([])
+  })
   it('checks every source variant and printed number against a separately inspected original', () => {
     const ref = 'mesh-attachment:sheet#1'
     const sha = 'a'.repeat(64)
@@ -81,7 +88,8 @@ describe('numbered mathematics parent route gate', () => {
     expect(sourceInventoryErrors({ ...task, kind: 'written' }, links)).toEqual(expect.arrayContaining([expect.stringMatching(/Вид работы/)]))
     expect(sourceInventoryErrors(task, [{ ...links[0], sourceSha256: 'b'.repeat(64) }])).toEqual(expect.arrayContaining([expect.stringMatching(/оригинала/)]))
     expect(sourceInventoryErrors({ ...task, sourceInventory: undefined }, links)).not.toEqual([])
-    expect(sourceInventoryErrors({ ...task, mathRoutePolicyVersion: 1, sourceInventory: undefined }, links)).toEqual([])
+    expect(sourceInventoryErrors({ ...task, mathRoutePolicyVersion: 1, sourceInventory: undefined }, links)).not.toEqual([])
+    expect(sourceInventoryErrors({ ...task, mathRoutePolicyVersion: undefined, problems: task.problems.slice(0,-1) }, links)).not.toEqual([])
     expect(sourceInventoryErrors({ ...task, meshText: 'Решать задания из файла' }, [])).toEqual(expect.arrayContaining([expect.stringMatching(/файл учителя/)]))
     expect(sourceInventoryErrors(task, [...links, { sourceType: 'teacher-attachment', sourceRef: 'mesh-attachment:second#1', sourceSha256: 'b'.repeat(64) }]))
       .toEqual(expect.arrayContaining([expect.stringMatching(/каждого файла/)]))

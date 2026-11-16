@@ -1,6 +1,7 @@
 /** Private derived links between existing graphs; never a new source of learner facts.
  * @see ../docs/modules/synchronization/subject-decision-graph.md#trace */
 const products = {
+  'independent-action-products':['scripts/day.mjs','src/DayPage.tsx'],
   'source-covered-quiz': ['scripts/quiz.mjs', 'src/components/QuizCard.tsx'],
   'current-repetition-quiz-covering-this-part': ['scripts/quiz.mjs', 'src/components/QuizCard.tsx'],
   'skill-covered-independent-diagnostic': ['scripts/quiz.mjs', 'src/components/QuizCard.tsx'],
@@ -30,6 +31,7 @@ export function decisionEvidence(plan, inputs = {}, event = null) {
   for (const [i] of (inputs.context?.taskPageRefs ?? []).entries()) add('edition-page', `inputs.context.taskPageRefs[${i}]`)
   for (const kind of ['previousReview', 'parentGuide', 'releasedGuidance', 'answerKey']) if (inputs[kind]) add(kind, `inputs.${kind}`, inputs[kind].revision)
   if (inputs.source) add('event-source', 'inputs.source', inputs.source.revision)
+  for(const [i,evidence] of (inputs.learnerEvidence??[]).entries())if(evidence.observation?.id)add('learner-evidence',`inputs.learnerEvidence[${i}]`,evidence.observation.sourceRevision,evidence.skillId)
   for (const [i, ref] of (context.parentRefs ?? []).entries()) if (typeof ref === 'string' && ref.trim()) add('parent-context', `inputs.decisionContext.parentRefs[${i}]`)
   for (const [i, fact] of (context.learnerFacts ?? []).entries()) {
     // A named skill alone is not evidence. Supplied facts must name their scope and source.

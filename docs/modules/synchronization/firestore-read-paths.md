@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-31
+updated: 2026-11-16
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -23,6 +23,25 @@ sections:
   - аудиобиблиотека--22-октября
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
+
+16.11, критерии/знания: `submissions criteria-export/criteria` адресно читает
+dayOwners/dayPages и criteriaContract/current одного заданного дня/задания; регистрация
+сверяет их в транзакции. `submissions review/feedback` читает отдельные описи всех
+проверяемых entry, а не только cardPattern; повторные transaction reads защищают
+владельца, страницу, фото, опись и прежний результат от гонки. Нет global scan.
+`quiz export/rubric/review` дополнительно читает один закрытый quizReviewPrivate и
+текущий reviews по тому же токену; transaction CAS включает прежний разбор и рубрику.
+Новый разбор адресно перечитывает public/private результаты и собственные evidence.
+
+`prepareLearningWrites` читает только вычисленные learningEvidence IDs и затронутые
+skills одного подтверждённого владельца. Детерминированная запись, create для истории
+и updateTime precondition для указателя исключают потерю параллельной записи.
+`captureEventTaskInputs` читает criteriaContract/current, затем только skills из
+этой описи (для теста — из закрытой рубрики/явной темы вопроса) и документы их
+lastEvidenceId; дубли ID объединяются. Это ограниченный срез по адресным ссылкам,
+без listeners, нового расписания, collectionGroup или чтения всей модели ребёнка.
+`help-response` перечитывает один созданный learningEvidence по квитанции и не
+объявляет микроответ зачётом всей работы. UI Kit не делает этих семейных чтений.
 
 07.11: photo-transfer inspect/resume читает только точные dayOwners/dayPages,
 dayUploads/files, deviceSessions/accessLinks/member для одной заявки; Disk HEAD

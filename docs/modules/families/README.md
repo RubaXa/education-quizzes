@@ -3,7 +3,7 @@ id: module.families
 status: accepted
 implementation: partial
 created: 2026-10-08
-updated: 2026-10-20
+updated: 2026-11-16
 consumers:
   - "parent"
   - "student"
@@ -107,7 +107,7 @@ Firestore хранит учебные факты, состояние работ�
 | `families/{familyId}/children/{childId}/submissions/{submissionId}` | Фото/ответ, статус проверки, связь с задачей | пока сервер; запись из браузера откроется после безопасной загрузки на Диск |
 | `dayOwners/{studentToken}` | Закрытая переходная карта прежней страницы дня на `familyId` и `childId` для очереди разбора | агент через Admin SDK |
 | `families/{familyId}/children/{childId}/grades/{gradeId}` | Оценка, вес, предмет, дата, исходный идентификатор МЭШ | синхронизатор |
-| `families/{familyId}/children/{childId}/skills/{skillId}` | Целевая модель: подтверждённые свидетельства, прежние ошибки, помощь, давность проверки и текущая гипотеза освоения | агент после проверки; путь ещё не включён в текущий UI |
+| `families/{familyId}/children/{childId}/skills/{skillId}` | Последнее адресное свидетельство, наблюдаемый результат и помощь; прежняя гипотеза освоения сохраняется | Серверный publisher после проверки; следующий закрытый пакет получает ограниченный срез. Полного клиентского экрана траектории нет |
 | `families/{familyId}/children/{childId}/taskPresentations/{taskId}` | Целевая модель: персональный ориентир и выбор известных компонентов с ревизией источника и ссылками на свидетельства | агент после сверки; путь ещё не включён в текущий UI |
 | `families/{familyId}/ui/{viewId}` | Версионированная композиция экрана для роли | сервер |
 | `families/{familyId}/activity/{eventId}` | Действие участника; только добавление | клиент или сервер |

@@ -3,7 +3,7 @@ id: shared.data.firestore
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-19
+updated: 2026-11-16
 consumers:
   - "Firestore publisher"
   - "web-app data readers"
@@ -89,6 +89,25 @@ sections:
 
 <a id="v1"></a>
 ## Поля действующих документов
+
+Опись критериев: закрытый документ
+`dayTaskGuides/{studentToken}/items/{taskId}/criteriaContract/current` с
+criteriaContract и вложенной историей по fingerprint. Он переживает перепубликацию
+обычного guide; родительский документ можно заменить, но опись переоценивается по
+актуальному assignmentDigest/материалу/ревизии перед новым вердиктом.
+
+`quizReviewPrivate/{token}` содержит закрытые rubrics и последний полный ручной
+разбор; history и rubricHistory сохраняют версии. Link-readable answerKeys не
+содержат новых rubrics/criteria. `reviews/{token}` получает безопасный allowlist.
+
+`families/{familyId}/children/{childId}/learningEvidence/{id}` — неизменяемое
+серверное наблюдение владельца/попытки/критериев/баллов/помощи. Детерминированный ID
+различает результаты1/3и2/3 и не дублирует повтор. `skills/{skillId}` хранит адрес
+последнего свидетельства и его наблюдаемый результат; не перезаписывает прежний
+mastery/status и не выводит освоение из одного зачёта. Полная история остаётся в
+learningEvidence, а не в ограниченном массиве последних ссылок. Запись результата
+и свидетельств атомарна; адресный readback обязателен. Новые пути закрыты клиенту
+действующим default-deny; сервер перед записью подтверждает семейного владельца.
 
 `dayDashboards.schoolCalendar` — необязательная компактная проекция персонального МЭШ-календаря: schemaVersion/source, диапазон покрытия, checkedAt/revision и интервалы `{from,to,title}`. Никаких raw ответов/МЭШ ID. Сохраняется в обоих принадлежащих ребёнку ролевых dashboard через проверенную транзакцию; неизменный повтор не переписывает документы. Старый/некорректный cache не даёт придумывать даты. Новые коллекции, Rules и подписки не нужны. [Полный контракт](../../modules/school-diary/school-calendar.md).
 

@@ -34,6 +34,7 @@ it('keeps an exact family assignment fence across a context-only page update',()
  expect(sameReviewAssignmentAfterUpdate(p,c,{...t,familyOrigin:{sourceId:'other'}})).toBe(false)
  expect(reviewCorrectionStatusAllowed('needs-fix','partial')).toBe(true)
  expect(reviewCorrectionStatusAllowed('verified','needs-fix')).toBe(false)
+ expect(reviewCorrectionStatusAllowed('verified','partial',{criteriaFingerprint:'a'.repeat(64)})).toBe(true)
 })
 
 

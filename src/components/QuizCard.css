@@ -3,6 +3,7 @@
 .day-quiz-lineage{min-width:0;border:1px solid var(--edu-card-border);border-radius:18px;overflow:hidden;background:var(--edu-surface);color:var(--edu-ink)}
 .day-quiz-lineage-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;padding:10px 14px;background:var(--edu-status-accent-bg)}
 .day-quiz-lineage-head>strong{width:100%;font-size:.84rem;line-height:1.3}
+.day-quiz-lineage-head.embedded{background:transparent;padding-top:0;padding-bottom:0;justify-content:flex-end}
 .day-quiz-lineage-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;min-width:0}
 .day-quiz-score-time{display:inline-flex;align-items:center;gap:2px;min-width:0}
 .day-quiz-lineage-score{min-width:0;white-space:normal;flex-wrap:wrap;overflow-wrap:anywhere}

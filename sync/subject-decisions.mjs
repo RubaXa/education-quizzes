@@ -4,7 +4,10 @@ import { lessonSubjectKey } from '../day/subject-identity.mjs'
 import { programmingAssignment, isControlAssignment, quizDecision } from '../assessment/decision-graph.mjs'
 import { previousLessonReference } from '../assessment/lesson-repetition.mjs'
 import { classifyMeshNotice } from '../day/mesh-notice.mjs'
-const rule = (id, when, product, checks) => ({ id, when, product, checks, executor: 'agent-with-publisher-validation' })
+const rule = (id, when, product, checks) => ({ id, when, product, checks, executor: 'agent-with-publisher-validation',
+ nodeId:`subject:${id}`,edgeIds:[`choose:${id}`,`prepare:${id}`],uiScenarioId:id,
+ specRef:'docs/modules/synchronization/subject-decision-graph.md#subjects',
+ decisionRef:'docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md' })
 const quiz = 'source-covered-quiz', written = 'source-linked-written-guide'
 export const subjectDecisionProfiles = {
  math: { title:'Математика', rules:[
@@ -50,6 +53,17 @@ export const subjectDecisionProfiles = {
   rule('generic.written','Подтверждённое письменное/практическое действие',written,['Точное условие и применимый критерий','Не придумывать эталон, жанр или обязательный формат']),
   rule('generic.oral','Подтверждённое чтение, устное, повторение',quiz,['Точный материал и проверяемое содержание','Практический навык отдельно от процента теста'])] },
 }
+for(const [subject,profile] of Object.entries(subjectDecisionProfiles))profile.rules.push(
+ rule(`${subject}.control`,'Контрольная или подготовка к ней','skill-covered-independent-diagnostic',['Полная структура назначенного образца','Самостоятельная попытка и проверка открытых ответов']),
+ rule(`${subject}.source-classification`,'Разобрать назначенный файл','verified-material-purpose',['Полный источник, назначение и все номера','Источник не считается выполненной работой'])
+)
+subjectDecisionProfiles.common={title:'Общие действия',rules:[
+ rule('common.information','Нет учебного действия','information-without-homework',['Точная информационная запись без назначенного материала']),
+ rule('common.platform','Результат внешней платформы','external-platform-evidence',['Собственное подтверждение выполнения платформы']),
+ rule('common.organization','Взять или сдать тетрадь','dated-organisational-action',['Отдельная дата и подтверждение физического действия']),
+ rule('common.mixed','Письменное и устное вместе','independent-action-products',['Разные продукты и источники частей','Сохранить существующий тест и прежние зачёты']),
+ rule('common.repetition','Повторение предыдущего урока','current-repetition-quiz-covering-this-part',['История всех назначенных частей','Не требовать повторной сдачи прежней письменной работы'])
+]}
 export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}) {
  const key = programmingAssignment(task) ? 'informatics' : subject === 'practicum' ? 'special'
   : subjectDecisionProfiles[subject] ? subject : lessonSubjectKey(subject) ?? 'generic'
@@ -64,7 +78,7 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
  const oral = Boolean(repetitionParts) || task.kind === 'read' || ['oral','reading'].includes(task.outputKind) || /повторить|устно|выучить|читать|прочитать|пересказ|слов[ао]рн.*диктант|прослушать|аудирован/iu.test(text)
   || !isControlAssignment(task) && quizDecision(task)?.job === 'prepare-quiz'
  const actions=[]
- const add = (action,ruleId) => {const r=profile.rules.find(x=>x.id===ruleId) ?? profile.rules[0]; actions.push({action,ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor})}
+ const add = (action,ruleId) => {const r=profile.rules.find(x=>x.id===ruleId) ?? profile.rules[0]; actions.push({action,ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor,nodeId:r.nodeId,edgeIds:r.edgeIds,specRef:r.specRef,decisionRef:r.decisionRef,uiScenarioId:r.uiScenarioId})}
  if (informational) actions.push({action:'information',ruleId:'common.information',product:'information-without-homework',checks:['Нет учебного действия и назначенного файла'],executor:'code-classification'})
  else if (task.kind === 'cdz' || task.outputKind === 'platform-result') actions.push({action:'platform',ruleId:'common.platform',product:'external-platform-evidence',checks:['Собственный факт выполнения платформы, не тест Education'],executor:'agent-with-publisher-validation'})
  else {
@@ -94,7 +108,15 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
    if (match) actions.push({...match,partId:part.id,product:'current-repetition-quiz-covering-this-part',sourceState:part.materialState==='ready'?'confirmed-part':'missing-part',sourceRef:part.materialRef})
   }
  }
+ if(Array.isArray(task.decisionRuleIds)&&task.decisionRuleIds.length){
+  const explicit=task.decisionRuleIds.map(id=>[...profile.rules,...subjectDecisionProfiles.common.rules].find(r=>r.id===id))
+  if(explicit.some(r=>!r)||new Set(task.decisionRuleIds).size!==explicit.length)throw Error('У задания неизвестная или чужая предметная ветвь.')
+  actions.length=0
+  for(const r of explicit)actions.push({action:r.product.includes('quiz')?'oral':'written',ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor,nodeId:r.nodeId,edgeIds:r.edgeIds,specRef:r.specRef,decisionRef:r.decisionRef,uiScenarioId:r.uiScenarioId})
+ }
  for (const action of actions) {
+  const meta=Object.values(subjectDecisionProfiles).flatMap(p=>p.rules).find(r=>r.id===action.ruleId)
+  if(meta)Object.assign(action,{nodeId:meta.nodeId,edgeIds:meta.edgeIds,specRef:meta.specRef,decisionRef:meta.decisionRef,uiScenarioId:meta.uiScenarioId})
   const proof=context.partSources?.[action.partId ?? action.ruleId]
   action.sourceState ??= proof?.confirmed===true && typeof proof.ref==='string' && proof.ref.trim() ? 'confirmed-part' : actions.length>1 ? 'requires-source-for-this-part' : 'requires-content-verification'
   if (task.testToken && /quiz|assessment|dictation|diagnostic/u.test(action.product)) action.existingProductRef = task.testToken

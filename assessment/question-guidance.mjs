@@ -47,7 +47,7 @@ export function questionGuidanceErrors(questions) {
 
 /** Author evidence is local-only: legacy keys are readable after submission. */
 export function publishedAnswer(answer = {}) {
-  const { sourceEvidence: _sourceEvidence, ...entry } = answer
+  const { sourceEvidence: _sourceEvidence, criteria:_criteria, ...entry } = answer
   return entry
 }
 

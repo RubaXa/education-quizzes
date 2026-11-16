@@ -45,7 +45,7 @@
 .edu-kit-token-preview{width:20px;height:20px;border-radius:5px;flex:none}
 .edu-kit-assignment{border:1px solid var(--edu-card-border);padding:10px 12px;border-radius:14px;margin-top:12px;font-size:.85rem}
 .edu-kit-assignment p{margin:4px 0 0}
-@media(max-width:700px){.edu-kit-layout{grid-template-columns:minmax(0,1fr);gap:18px}.edu-kit nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.edu-kit nav button{height:100%;font-size:.76rem;align-items:flex-start}.edu-kit nav button>svg{display:none}.edu-kit-nav-group{display:flex;flex-direction:column}.edu-kit-content{padding:16px}.edu-kit-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.edu-kit-controls>label:first-child{grid-column:1/-1}.edu-kit-roles{grid-template-columns:1fr}}
+@media(max-width:700px){.edu-kit-layout{grid-template-columns:minmax(0,1fr);gap:18px}.edu-kit nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.edu-kit nav button{height:auto;flex:0 0 auto;font-size:.76rem;align-items:flex-start}.edu-kit nav button>svg{display:none}.edu-kit-nav-group{display:flex;flex-direction:column}.edu-kit-content{padding:16px}.edu-kit-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.edu-kit-controls>label:first-child{grid-column:1/-1}.edu-kit-roles{grid-template-columns:1fr}}
 
 /* @see ../docs/shared/design/ui-kit.md#иконки-файлов */
 .edu-kit-file-families{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}

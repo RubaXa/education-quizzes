@@ -178,18 +178,23 @@
       }
     },
     "assessment/question-guidance.mjs": {
-      "sha256": "7cd6aba2b53aff109a867ac3b695b0a86b70cacf7b73ed7906ead89515ea9e6a",
-      "record": "docs/decisions/program-explanation-2026-11-01.md",
+      "sha256": "9de066ee6a377a2d792c268c821e0fff93f175dbadb2c32a0a209882fd3caded",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал объяснять выполнение программы по шагам, убрать пустой input и показать причину отличия ответа."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "assessment/quiz-lineage.mjs": {
@@ -271,17 +276,23 @@
       }
     },
     "day/card-policy.mjs": {
-      "sha256": "a5ebe3ed5eab4503d2412134e3bf3840fb65d6cd0d1fd9b6c97741dff51fe11b",
-      "record": "docs/decisions/teacher-choice-practice-2026-10-17.md",
+      "sha256": "99d25086be93234a7dc80de0c584fae0e75a77bfe53d88fe58dffc6fc80d24a3",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/card-policy.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель прямо требует обязательность только по МЭШ/учителю и опциональность дополнительных пунктов;полный sync17.10 получил лист с прямым выбором «Реши сколько получится». Существующий тумблер и единый подсчёт сохранены."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "day/dashboard-index.mjs": {
@@ -1978,20 +1989,23 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "ff57fe3dba428120e63b48a1ba1124677438de7bb27ceeb683f946977527fc1b",
-      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "sha256": "0e99048d8d8d290831b7891ddba30e9fec466530a36c05727ee57ed87d571e8c",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/assignments/README.md",
-        "docs/modules/notifications/inbox.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "day/learning-gate.test.mjs",
-        "diary/application/school-alerts.test.mjs",
-        "diary/application/sync.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2301,17 +2315,23 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "226eca9f5798b435e76101422ba65eed57a324a150e360f72b645a816d00d25a",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "sha256": "317f3fd54e66ee9bcd2f19b089c4055f157cf0d127f4d55a4931213df049c9fe",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "assessment/canonical-short-key.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Текущий полный EducationSync разрешает стандартную проверку и публикацию; навык требует сначала отделить описку от содержательной ошибки и добавить узкую штатную операцию с тестом, если её нет."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "scripts/release-note.mjs": {
@@ -2381,17 +2401,23 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "24bcff5a2517c34ea604b9473251009f027877e4430f6bc4e740c5df1e8dd447",
-      "record": "docs/decisions/known-part-review-2026-11-09.md",
+      "sha256": "ab6cd74f0b03576791a4e5e04bbcef10cbb632f3e36a1491e5e337961c2be6d1",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь: всё доступное обработать и закрыть, только действительно недостающее запросить; уже присланное повторно не просить."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2646,50 +2672,63 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "ff02e89778cfc8df63027e5cffcb18bd8dd4f8eb5ea12888af97de69448a6abb",
-      "record": "docs/decisions/linked-quiz-parent-guide-2026-11-01.md",
+      "sha256": "dd1260e40688590061d8eed155eacce9adebf8f7c7159d7c80b44420dff7f310",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель требует проверить автоматический путь до реально видимого полного родительского разбора и исправлять обнаруженные проблемы."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/UiKit.css": {
-      "sha256": "b24deb2fe4170fbc41c41e2eaf13eb2d6a9af27ca00350a295d59d7354c4a823",
-      "record": "docs/decisions/image-preview-first-2026-10-31.md",
+      "sha256": "53aa1496fc1d3a5f2514f1ca783f4fc4fd0312909717ae0afb4a2359d6b3a028",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/media-storage.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/UiKit.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое уточнение31.10.2026: изображения показывать превью без иконок; иконки использовать для файлов,содержимое которых нельзя отрендерить;правило едино с UI Kit."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "a8e4fb4c97424d2a27226f32b668eba6d2500001af6249f82c0b8c3fe1f043a0",
-      "record": "docs/decisions/birthday-theme-2026-11-14.md",
+      "sha256": "d5b05af748931ed86ae1b43299314276fe83de564e4ad72e31d67ca6392739e3",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/families/README.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/BirthdayTheme.test.tsx",
-        "scripts/lib/child-birthday.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3390,24 +3429,23 @@
       }
     },
     "src/components/ProblemCard.tsx": {
-      "sha256": "c583cb82381af906b1749e3b5ce1d9a2594230dba52b89532478a33b11fd581a",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
+      "sha256": "496c8d74e0482363df1e27af32bb1b29fb4c3d05cd074146184ed6a75c0f31fb",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/components/ProblemGroup.css": {
@@ -3489,21 +3527,23 @@
       }
     },
     "src/components/ProblemTaskCard.tsx": {
-      "sha256": "94194e8bd27aa342afefa1b3d4f029f626ee65f9df65280e883e1ec1bcefdf23",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "349ba7ae03ec62dd7376389ec9419029abd5e7c8c01dd237b249e9bb655db57f",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/components/QuizAttemptReview.tsx": {
@@ -3530,35 +3570,43 @@
       }
     },
     "src/components/QuizCard.css": {
-      "sha256": "6ce148eb2eab764c1ce1fa89a72c5231a68a80dcc7cdb95409a28ba205223db9",
-      "record": "docs/decisions/olympiad-quiz-theory-2026-10-28.md",
+      "sha256": "468da8985e26c20f572067de9df1cf0282291b79a0df1dd11fd4f8802046e67f",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
+        "docs/modules/reviews/criteria-and-knowledge.md",
         "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizCard.test.tsx",
-        "src/lib/olympiadPracticeTheory.test.ts",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель попросил убрать повторяющиеся подписи и показать тему и объяснение перед олимпиадным тестом."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "f711fbfed6a2bc6344f24414c529f362f0b974e0086f4e5a91979d3cd98017f3",
-      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "sha256": "ebf5cab0ba9e815a415fb85c85e7d00d947ac5e97f0f3fb2eea45e31e9211fd3",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/QuizQuestionCard.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/components/QuizResultCard.tsx": {
@@ -4159,20 +4207,23 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "053fccc7bc656c6eca57334c66cea9a95a185a6d01e41af91c5b88c0c4d0e997",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "ece3e80c12d3a4bf678d720e4ecf8fdb12f7a338808085082567960cf13c4354",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
-        "day/placement-integrity.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5222,17 +5273,23 @@
       }
     },
     "storage/review-readback.mjs": {
-      "sha256": "ec2e84460e5bc12c0cae86040202db3c1d6eac1974b10a7b68bc1c60064d62fb",
-      "record": "docs/decisions/personal-tutoring-2026-10-30.md",
+      "sha256": "108f02982e51a7ead853db51144e5572b08054afdaad2cf79a2904bc24de5dd6",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "storage/review-readback.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Адресное обновление объяснения сохраняет прежнюю попытку при изменении общей ревизии страницы только после подтверждения точного прежнего семейного условия."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "storage/review-requirements.mjs": {
@@ -5356,21 +5413,23 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "08f6a9260ba8553844f6f37a0835de8dad3d3f20130968bd2d3ddab97ea5c39e",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "a3ea071214acaab75df9a409ae59a6c59511059b8af37f6cbfc3371563e83c38",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6547,21 +6606,23 @@
       }
     },
     "sync/help-response.mjs": {
-      "sha256": "78b19861343494d2383577fab9a33c14ddb6277cbcd791c2885f8dc3622110eb",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "e228c52441c30d95b26deed5ee9a25e40c822a35b0dedf79f2196cee2aba5252",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/components/SharedTabs.tsx": {
@@ -7740,20 +7801,23 @@
       }
     },
     "src/components/TaskDisclosure.tsx": {
-      "sha256": "7cb17f9ce8fd3dfec1e6a8d92e292cc4abb3e7aec3949209e6416cbb4581d0a7",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "8f9b18310ee402bf008f1a327ec0c5e181054fd451c3e5ef67b2b95d9240cb3d",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "src/ui-kit/TaskDisclosureExample.tsx": {
@@ -8154,39 +8218,203 @@
       }
     },
     "sync/subject-decisions.mjs": {
-      "sha256": "25fc6489e1462193c2d79da27fe567c9c0b4cdc62a08f612d8ed1bdf015da042",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "02d608228d5518260f90c5ab6dde9f1410378dfad993996d9d7c40a39283fd53",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     },
     "sync/decision-evidence.mjs": {
-      "sha256": "914056e89a45ef7311f8f43d8746f26ec98f3135c2b118ccdf23e477253dd39b",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "55008906795a1e98b627eaf42aacb8701ac329a37f145682f622d291eee691e2",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "assessment/manual-review-contract.mjs": {
+      "sha256": "f5f7c49fa0a24b4f777dc30f6e50c61ad634374811ee4d8d86ed86c0ff213b21",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "day/decision-registry.mjs": {
+      "sha256": "c4e58b364245d45d6e2bf26fcb0199d4448a6275d6ceeefacffd476ff65e39a8",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "src/components/DecisionTaskDisclosure.tsx": {
+      "sha256": "7a9963c40c2a2176419219b49353514fe4ba5137fcdd72e0da3ef5b65f96ac2b",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "src/ui-kit/DecisionScenarioCatalog.css": {
+      "sha256": "21fac3ab6fcb4f49096d4592702a843c9192756a478ef1f840211a68ade5a01e",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "src/ui-kit/DecisionScenarioCatalog.tsx": {
+      "sha256": "0fad35b270771bd99061f2993fd5ff68742bc42f052c7aa1e9fdddcfdb7e652b",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "src/ui-kit/decisionScenarioFixtures.ts": {
+      "sha256": "10b221e714b53df761259281881ca4c14be63b1c7b49f5a98c0028f5939dac11",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "storage/criteria-contract.mjs": {
+      "sha256": "fec6aa675f60e4e05d1ae753a503defac4fc9d93bc74d9d6b88e3842690b0b26",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "sync/learning-observations.mjs": {
+      "sha256": "f5fbffa64d3fe55fefbcae41c8df6b744853f7dbe1a409f11229cbc20817f8c5",
+      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md",
+        "docs/shared/design/ui-kit.md"
+      ],
+      "tests": [
+        "storage/criteria-contract.test.mjs",
+        "sync/learning-observations.test.mjs",
+        "assessment/manual-review-contract.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "day/decision-registry.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
       }
     }
   }

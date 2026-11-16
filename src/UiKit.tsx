@@ -3,6 +3,7 @@ import { BirthdayGreeting } from './components/BirthdayTheme'
 /** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 import QuizRunnerExample from './ui-kit/QuizRunnerExample'
 import TaskDisclosureExample from './ui-kit/TaskDisclosureExample'
+import DecisionScenarioCatalog from './ui-kit/DecisionScenarioCatalog'
 import TaskAttachmentsExample from './ui-kit/TaskAttachmentsExample'
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { workFileTypes, workFilePresentation, workFileContentType } from '../storage/work-file-types.mjs'
@@ -113,6 +114,7 @@ const topicGroups = [
     {id:'files',title:'Файлы и превью',icon:Paperclip},
   ]},
   {id:'scenarios',title:'Составные сценарии',topics:[
+    {id:'decision-cards',title:'Предметные карточки и граф',icon:BookOpen},
     {id:'calendar',title:'Календарь и каникулы',icon:BookOpen},
     {id:'homework',title:'Сводка ДЗ',icon:BookOpen},
     {id:'tasks',title:'Карточки заданий',icon:BookOpen},
@@ -165,7 +167,7 @@ function tokenMeaning(name: string) {
 /** Small living documentation page. Examples import the shipped components and never access family data.
  * @see ../docs/shared/design/ui-kit.md */
 export default function UiKit() {
-  const [section,setSection] = useState<UiKitSection>('results')
+  const [section,setSection] = useState<UiKitSection>(window.location.hash.includes('decision=')?'decision-cards':'results')
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
   const [fileExample,setFileExample] = useState(fileExamples.find(file => file.contentType === 'application/pdf')!)
@@ -284,6 +286,7 @@ export default function UiKit() {
       {section==='homework' && <section aria-label="Пример сводки ДЗ"><h2>Сводка ДЗ</h2><p>Условные данные. Заголовок, дата и статусы используют тот же компонент, что и главная страница.</p><HomeworkOverview date="2026-10-19" rows={uiKitHomeworkRows} onOpen={row=>setDemoTarget(row.subject.name)} onOpenAll={()=>setDemoTarget('Все задания')}/>{demoTarget && <p role="status">Демонстрация перехода: {demoTarget}</p>}<p>Статус, задание и причина показаны отдельно. Длинный текст — короткий предпросмотр; полный разбор открывается нажатием на предмет.</p></section>}
       {section==='material' && <section aria-labelledby="kit-material-title"><h2 id="kit-material-title">Уточнение материала</h2><p>Пример с условными данными. Выбранные файлы остаются в этой демонстрации и не отправляются в Education.</p><MaterialRequest request={{id:'demo-notes',state:'open',question:'Какая последняя тема записана в тетради? Пришли фото записей с последнего урока.',photoPrompt:'Заголовок темы и все страницы последних записей целиком. Переписывать ничего не нужно.'}} label={demoFiles.length ? 'Материал выбран · пример' : 'Нужен материал для уточнения'} detail={demoFiles.length ? `Выбрано файлов: ${demoFiles.length}. На рабочей странице они будут переданы на Диск и попадут в следующий запуск синхронизации.` : 'Это вопрос для уточнения источника, а не требование учителя сдать письменную работу.'} /><PhotoUploadControl label="Добавить фото записей" onPhotos={files=>setDemoFiles(files.map(file=>file.name))}/><p>Фото помогает установить тему и увидеть записи. Само получение материала не отмечает домашнее задание выполненным.</p></section>}
       {section==='tasks' && <TaskDisclosureExample/>}
+      {section==='decision-cards' && <DecisionScenarioCatalog/>}
       {section==='quiz' && <section aria-labelledby="kit-quiz-title"><h2 id="kit-quiz-title">История тестов</h2><p>Пример с условными данными. Тот же QuizCard используется на странице урока и в списке тестов. Нажмите название попытки для разбора, часы — для дат.</p><QuizCard chain={uiKitQuizExamples} parent={false} linksEnabled={false} context="Пример темы" assignment={<div className="edu-kit-assignment"><strong>Задание учителя · пример</strong><p>Повторить назначенную тему. Дополнительные упражнения не становятся обязательным домашним заданием.</p></div>} materials={<p>Демонстрационный материал. Персональных страниц и ответов здесь нет.</p>} />
       <QuizRunnerExample/><h3>Что сохраняется при изменении дизайна</h3><ul><li>Корень цепочки, роли, обязательность и исходное задание учителя.</li><li>Верные ответы, баллы и вопросы считаются отдельно.</li><li>История идёт от новых завершений к старым. Поздний разбор не меняет порядок.</li><li>Просмотр дат и раскрытие ошибок не открывают новые подписки Firebase.</li></ul></section>}
       {section==='telegram' && <TelegramNotificationPreview />}

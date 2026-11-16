@@ -25,6 +25,9 @@ import { reviewChallengeErrors } from '../storage/review-challenge.mjs'
 import { tutoringPlanErrors } from '../storage/tutoring-decision.mjs'
 import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { validateRequirementChecks } from '../storage/review-requirements.mjs'
+import {freezeCriteria,assertCriteriaCoverage,assignmentDigest,assignedCriteriaSources} from '../storage/criteria-contract.mjs'
+import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
+/** @see ../docs/modules/reviews/criteria-and-knowledge.md */
 import { assertReviewReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
@@ -35,10 +38,10 @@ import { stageReviewPublishedEvents } from '../storage/review-publication-event.
  * @see ../docs/modules/reviews/adaptive-problem-card.md#слои
  * @see ../docs/modules/synchronization/change-detection-and-reconciliation.md
  */
-const [command, argument, phase] = process.argv.slice(2)
-const reviewCommand = ['review', 'validate', 'progress', 'feedback', 'relocate'].includes(command)
-const dateFilter = reviewCommand || ['migrate-private-reviews', 'review-privacy-audit'].includes(command) ? null : argument
-if (!['inbox', 'pull', 'review', 'validate', 'progress', 'relocate', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit'].includes(command)
+const [command, argument, phase,output] = process.argv.slice(2)
+const reviewCommand = ['review', 'validate', 'progress', 'feedback', 'relocate','criteria'].includes(command)
+const dateFilter = reviewCommand || ['migrate-private-reviews', 'review-privacy-audit','criteria-export'].includes(command) ? null : argument
+if (!['inbox', 'pull', 'review', 'validate', 'progress', 'relocate', 'help', 'feedback', 'feedback-audit', 'basis-audit', 'migrate-private-reviews', 'review-privacy-audit','criteria','criteria-export'].includes(command)
   || reviewCommand && !argument
   || command === 'progress' && !['download', 'source', 'review', 'publish', 'paused'].includes(phase)
   || command === 'migrate-private-reviews' && argument && argument !== '--dry-run'
@@ -197,6 +200,64 @@ function privateReviewFile(filename) {
   return review
 }
 
+function reviewTarget(page,taskId){
+ const task=page.subjects?.flatMap(s=>s.tasks??[]).find(t=>t.id===taskId||t.problems?.some(p=>p.id===taskId))
+ if(!task)throw Error('Задание отсутствует в текущей странице.')
+ const problem=task.problems?.find(p=>p.id===taskId)
+ return problem?{...task,id:problem.id,problems:[problem]}:task
+}
+function criteriaSourceRefs(page,taskId){
+ return assignedCriteriaSources(page,taskId).sourceRefs
+}
+function criteriaSourceFingerprint(page,taskId){
+ return assignedCriteriaSources(page,taskId).sourceFingerprint
+}
+function reviewObservation(owner,entry,contract,supersedes=null){
+ const criteria=(contract?.criteria??[]).map(c=>({...c,finding:entry.criteriaChecks?.find(f=>f.id===c.id)})).filter(c=>c.finding)
+ return learningObservation({owner:owner.data(),taskId:entry.taskId,attemptRef:`dayUploads/${owner.id}:${[...entry.uploadIds].sort().join(',')}`,sourceRevision:entry.criteriaFingerprint??entry.planRevision??null,
+  criteria,outcome:entry.status??'source-received',scope:entry.purpose==='source-material'?'source-material':'assignment',helpLevel:entry.tutoringPlan?.state?.unsuccessfulHelp>0?'guided':'unknown',supersedes,correctionReason:entry.correctionReason??null})
+}
+async function assertCurrentSnapshots(transaction,snapshots){
+ const current=await Promise.all(snapshots.map(s=>transaction.get(s.ref)))
+ if(current.some((s,i)=>s.exists!==snapshots[i].exists||s.exists&&!s.updateTime.isEqual(snapshots[i].updateTime)))throw Error('Источник, критерии или прежний результат изменились перед записью; нужен свежий пакет.')
+}
+async function publishCriteria(filename){
+ const path=resolve(filename)
+ if(!path.startsWith(`${local}/`)||!path.endsWith('.json'))throw Error('Опись хранится в закрытом .local/.')
+ const packet=JSON.parse(readFileSync(path,'utf8'))
+ if(!/^[A-Za-z0-9_-]{1,128}$/.test(packet.dayToken??'')||!packet.familyId||!packet.childId||!/^[a-z0-9-]+$/.test(packet.taskId??''))throw Error('Нужны точный владелец, день и задание.')
+ const ref=db.doc(`dayTaskGuides/${packet.dayToken}/items/${packet.taskId}/criteriaContract/current`)
+ const result=await db.runTransaction(async tx=>{
+  const [owner,pageDoc,old]=await Promise.all([tx.get(db.doc(`dayOwners/${packet.dayToken}`)),tx.get(db.doc(`dayPages/${packet.dayToken}`)),tx.get(ref)])
+  if(owner.data()?.familyId!==packet.familyId||owner.data()?.childId!==packet.childId||pageDoc.data()?.kind!=='student')throw Error('Опись принадлежит другому владельцу.')
+  const page=pageDoc.data(),contract=freezeCriteria(packet.manifest,{task:reviewTarget(page,packet.taskId),planRevision:page.planRevision,sourceRefs:criteriaSourceRefs(page,packet.taskId),sourceFingerprint:criteriaSourceFingerprint(page,packet.taskId)})
+  if(old.data()?.criteriaContract?.fingerprint===contract.fingerprint)return contract.fingerprint
+  if((old.data()?.criteriaContract?.fingerprint??null)!==(packet.priorCriteriaFingerprint??null))throw Error('Опись критериев уже изменена: перечитайте свежий экспорт.')
+  if(old.exists&&!packet.reason?.trim())throw Error('Изменение сохранённых критериев требует причины.')
+  const history=db.doc(`${ref.path}/criteriaHistory/${contract.fingerprint}`),prior=await tx.get(history)
+  if(!prior.exists)tx.create(history,{...contract,createdAt:Timestamp.now()})
+  tx.set(ref,{...(old.data()??{}),criteriaContract:contract},{merge:true})
+  return contract.fingerprint
+ })
+ if((await ref.get()).data()?.criteriaContract?.fingerprint!==result)throw Error('Опись не подтверждена readback.')
+ console.log(JSON.stringify({published:true,verified:true,criteriaFingerprint:result}))
+}
+async function exportCriteria(dayToken,taskId,filename){
+ if(!/^[A-Za-z0-9_-]{1,128}$/.test(dayToken??'')||!/^[a-z0-9-]+$/.test(taskId??''))throw Error('Нужен точный день и ID задания.')
+ const path=resolve(filename??'')
+ if(!path.startsWith(`${local}/`)||!path.endsWith('.json'))throw Error('Экспорт критериев сохраняется только в .local/.')
+ const [owner,pageDoc,current]=await db.getAll(db.doc(`dayOwners/${dayToken}`),db.doc(`dayPages/${dayToken}`),db.doc(`dayTaskGuides/${dayToken}/items/${taskId}/criteriaContract/current`))
+ if(!owner.data()?.familyId||!owner.data()?.childId||pageDoc.data()?.kind!=='student')throw Error('Не найден владелец ученического дня.')
+ const page=pageDoc.data(),task=reviewTarget(page,taskId),refs=criteriaSourceRefs(page,taskId),primary=task.familyOrigin?'family':'mesh'
+ const prior=current.data()?.criteriaContract,compatible=prior?.assignmentDigest===assignmentDigest(task)&&prior?.materialFingerprint===criteriaSourceFingerprint(page,taskId)
+ const manifest={...(compatible?prior:{}),taskId,planRevision:page.planRevision,assignmentDigest:assignmentDigest(task),materialFingerprint:criteriaSourceFingerprint(page,taskId),
+  sources:compatible?prior.sources:[{ref:primary,text:task.familyOrigin?task.detail:task.meshText??task.detail,segments:[]},...refs.map(ref=>({ref,text:'',segments:[]}))],criteria:compatible?prior.criteria:[]}
+ const parent=page.subjects.flatMap(s=>s.tasks).find(t=>t.id===taskId||t.problems?.some(p=>p.id===taskId))
+ mkdirSync(resolve(path,'..'),{recursive:true,mode:0o700})
+ writeFileSync(path,JSON.stringify({dayToken,taskId,familyId:owner.data().familyId,childId:owner.data().childId,priorCriteriaFingerprint:prior?.fingerprint??null,manifest,context:{task,materialLinks:page.materialLinks?.[parent?.id]??[],taskPageRefs:page.taskPageRefs?.[parent?.id]??[]}},null,2),{mode:0o600})
+ console.log(JSON.stringify({exported:true,path,needsSourceReview:!compatible}))
+}
+
 async function linkedReviewPhotos(review, shared = false) {
   const owners = (await db.collection('dayOwners').where('date', '==', review.date).get()).docs
   const matches = []
@@ -207,7 +268,8 @@ async function linkedReviewPhotos(review, shared = false) {
   }
   if (matches.length !== 1) throw new Error('Не удалось однозначно связать разбор с ребёнком и набором фотографий.')
   const { owner, refs, photos } = matches[0]
-  const page = (await db.doc(`dayPages/${owner.id}`).get()).data()
+  const pageDoc = await db.doc(`dayPages/${owner.id}`).get()
+  const page=pageDoc.data()
   const targets = shared ? review.reviews.map((item) => item.taskId) : [review.taskId]
   if (page?.kind !== 'student' || page.planRevision !== review.planRevision || targets.some((id) => !page.taskIds?.includes(id))) {
     throw new Error('Задание изменилось после скачивания фото. Сначала сверяйте новый план.')
@@ -219,7 +281,7 @@ async function linkedReviewPhotos(review, shared = false) {
     || (shared ? !page.taskIds?.includes(photo.data().taskId) : photo.data().taskId !== review.taskId))) {
     throw new Error('Фото уже удалено, проверено или не относится к заданию.')
   }
-  return { owner, refs, photos, page }
+  return { owner, refs, photos, page,pageDoc }
 }
 
 /** @see ../docs/modules/notifications/inbox.md#notification-producers */
@@ -277,16 +339,18 @@ async function publishProgress(filename, phase) {
 }
 
 /** @see ../docs/modules/reviews/review-criteria-provenance.md#second-pass */
-function validateReviewResult(review, page, guide, { requireChallenge = false } = {}) {
+function validateReviewResult(review, page, guide, { requireChallenge = false,criteriaContract } = {}) {
   const proseErrors = reviewProseErrors(review)
   if (proseErrors.length) throw new Error(proseErrors.join('\n'))
   const sourceTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === review.taskId)
+  const target=reviewTarget(page,review.taskId)
   const sourceErrors = sourceReviewErrors(review, sourceTask ?? {})
   if (sourceErrors.length) throw new Error(sourceErrors.join(' '))
   if (review.purpose === 'source-material') {
     if (![review.summary, review.nextStep, review.source].every(value => typeof value === 'string' && value.trim().length >= 8)) throw new Error('У разбора материала нужны итог, следующий шаг и источник.')
     return
   }
+  assertCriteriaCoverage(review,criteriaContract,{task:target,planRevision:page.planRevision,sourceRefs:criteriaSourceRefs(page,review.taskId),sourceFingerprint:criteriaSourceFingerprint(page,review.taskId)})
   const statuses = new Set(['verified', 'needs-fix', 'partial', 'cannot-assess'])
   const itemStatuses = new Set(['correct', 'incorrect', 'partial', 'cannot-assess'])
   if (!statuses.has(review.status)
@@ -341,6 +405,7 @@ function validateReviewResult(review, page, guide, { requireChallenge = false } 
       throw new Error('Верный ответ без достаточного хода отмечается отдельно как частичный результат, не как ошибка ответа.')
     }
   }
+  return criteriaContract?.fingerprint
 }
 
 /** @see ../docs/modules/reviews/review-criteria-provenance.md#work-coverage */
@@ -415,6 +480,8 @@ function resultRecord(review, previous, now, date, planRevision) {
   if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20) }
   const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview, tutoringPlan, workScope } = review
   return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+    ...(review.criteriaFingerprint?{criteriaFingerprint:review.criteriaFingerprint,criteriaChecks:review.criteriaChecks}:{}),
+    ...(review.learningObservationId?{learningObservationId:review.learningObservationId}:{}),
     ...(workScope ? { workScope } : {}),
     ...(checkableStageIds ? { checkableStageIds } : {}),
     ...(requirementChecks ? { requirementChecks } : {}),
@@ -439,16 +506,15 @@ async function publishFeedbackCorrection(filename) {
       ...correction.uploadIds.map((id) => db.doc(`dayUploads/${owner.id}/files/${id}`).get()),
     ])
     if (pageDoc.data()?.kind === 'student' && progressDoc.exists && photos.every((photo) => photo.exists)) {
-      matches.push({ owner, page: pageDoc.data(), progressDoc, privateDoc, photos })
+      matches.push({ owner, page: pageDoc.data(),pageDoc, progressDoc, privateDoc, photos })
     }
   }
   if (matches.length !== 1) throw new Error('Исправление не связано однозначно с одним ребёнком, заданием и набором фото.')
-  const { owner, page, progressDoc, privateDoc, photos } = matches[0]
+  const { owner, page,pageDoc, progressDoc, privateDoc, photos } = matches[0]
   const previous = privateDoc.data() ?? progressDoc.data()
   const currentTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === correction.taskId)
   const sameAssignmentAfterPageUpdate = sameReviewAssignmentAfterUpdate(page, correction, currentTask)
   const expectedPriorStatus = correction.previousStatus ?? correction.status
-  if (!reviewCorrectionStatusAllowed(expectedPriorStatus, correction.status)) throw new Error('Недопустимая коррекция статуса.')
   if (page.planRevision !== correction.planRevision && !sameAssignmentAfterPageUpdate
     || previous.planRevision !== correction.planRevision
     || previous.status !== expectedPriorStatus || !Array.isArray(previous.uploadIds) || previous.uploadIds.length !== correction.uploadIds.length
@@ -456,16 +522,19 @@ async function publishFeedbackCorrection(filename) {
     || !page.taskIds?.includes(correction.taskId) || photos.some(photo => photo.data().status !== 'reviewed')) {
     throw new Error('После проверки изменились статус, ревизия, список фото или привязка задания; исправление остановлено.')
   }
-  const guide = currentTask?.cardPattern
-    ? (await db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`).get()).data()?.guide
-    : undefined
-  validateReviewResult(correction, page, guide, { requireChallenge: previous.status !== 'verified' })
+  const [guideSnapshot,criteriaSnapshot]=await db.getAll(db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}`),db.doc(`dayTaskGuides/${owner.id}/items/${correction.taskId}/criteriaContract/current`))
+  const guideDoc={...guideSnapshot.data(),criteriaContract:criteriaSnapshot.data()?.criteriaContract}
+  const criteriaReceipt=validateReviewResult(correction, page, guideDoc?.guide, { requireChallenge: previous.status !== 'verified',criteriaContract:guideDoc?.criteriaContract })
+  if(!reviewCorrectionStatusAllowed(expectedPriorStatus,correction.status,{criteriaFingerprint:criteriaReceipt}))throw Error('Недопустимая коррекция без повторно проверенных критериев.')
   const now = Timestamp.now()
+  const observation=reviewObservation(owner,correction,guideDoc?.criteriaContract,previous.learningObservationId)
+  const knowledge=await prepareLearningWrites(db,[observation],now)
   const oldRecord = { at: now, reason: correction.correctionReason,
     priorStatus: previous.status, priorFeedbackTitle: previous.studentFeedback?.title ?? null }
-  const batch = db.batch()
   const corrected = { ...previous, status: correction.status, summary: correction.summary, nextStep: correction.nextStep,
-    items: correction.items, ...(correction.checkableStageIds ? { checkableStageIds: correction.checkableStageIds } : {}),
+    items: correction.items,learningObservationId:observation.id,
+    ...(correction.criteriaFingerprint?{criteriaFingerprint:correction.criteriaFingerprint,criteriaChecks:correction.criteriaChecks}:{}),
+    ...(correction.checkableStageIds ? { checkableStageIds: correction.checkableStageIds } : {}),
     ...(correction.requirementChecks ? { requirementChecks: correction.requirementChecks } : {}),
     ...(correction.mathReasoning ? { mathReasoning: correction.mathReasoning } : {}),
     studentFeedback: correction.studentFeedback ?? null,
@@ -476,11 +545,15 @@ async function publishFeedbackCorrection(filename) {
       ? { ...correction.workCoverage, reviewCheckedAt: previous.checkedAt, recordedAt: now }
       : null,
     correctedAt: now, feedbackCorrections: [...(previous.feedbackCorrections ?? []), oldRecord].slice(-10) }
+  await db.runTransaction(async batch=>{
+  await assertCurrentSnapshots(batch,[owner,pageDoc,progressDoc,privateDoc,guideSnapshot,criteriaSnapshot,...photos])
+  knowledge.stage(batch)
   batch.set(privateDoc.ref, corrected)
   batch.set(progressDoc.ref, studentReviewProjection(corrected))
   await stageReviewPublishedEvents(db, batch, owner, [{ ...correction, correctionPublishedAt: now.toMillis() }])
   await stageReviewNotice(batch, owner, page, correction, [correction], 'review_updated', now)
-  await batch.commit()
+  })
+  await knowledge.verify()
   const readback = await db.getAll(privateDoc.ref, progressDoc.ref, ...photos.map(photo => photo.ref))
   const verified = assertReviewReadback({ entries: [correction], planRevision: previous.planRevision,
     privateDocs: [readback[0].data()], publicDocs: [readback[1].data()],
@@ -495,16 +568,17 @@ async function preparedReview(filename) {
   const review = privateReviewFile(filename)
   const shared = Boolean(review.reviews)
   const coverage = shared ? reviewCoverage(review) : null
-  const { owner, refs, photos, page } = await linkedReviewPhotos(review, shared)
+  const { owner, refs, photos, page,pageDoc } = await linkedReviewPhotos(review, shared)
   const entries = review.reviews ?? [review]
-  const routeEntries = entries.filter((entry) => page.subjects?.some((subject) =>
-    subject.tasks?.some((task) => task.id === entry.taskId && task.cardPattern)))
+  const routeEntries = entries
   const guideDocs = routeEntries.length
     ? await db.getAll(...routeEntries.map((entry) => db.doc(`dayTaskGuides/${owner.id}/items/${entry.taskId}`))) : []
-  const guides = new Map(routeEntries.map((entry, index) => [entry.taskId, guideDocs[index].data()?.guide]))
-  entries.forEach((entry) => validateReviewResult(entry, page, guides.get(entry.taskId)))
+  const guides = new Map(routeEntries.map((entry, index) => [entry.taskId, guideDocs[index].data()]))
+  const criteriaDocs=await db.getAll(...entries.map(entry=>db.doc(`dayTaskGuides/${owner.id}/items/${entry.taskId}/criteriaContract/current`)))
+  entries.forEach((entry,index)=>guides.set(entry.taskId,{...guides.get(entry.taskId),criteriaContract:criteriaDocs[index].data()?.criteriaContract}))
+  entries.forEach((entry) => validateReviewResult(entry, page, guides.get(entry.taskId)?.guide,{criteriaContract:guides.get(entry.taskId)?.criteriaContract}))
   if (photos.some((photo) => photo.data().storage?.state !== 'stored')) throw new Error('Фото ещё не перенесено на Диск.')
-  return { review, coverage, owner, refs, photos, page, entries }
+  return { review, coverage, owner, refs, photos, page, entries,guides,fence:[owner,pageDoc,...photos,...guideDocs,...criteriaDocs] }
 }
 
 async function validateReviewFile(filename) {
@@ -515,15 +589,20 @@ async function validateReviewFile(filename) {
 
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 async function publishReview(filename) {
-  const { review, coverage, owner, refs, photos, page, entries } = await preparedReview(filename)
+  const { review, coverage, owner, refs, photos, page, entries,guides,fence } = await preparedReview(filename)
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))
-  const previous = await Promise.all(privateRefs.map(async (ref, index) => (await ref.get()).data() ?? (await reviewRefs[index].get()).data()))
+  const previousSnapshots=await db.getAll(...privateRefs,...reviewRefs)
+  const previous=privateRefs.map((_,index)=>previousSnapshots[index].data()??previousSnapshots[index+privateRefs.length].data())
   const now = Timestamp.now()
-  const batch = db.batch()
+  const observations=entries.map((entry,index)=>reviewObservation(owner,entry,guides.get(entry.taskId)?.criteriaContract,previous[index]?.learningObservationId))
+  const knowledge=await prepareLearningWrites(db,observations,now)
+  await db.runTransaction(async batch=>{
+  await assertCurrentSnapshots(batch,[...fence,...previousSnapshots])
+  knowledge.stage(batch)
   await stageReviewPublishedEvents(db, batch, owner, entries.map(entry=>({...entry,publicationCheckedAt:now.toMillis()})))
   entries.forEach((entry, index) => {
-    const full = resultRecord(entry, previous[index], now, review.date, review.planRevision)
+    const full = resultRecord({...entry,learningObservationId:observations[index].id}, previous[index], now, review.date, review.planRevision)
     batch.set(privateRefs[index], full)
     batch.set(reviewRefs[index], studentReviewProjection(full))
   })
@@ -540,7 +619,8 @@ async function publishReview(filename) {
       ...(coverage ? { coveredTaskIds: coverage.get(id).taskIds, coverageNote: coverage.get(id).observed } : {}) })
   })
   await stageReviewNotice(batch, owner, page, review, entries, 'review_ready', now)
-  await batch.commit()
+  })
+  await knowledge.verify()
   const readback = await db.getAll(...privateRefs, ...reviewRefs, ...refs)
   const verified = assertReviewReadback({ entries, planRevision: review.planRevision,
     privateDocs: readback.slice(0, entries.length).map((item) => item.data()),
@@ -586,7 +666,11 @@ async function migratePrivateReviews(dryRun, auditOnly = false) {
   if (auditOnly && (missingPrivate || unsafePublic)) process.exitCode = 1
 }
 
-if (command === 'relocate') {
+if (command === 'criteria-export') {
+  await exportCriteria(argument,phase,output)
+} else if (command === 'criteria') {
+  await publishCriteria(argument)
+} else if (command === 'relocate') {
   const filename = resolve(argument)
   if (!filename.startsWith(`${local}/`) || !filename.endsWith('.json')) throw new Error('Нужен закрытый JSON запроса переноса.')
   console.log(JSON.stringify(await relocateReviewedPhoto(db, JSON.parse(readFileSync(filename, 'utf8')), Timestamp.now())))
