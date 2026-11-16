@@ -127,10 +127,10 @@ async function discover() {
     }
     for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
       const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id) || Boolean(supplementalAssessmentPlacement(task, page.testPlacements))
-      taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate,
-        ...taskRoute(task, subject.id ?? subject.name, { placement, decisionContext: {
+      const route = taskRoute(task, subject.id ?? subject.name, { placement, decisionContext: {
           owner:{familyId:owner.familyId,childId:owner.childId},materialLinks:page.materialLinks?.[task.id] ?? [],taskPageRefs:page.taskPageRefs?.[task.id] ?? [],
-          hasTeacherFiles: (page.materialLinks?.[task.id] ?? []).some(link => link.sourceType === 'teacher-attachment') } }) })
+          hasTeacherFiles: (page.materialLinks?.[task.id] ?? []).some(link => link.sourceType === 'teacher-attachment') } })
+      taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate, ...route })
       if (task.instructionStatus?.state === 'needs-review') {
         candidates.push(job('enrich-task', owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id },
@@ -142,7 +142,7 @@ async function discover() {
           [page.targetDate, task.id, task.materialStatus, task.materialRequest, task.assessmentIntent, page.sourceRevision], 30))
       }
       const decision = quizDecision(task)
-      if (decision && taskRoute(task).next !== 'await-source-upload' && !task.testToken && !placement && task.platformResult?.state !== 'completed') {
+      if (decision && route.next !== 'await-source-upload' && !task.testToken && !placement && task.platformResult?.state !== 'completed') {
         candidates.push(job(decision.job, owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id,
             assessmentMode: decision.mode ?? null, reason: decision.reason ?? null },
@@ -263,12 +263,14 @@ async function verifiedResolution(record) {
   }
   if (['prepare-quiz', 'classify-assignment', 'enrich-task', 'material-needed'].includes(record.kind)) {
     const page = (await db.doc(`dayPages/${source.dayToken}`).get()).data()
-    const task = page?.subjects?.flatMap((subject) => subject.tasks ?? []).find((item) => item.id === source.taskId)
+    const subject = page?.subjects?.find(subject => subject.tasks?.some(item => item.id === source.taskId))
+    const task = subject?.tasks.find(item => item.id === source.taskId)
     if (!task) return null
-    return record.kind === 'classify-assignment' ? taskRoute(task).next === 'await-source-upload' ? 'classification-deferred-to-published-material-request'
+    const route = taskRoute(task, subject.id ?? subject.name)
+    return record.kind === 'classify-assignment' ? route.next === 'await-source-upload' ? 'classification-deferred-to-published-material-request'
       : quizDecision(task)?.job === 'prepare-quiz' ? 'assessment-intent-confirmed' : null
       : record.kind === 'enrich-task' ? task.instructionStatus?.state === 'reviewed' ? 'reviewed-day-task' : null
-      : record.kind === 'material-needed' ? taskRoute(task).next === 'await-source-upload' ? 'student-material-request-published'
+      : record.kind === 'material-needed' ? route.next === 'await-source-upload' ? 'student-material-request-published'
         : task.materialStatus?.state === 'textbook-page-linked' ? 'family-material-linked' : null
       : task.testToken || (page.testPlacements ?? []).some((item) => item.taskId === source.taskId) ? 'linked-quiz-published' : null
   }
