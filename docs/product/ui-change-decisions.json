@@ -1985,7 +1985,7 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "77649586e66df8cee75f5bd593eb01e389502dd8a0eb88e28a7eea2d0b5be968",
+      "sha256": "7b4ce71f19b83d3a05c67efaebb00d81134afdfe4575862625c99f4b1a00953b",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/shared/design/task-presentation.md",
@@ -1993,13 +1993,12 @@
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
         "storage/task-presentation-edit.test.mjs",
         "storage/parent-guide-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -7401,7 +7400,7 @@
       }
     },
     "storage/parent-guide-edit.mjs": {
-      "sha256": "837340cd3ec47a87a852cb6c06cf92945149bdc507d2d0ed534ec62c48713e3f",
+      "sha256": "1d41a2fa4145c1c1fa9bf15205686898c75636ac4de5192bf883942795b4c855",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/shared/design/task-presentation.md",
@@ -7409,13 +7408,12 @@
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
         "storage/task-presentation-edit.test.mjs",
         "storage/parent-guide-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
       }
     },
     "src/components/OlympiadOverview.tsx": {
@@ -8452,7 +8450,7 @@
       }
     },
     "src/components/MaterialRequest.css": {
-      "sha256": "8183090906386ec7067c62ff78831c89d332943f55d9e7c9c22e64463bd9b296",
+      "sha256": "0caabea4814a2b06bcb8fe13092d9464b8bdf7a232824e46b7f2b7504a47df5a",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/shared/design/task-presentation.md",
@@ -8470,7 +8468,7 @@
       }
     },
     "storage/task-presentation-edit.mjs": {
-      "sha256": "307909d5b85d94c30fdd674fb0f1bd3454067303395a507297ca1cbbb7658959",
+      "sha256": "7ce7ad65cb12bdd73456ad12743ecd411beeff6b12a02f23f2805a6996491976",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/shared/design/task-presentation.md",
@@ -8478,13 +8476,12 @@
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
         "storage/task-presentation-edit.test.mjs",
         "storage/parent-guide-edit.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
       }
     }
   }

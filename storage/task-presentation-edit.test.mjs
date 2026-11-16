@@ -58,6 +58,10 @@ describe('addressed task presentation edit',()=>{
   const g=setup();g.after(()=>g.rows.get('dayPages/parent').unrelated={keep:false});await expect(editTaskPresentation(g.db,g.packet,{apply:true})).rejects.toThrow(/Readback/)
  })
  function materialPacket(f){const presentation={version:1,available:['Workbook, страницы 19–20'],missing:['Workbook, страница 22'],checkedSources:['Проверен условный семейный архив'],reason:'Назначено упражнение на другой странице.',action:'Прислать страницу 22.',checkedAt:'2026-11-01T12:00:00Z',coverage:{collectionId:'synthetic-workbook',availablePages:[19,20],missingPages:[22]}};f.packet.changes=[{taskId:'mesh-1',materialRequest:{...copy(f.request),presentation}}];return presentation}
+ it('uses the same prose gate as ordinary publication before writing',async()=>{
+  const f=setup(),p=materialPacket(f);p.checkedSources=['Архив:192 фото']
+  await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/читаемые пробелы/);expect(f.writes).toBe(0)
+ })
  it('repairs root material presentation without changing its source state or repeating a replay',async()=>{const f=setup();materialPacket(f);expect(await editTaskPresentation(f.db,f.packet,{apply:true})).toMatchObject({verified:true,guides:0});expect(f.rows.get('dayPages/student').subjects[0].tasks[0].materialRequest.state).toBe('needed');const writes=f.writes;await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/повторная запись/);expect(f.writes).toBe(writes)})
  it.each(['state','resolved','overlap'])('rejects material %s changes',async kind=>{const f=setup(),p=materialPacket(f);if(kind==='state')f.packet.changes[0].materialRequest.state='resolved';if(kind==='resolved')f.packet.changes[0].materialRequest.resolvedTopic='Invented';if(kind==='overlap')p.coverage.missingPages=[20];await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow();expect(f.writes).toBe(0)})
  it('checks exact continuation ownership/target and fences it in the same transaction',async()=>{

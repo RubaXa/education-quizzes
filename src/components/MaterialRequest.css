@@ -3,7 +3,8 @@
 .material-request>strong{display:block;font-size:1rem;line-height:1.4}
 .material-request ul{margin:6px 0;padding-inline-start:20px}
 .material-request li+li{margin-top:5px}
-.material-request .material-request-missing{font-weight:700}
+.day-submission-instructions.material-request li{padding-inline-start:0}
+.material-request .material-request-missing{font-weight:700;list-style:none;padding:0}
 .material-request-facts{margin:12px 0}
 .material-request-facts>div+div{margin-top:12px}
 .material-request-facts dt{font-size:.875rem;font-weight:700;color:var(--edu-ink-muted,var(--edu-ink))}
