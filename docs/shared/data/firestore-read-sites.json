@@ -9036,6 +9036,30 @@
     "note": "Два запроса точной проверенной страницы ребёнка только при близком сроке; нужны все progress и покрытия pending фото. Нет фоновой подписки или нового расписания. docs/modules/assignments/deadline-control.md"
   },
   {
+    "id": "sync/deadline-evidence.mjs#admin.get#606bc1c0c983",
+    "file": "sync/deadline-evidence.mjs",
+    "line": 28,
+    "api": "admin.get",
+    "target": "ownerByToken",
+    "group": "operator-other",
+    "assessment": "excluded",
+    "policy": "not-firestore",
+    "refresh": "in-memory source owner map",
+    "note": "Map lookup only; exact Firestore fallback is separately classified."
+  },
+  {
+    "id": "sync/deadline-evidence.mjs#admin.get#130909c4cad8",
+    "file": "sync/deadline-evidence.mjs",
+    "line": 28,
+    "api": "admin.get",
+    "target": "db.doc(`dayOwners/${token}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "only source owner absent from date-window map",
+    "note": "Exact owner token fallback closes Monday target/Sunday source boundary; validate family/child before evidence queries. docs/modules/assignments/deadline-control.md"
+  },
+  {
     "id": "sync/event-task-artifact.mjs#admin.get#b1c12cec0440",
     "file": "sync/event-task-artifact.mjs",
     "line": 59,
