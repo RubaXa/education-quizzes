@@ -1368,3 +1368,23 @@
 | [diary/application/mark-files.mjs](../diary/application/mark-files.mjs) | [Порт дневника](modules/school-diary/README.md) | Закрытые оригиналы и хэшированные версии фото | Оператор; CLI |
 | [diary/application/mark-files.test.mjs](../diary/application/mark-files.test.mjs) | [Порт дневника](modules/school-diary/README.md) | Файлы при ложном флаге и сохранность истории | Оператор; CLI |
 | [docs/decisions/mesh-mark-work-2026-11-16.md](decisions/mesh-mark-work-2026-11-16.md) | [Порт дневника](modules/school-diary/README.md) | Основание адресной прямой загрузки фото | Developer; оператор |
+
+| [assessment/manual-review-contract.mjs](../assessment/manual-review-contract.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [assessment/manual-review-contract.test.mjs](../assessment/manual-review-contract.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Регрессии сквозного процесса | Operator; UI Kit; tests |
+| [day/decision-registry.d.mts](../day/decision-registry.d.mts) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [day/decision-registry.mjs](../day/decision-registry.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [day/decision-registry.test.mjs](../day/decision-registry.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Регрессии сквозного процесса | Operator; UI Kit; tests |
+| [docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md](decisions/criteria-knowledge-ui-kit-2026-11-16.md) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Основание сквозного изменения | Operator; UI Kit; tests |
+| [docs/modules/reviews/criteria-and-knowledge.md](modules/reviews/criteria-and-knowledge.md) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, знания и UI Kit | Operator; UI Kit; tests |
+| [src/components/DecisionTaskDisclosure.tsx](../src/components/DecisionTaskDisclosure.tsx) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [src/ui-kit/DecisionScenarioCatalog.css](../src/ui-kit/DecisionScenarioCatalog.css) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [src/ui-kit/DecisionScenarioCatalog.test.tsx](../src/ui-kit/DecisionScenarioCatalog.test.tsx) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Регрессии сквозного процесса | Operator; UI Kit; tests |
+| [src/ui-kit/DecisionScenarioCatalog.tsx](../src/ui-kit/DecisionScenarioCatalog.tsx) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [src/ui-kit/decisionScenarioFixtures.ts](../src/ui-kit/decisionScenarioFixtures.ts) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [storage/criteria-contract.mjs](../storage/criteria-contract.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [storage/criteria-contract.test.mjs](../storage/criteria-contract.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Регрессии сквозного процесса | Operator; UI Kit; tests |
+| [sync/learning-observations.mjs](../sync/learning-observations.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+| [sync/learning-observations.test.mjs](../sync/learning-observations.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Регрессии сквозного процесса | Operator; UI Kit; tests |
+| [sync/subject-decisions.d.mts](../sync/subject-decisions.d.mts) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
+
+| [scripts/submissions.criteria-workflow.test.mjs](../scripts/submissions.criteria-workflow.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Настоящий CLI: отказ неполного зачёта, сохранение знаний и повторное использование | Vitest; operator |

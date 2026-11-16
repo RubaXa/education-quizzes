@@ -108,7 +108,7 @@ export function practiceVariantErrors(task) {
  * @see ../docs/modules/reviews/card-generation-policy.md#source-inventory */
 export function sourceInventoryErrors(task, links = []) {
   const teacherLinks = links.filter((link) => link.sourceType === 'teacher-attachment')
-  if (task?.mathRoutePolicyVersion !== 2 || task?.instructionStatus?.state !== 'reviewed') return []
+  if (task?.instructionStatus?.state !== 'reviewed') return []
   if (!teacherLinks.length) return task.materialStatus?.state === 'teacher-attachment-needed'
     || /(?:из|в|к)\s+файл[ауе]|лист[ауе]?\s+учителя/i.test(task.meshText ?? '')
     ? ['Для сверенного задания нужен назначенный ему файл учителя.'] : []

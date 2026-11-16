@@ -994,6 +994,32 @@
       "path": "docs/decisions/course-placement-2026-10-18.md"
     },
     {
+      "id": "decision.criteria-knowledge-ui-kit-2026-11-16",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.reviews.criteria-and-knowledge",
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "Education operator",
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "reason",
+        "change",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md"
+    },
+    {
       "id": "decision.day-merge-order-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -5233,6 +5259,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:assessment/manual-review-contract.mjs",
+      "path": "assessment/manual-review-contract.mjs",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:assessment/manual-review-contract.test.mjs",
+      "path": "assessment/manual-review-contract.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сквозного процесса",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
       "id": "file:assessment/question-copy.mjs",
       "path": "assessment/question-copy.mjs",
       "kind": "artifact",
@@ -5399,6 +5439,27 @@
       "kind": "verification",
       "purpose": "Регрессии схемы, ролей, версий и уникальных ID",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:day/decision-registry.d.mts",
+      "path": "day/decision-registry.d.mts",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:day/decision-registry.mjs",
+      "path": "day/decision-registry.mjs",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:day/decision-registry.test.mjs",
+      "path": "day/decision-registry.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сквозного процесса",
+      "consumer": "Operator; UI Kit; tests"
     },
     {
       "id": "file:day/family-assignment-boundaries.test.mjs",
@@ -8292,6 +8353,13 @@
       "consumer": "Ученик; автор; UI Kit"
     },
     {
+      "id": "file:scripts/submissions.criteria-workflow.test.mjs",
+      "path": "scripts/submissions.criteria-workflow.test.mjs",
+      "kind": "verification",
+      "purpose": "Настоящий CLI: отказ неполного зачёта, сохранение знаний и повторное использование",
+      "consumer": "Vitest; operator"
+    },
+    {
       "id": "file:scripts/submissions.mjs",
       "path": "scripts/submissions.mjs",
       "kind": "artifact",
@@ -8584,6 +8652,13 @@
       "kind": "artifact",
       "purpose": "Расчёт начального центрирования и прокрутки выбранного дня у края полосы",
       "consumer": "`DayCalendar`; Vitest"
+    },
+    {
+      "id": "file:src/components/DecisionTaskDisclosure.tsx",
+      "path": "src/components/DecisionTaskDisclosure.tsx",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
     },
     {
       "id": "file:src/components/DiagnosticsCopyButton.test.tsx",
@@ -10819,6 +10894,34 @@
       "consumer": "Браузер"
     },
     {
+      "id": "file:src/ui-kit/DecisionScenarioCatalog.css",
+      "path": "src/ui-kit/DecisionScenarioCatalog.css",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:src/ui-kit/DecisionScenarioCatalog.test.tsx",
+      "path": "src/ui-kit/DecisionScenarioCatalog.test.tsx",
+      "kind": "verification",
+      "purpose": "Регрессии сквозного процесса",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
+      "path": "src/ui-kit/DecisionScenarioCatalog.tsx",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:src/ui-kit/decisionScenarioFixtures.ts",
+      "path": "src/ui-kit/decisionScenarioFixtures.ts",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
       "id": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "path": "src/ui-kit/olympiadHistoryFixtures.ts",
       "kind": "artifact",
@@ -10915,6 +11018,20 @@
       "kind": "verification",
       "purpose": "Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:storage/criteria-contract.mjs",
+      "path": "storage/criteria-contract.mjs",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:storage/criteria-contract.test.mjs",
+      "path": "storage/criteria-contract.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сквозного процесса",
+      "consumer": "Operator; UI Kit; tests"
     },
     {
       "id": "file:storage/direct-upload.mjs",
@@ -11449,6 +11566,20 @@
       "consumer": "`scripts/sync-queue.mjs`; Firestore"
     },
     {
+      "id": "file:sync/learning-observations.mjs",
+      "path": "sync/learning-observations.mjs",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
+      "id": "file:sync/learning-observations.test.mjs",
+      "path": "sync/learning-observations.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сквозного процесса",
+      "consumer": "Operator; UI Kit; tests"
+    },
+    {
       "id": "file:sync/legacy-help-identity.mjs",
       "path": "sync/legacy-help-identity.mjs",
       "kind": "artifact",
@@ -11587,6 +11718,13 @@
       "kind": "verification",
       "purpose": "Границы запроса, одиночный scoped вызов, ошибка и безопасная сводка",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:sync/subject-decisions.d.mts",
+      "path": "sync/subject-decisions.d.mts",
+      "kind": "artifact",
+      "purpose": "Критерии, свидетельства и адресные карточки",
+      "consumer": "Operator; UI Kit; tests"
     },
     {
       "id": "file:sync/subject-decisions.mjs",
@@ -11963,7 +12101,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-20",
+      "updated": "2026-11-16",
       "consumers": [
         "parent",
         "student",
@@ -12736,6 +12874,44 @@
       "path": "docs/modules/reviews/card-generation-policy.md"
     },
     {
+      "id": "module.reviews.criteria-and-knowledge",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.reviews",
+      "uses": [
+        "module.reviews.review-criteria-provenance",
+        "module.synchronization.subject-decision-graph",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "review publisher",
+        "Education operator",
+        "UI Kit"
+      ],
+      "code": [
+        "storage/criteria-contract.mjs",
+        "sync/learning-observations.mjs",
+        "assessment/manual-review-contract.mjs",
+        "day/decision-registry.mjs",
+        "src/components/DecisionTaskDisclosure.tsx",
+        "src/ui-kit/DecisionScenarioCatalog.tsx",
+        "src/ui-kit/DecisionScenarioCatalog.css",
+        "src/ui-kit/decisionScenarioFixtures.ts",
+        "scripts/submissions.mjs",
+        "scripts/quiz.mjs",
+        "sync/event-task-artifact.mjs",
+        "sync/help-response.mjs"
+      ],
+      "sections": [
+        "criteria",
+        "knowledge",
+        "scenarios"
+      ],
+      "path": "docs/modules/reviews/criteria-and-knowledge.md"
+    },
+    {
       "id": "module.reviews.math-solution-route",
       "status": "accepted",
       "implementation": "partial",
@@ -13455,7 +13631,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-31",
+      "updated": "2026-11-16",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -13603,7 +13779,8 @@
         "module.assessments.assessment-decision-graph",
         "shared.specification-system",
         "module.reviews.subject-card-viewmodel",
-        "module.reviews.review-criteria-provenance"
+        "module.reviews.review-criteria-provenance",
+        "module.reviews.criteria-and-knowledge"
       ],
       "consumers": [
         "Education operator",
@@ -14762,7 +14939,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-21",
+      "updated": "2026-11-16",
       "consumers": [
         "Education operator",
         "operator CLI",
@@ -15331,7 +15508,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-19",
+      "updated": "2026-11-16",
       "consumers": [
         "Firestore publisher",
         "web-app data readers",
@@ -15686,7 +15863,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-11-01",
+      "updated": "2026-11-16",
       "consumers": [
         "React UI components",
         "frontend developer",
@@ -15705,7 +15882,8 @@
       "parent": "shared.design",
       "uses": [
         "shared.design",
-        "shared.design.compact-review"
+        "shared.design.compact-review",
+        "module.reviews.criteria-and-knowledge"
       ],
       "sections": [
         "компактный-разбор",
@@ -15726,7 +15904,8 @@
         "иконки-файлов",
         "вложения-в-карточке-задания",
         "история-олимпиад",
-        "настоящий-экран-вопросов-в-каталоге"
+        "настоящий-экран-вопросов-в-каталоге",
+        "decision-scenarios"
       ],
       "path": "docs/shared/design/ui-kit.md"
     },
@@ -16176,6 +16355,16 @@
     {
       "from": "decision.course-placement-2026-10-18",
       "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
+      "from": "decision.criteria-knowledge-ui-kit-2026-11-16",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "decision.criteria-knowledge-ui-kit-2026-11-16",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -17299,6 +17488,11 @@
       "type": "implements"
     },
     {
+      "from": "file:assessment/manual-review-contract.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:assessment/question-copy.mjs",
       "to": "module.assessments.quizzes",
       "type": "implements"
@@ -17491,6 +17685,16 @@
     {
       "from": "file:day/data-contract.mjs",
       "to": "shared.data",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/decision-registry.d.mts",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/decision-registry.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -19789,6 +19993,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/quiz.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/refresh-math-guides.mjs",
       "to": "decision.guidance-refresh-readback-2026-10-25",
       "type": "implements"
@@ -19891,6 +20100,11 @@
     {
       "from": "file:scripts/submissions.mjs",
       "to": "module.reviews.adaptive-problem-card",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -20336,6 +20550,11 @@
     {
       "from": "file:src/components/dayCalendarScroll.ts",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/DecisionTaskDisclosure.tsx",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -22789,6 +23008,21 @@
       "type": "implements"
     },
     {
+      "from": "file:src/ui-kit/DecisionScenarioCatalog.css",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/decisionScenarioFixtures.ts",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "to": "shared.design.ui-kit",
       "type": "implements"
@@ -22966,6 +23200,11 @@
     {
       "from": "file:storage/audio-library.mjs",
       "to": "module.materials.material-clarification",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/criteria-contract.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -23270,6 +23509,11 @@
     },
     {
       "from": "file:sync/event-task-artifact.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-artifact.mjs",
       "to": "module.synchronization.execution-artifact",
       "type": "implements"
     },
@@ -23324,8 +23568,18 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/help-response.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/job-queue.mjs",
       "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/learning-observations.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -23426,6 +23680,11 @@
     {
       "from": "file:sync/school-calendar.mjs",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/subject-decisions.d.mts",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
     {
@@ -24859,6 +25118,56 @@
       "type": "uses"
     },
     {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "decision.criteria-knowledge-ui-kit-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:assessment/manual-review-contract.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:day/decision-registry.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:scripts/submissions.criteria-workflow.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:src/ui-kit/DecisionScenarioCatalog.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:storage/criteria-contract.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:sync/learning-observations.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "module.reviews.math-solution-route",
       "to": "decision.reviews.math-parent-stage-review",
       "type": "contains"
@@ -25151,6 +25460,11 @@
     {
       "from": "module.reviews",
       "to": "module.reviews.card-generation-policy",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "contains"
     },
     {
@@ -25971,6 +26285,11 @@
     {
       "from": "module.synchronization.subject-decision-graph",
       "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.reviews.criteria-and-knowledge",
       "type": "uses"
     },
     {
@@ -28007,6 +28326,11 @@
       "from": "shared.design.ui-kit",
       "to": "file:src/UiKit.test.tsx",
       "type": "verified-by"
+    },
+    {
+      "from": "shared.design.ui-kit",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "uses"
     },
     {
       "from": "shared.design.ui-kit",

@@ -42,6 +42,8 @@ import { assertMixedEntry } from '../day/mixed-assignment.mjs'
 import { ownerMigrationFields } from '../day/owner-repair.mjs'
 import { publicPageSubjects, publicProblem } from '../day/public-projection.mjs'
 import { isExplicitCdzTask } from '../day/homework-kind.mjs'
+import {subjectDecisionPlan} from '../sync/subject-decisions.mjs'
+/** @see ../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 import { cardPolicyModules, mathRouteProfile, mathRouteProfiles, missingMathRoutes, practiceVariantErrors, sourceInventoryErrors, validLearningRoute } from '../day/card-policy.mjs'
 import { assertPublishedPageAligned, assertSourceAligned as assertSourceAlignedContract, sourcePlanFingerprint, textbookRefError } from '../day/pipeline-contract.mjs'
 import { chooseGradeJournal, detectGradeChange, gradeDetailRows, gradeProjectionPatch } from '../day/grade-reconciliation.mjs'
@@ -434,6 +436,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
         fail(`Указатель ${task.id} должен вести к прежнему ДЗ и не создавать отдельный результат.`)
       }
       const policy = cardPolicyModules(subject.id, task)
+      if(task.decisionRuleIds)subjectDecisionPlan(task,subject.id)
       const adapter = policy.adapter
       const variantErrors = practiceVariantErrors(task)
       if (variantErrors.length) fail(`У ${task.id} неверно разобраны варианты: ${variantErrors.join(' ')}`)

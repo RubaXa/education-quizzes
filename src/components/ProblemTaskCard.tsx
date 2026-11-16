@@ -10,11 +10,14 @@ import WorkReview from './WorkReview'
 import ParentTaskGuide from './ParentTaskGuide'
 import TaskGuidance from './TaskGuidance'
 import type { DayGuidance } from '@/lib/dayGuidance'
+import {subjectDecisionPlan} from '../../sync/subject-decisions.mjs'
+/** @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 
 /** Shared numbered task view; the photo gallery is supplied by its route.
  * @see ../../docs/modules/reviews/adaptive-problem-card.md#shared-problem-view
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#role-projection */
-export default function ProblemTaskCard({ studentToken, problem, state, links, parent, owner, help, review, guide, guidance, guidanceReady, onSendGuidance, sourceResearch, uploads, accepted, canDecide, onDecision, decisions, onRequirementChoice, onStageChoice, helpAccess, onRequestHelp, onPhotos, children }: {
+export default function ProblemTaskCard({ studentToken, problem, state, links, parent, owner, help, review, guide, guidance, guidanceReady, onSendGuidance, sourceResearch, uploads, accepted, canDecide, onDecision, decisions, onRequirementChoice, onStageChoice, helpAccess, onRequestHelp, onPhotos, children,subjectId='math' }: {
+  subjectId?:string;
   studentToken?:string; owner?: { familyId?: string; childId?: string };
   problem: DayProblem; state: ProblemCardState; links: DayMaterialLink[]; parent: boolean; help?: DayHelp; guide?: ParentTaskGuideData; guidance?: DayGuidance[]; guidanceReady?: boolean; onSendGuidance?: (stage: ParentTaskGuideData['stages'][number], level: 'hint' | 'reveal') => Promise<void>; sourceResearch?: DaySourceResearch;
   review?: DayWorkReview; uploads: DayUpload[]; accepted?: boolean; canDecide?: boolean; onDecision?: (action: 'accept' | 'reopen') => Promise<void>; decisions?: ParentCompletionEvent[]; onRequirementChoice?: (id: string, action: 'require' | 'optional') => Promise<void>; onStageChoice?: (stage: ParentTaskGuideData['stages'][number], required: boolean) => Promise<void>; helpAccess: 'checking' | 'ready' | 'login-required';
@@ -23,7 +26,8 @@ export default function ProblemTaskCard({ studentToken, problem, state, links, p
   const hasGuide = Boolean(guide)
   const familyId = owner?.familyId, childId = owner?.childId
   useEffect(() => { reportRoleProjection({ familyId, childId }, parent, hasGuide) }, [familyId, childId, parent, hasGuide])
-  return <ProblemCard problem={problem} state={state} parent={parent} sourceResearch={sourceResearch}>
+  const actions=subjectDecisionPlan({kind:'written',meshText:problem.original?.text??problem.detail},subjectId).actions
+  return <ProblemCard problem={problem} state={state} parent={parent} sourceResearch={sourceResearch} decision={{nodes:actions.map(a=>a.nodeId).filter((id):id is string=>Boolean(id)),edges:actions.flatMap(a=>a.edgeIds??[])}}>
     <ProblemStatement problem={problem} links={links} parent={parent} help={help} review={review} finished={accepted} helpAccess={helpAccess} onRequestHelp={onRequestHelp} />
     {!parent && <TaskGuidance items={guidance ?? []} />}
     {parent && guide && <ParentTaskGuide guide={guide} review={review} decisions={decisions} guidance={guidance} guidanceReady={guidanceReady} onSend={onSendGuidance} onStageChoice={onStageChoice} />}

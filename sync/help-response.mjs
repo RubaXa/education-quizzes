@@ -5,6 +5,8 @@ import {reviewResponseErrors,sameReviewValue} from '../packages/education-presen
  */
 import { syncJobId } from './job-queue.mjs'
 import { captureEventTaskInputs, taskArtifactFingerprint, validateTaskArtifact } from './event-task-artifact.mjs'
+import {learningObservation} from './learning-observations.mjs'
+/** @see ../docs/modules/reviews/criteria-and-knowledge.md#knowledge */
 
 const hash = value => /^[a-f0-9]{64}$/.test(value ?? '')
 const fail = code => { throw Object.assign(new Error(code), { safeCode: code }) }
@@ -40,7 +42,7 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
       const current = existing.data()
       if (current.sourceRequestEventId !== eventId || current.sourceArtifactId !== artifactId || current.text !== trimmed || !sameReviewValue(current.reviewResponse,reviewResponse)
         || job.status !== 'done' || job.evidence !== responseRef.path) fail('help_response_conflict')
-      return { path: responseRef.path, jobPath: jobRef.path, unchanged: true }
+      return { path: responseRef.path, jobPath: jobRef.path,knowledgePath:job.learningEvidencePath??null, unchanged: true }
     }
     if (job.status === 'done') fail('help_response_job_changed')
     const observationSnap = await tx.get(db.doc(`operatorSyncTaskObservations/${eventId}`))
@@ -54,11 +56,16 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
       guideRevision: inputs.source.revision, actorPersonId: 'education-operator', createdAt: new Date(now),
       sourceRequestEventId: eventId, sourceArtifactId: artifactId, sourceFingerprint: artifact.fingerprint,
       sourcePlanRevision: inputs.source.planRevision, ...(reviewResponse ? {reviewResponse,reviewContext:inputs.reviewContext,sourceStepId:inputs.source.reviewReply.sourceId} : {}) }
+    const knowledge=learningObservation({owner:{familyId:event.familyId,childId:event.childId},taskId,attemptRef:`educationEvents/${eventId}`,sourceRevision:artifact.fingerprint,
+      outcome:reviewResponse?.outcome??'support-published',scope:'micro-step',helpLevel:'guided'})
+    const knowledgeRef=db.doc(`families/${event.familyId}/children/${event.childId}/learningEvidence/${knowledge.id}`)
+    tx.create(knowledgeRef,{...knowledge,recordedAt:new Date(now)})
     tx.create(responseRef, response)
-    tx.update(jobRef, { status: 'done', phase: 'verified', evidence: responseRef.path, updatedAt: new Date(now), completedAt: new Date(now), ...(reviewResponse?{pedagogicalDecision:{outcome:reviewResponse.outcome,reason:decision.reason,semanticChecked:true,noAnswerChecked:true}}:{}) })
-    return { path: responseRef.path, jobPath: jobRef.path, unchanged: false }
+    tx.update(jobRef, { status: 'done', phase: 'verified', evidence: responseRef.path,learningEvidencePath:knowledgeRef.path, updatedAt: new Date(now), completedAt: new Date(now), ...(reviewResponse?{pedagogicalDecision:{outcome:reviewResponse.outcome,reason:decision.reason,semanticChecked:true,noAnswerChecked:true}}:{}) })
+    return { path: responseRef.path, jobPath: jobRef.path,knowledgePath:knowledgeRef.path, unchanged: false }
   })
   const [saved, savedJob] = await Promise.all([db.doc(result.path).get(), db.doc(result.jobPath).get()])
+  if(result.knowledgePath){const evidence=await db.doc(result.knowledgePath).get();if(!evidence.exists||evidence.data()?.scope!=='micro-step'||evidence.data()?.mastery!=='not-inferred')fail('help_response_knowledge_readback_failed')}
   if (!saved.exists || saved.data()?.sourceRequestEventId !== eventId || saved.data()?.sourceArtifactId !== artifactId
     || saved.data()?.text !== trimmed || !sameReviewValue(saved.data()?.reviewResponse,reviewResponse) || !savedJob.exists || savedJob.data()?.status !== 'done'
     || savedJob.data()?.eventId !== eventId || savedJob.data()?.evidence !== result.path) fail('help_response_readback_failed')

@@ -114,7 +114,7 @@ describe('closed event task inputs', () => {
   it('captures the exact work, assignment and owner without any collection scan', async () => {
     const { db, rows, reads } = fixture()
     const result = await prepareEventTaskArtifact(db, event, { now: '2026-10-19T10:00:00.000Z' })
-    expect(reads).toEqual(['dayUploads/day/files/file', 'families/family', 'families/family/children/child', 'dayOwners/day', 'dayPages/day', 'dayReviewPrivate/day/items/task', 'dayTaskGuides/day/items/task'])
+    expect(reads).toEqual(['dayUploads/day/files/file', 'families/family', 'families/family/children/child', 'dayOwners/day', 'dayPages/day', 'dayReviewPrivate/day/items/task', 'dayTaskGuides/day/items/task','dayTaskGuides/day/items/task/criteriaContract/current'])
     const artifact = rows.get(result.artifactPath)
     expect(artifact.inputs.context.task.meshText).toBe('Решить 3x + 7 = 22')
     expect(artifact.inputs.source.storage.sha256).toBe('b'.repeat(64))

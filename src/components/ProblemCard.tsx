@@ -10,7 +10,8 @@ import './ProblemCard.css'
  * @see ../../docs/shared/design/components.md#registry
  * @see ../../docs/modules/reviews/adaptive-problem-card.md#shared-problem-view
  * @see ../../docs/shared/design/statuses.md#components */
-export function ProblemCard({ problem, state, parent = false, sourceResearch, children }: { problem: DayProblem; state: ProblemCardState; parent?: boolean; sourceResearch?: DaySourceResearch; children: ReactNode }) {
+/** @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
+export function ProblemCard({ problem, state, parent = false, sourceResearch, children,decision }: { problem: DayProblem; state: ProblemCardState; parent?: boolean; sourceResearch?: DaySourceResearch; children: ReactNode;decision?:{nodes:string[];edges:string[]} }) {
   const [sourceOpen, setSourceOpen] = useState(false)
   const status = state.tone === 'verified' ? 'complete' : state.tone === 'error' ? 'needs-fix'
     : state.tone === 'partial' ? 'partial' : state.tone === 'waiting' && state.label.includes('задержана') ? 'paused'
@@ -19,7 +20,7 @@ export function ProblemCard({ problem, state, parent = false, sourceResearch, ch
   const sourceStatus = sourceResearch?.status === 'verified' ? 'complete' : sourceResearch?.status === 'conflict' ? 'needs-fix' : 'unknown'
   const sourceLabel = sourceResearch?.status === 'verified' ? 'Источник подтверждён' : sourceResearch?.status === 'candidate' ? 'Возможный источник'
     : sourceResearch?.status === 'conflict' ? 'Источники расходятся' : sourceResearch?.status === 'not-found' ? 'Подтверждённый источник не найден' : 'Происхождение не проверено'
-  return <details className={`problem-card ${state.tone}`} id={problem.id} onToggle={(event) => { if (!event.currentTarget.open) setSourceOpen(false) }}>
+  return <details className={`problem-card ${state.tone}`} id={problem.id} data-decision-nodes={decision?.nodes.join(' ')??'view.component'} data-decision-edges={decision?.edges.join(' ')} onToggle={(event) => { if (!event.currentTarget.open) setSourceOpen(false) }}>
     <summary className="problem-card-heading" aria-label={`№ ${problem.number}. ${problem.title}. ${state.label}`}><strong>№ {problem.number}. {problem.title}</strong><span className="problem-card-state" title={state.label}><StatusIcon status={status} size={15} />{compact && <small aria-hidden="true">{compact}</small>}</span>
       {parent && <span className="problem-card-source-wrap"><button type="button" className={`problem-card-source-trigger ${sourceStatus}`} aria-label={`${sourceLabel}. ${sourceOpen ? 'Скрыть' : 'Показать'} происхождение задачи`} aria-expanded={sourceOpen} aria-controls={sourceOpen ? `source-${problem.id}` : undefined} title={sourceLabel} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setSourceOpen((value) => !value) }} onKeyDown={(event) => event.stopPropagation()}><StatusIcon size={18} status={sourceStatus} /></button></span>}
       <ChevronDown size={17} className="problem-card-chevron" aria-hidden="true" />

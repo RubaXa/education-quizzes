@@ -3,7 +3,7 @@ id: service.operator-cli
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-21
+updated: 2026-11-16
 consumers:
   - "Education operator"
   - "operator CLI"
@@ -125,6 +125,20 @@ flowchart TD
 
 
 ## Entrypoints and effects
+
+Полнота критериев и запись наблюдений: `submissions criteria-export DAY_TOKEN TASK_ID
+.local/packet.json` экспортирует точные исходники/отпечатки; агент сверяет оригиналы
+и заполняет полную опись. `submissions criteria .local/packet.json` регистрирует её
+в отдельном закрытом документе с readback. `submissions validate/review/feedback`
+применяет обязательный gate: пропущенный критерий не даёт нового зачёта. Для этого
+внутреннего этапа не запрашивается новое разрешение пользователя.
+
+`quiz export TOKEN .local/attempt.json` выдаёт attemptFingerprint и
+priorReviewFingerprint с закрытой рубрикой. `quiz rubric TOKEN .local/rubric.json`
+сохраняет полные критерии открытых вопросов в quizReviewPrivate с историей; затем
+экспорт перечитывается. `quiz review TOKEN .local/review.json` сверяет каждый критерий,
+баллы, прежний разбор и свежесть попытки. Коррекция требует correctionReason.
+Результат и learningEvidence сохраняются атомарно, обе проекции и знания перечитываются.
 
 Операторский runtime состоит из типизированных CLI-команд, а не одного фонового сервиса. Каждая команда возвращает проверяемый результат; смысловую интерпретацию и педагогические решения принимает оператор/агент.
 

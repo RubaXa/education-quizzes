@@ -1,0 +1,9 @@
+/** @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
+.edu-decision-roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.edu-decision-role{min-width:0}
+.edu-decision-role>h3{margin:12px 0}
+.edu-decision-inspector{margin:14px 0;overflow-wrap:anywhere}
+.edu-decision-inspector p{margin:8px 0}
+.edu-kit .edu-decision-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:680px){.edu-kit .edu-decision-controls{grid-template-columns:minmax(0,1fr)}.edu-kit .edu-decision-controls>label:first-child{grid-column:auto}}
+@media(max-width:680px){.edu-decision-roles{grid-template-columns:minmax(0,1fr)}}
