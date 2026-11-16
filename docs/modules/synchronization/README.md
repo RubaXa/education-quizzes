@@ -43,4 +43,5 @@ code:
 - [firestore-read-paths](firestore-read-paths.md)
 - [global-sync](global-sync.md)
 - [plan-generation](plan-generation.md)
+- [Сквозной предметный граф](subject-decision-graph.md) — три входа, знания, учебные продукты и ролевые потребители
 - [shared-artifact-pipeline](shared-artifact-pipeline.md)

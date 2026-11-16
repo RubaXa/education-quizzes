@@ -127,19 +127,21 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "7eba1edf40393ca5158acf245812680fafa1934b941fcb6bd47154c6856b933b",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "ade566f9a423ba6e642d66ad2d7036b6b44727a6c09c1fffb2bd196c7b1b9073",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -2442,18 +2444,21 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "d7ff0c7dafb53b1fe35535ca9322426e5efab652fc3806782742c55c0a84d016",
-      "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
+      "sha256": "e13cd33dbb6d49ae0cce7a8cbdd09554740e9f4e6e3eb20a380be190f56e45fa",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs"
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -5351,21 +5356,21 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "5198dea392e73694bb50d85511e06e5a7d04d54c5dd8255b019d054e5da332db",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "08f6a9260ba8553844f6f37a0835de8dad3d3f20130968bd2d3ddab97ea5c39e",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "sync/event-task-export.mjs": {
@@ -5714,24 +5719,21 @@
       }
     },
     "day/mesh-notice.mjs": {
-      "sha256": "69784f2f7aada3c3679bdf0a479ef03ce796091e751508dc6563c9e353722a34",
-      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
+      "sha256": "571b1bfb3dff9095e84e816f62bee99c9ac512af2ee69911e77ba22417a8b48d",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "day/mesh-notice.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/pipeline-contract.test.mjs",
-        "day/data-contract.test.mjs",
-        "day/merge.test.mjs",
-        "scripts/day.validate.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя через EducationSync 21.10.2026: сохранить информационную запись МЭШ «Всем хороших каникул!» без ложного учебного долга, с общим маршрутом классификации и проверками."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "sync/project-audit.mjs": {
@@ -6079,18 +6081,21 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "e5eee7e8d2b0832d6ceddcbf7a382cb91079b0b13f5ad03713a524342c42c91a",
-      "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
+      "sha256": "cf426259bedff26099a74df7f1d61fac7b64b2d0e7957ff8c05b8e523f59f611",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs"
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "operator/route-plan.mjs": {
@@ -8116,18 +8121,21 @@
       }
     },
     "sync/deadline-control.mjs": {
-      "sha256": "dfe2069744e14107f9dcaa74d7104062400129db9a5231509d0ddd6d9a7ea48d",
-      "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
+      "sha256": "b4f94c445881fb2a21e4cb7c60e242fecf7a824639b7ea83a9c2b1fdb880df88",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs"
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     },
     "sync/deadline-evidence.mjs": {
@@ -8143,6 +8151,42 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+      }
+    },
+    "sync/subject-decisions.mjs": {
+      "sha256": "25fc6489e1462193c2d79da27fe567c9c0b4cdc62a08f612d8ed1bdf015da042",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "specs": [
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/event-task-artifact.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+      }
+    },
+    "sync/decision-evidence.mjs": {
+      "sha256": "914056e89a45ef7311f8f43d8746f26ec98f3135c2b118ccdf23e477253dd39b",
+      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "specs": [
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "sync/subject-decisions.test.mjs",
+        "sync/decision-evidence.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/event-task-artifact.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
       }
     }
   }

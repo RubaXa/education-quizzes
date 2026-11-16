@@ -3359,6 +3359,30 @@
       "path": "docs/decisions/student-review-step-2026-11-01.md"
     },
     {
+      "id": "decision.subject-graph-restoration-2026-11-16",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.synchronization.subject-decision-graph",
+      "uses": [
+        "research.learning-decision-evidence-2026-11-16"
+      ],
+      "consumers": [
+        "Education operator",
+        "developer"
+      ],
+      "code": [],
+      "sections": [
+        "reason",
+        "change",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/subject-graph-restoration-2026-11-16.md"
+    },
+    {
       "id": "decision.sync-permission-scope-2026-11-08",
       "status": "accepted",
       "implementation": "implemented",
@@ -11320,6 +11344,20 @@
       "consumer": "Оператор; синхронизация"
     },
     {
+      "id": "file:sync/decision-evidence.mjs",
+      "path": "sync/decision-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый производный индекс фактов, неизвестного и продуктов без новых чтений",
+      "consumer": "Queue scan; execution artifact"
+    },
+    {
+      "id": "file:sync/decision-evidence.test.mjs",
+      "path": "sync/decision-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Приватность индекса, независимые действия и честное неизвестное",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/dispatch-workspace.mjs",
       "path": "sync/dispatch-workspace.mjs",
       "kind": "artifact",
@@ -11551,6 +11589,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:sync/subject-decisions.mjs",
+      "path": "sync/subject-decisions.mjs",
+      "kind": "artifact",
+      "purpose": "Три входа и независимые предметные продукты закрытого плана",
+      "consumer": "Queue scan; execution artifact"
+    },
+    {
+      "id": "file:sync/subject-decisions.test.mjs",
+      "path": "sync/subject-decisions.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии предметных действий, источников и сохранения зачёта",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/task-route.mjs",
       "path": "sync/task-route.mjs",
       "kind": "artifact",
@@ -11645,7 +11697,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-16",
+      "updated": "2026-11-16",
       "consumers": [
         "student",
         "parent",
@@ -13539,6 +13591,42 @@
       "path": "docs/modules/synchronization/shared-artifact-pipeline.md"
     },
     {
+      "id": "module.synchronization.subject-decision-graph",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.synchronization",
+      "uses": [
+        "module.reviews.subject-aware-guidance",
+        "module.reviews.card-generation-policy",
+        "module.assessments.assessment-decision-graph",
+        "shared.specification-system",
+        "module.reviews.subject-card-viewmodel",
+        "module.reviews.review-criteria-provenance"
+      ],
+      "consumers": [
+        "Education operator",
+        "parent",
+        "task route planner"
+      ],
+      "code": [
+        "sync/subject-decisions.mjs",
+        "sync/decision-evidence.mjs"
+      ],
+      "sections": [
+        "inputs",
+        "subjects",
+        "products",
+        "graphs",
+        "trace",
+        "scenarios",
+        "crosscutting",
+        "audit"
+      ],
+      "path": "docs/modules/synchronization/subject-decision-graph.md"
+    },
+    {
       "id": "module.synchronization.task-routing",
       "status": "accepted",
       "implementation": "partial",
@@ -13550,7 +13638,8 @@
         "module.synchronization.execution-artifact",
         "module.assessments.assessment-decision-graph",
         "module.materials.material-clarification",
-        "module.reviews.card-generation-policy"
+        "module.reviews.card-generation-policy",
+        "module.synchronization.subject-decision-graph"
       ],
       "consumers": [
         "EducationSync operator",
@@ -14306,6 +14395,28 @@
         "применение-и-ограничения"
       ],
       "path": "docs/research/information-reading-2026-10-31.md"
+    },
+    {
+      "id": "research.learning-decision-evidence-2026-11-16",
+      "status": "reference",
+      "implementation": "not-applicable",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.synchronization.subject-decision-graph",
+      "uses": [
+        "module.reviews.method-guided-solutions",
+        "shared.design.student-review-step"
+      ],
+      "consumers": [
+        "Education operator",
+        "learning designer"
+      ],
+      "code": [],
+      "sections": [
+        "evidence",
+        "implications"
+      ],
+      "path": "docs/research/learning-decision-evidence-2026-11-16.md"
     },
     {
       "id": "research.literature-card-options",
@@ -16740,6 +16851,11 @@
     {
       "from": "decision.student-review-step-2026-11-01",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.subject-graph-restoration-2026-11-16",
+      "to": "research.learning-decision-evidence-2026-11-16",
       "type": "uses"
     },
     {
@@ -23123,6 +23239,11 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/decision-evidence.mjs",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/dispatch-workspace.mjs",
       "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
@@ -23305,6 +23426,11 @@
     {
       "from": "file:sync/school-calendar.mjs",
       "to": "module.school-diary.school-calendar",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/subject-decisions.mjs",
+      "to": "module.synchronization.subject-decision-graph",
       "type": "implements"
     },
     {
@@ -25823,6 +25949,56 @@
       "type": "uses"
     },
     {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "decision.subject-graph-restoration-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "file:sync/decision-evidence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "file:sync/subject-decisions.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "module.reviews.subject-card-viewmodel",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "research.learning-decision-evidence-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "shared.specification-system",
+      "type": "uses"
+    },
+    {
       "from": "module.synchronization.task-routing",
       "to": "decision.continuous-course-preparation-2026-11-07",
       "type": "contains"
@@ -25875,6 +26051,11 @@
     {
       "from": "module.synchronization.task-routing",
       "to": "module.synchronization.execution-artifact",
+      "type": "uses"
+    },
+    {
+      "from": "module.synchronization.task-routing",
+      "to": "module.synchronization.subject-decision-graph",
       "type": "uses"
     },
     {
@@ -25940,6 +26121,11 @@
     {
       "from": "module.synchronization",
       "to": "module.synchronization.shared-artifact-pipeline",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization",
+      "to": "module.synchronization.subject-decision-graph",
       "type": "contains"
     },
     {
@@ -26770,6 +26956,16 @@
     {
       "from": "research.grade-average-visual-scale-2026-10-18",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "research.learning-decision-evidence-2026-11-16",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "uses"
+    },
+    {
+      "from": "research.learning-decision-evidence-2026-11-16",
+      "to": "shared.design.student-review-step",
       "type": "uses"
     },
     {

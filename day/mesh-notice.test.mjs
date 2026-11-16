@@ -6,6 +6,13 @@ const noAssignmentReason = 'Точная отдельная отметка МЭ�
 const entry = { kind: 'notice', id: 'mesh-352682606', subjectId: 'math', rawText: 'Всем хороших каникул!', reason }
 
 describe('консервативная классификация информационной записи МЭШ', () => {
+  it('recognizes exact absence markers without hiding assigned files or extra actions', () => {
+    for (const text of ['нет','НЕТ.','Нет дз','нет дз.']) {
+      expect(classifyMeshNotice(text)?.kind).toBe('notice')
+      expect(classifyMeshNotice(text,{hasTeacherFiles:true})).toBeNull()
+    }
+    expect(classifyMeshNotice('Нет дз, повторить правило')).toBeNull()
+  })
   it('recognizes the exact standalone greeting only', () => {
     expect(classifyMeshNotice('Всем хороших каникул!')).toEqual({ kind: 'notice', reason })
     expect(classifyMeshNotice('  Всем   хороших каникул… ')).toEqual({ kind: 'notice', reason })

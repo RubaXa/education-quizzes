@@ -11,6 +11,7 @@ uses:
   - module.assessments.assessment-decision-graph
   - module.materials.material-clarification
   - module.reviews.card-generation-policy
+  - module.synchronization.subject-decision-graph
 consumers:
   - EducationSync operator
   - operator CLI
@@ -35,7 +36,9 @@ sections:
 
 ## Общий жизненный цикл урока и задания {#learning-lifecycle}
 
-Это единая карта решений, соединяющая действующие контракты. Операторский job,
+Это инфраструктурный жизненный цикл. Полная [предметная карта трёх входов](subject-decision-graph.md)
+связывает его с источниками, знаниями, видом продукта и настоящим UI-потребителем.
+Операторский job,
 получение файла, готовность источника, учебный результат и видимость — разные
 состояния: завершение одного не закрывает остальные.
 

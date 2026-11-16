@@ -84,7 +84,7 @@ export async function captureEventTaskInputs(db, event, { now = new Date().toISO
   }
   // Expiring upload transport credentials are not task evidence.
   const { upload: _transport, ...sourceEvidence } = source
-  const inputs = { source: canonical(sourceEvidence), child: { displayName: childSnap.data()?.displayName ?? null }, sourcePath: event.sourceRef.documentPath }
+  const inputs = { owner: {familyId:event.familyId,childId:event.childId}, source: canonical(sourceEvidence), child: { displayName: childSnap.data()?.displayName ?? null }, sourcePath: event.sourceRef.documentPath }
   if (event.sourceRef.dayToken) {
     const ownerSnap = await db.doc(`dayOwners/${event.sourceRef.dayToken}`).get()
     const owner = ownerSnap.data()

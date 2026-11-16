@@ -15,6 +15,9 @@ it('starts control readiness three days before; skips ordinary work then and opt
  expect(deadlineDecision({task:{...task,optional:true},today:'2026-11-16',dueDate:'2026-11-17'})).toBeNull()
  expect(deadlineDecision({task,today:'2026-11-16',dueDate:'unknown'})).toBeNull()
 })
+it('does not classify independently completing an exercise as a control', () => {
+ expect(deadlineDecision({task:{...task,meshText:'Самостоятельно выполнить упражнение 3'},today:'2026-11-16',dueDate:'2026-11-19'})).toBeNull()
+})
 it('uses actual period dates, flags deterioration and keeps points outside the average', () => {
  const checks=periodRiskChecks([{subject_id:7,subject_name:'Math',average:'4.60',end:'2026-11-22',marks:[{date:'2026-11-10',value:5},{date:'2026-11-11',value:4},{date:'2026-11-13',value:3}],recentMarks:[{id:8,value:2,is_point:true}]}],'2026-11-16')
  expect(checks[0]).toMatchObject({ average:4.6,periodEnd:'2026-11-22',reasons:['latest-below-five','recent-deterioration','open-low-point'] })
