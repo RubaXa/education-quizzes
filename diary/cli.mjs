@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/modules/school-diary/README.md */
 /** @see ../docs/decisions/mesh-http-trace-2026-11-02.md */
 /** @see ../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../docs/decisions/mesh-login-stages-2026-11-01.md */
@@ -17,6 +18,8 @@ import { loginToMesh, MeshDiaryAdapter, probeMesh } from './adapters/mesh.mjs'
 import { syncDiary } from './application/sync.mjs'
 import { lessonVisibility } from './application/lesson-visibility.mjs'
 import { downloadDayAttachments } from './attachments.mjs'
+import { collectMarkDetails, collectMarkFeed } from './application/mark-details.mjs'
+import { downloadMarkFiles } from './application/mark-files.mjs'
 import { meshAuthDiagnostic } from '../packages/education-connect/lib/mesh.mjs'
 import { formatLoginFailure } from '../packages/education-connect/lib/login-diagnostics.mjs'
 import { hiddenPrompt, visiblePrompt, credentialInputSummary, confirmPrompt } from '../packages/education-connect/lib/prompts.mjs'
@@ -42,7 +45,7 @@ async function main() {
     config.dataDir = resolve(args[dirAt + 1])
   }
   if (!command || command === 'help') {
-    stdout.write('Команды: npm run diary -- doctor | login | verify | sync --date YYYY-MM-DD | files --date YYYY-MM-DD | status\n')
+    stdout.write('Команды: npm run diary -- doctor | login | verify | sync --date YYYY-MM-DD | mark-feed | mark-details --date YYYY-MM-DD --id ID [--download] | files --date YYYY-MM-DD | status\n')
     return
   }
   if (command === 'doctor') {
@@ -127,6 +130,28 @@ async function main() {
     stdout.write(`Роль: ${result.accountRole}; ученический профиль связан с аккаунтом; детей доступно: ${result.childrenCount}.\n`)
     return
   }
+  if (command === 'mark-feed') {
+    const secret = readJson(config.dataDir, 'secret.json')
+    if (!secret) throw new Error('Сначала выполните npm run diary -- login')
+    const adapter = new MeshDiaryAdapter(secret, (updated) => writeJson(config.dataDir, 'secret.json', updated))
+    stdout.write(`${JSON.stringify(await collectMarkFeed({ adapter, save: (filename, value) => writeJson(config.dataDir, filename, value) }))}\n`)
+    return
+  }
+  if (command === 'mark-details') {
+    const dateIndex = args.indexOf('--date')
+    const secret = readJson(config.dataDir, 'secret.json')
+    if (!secret) throw new Error('Сначала выполните npm run diary -- login')
+    const adapter = new MeshDiaryAdapter(secret, (updated) => writeJson(config.dataDir, 'secret.json', updated))
+    const result = await collectMarkDetails({ adapter, date: dateIndex >= 0 ? args[dateIndex + 1] : null,
+      markId: args.includes('--id') ? args[args.indexOf('--id') + 1] : null,
+      save: (filename, value) => writeJson(config.dataDir, filename, value) })
+    stdout.write(`${JSON.stringify(result)}\n`)
+    if (args.includes('--download')) {
+      const stored = readJson(config.dataDir, result.saved)
+      stdout.write(`${JSON.stringify(await downloadMarkFiles({ adapter, detail: stored.marks?.payload ?? stored.marks, dataDir: config.dataDir }))}\n`)
+    }
+    return
+  }
   if (command === 'sync') {
     const dateIndex = args.indexOf('--date')
     const date = dateIndex >= 0 ? args[dateIndex + 1] : null
@@ -196,6 +221,7 @@ main().catch((error) => {
     return
   }
   const message = String(error?.message || '')
+  if (/^mesh_mark_file_http_\d{3}$/.test(message)) { console.error(message); process.exitCode = 1; return }
   const safe = /^(Сначала |Укажите |Дата должна|Неизвестная команда|Для входа нужен|Вход прерван|Логин и пароль|Неверный номер|МЭШ запросил|Поставщик |ACCESS_NOT_VERIFIED:)/.test(message)
   console.error(safe ? message : 'Команда не завершена. Проверьте доступ к МЭШ или повторите вход; секреты не выводятся.')
   process.exitCode = 1
