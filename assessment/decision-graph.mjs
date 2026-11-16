@@ -269,3 +269,9 @@ export function validateAssessmentPlan(plan, spec) {
   }
   return errors
 }
+/** Shared meaning of a school control, distinct from doing an exercise independently.
+ * @see ../docs/modules/assessments/assessment-decision-graph.md */
+export function isControlAssignment(task) {
+  return ['control-diagnostic', 'control-followup'].includes(task?.assessmentIntent?.mode)
+    || /контрольн(?:ая|ую|ой)(?=$|[\s.,;:!?])|самостоятельн(?:ая|ую|ой)\s+работ/iu.test(task?.meshText ?? '')
+}

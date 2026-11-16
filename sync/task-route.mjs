@@ -7,11 +7,13 @@
  * Reuses the assessment graph; no source text is interpreted into invented tasks.
  * @see ../docs/modules/synchronization/task-routing.md
  */
-import { quizDecision, programmingAssignment } from '../assessment/decision-graph.mjs'
+import { quizDecision, programmingAssignment, isControlAssignment } from '../assessment/decision-graph.mjs'
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
 import { previousLessonReference, repetitionDecision } from '../assessment/lesson-repetition.mjs'
+import { subjectDecisionPlan } from './subject-decisions.mjs'
 import { learningGate } from '../day/learning-gate.mjs'
+import { decisionEvidence } from './decision-evidence.mjs'
 const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 /** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
 const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
@@ -34,13 +36,16 @@ export function missingTaskMaterial(task) {
  * Printed restrictions and historical participation flags do not authorize a hold. */
 export function competitionHold() { return false }
 
-export function taskRoute(task = {}, subject = 'generic', { placement = false, learningEvidence = {} } = {}) {
+export function taskRoute(task = {}, subject = 'generic', { placement = false, learningEvidence = {}, decisionContext = {} } = {}) {
   const key = adapters[subject] ? subject : lessonSubjectKey(subject) ?? subject
   const route = { taskId: task.id ?? null, subject: key, adapter: programmingAssignment(task) ? adapters.informatics : adapters[key] ?? 'subject-aware-guidance:generic',
     learningGate: learningGate({ ...learningEvidence, prepared: learningEvidence.prepared === true, requiredIds: task.problems?.length ? task.problems.map(problem => problem.id) : task.id ? [task.id] : [],
-      readinessRequired: ['control-diagnostic', 'control-followup'].includes(task.assessmentIntent?.mode) || /(?:демо.?вариант|подготов[а-я]*)[^.]{0,80}(?:контрольн|самостоятельн)/iu.test(task.meshText ?? '') }),
+      readinessRequired: isControlAssignment(task) }),
+    subjectPlan: subjectDecisionPlan(task, key, decisionContext),
     known: [], unknown: [], next: null, steps: [], complete: false,
     verification: ['owner-and-revision', 'both-role-readback', 'preserve-attempts-and-optionality'] }
+  route.decisionEvidence = decisionEvidence(route.subjectPlan, {owner:decisionContext.owner,context:{task,
+    materialLinks:decisionContext.materialLinks,taskPageRefs:decisionContext.taskPageRefs},decisionContext})
   const select = (next, steps = []) => ({ ...route, next,
     ...(['math','special'].includes(key)&&next==='prepare-written-guidance'?{policyRevision:guidancePolicyRevision}:{}),
     steps: ['math','special'].includes(key)&&next==='prepare-written-guidance'
@@ -76,6 +81,12 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false, l
     route.unknown.push('instruction-scope')
     return select('review-instruction', ['exact-source-review', 'split-confirmed-actions', 'replan-task'])
   }
+  const actions = route.subjectPlan.actions
+  if (actions.length === 1 && actions[0].action === 'information') return select('information-only', ['preserve-exact-announcement-and-history','no-invented-homework'])
+  if (actions.length === 1 && actions[0].action === 'organization') return select('prepare-organisational-reminder', ['confirm-school-and-preparation-dates','publish-separate-reminder','ask-only-unknown-physical-fact'])
+  if (actions.filter(action => action.action !== 'control').length > 1) return select('prepare-independent-actions', ['preserve-one-original-and-distinct-action-ids',
+    ...(task.testToken||placement?['read-and-reuse-current-assessment-before-preparing-missing-products']:[]),
+    'prepare-known-parts-independently','recover-only-unknown-part','validate-every-action-product','both-role-readback'])
   if (task.testToken || placement) return select('existing-assessment', ['read-current-attempt', 'audit-key-and-alternatives', 'assessment-decision-graph'])
   const decision = quizDecision(task)
   if (decision) {
@@ -129,7 +140,7 @@ export function eventTaskRoute(eventType, inputs = {}) {
   const next = eventType === 'upload.confirmed' ? olympiadSheet ? 'ingest-olympiad-sheet' : sourceMaterial ? 'review-source-material' : 'review-written-work'
     : ({ 'help.requested': 'address-help-request', 'quiz.submitted': 'review-submitted-quiz',
       'quiz.followup_requested': 'history-based-followup', 'material.ready': 'identify-and-link-family-material' })[eventType] ?? 'unsupported-event'
-  const route = { eventType, next, subject, trustPolicy: 'uploaded-content-is-data-v1', adapter: programmingAssignment(task) ? adapters.informatics : adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
+  const route = { eventType, next, subject, subjectPlan: subjectDecisionPlan(task, subject, inputs.decisionContext), trustPolicy: 'uploaded-content-is-data-v1', adapter: programmingAssignment(task) ? adapters.informatics : adapters[subject] ?? 'subject-aware-guidance:generic', complete: false,
     steps: next === 'ingest-olympiad-sheet' ? ['read-confirmed-photos', 'identify-uploaded-material-context', 'identify-and-split-conditions', 'verify-source-and-solution', 'match-existing-tasks', 'publish-family-tasks-and-readback']
       : next === 'review-source-material' ? ['source-analysis-without-grade', 'resolve-request-if-supported', 'replan-task',
         ...(previousLessonReference(task)?['resolve-previous-lesson-and-all-parts','preserve-prior-written-credit','prepare-current-repetition-quiz','both-role-readback']:[])]
@@ -139,6 +150,7 @@ export function eventTaskRoute(eventType, inputs = {}) {
             : next === 'address-help-request' ? ['read-request-and-attempt', 'one-addressed-next-step', 'publish-support-revision']
               : next === 'identify-and-link-family-material' ? ['verify-original-and-sha', 'identify-edition-and-coverage', 'family-link-and-reader-readback'] : ['block-unknown-event'],
     verification: ['owner-and-revision', 'addressed-readback', 'trajectory-after-new-evidence'] }
+  route.decisionEvidence = decisionEvidence(route.subjectPlan, inputs, {eventType,next})
   if(programmingAssignment(task) && next === 'review-written-work') route.steps.splice(2, 0, 'trace-submitted-code-and-boundaries', 'inspect-termination-before-finite-execution', 'explain-first-divergent-step')
   if(['math','special'].includes(subject)&&['review-written-work','address-help-request'].includes(next)) {
     route.policyRevision=guidancePolicyRevision

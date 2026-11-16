@@ -4,14 +4,20 @@
  */
 const HOLIDAY_NOTICE = /^всем\s+хороших\s+каникул[!.…]*$/iu
 const HOLIDAY_NOTICE_REASON = 'Точная отдельная поздравительная запись МЭШ; в ней нет учебного действия.'
+const NONE_NOTICE = /^нет[.]?$/iu
+const NONE_NOTICE_REASON = 'Точная отдельная отметка МЭШ «нет» без назначенного файла; учебного действия нет.'
 const NO_ASSIGNMENT_NOTICE = /^не\s+задано\.?$/iu
 const NO_ASSIGNMENT_NOTICE_REASON = 'Точная отдельная отметка МЭШ «не задано»; в ней нет учебного действия.'
+const NO_HOMEWORK_NOTICE = /^нет\s+дз\.?$/iu
+const NO_HOMEWORK_NOTICE_REASON = 'Точная отдельная отметка МЭШ «Нет дз»; в ней нет учебного действия.'
 
 export function classifyMeshNotice(rawText, { hasTeacherFiles = false } = {}) {
   if (hasTeacherFiles || typeof rawText !== 'string') return null
   const normalized = rawText.trim().replace(/\s+/gu, ' ')
   if (HOLIDAY_NOTICE.test(normalized)) return { kind: 'notice', reason: HOLIDAY_NOTICE_REASON }
+  if (NONE_NOTICE.test(normalized)) return { kind: 'notice', reason: NONE_NOTICE_REASON }
   if (NO_ASSIGNMENT_NOTICE.test(normalized)) return { kind: 'notice', reason: NO_ASSIGNMENT_NOTICE_REASON }
+  if (NO_HOMEWORK_NOTICE.test(normalized)) return { kind: 'notice', reason: NO_HOMEWORK_NOTICE_REASON }
   return null
 }
 

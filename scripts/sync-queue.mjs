@@ -128,7 +128,9 @@ async function discover() {
     for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
       const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id) || Boolean(supplementalAssessmentPlacement(task, page.testPlacements))
       taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate,
-        ...taskRoute(task, subject.id ?? subject.name, { placement }) })
+        ...taskRoute(task, subject.id ?? subject.name, { placement, decisionContext: {
+          owner:{familyId:owner.familyId,childId:owner.childId},materialLinks:page.materialLinks?.[task.id] ?? [],taskPageRefs:page.taskPageRefs?.[task.id] ?? [],
+          hasTeacherFiles: (page.materialLinks?.[task.id] ?? []).some(link => link.sourceType === 'teacher-attachment') } }) })
       if (task.instructionStatus?.state === 'needs-review') {
         candidates.push(job('enrich-task', owner.familyId, owner.childId,
           `${page.targetDate}:${task.id}`, { type: 'day-task', dayToken: doc.id, date: page.targetDate, taskId: task.id },

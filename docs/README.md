@@ -32,6 +32,7 @@ sections:
 | Карточка, статус, экран или изображение | [Дизайн-система](shared/design/README.md) | [Компоненты](shared/design/components.md), [контроль UI](product/ui-change-control.md) |
 | Фото/PDF или передача на Диск | [Материалы](modules/materials/README.md) | [Upload worker](services/upload-worker/README.md), [хранение](shared/media-storage.md) |
 | Проверка работы или предметная помощь | [Reviews](modules/reviews/README.md) | [Основания проверки](modules/reviews/review-criteria-provenance.md), [статус задания](modules/assignments/README.md) |
+| Восстановление общей логики и предметных решений | [Сквозной граф](modules/synchronization/subject-decision-graph.md) | Три входа, знания/неизвестное, продукты, реальные потребители и границы доказательства |
 | Плотность и визуализация всех разборов | [Общий формат](shared/design/compact-review.md) | [UI Kit](shared/design/ui-kit.md), [предметная помощь](modules/reviews/subject-aware-guidance.md) |
 | Метод, формулы, графы и полный родительский путь | [Наглядное решение](modules/reviews/method-guided-solutions.md) | [Общий формат](shared/design/compact-review.md), [UI Kit](shared/design/ui-kit.md) |
 | Тест, попытка или продолжение | [Assessments](modules/assessments/README.md) | [Граф самопроверок](modules/assessments/assessment-decision-graph.md) |
