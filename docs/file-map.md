@@ -1388,3 +1388,9 @@
 | [sync/subject-decisions.d.mts](../sync/subject-decisions.d.mts) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Критерии, свидетельства и адресные карточки | Operator; UI Kit; tests |
 
 | [scripts/submissions.criteria-workflow.test.mjs](../scripts/submissions.criteria-workflow.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Настоящий CLI: отказ неполного зачёта, сохранение знаний и повторное использование | Vitest; operator |
+
+| [day/homework-kind.test.mjs](../day/homework-kind.test.mjs) | [Формирование плана](modules/synchronization/plan-generation.md) | Явная письменная тетрадь без подмены устного повторения | Vitest |
+| [scripts/task-audit.mjs](../scripts/task-audit.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Закрытый адресный экспорт всех текущих заданий и обеих ролей | Education operator |
+| [sync/task-audit.mjs](../sync/task-audit.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Проверка владельца и ограниченный сбор свидетельств без записи | scripts/task-audit.mjs |
+| [sync/task-audit.test.mjs](../sync/task-audit.test.mjs) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Защита владельца и текущего диапазона без посторонних старых тестов | Vitest |
+| [docs/decisions/current-task-source-audit-2026-11-16.md](decisions/current-task-source-audit-2026-11-16.md) | [Критерии и знания](modules/reviews/criteria-and-knowledge.md) | Основание адресного аудита и исправления классификации тетради | Оператор; разработчик |

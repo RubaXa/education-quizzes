@@ -24,6 +24,16 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+16.11, `task-audit`: явная разовая сверка заданий читает только пары страниц из
+закрытого day-links (не более 100), сначала dayOwners и обе роли. Затем только
+для текущих/будущих дней и until-complete листов читает известные task IDs:
+guide, criteria/current, progress, private review, decision; files ограничены
+одним выбранным днём. Связанные assignment/key/review/private читаются по точным
+токенам, дедуплицируются и сверяются с владельцем. Нет global collectionGroup,
+listeners, фонового расписания или записи в Firestore. Экспорт содержит закрытые
+ключи и используется только оператором; стоимость ограничена размером day-links
+и выбранными заданиями, не всей семейной историей ответов.
+
 16.11, критерии/знания: `submissions criteria-export/criteria` адресно читает
 dayOwners/dayPages и criteriaContract/current одного заданного дня/задания; регистрация
 сверяет их в транзакции. `submissions review/feedback` читает отдельные описи всех
