@@ -69,6 +69,12 @@
 | [docs/decisions/sync-task-routing-2026-10-23.md](decisions/sync-task-routing-2026-10-23.md) | [План маршрутов](modules/synchronization/task-routing.md) | Основание ревизии и границы автоматизации | CLI; оператор |
 | [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Следующий шаг, границы плана и полный манифест обновления разборов по педагогической политике | EducationSync; CLI |
 | [docs/decisions/readiness-handover-2026-11-16.md](decisions/readiness-handover-2026-11-16.md) | [Задания](modules/assignments/README.md) | Основание разделения готовности и школьной сдачи | Разработчик; оператор |
+| [sync/deadline-control.mjs](../sync/deadline-control.mjs) | [Контроль срока](modules/assignments/deadline-control.md) | Правила близкого срока и риска периода | Оператор; синхронизация |
+| [sync/deadline-control.test.mjs](../sync/deadline-control.test.mjs) | [Контроль срока](modules/assignments/deadline-control.md) | Регрессии срока и доказательств | Оператор; синхронизация |
+| [sync/deadline-evidence.mjs](../sync/deadline-evidence.mjs) | [Контроль срока](modules/assignments/deadline-control.md) | Адресные текущие progress/uploads до постановки поручения | Оператор; синхронизация |
+| [sync/deadline-evidence.test.mjs](../sync/deadline-evidence.test.mjs) | [Контроль срока](modules/assignments/deadline-control.md) | Изоляция ребёнка и сохранение зачётов | Оператор; синхронизация |
+| [docs/modules/assignments/deadline-control.md](modules/assignments/deadline-control.md) | [Контроль срока](modules/assignments/deadline-control.md) | Контракт текущего прохода без расписания | Оператор; синхронизация |
+| [docs/decisions/deadline-in-sync-2026-11-16.md](decisions/deadline-in-sync-2026-11-16.md) | [Контроль срока](modules/assignments/deadline-control.md) | Основание и честные границы автоматизации | Оператор; синхронизация |
 | [day/learning-gate.mjs](../day/learning-gate.mjs) | [Готовность и сдача](modules/assignments/README.md) | Разделение подготовки, проверенной работы, самостоятельной готовности и школьной сдачи | План маршрутов; адресный аудит |
 | [day/learning-gate.test.mjs](../day/learning-gate.test.mjs) | [Готовность и сдача](modules/assignments/README.md) | Независимая диагностика и сохранение зачтённого при долге | Vitest |
 | [storage/work-evidence.mjs](../storage/work-evidence.mjs) | [Готовность и сдача](modules/assignments/README.md) | Адресные проверки и фото выбранных заданий одного ребёнка | Operator CLI |

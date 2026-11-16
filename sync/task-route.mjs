@@ -105,6 +105,7 @@ export function jobRoute(kind) {
     'prepare-targeted-followup': 'history-based-followup', 'prepare-control-followup': 'assessment-decision-graph',
     'classify-assignment': 'confirm-topic-and-output', 'prepare-quiz': 'assessment-decision-graph',
     'enrich-task': 'exact-source-and-subject-guidance', 'material-needed': 'recover-source',
+    'deadline-check': 'verify-deadline-evidence-and-address-child', 'period-risk-check': 'verify-period-grade-buffer-and-homework',
     'reconcile-day': 'source-diff-publish-both-roles',
   }
   return { next: routes[kind] ?? 'unsupported-job', complete: false,
@@ -115,7 +116,7 @@ export function jobRoute(kind) {
 export function syncRoutePlan(tasks, jobs) {
   return { schemaVersion: 1, fullCycleRequired: true,
     phases: ['claim-dispatch-if-present', 'fresh-global-inventory-and-inbox', 'fresh-42-day-mesh',
-      'frozen-actions-and-changed-or-pending-days', 'both-role-publication-audit', 'fresh-final-inbox', 'report-exact-blockers'],
+      'frozen-actions-and-changed-or-pending-days', 'deadline-and-period-risk-checks', 'both-role-publication-audit', 'fresh-final-inbox', 'report-exact-blockers'],
     tasks, jobs: jobs.map(job => ({ ...job, ...jobRoute(job.kind) })),
     completionClaim: false }
 }
