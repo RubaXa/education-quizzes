@@ -64,7 +64,9 @@ describe('deterministic task route from existing source state', () => {
   })
   it('prioritizes an unresolved source over a stale quiz link and preserves completed platform work', () => {
     expect(taskRoute({ ...unresolved, testToken: 'old' }).next).toBe('recover-source')
-    expect(taskRoute({ ...ready, platformResult: { state: 'completed' } }).next).toBe('platform-result-confirmed')
+    // A result is evidence of performance, not evidence that the teacher assigned it.
+    expect(taskRoute({ ...ready, platformResult: { state: 'completed' } }).next).toBe('correct-unassigned-obligation')
+    expect(taskRoute({ ...ready, kind:'check', meshText:'Выполнить ЦДЗ', platformResult: { state: 'completed' } }).next).toBe('platform-result-confirmed')
   })
   it('routes learner-submitted olympiad conditions separately from solved work', () => {
     const task = { ...ready, optional: true, learningContext: { kind: 'olympiad', id: 'o1' }, sourceIntake: { kind: 'olympiad-sheet' } }

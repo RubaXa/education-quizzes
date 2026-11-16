@@ -424,7 +424,7 @@
       }
     },
     "day/homework-kind.mjs": {
-      "sha256": "73726b83e62c7144845cd7fcf60b3449ffe9965bc0facccc93a220f1992903e1",
+      "sha256": "3c1d48e3d9090490cd6993f835f0a45a7cb69428f0af9c20f2413360c08adcc2",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/modules/synchronization/subject-decision-graph.md",
