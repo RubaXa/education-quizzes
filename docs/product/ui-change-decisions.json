@@ -424,17 +424,21 @@
       }
     },
     "day/homework-kind.mjs": {
-      "sha256": "6c2c61ef77eb2dcbe06d3f7d56afd01ff224a93e5584ae9d1752a3e4064e3997",
-      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
+      "sha256": "73726b83e62c7144845cd7fcf60b3449ffe9965bc0facccc93a220f1992903e1",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs"
+        "day/homework-kind.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 потребовал пройти все текущие задания по графу, сверить оригиналы, критерии и обе роли, исправить пробелы."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "day/homework-reference.mjs": {
@@ -1985,20 +1989,21 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "7b4ce71f19b83d3a05c67efaebb00d81134afdfe4575862625c99f4b1a00953b",
+      "sha256": "26f311c27187f436001312fa552b632529ee00889054e3938bd3c4f420782485",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/task-presentation-edit.test.mjs",
-        "storage/parent-guide-edit.test.mjs"
+        "day/homework-kind.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2661,21 +2666,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "f094da4c143eaa3351f98df8d254ddc696c7d18cec368b26fa41d33d015a47c1",
+      "sha256": "aa4e98424528417ca64ce7a389ac3cce790704cecfd804689794b976722206e6",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "day/homework-kind.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "src/UiKit.css": {
@@ -6116,21 +6121,21 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "cf426259bedff26099a74df7f1d61fac7b64b2d0e7957ff8c05b8e523f59f611",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "720452605db526a5469684be2c2c96605b1e4fed522832e172eb01ba34f6025e",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
+        "day/homework-kind.test.mjs",
         "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "operator/route-plan.mjs": {
@@ -8194,23 +8199,21 @@
       }
     },
     "sync/subject-decisions.mjs": {
-      "sha256": "02d608228d5518260f90c5ab6dde9f1410378dfad993996d9d7c40a39283fd53",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "343e654421280fc5bf5126b0e88fb58015345c2b72f6dead6b197a31a5559978",
+      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/homework-kind.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "sync/decision-evidence.mjs": {
@@ -8254,21 +8257,21 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "32cfdddf64f3b4200c95ee213018d2e75d582892858cb70aab65ba835ee273a9",
+      "sha256": "531723554d6d500b3d68e3fecaebeec8cd65a35d2b4d3dbee23ab3e9092d486e",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "day/homework-kind.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/mixed-assignment.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {

@@ -19,6 +19,7 @@ import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/revie
 /** @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
 import {problemPresentationErrors,guidePresentationErrors,materialRequestPresentationErrors} from '../packages/education-presentation/task-presentation.mjs'
 import {guidePublication} from '../storage/parent-guide-edit.mjs'
+import {platformAssignmentErrors} from '../day/homework-kind.mjs'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -419,7 +420,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       ids.add(task.id)
       const flowErrors = learnerFlowErrors(task, materialPlan.taskPages[task.id] ?? [])
       if (flowErrors.length) fail(flowErrors.join(' '))
-      const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task), ...(task.materialRequest?.state==='open'?materialRequestPresentationErrors(task.materialRequest):[])]
+      const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task), ...platformAssignmentErrors(task), ...(task.materialRequest?.state==='open'?materialRequestPresentationErrors(task.materialRequest):[])]
       if (requestErrors.length) fail(requestErrors.join(' '))
       if (task.assessmentIntent) {
         const intent = task.assessmentIntent

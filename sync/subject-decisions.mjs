@@ -4,6 +4,7 @@ import { lessonSubjectKey } from '../day/subject-identity.mjs'
 import { programmingAssignment, isControlAssignment, quizDecision } from '../assessment/decision-graph.mjs'
 import { previousLessonReference } from '../assessment/lesson-repetition.mjs'
 import { classifyMeshNotice } from '../day/mesh-notice.mjs'
+import {platformAssignmentErrors} from '../day/homework-kind.mjs'
 const rule = (id, when, product, checks) => ({ id, when, product, checks, executor: 'agent-with-publisher-validation',
  nodeId:`subject:${id}`,edgeIds:[`choose:${id}`,`prepare:${id}`],uiScenarioId:id,
  specRef:'docs/modules/synchronization/subject-decision-graph.md#subjects',
@@ -78,9 +79,10 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
  const oral = Boolean(repetitionParts) || task.kind === 'read' || ['oral','reading'].includes(task.outputKind) || /повторить|устно|выучить|читать|прочитать|пересказ|слов[ао]рн.*диктант|прослушать|аудирован/iu.test(text)
   || !isControlAssignment(task) && quizDecision(task)?.job === 'prepare-quiz'
  const actions=[]
+ const obligationErrors=platformAssignmentErrors(task)
  const add = (action,ruleId) => {const r=profile.rules.find(x=>x.id===ruleId) ?? profile.rules[0]; actions.push({action,ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor,nodeId:r.nodeId,edgeIds:r.edgeIds,specRef:r.specRef,decisionRef:r.decisionRef,uiScenarioId:r.uiScenarioId})}
  if (informational) actions.push({action:'information',ruleId:'common.information',product:'information-without-homework',checks:['Нет учебного действия и назначенного файла'],executor:'code-classification'})
- else if (task.kind === 'cdz' || task.outputKind === 'platform-result') actions.push({action:'platform',ruleId:'common.platform',product:'external-platform-evidence',checks:['Собственный факт выполнения платформы, не тест Education'],executor:'agent-with-publisher-validation'})
+ else if ((task.kind === 'cdz' || task.outputKind === 'platform-result')&&!obligationErrors.length) actions.push({action:'platform',ruleId:'common.platform',product:'external-platform-evidence',checks:['Собственный факт выполнения платформы, не тест Education'],executor:'agent-with-publisher-validation'})
  else {
   if (writing) {
    const id=normalized==='russian' ? /изложени/iu.test(text)?'russian.retelling':/сочинени/iu.test(text)?'russian.essay':/план|анализ.*текст/iu.test(text)?'russian.analysis':'russian.exercise'
@@ -125,6 +127,6 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
   {origin:'mesh',state:task.meshText?'present':'requires-review'},
   {origin:'uploaded-material',state:hasTeacherFiles?'linked-source-requires-content-review':'check-library-inbox-and-archive'},
   {origin:'parent-context',state:context.parentRefs?.length?'provided-for-explicit-merge':'review-current-and-recorded-parent-context'},
- ],actions,independentPreparation:actions.length>1?'explicit-source-and-identity-required-per-part':'single-action',instructionReviewed:task.instructionStatus?.state==='reviewed',sourceReadiness:task.instructionStatus?.state!=='reviewed'?'unreviewed': ['textbook-page-needed','teacher-attachment-needed'].includes(task.materialStatus?.state)?'missing-part':'instruction-confirmed-material-needs-verification',completionClaim:false,
+ ],actions,obligationErrors,independentPreparation:actions.length>1?'explicit-source-and-identity-required-per-part':'single-action',instructionReviewed:task.instructionStatus?.state==='reviewed',sourceReadiness:task.instructionStatus?.state!=='reviewed'?'unreviewed': ['textbook-page-needed','teacher-attachment-needed'].includes(task.materialStatus?.state)?'missing-part':'instruction-confirmed-material-needs-verification',completionClaim:false,
  requiredChecks:['exact-source-and-all-parts','independent-action-readiness','preserve-credit-and-optionality','separate-parent-child-projections','both-role-readback']}
 }

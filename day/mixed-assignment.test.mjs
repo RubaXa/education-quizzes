@@ -106,6 +106,11 @@ it('passes the actual publication CLI with both split actions and rejects an omi
   const result=run()
   expect(result.stderr).toBe('')
   expect(result.status).toBe(0)
+  prepared.subjects[0].tasks[0].outputKind='platform-result'
+  write(join(dir,'day-source-2026-10-22.json'),prepared)
+  expect(run().stderr).toContain('Счётчики материалов')
+  delete prepared.subjects[0].tasks[0].outputKind
+  write(join(dir,'day-source-2026-10-22.json'),prepared)
   const source=read(); source.subjects[0].tasks.pop(); write(join(dir,'day-source-2026-10-22.json'),source)
   expect(run().status).not.toBe(0)
 })
