@@ -1020,6 +1020,29 @@
       "path": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md"
     },
     {
+      "id": "decision.current-task-source-audit-2026-11-16",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.reviews.criteria-and-knowledge",
+      "uses": [
+        "module.synchronization.plan-generation"
+      ],
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/current-task-source-audit-2026-11-16.md"
+    },
+    {
       "id": "decision.day-merge-order-2026-10-22",
       "status": "accepted",
       "implementation": "implemented",
@@ -5630,6 +5653,13 @@
       "consumer": "`day/build.mjs`; `src/lib/dayStore.ts`; `day/merge.mjs`"
     },
     {
+      "id": "file:day/homework-kind.test.mjs",
+      "path": "day/homework-kind.test.mjs",
+      "kind": "verification",
+      "purpose": "Явная письменная тетрадь без подмены устного повторения",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/homework-reference.mjs",
       "path": "day/homework-reference.mjs",
       "kind": "artifact",
@@ -8400,6 +8430,13 @@
       "kind": "artifact",
       "purpose": "Стадии классификации, ручной проверки и адресного продолжения; ограниченно параллельные независимые задания и замер стадий",
       "consumer": "`education-sync`; Firestore"
+    },
+    {
+      "id": "file:scripts/task-audit.mjs",
+      "path": "scripts/task-audit.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый адресный экспорт всех текущих заданий и обеих ролей",
+      "consumer": "Education operator"
     },
     {
       "id": "file:scripts/telegram-bot.mjs",
@@ -11741,6 +11778,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:sync/task-audit.mjs",
+      "path": "sync/task-audit.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка владельца и ограниченный сбор свидетельств без записи",
+      "consumer": "scripts/task-audit.mjs"
+    },
+    {
+      "id": "file:sync/task-audit.test.mjs",
+      "path": "sync/task-audit.test.mjs",
+      "kind": "verification",
+      "purpose": "Защита владельца и текущего диапазона без посторонних старых тестов",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/task-route.mjs",
       "path": "sync/task-route.mjs",
       "kind": "artifact",
@@ -12902,12 +12953,15 @@
         "scripts/submissions.mjs",
         "scripts/quiz.mjs",
         "sync/event-task-artifact.mjs",
-        "sync/help-response.mjs"
+        "sync/help-response.mjs",
+        "sync/task-audit.mjs",
+        "scripts/task-audit.mjs"
       ],
       "sections": [
         "criteria",
         "knowledge",
-        "scenarios"
+        "scenarios",
+        "current-task-audit"
       ],
       "path": "docs/modules/reviews/criteria-and-knowledge.md"
     },
@@ -13700,7 +13754,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-09",
-      "updated": "2026-10-22",
+      "updated": "2026-11-16",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -16365,6 +16419,11 @@
     {
       "from": "decision.criteria-knowledge-ui-kit-2026-11-16",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.current-task-source-audit-2026-11-16",
+      "to": "module.synchronization.plan-generation",
       "type": "uses"
     },
     {
@@ -20258,6 +20317,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/task-audit.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/telegram-bot.mjs",
       "to": "product.notifications",
       "type": "implements"
@@ -23693,6 +23757,11 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/task-audit.mjs",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/task-route.mjs",
       "to": "decision.guidance-refresh-readback-2026-10-25",
       "type": "implements"
@@ -25124,6 +25193,11 @@
     },
     {
       "from": "module.reviews.criteria-and-knowledge",
+      "to": "decision.current-task-source-audit-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
       "to": "file:assessment/manual-review-contract.test.mjs",
       "type": "verified-by"
     },
@@ -25150,6 +25224,11 @@
     {
       "from": "module.reviews.criteria-and-knowledge",
       "to": "file:sync/learning-observations.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.criteria-and-knowledge",
+      "to": "file:sync/task-audit.test.mjs",
       "type": "verified-by"
     },
     {
@@ -26210,6 +26289,11 @@
     {
       "from": "module.synchronization.plan-generation",
       "to": "file:day/assignment-routing.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.plan-generation",
+      "to": "file:day/homework-kind.test.mjs",
       "type": "verified-by"
     },
     {

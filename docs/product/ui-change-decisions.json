@@ -423,22 +423,17 @@
       }
     },
     "day/homework-kind.mjs": {
-      "sha256": "89a2601392903764e008ce310c968268e9b5e2275adc26c1f79ed9c4596456a9",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "6c2c61ef77eb2dcbe06d3f7d56afd01ff224a93e5584ae9d1752a3e4064e3997",
+      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/synchronization/plan-generation.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/homework-kind.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "4a548469124673facd5e769876949a45a84adf25b5cccf6529f9fcf03d796f1c"
+        "evidence": "Пользователь16.11.2026 потребовал пройти все текущие задания по графу, сверить оригиналы, критерии и обе роли, исправить пробелы."
       }
     },
     "day/homework-reference.mjs": {
@@ -8415,6 +8410,34 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+      }
+    },
+    "scripts/task-audit.mjs": {
+      "sha256": "36a447a458ed3e53e764bdd6d6bc022fbf529a733e41bc57860e3096fa74859c",
+      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md"
+      ],
+      "tests": [
+        "sync/task-audit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 потребовал пройти все текущие задания по графу, сверить оригиналы, критерии и обе роли, исправить пробелы."
+      }
+    },
+    "sync/task-audit.mjs": {
+      "sha256": "bf84df3feb929a851dba35878a6dc5a6c450111264e8385285a25fbb954bab6b",
+      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
+      "specs": [
+        "docs/modules/reviews/criteria-and-knowledge.md"
+      ],
+      "tests": [
+        "sync/task-audit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Пользователь16.11.2026 потребовал пройти все текущие задания по графу, сверить оригиналы, критерии и обе роли, исправить пробелы."
       }
     }
   }

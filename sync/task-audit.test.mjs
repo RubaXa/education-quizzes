@@ -1,0 +1,12 @@
+import {expect,it} from 'vitest'
+import {captureCurrentTaskAudit} from './task-audit.mjs'
+const owner={familyId:'f',childId:'c'},pair={sourceDate:'2026-11-15',student:'s',parent:'p'}
+function fake(foreign=false){const rows={
+ 'dayOwners/s':owner,'dayPages/s':{...owner,kind:'student',targetDate:'2026-11-16',subjects:[{id:'english',tasks:[{id:'letter',meshText:'Write about your country.',testToken:'q'}]}]},
+ 'dayPages/p':{...owner,childId:foreign?'other':'c',kind:'parent'},'assignments/q':{...owner,questions:[{id:'one',kind:'long'}]},
+ 'dayTaskGuides/s/items/letter':{guide:{privateAnswer:'closed'}},'dayTaskGuides/s/items/letter/criteriaContract/current':{criteriaContract:{fingerprint:'frozen'}},'quizReviewPrivate/q':{rubrics:{one:[{id:'country'}]}}
+ };const reads=[];return {rows,reads,doc:path=>({path}),getAll:async(...refs)=>refs.map(r=>{reads.push(r.path);return {exists:r.path in rows,data:()=>rows[r.path]}}),collection:path=>({get:async()=>{reads.push(path);return {docs:[{id:'photo',data:()=>({status:'reviewed'})}]}}})}}
+it('exports actual role records, private criteria and attempts without writes or claims of credit',async()=>{const db=fake(),b=await captureCurrentTaskAudit(db,{pairs:[pair],owner,viewDate:'2026-11-16'});expect(b.readOnly&&b.privateOnly).toBe(true);expect(b.pages[0].records[0].guide.guide.privateAnswer).toBe('closed');expect(b.pages[0].records[0].criteria.criteriaContract.fingerprint).toBe('frozen');expect(b.quizzes[0].privateReview.rubrics.one[0].id).toBe('country');expect(b.pages[0].uploads).toEqual([{id:'photo',status:'reviewed'}])})
+it('rejects a role from another child before reading private task records',async()=>{const db=fake(true);await expect(captureCurrentTaskAudit(db,{pairs:[pair],owner,viewDate:'2026-11-16'})).rejects.toThrow(/владельцем/);expect(db.reads.some(p=>p.startsWith('dayTaskGuides'))).toBe(false)})
+
+it('keeps only unfinished slot tasks and their quizzes on an older day',async()=>{const db=fake();Object.assign(db.rows['dayPages/s'],{targetDate:'2026-11-12',weekendSlot:{mode:'until-complete',taskIds:['letter']},subjects:[{tasks:[{id:'letter',testToken:'q'},{id:'old',testToken:'old-q'}]}],testPlacements:[{taskId:'old',token:'old-q'}]});const b=await captureCurrentTaskAudit(db,{pairs:[pair],owner,viewDate:'2026-11-16'});expect(b.pages[0].currentTaskIds).toEqual(['letter']);expect(b.quizzes.map(q=>q.token)).toEqual(['q']);expect(db.reads.some(p=>p.includes('old-q')||p.includes('/items/old'))).toBe(false)})

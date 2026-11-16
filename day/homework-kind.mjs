@@ -12,6 +12,7 @@ export function rawMeshKind(description) {
   // A reference to notes in a notebook is a study source, not a written task.
   // @see ../docs/modules/synchronization/plan-generation.md#raw-mesh-stage
   const actionable = description.replace(/(?:см\.?|смотри(?:те)?)\s+записи\s+в\s+тетради/gi, '')
+  if (/(?:доделать|закончить|выполнить)[\s\S]*(?:р\.?\s*т\.?|рабоч\S*\s+тетрад)/iu.test(actionable)) return 'written'
   if (/в\s+тетрад[ьи]|дописать|выписать|записать|письменно|\(\s*пис\s*\)/i.test(actionable)) return 'written'
   return 'check'
 }

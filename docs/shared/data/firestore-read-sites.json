@@ -10284,6 +10284,54 @@
     "note": "Адресное подтверждение изменённых документов (до двух); неизменный повтор не пишет и не перечитывает."
   },
   {
+    "id": "sync/task-audit.mjs#admin.getAll#52ce480d6d11",
+    "file": "sync/task-audit.mjs",
+    "line": 10,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "explicit current-task audit only",
+    "note": "До закрытых данных getAll владельца и двух известных ролевых страниц; максимум100 пар из локального day-links."
+  },
+  {
+    "id": "sync/task-audit.mjs#admin.getAll#52ce480d6d11-2",
+    "file": "sync/task-audit.mjs",
+    "line": 18,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "explicit current-task audit only",
+    "note": "Ровно5 адресных документов для каждого текущего root/leaf; только после проверки обеих ролей и владельца."
+  },
+  {
+    "id": "sync/task-audit.mjs#admin.get#6d804a6da5bc",
+    "file": "sync/task-audit.mjs",
+    "line": 21,
+    "api": "admin.get",
+    "target": "db.collection(`dayUploads/${pair.student}/files`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "explicit current-task audit only",
+    "note": "Один полный uploads snapshot только выбранной текущей страницы для проверки покрытия фото."
+  },
+  {
+    "id": "sync/task-audit.mjs#admin.getAll#52ce480d6d11-3",
+    "file": "sync/task-audit.mjs",
+    "line": 27,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "explicit current-task audit only",
+    "note": "Ровно4 адресных документа каждого связанного текущего теста, dedup token и проверка owner; закрытый экспорт0600."
+  },
+  {
     "id": "sync/upload-lifecycle.mjs#admin.get#5eb96eb848e0",
     "file": "sync/upload-lifecycle.mjs",
     "line": 17,
