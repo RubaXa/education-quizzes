@@ -18,13 +18,14 @@ import { ensureContinuousPreparation } from '../sync/preparation-window.mjs'
 import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
 /** @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
 import {problemPresentationErrors,guidePresentationErrors,materialRequestPresentationErrors} from '../packages/education-presentation/task-presentation.mjs'
+import {guidePublication} from '../storage/parent-guide-edit.mjs'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore'
 import { linksFile as pageLinksFile, materialLinks, materialPlan, preparePages, taskPageRefs } from '../storage/material-pages.mjs'
 import { buildDaySource, rawMeshKind } from '../day/build.mjs'
 import { assertLearningRouteIdentity, learningRouteIdentity } from '../day/learning-route-identity.mjs'
@@ -777,10 +778,10 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
       const ref = db.doc(`dayTaskGuides/${pair.student}/items/${item.id}`)
       if (item.parentGuide || item.sourceResearch) {
         if (!legacyOwner?.familyId || !legacyOwner?.childId) fail('Нельзя опубликовать родительский ориентир без подтверждённой семьи.')
-        batch.set(ref, { familyId: legacyOwner.familyId, childId: legacyOwner.childId, taskId: item.id,
+        batch.set(ref, ...guidePublication({ familyId: legacyOwner.familyId, childId: legacyOwner.childId, taskId: item.id,
           ...(item.parentGuide ? { guide: item.parentGuide } : {}),
           ...(item.sourceResearch ? { sourceResearch: item.sourceResearch } : {}),
-          sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now() })
+          sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now() },FieldValue.delete()))
       } else if (!familyAssignments.some((assignment) => assignment.id === item.id)) batch.delete(ref)
     }
   }
@@ -788,8 +789,8 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     if (task.parentGuide) {
       const guideErrors = familyGuideErrors(task.parentGuide, task)
       if (guideErrors.length) fail(guideErrors.join(' '))
-      batch.set(db.doc(`dayTaskGuides/${pair.student}/items/${task.id}`), { familyId: legacyOwner.familyId, childId: legacyOwner.childId,
-        taskId: task.id, guide: task.parentGuide, sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() })
+      batch.set(db.doc(`dayTaskGuides/${pair.student}/items/${task.id}`), ...guidePublication({ familyId: legacyOwner.familyId, childId: legacyOwner.childId,
+        taskId: task.id, guide: task.parentGuide, sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() },FieldValue.delete()))
     }
   }
   for (const taskId of priorGuideTasks) if (!currentGuideTasks.has(taskId)) batch.delete(db.doc(`dayTaskGuides/${pair.student}/items/${taskId}`))
@@ -1041,8 +1042,8 @@ async function publishFamilyAssignment() {
       transaction.set(taskRef, storedTask)
       transaction.set(studentRef, { ...studentPage, updatedAt: Timestamp.now() })
       transaction.set(parentRef, { ...parentPage, updatedAt: Timestamp.now() })
-      if (request.parentGuide) transaction.set(guideRef, { familyId: owner.familyId, childId: owner.childId, taskId: task.id,
-        guide: request.parentGuide, sourcePlanFingerprint: sourcePlanFingerprint(source), sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() })
+      if (request.parentGuide) transaction.set(guideRef, ...guidePublication({ familyId: owner.familyId, childId: owner.childId, taskId: task.id,
+        guide: request.parentGuide, sourcePlanFingerprint: sourcePlanFingerprint(source), sourceRevision: task.sourceRevision, updatedAt: Timestamp.now() },FieldValue.delete()))
     }
     for (const role of Object.keys(currentDashboards)) transaction.update(dashboardRefs[role], {
       days: dashboardDeltas[role].days, updatedAt: Timestamp.now(),
@@ -1279,12 +1280,12 @@ async function publishProblemSupport() {
     })
     for (const problem of [...incoming.values()].flatMap((task) => task.problems)) {
       const guideRef = db.doc(`dayTaskGuides/${pair.student}/items/${problem.id}`)
-      if (problem.parentGuide || problem.sourceResearch) transaction.set(guideRef, {
+      if (problem.parentGuide || problem.sourceResearch) transaction.set(guideRef, ...guidePublication({
         familyId: owner.familyId, childId: owner.childId, taskId: problem.id,
         ...(problem.parentGuide ? { guide: problem.parentGuide } : {}),
         ...(problem.sourceResearch ? { sourceResearch: problem.sourceResearch } : {}),
         sourcePlanFingerprint: sourcePlanFingerprint(source), updatedAt: Timestamp.now(),
-      })
+      },FieldValue.delete()))
       else transaction.delete(guideRef)
     }
     return counts
@@ -1646,10 +1647,10 @@ async function publishGuideUpgrade() {
   await db.runTransaction(async (transaction) => {
     const updates = await inspect(transaction)
     for (const update of updates) transaction.update(update.ref, update.fields)
-    for (const item of upgrades) transaction.set(db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`), {
+    for (const item of upgrades) transaction.set(db.doc(`dayTaskGuides/${item.pair.student}/items/${taskId}`), ...guidePublication({
       familyId: item.owner.familyId, childId: item.owner.childId, taskId,
       guide: item.task.parentGuide, sourcePlanFingerprint: item.after, updatedAt: Timestamp.now(),
-    })
+    },FieldValue.delete()))
   })
   for (const item of upgrades) {
     for (const role of ['student', 'parent']) {

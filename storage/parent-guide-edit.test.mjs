@@ -1,5 +1,14 @@
 import {expect,it} from 'vitest'
-import {parentGuideEditErrors} from './parent-guide-edit.mjs'
+import {parentGuideEditErrors,guidePublication} from './parent-guide-edit.mjs'
+import {readFileSync} from 'node:fs'
+it('replaces the entire published guide and clears stale optional sources while preserving edit history',()=>{
+ const deletion=Symbol('delete'),prior={guide:{revision:1,obsolete:'old'},guideEdits:[{guide:{revision:0}}],sourceResearch:{old:true},sourceRevision:2}
+ const [data,options]=guidePublication({familyId:'synthetic',childId:'synthetic',taskId:'synthetic',guide:{revision:3},updatedAt:'now'},deletion)
+ const after={...prior};for(const key of options.mergeFields){if(data[key]===deletion)delete after[key];else after[key]=data[key]}
+ expect(after.guide).toEqual({revision:3});expect(after.guideEdits).toEqual(prior.guideEdits);expect(after.sourceResearch).toBeUndefined();expect(after.sourceRevision).toBeUndefined()
+ const source=readFileSync(new URL('../scripts/day.mjs',import.meta.url),'utf8')
+ expect(source.match(/\.\.\.guidePublication\(/g)).toHaveLength(5)
+})
 it('fences a presentation-only edit without changing source, stage identity or checked work',()=>{
  const source={kind:'family',ref:'task',excerpt:'Точное условие',label:'Исходник'}
  const guide={kind:'structured-notes',presentation:'learning-route',pattern:'source-evidence',revision:3,stages:[{id:'evidence',source,reviewLabels:['Проверка']}]}

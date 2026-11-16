@@ -4,6 +4,7 @@
 import {isDeepStrictEqual as same} from 'node:util'
 import {parentGuideEditErrors} from './parent-guide-edit.mjs'
 import {problemPresentationErrors,guidePresentationErrors,materialRequestPresentationErrors} from '../packages/education-presentation/task-presentation.mjs'
+import {parentGuideProseErrors,taskSupportProseErrors} from '../src/lib/reviewProse.ts'
 const segment=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(v)
 const taskId=v=>typeof v==='string'&&/^[a-z0-9-]+$/.test(v)
 const object=v=>v&&typeof v==='object'&&!Array.isArray(v)
@@ -67,14 +68,14 @@ function prepare(input,snaps,now){
     ||!Number.isInteger(c.expectedSupportRevision)||a.support.revision!==c.expectedSupportRevision
     ||c.support.revision!==c.expectedSupportRevision+1
     ||!unchanged(a.support,c.support,['facts','find','parts','revision']))fail(`Support ${c.taskId}: CAS или неизменяемые поля нарушены.`)
-   const errors=problemPresentationErrors({...a,support:c.support});if(errors.length)fail(errors.join('\n'))
+   const errors=[...problemPresentationErrors({...a,support:c.support}),...taskSupportProseErrors({support:c.support})];if(errors.length)fail(errors.join('\n'))
    patch.support=c.support
   }
   if(Object.hasOwn(c,'materialRequest')){
    if(!a.materialRequest||!same(a.materialRequest,b.materialRequest)||!object(c.materialRequest)
     ||!unchanged(a.materialRequest,c.materialRequest,['presentation','question','photoPrompt']))fail(`MaterialRequest ${c.taskId}: исходное состояние и происхождение должны сохраниться.`)
    if(['question','photoPrompt'].some(k=>Object.hasOwn(c.materialRequest,k)&&(typeof c.materialRequest[k]!=='string'||!c.materialRequest[k].trim()||c.materialRequest[k].length>500)))fail('Нужны краткие question/photoPrompt.')
-   const errors=materialRequestPresentationErrors(c.materialRequest);if(errors.length)fail(errors.join('\n'))
+   const errors=[...materialRequestPresentationErrors(c.materialRequest),...taskSupportProseErrors({materialRequest:c.materialRequest})];if(errors.length)fail(errors.join('\n'))
    if(same(a.materialRequest,c.materialRequest)&&!Object.hasOwn(c,'support')&&!Object.hasOwn(c,'guide'))fail('Представление материала уже совпадает: повторная запись не нужна.')
    patch.materialRequest=c.materialRequest
   }
@@ -88,7 +89,7 @@ function prepare(input,snaps,now){
     if(!same(s.answer,old.guide.stages[i]?.answer)||!same(s.verification,old.guide.stages[i]?.verification))errors.push('Guide: answer/verification неизменяемы при коррекции представления.')
     if(!unchanged(old.guide.stages[i],s,['title','expected','rows','blocks','hintPreview','revealPreview','why']))errors.push('Guide: условие, ответ, проверка и идентичность этапа должны сохраниться.')
    }
-   errors.push(...guidePresentationErrors(next));if(errors.length)fail(errors.join('\n'))
+   errors.push(...guidePresentationErrors(next),...parentGuideProseErrors(next));if(errors.length)fail(errors.join('\n'))
    guideWrites.push({ref:snap.ref,before:old,after:{...old,guide:next,updatedAt:now,guideEdits:[...(old.guideEdits??[]),{at:now,reason:input.reason,guide:old.guide}]}})
   }
  }

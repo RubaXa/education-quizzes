@@ -3,6 +3,13 @@ import {isDeepStrictEqual} from 'node:util'
 import {solutionBlocksErrors,solutionMethodErrors} from '../packages/education-presentation/solution-blocks.mjs'
 /** @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
 import {guidePresentationErrors} from '../packages/education-presentation/task-presentation.mjs'
+/** Replace published fields atomically, preserving independent correction history.
+ * Optional source fields absent from the new publication must not retain stale data.
+ * @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
+export function guidePublication(value,deleteField){
+ const data={guide:deleteField,sourceResearch:deleteField,sourcePlanFingerprint:deleteField,sourceRevision:deleteField,...value}
+ return [data,{mergeFields:Object.keys(data)}]
+}
 // Reserve two container levels for archiving this guide in guideEdits[].guide.
 function storable(value,depth=3,arrayItem=false){
  if(!value||typeof value!=='object')return true
