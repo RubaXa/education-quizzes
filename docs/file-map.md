@@ -68,6 +68,14 @@
 | [docs/decisions/personal-tutoring-2026-10-30.md](decisions/personal-tutoring-2026-10-30.md) | [Предметная помощь](modules/reviews/subject-aware-guidance.md) | Основание барьера качества и границы реализации | Разработчик; оператор |
 | [docs/decisions/sync-task-routing-2026-10-23.md](decisions/sync-task-routing-2026-10-23.md) | [План маршрутов](modules/synchronization/task-routing.md) | Основание ревизии и границы автоматизации | CLI; оператор |
 | [docs/modules/synchronization/task-routing.md](modules/synchronization/task-routing.md) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Следующий шаг, границы плана и полный манифест обновления разборов по педагогической политике | EducationSync; CLI |
+| [docs/decisions/readiness-handover-2026-11-16.md](decisions/readiness-handover-2026-11-16.md) | [Задания](modules/assignments/README.md) | Основание разделения готовности и школьной сдачи | Разработчик; оператор |
+| [day/learning-gate.mjs](../day/learning-gate.mjs) | [Готовность и сдача](modules/assignments/README.md) | Разделение подготовки, проверенной работы, самостоятельной готовности и школьной сдачи | План маршрутов; адресный аудит |
+| [day/learning-gate.test.mjs](../day/learning-gate.test.mjs) | [Готовность и сдача](modules/assignments/README.md) | Независимая диагностика и сохранение зачтённого при долге | Vitest |
+| [storage/work-evidence.mjs](../storage/work-evidence.mjs) | [Готовность и сдача](modules/assignments/README.md) | Адресные проверки и фото выбранных заданий одного ребёнка | Operator CLI |
+| [storage/work-evidence.test.mjs](../storage/work-evidence.test.mjs) | [Готовность и сдача](modules/assignments/README.md) | Граница владельца и полнота десяти частей работы | Vitest |
+| [scripts/work-evidence.mjs](../scripts/work-evidence.mjs) | [Готовность и сдача](modules/assignments/README.md) | Закрытая квитанция и проверенные по SHA оригиналы | Оператор |
+| [diary/application/school-alerts.test.mjs](../diary/application/school-alerts.test.mjs) | [Школьные сообщения](modules/notifications/inbox.md) | Долг без потери зачётов, обе роли и readback | Vitest |
+| [diary/application/diff.test.mjs](../diary/application/diff.test.mjs) | [Синхронизация дневника](modules/school-diary/README.md) | Изменение точки независимо от средней | Vitest |
 | [sync/task-route.mjs](../sync/task-route.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Известное/неизвестное и следующий шаг задания/события | Queue scan; execution artifact |
 | [sync/task-route.test.mjs](../sync/task-route.test.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Проверки развилок отсутствующего источника, предметов и событий | Vitest |
 | [operator/route-plan.mjs](../operator/route-plan.mjs) | [План маршрутов](modules/synchronization/task-routing.md) | Закрытый план из существующей квитанции без сетевого обхода | Education CLI |

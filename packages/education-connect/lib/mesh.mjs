@@ -262,6 +262,7 @@ export class MeshDiaryAdapter {
     this.telemetry = telemetry
     this.signal = signal
     this.scheduleCache = new Map()
+    this.markFeedCache = null
     const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
     this.httpTrace = httpTrace
     this.api = new MeshAPI({
@@ -355,12 +356,14 @@ export class MeshDiaryAdapter {
     })
   }
   async getMarkFeed() {
-    return observeMesh(this.telemetry, 'mesh.get-mark-feed', () => {
+    if (this.markFeedCache) return this.markFeedCache
+    this.markFeedCache = observeMesh(this.telemetry, 'mesh.get-mark-feed', () => {
       const url = new URL('https://school.mos.ru/api/family/mobile/v1/marks')
       url.searchParams.set('student_id', this.secret.studentId)
       url.searchParams.set('profile_id', this.secret.profileId)
       return this.api.apiFetch(url.toString())
-    })
+    }).catch(error => { this.markFeedCache = null; throw error })
+    return this.markFeedCache
   }
   async getMarkDetails(_date, markId) {
     if (!/^\d{1,20}$/.test(markId ?? '')) throw new Error('invalid_mark_id')

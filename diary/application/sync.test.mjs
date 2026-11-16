@@ -54,3 +54,18 @@ describe('полнота снимка МЭШ', () => {
     expect(() => readFileSync(join(dataDir, 'snapshot-2026-10-15.json'))).toThrow()
   })
 })
+
+it('collects recent points separately without changing the counted journal; feed failure preserves the last complete snapshot', async () => {
+  const dataDir = newDirectory()
+  const mesh = { getProfile: async () => ({ children: [{}] }), getSchedule: async () => [], getAssignments: async () => [],
+    getMarks: async () => [{ subject_id: 7, subject_name: 'Математика', average: '4.60', count: 13, marks: [{ id: 1, value: 5 }] }],
+    getMarkFeed: async () => [{ id: 2, subject_id: 7, value: 2, is_point: true, comment: 'Нет домашней работы' }] }
+  const result = await syncDiary({ adapter: mesh, dataDir, date: '2026-11-16' })
+  expect(result.complete).toBe(true)
+  expect(result.markFeedScope).toBe('recent-not-date-filtered')
+  expect(result.marks[0]).toMatchObject({ average: '4.60', count: 13, marks: [{ id: 1, value: 5 }], recentMarks: [{ id: 2 }] })
+  mesh.getMarkFeed = async () => { throw new Error('API 500') }
+  const failed = await syncDiary({ adapter: mesh, dataDir, date: '2026-11-16' })
+  expect(failed.complete).toBe(false)
+  expect(JSON.parse(readFileSync(join(dataDir, 'snapshot-2026-11-16.json'))).fetchedAt).toBe(result.fetchedAt)
+})

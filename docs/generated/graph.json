@@ -2814,6 +2814,31 @@
       "path": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md"
     },
     {
+      "id": "decision.readiness-handover-2026-11-16",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.assignments",
+      "uses": [
+        "module.notifications.inbox"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/readiness-handover-2026-11-16.md"
+    },
+    {
       "id": "decision.released-stage-parity-2026-10-20",
       "status": "accepted",
       "implementation": "implemented",
@@ -5517,6 +5542,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:day/learning-gate.mjs",
+      "path": "day/learning-gate.mjs",
+      "kind": "artifact",
+      "purpose": "Разделение подготовки, проверенной работы, самостоятельной готовности и школьной сдачи",
+      "consumer": "План маршрутов; адресный аудит"
+    },
+    {
+      "id": "file:day/learning-gate.test.mjs",
+      "path": "day/learning-gate.test.mjs",
+      "kind": "verification",
+      "purpose": "Независимая диагностика и сохранение зачтённого при долге",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:day/learning-route-identity.mjs",
       "path": "day/learning-route-identity.mjs",
       "kind": "artifact",
@@ -5734,6 +5773,13 @@
       "consumer": "`diary/cli.mjs`"
     },
     {
+      "id": "file:diary/application/diff.test.mjs",
+      "path": "diary/application/diff.test.mjs",
+      "kind": "verification",
+      "purpose": "Изменение точки независимо от средней",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:diary/application/lesson-visibility.mjs",
       "path": "diary/application/lesson-visibility.mjs",
       "kind": "artifact",
@@ -5774,6 +5820,13 @@
       "kind": "artifact",
       "purpose": "Выделение подтверждённых опозданий и замечаний без шума обычных комментариев",
       "consumer": "`scripts/day.mjs`; родительский inbox"
+    },
+    {
+      "id": "file:diary/application/school-alerts.test.mjs",
+      "path": "diary/application/school-alerts.test.mjs",
+      "kind": "verification",
+      "purpose": "Долг без потери зачётов, обе роли и readback",
+      "consumer": "Vitest"
     },
     {
       "id": "file:diary/application/sync.mjs",
@@ -8315,6 +8368,13 @@
       "kind": "artifact",
       "purpose": "Аудит ранее перенесённых фото",
       "consumer": "Оператор; агент"
+    },
+    {
+      "id": "file:scripts/work-evidence.mjs",
+      "path": "scripts/work-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытая квитанция и проверенные по SHA оригиналы",
+      "consumer": "Оператор"
     },
     {
       "id": "file:scripts/work-photo-consumers.test.mjs",
@@ -11124,6 +11184,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:storage/work-evidence.mjs",
+      "path": "storage/work-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Адресные проверки и фото выбранных заданий одного ребёнка",
+      "consumer": "Operator CLI"
+    },
+    {
+      "id": "file:storage/work-evidence.test.mjs",
+      "path": "storage/work-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Граница владельца и полнота десяти частей работы",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:storage/work-file-types.d.mts",
       "path": "storage/work-file-types.d.mts",
       "kind": "artifact",
@@ -11746,7 +11820,10 @@
         "review process"
       ],
       "code": [
-        "day/build.mjs"
+        "day/build.mjs",
+        "day/learning-gate.mjs",
+        "storage/work-evidence.mjs",
+        "scripts/work-evidence.mjs"
       ],
       "path": "docs/modules/assignments/README.md"
     },
@@ -12255,6 +12332,7 @@
         "web inbox frontend"
       ],
       "code": [
+        "diary/application/school-alerts.mjs",
         "day/grade-notice-backfill.mjs",
         "scripts/day.mjs",
         "scripts/notifications.mjs",
@@ -16466,6 +16544,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.readiness-handover-2026-11-16",
+      "to": "module.notifications.inbox",
+      "type": "uses"
+    },
+    {
       "from": "decision.released-stage-parity-2026-10-20",
       "to": "module.reviews.subject-aware-guidance",
       "type": "uses"
@@ -17348,6 +17431,11 @@
     {
       "from": "file:day/learner-flow.mjs",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/learning-gate.mjs",
+      "to": "module.assignments",
       "type": "implements"
     },
     {
@@ -19798,6 +19886,11 @@
     {
       "from": "file:scripts/verify-upload-flow.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/work-evidence.mjs",
+      "to": "module.assignments",
       "type": "implements"
     },
     {
@@ -22896,6 +22989,11 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/work-evidence.mjs",
+      "to": "module.assignments",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/work-file-types.d.mts",
       "to": "shared.media-storage",
       "type": "implements"
@@ -23464,6 +23562,21 @@
       "from": "module.assessments",
       "to": "shared.data.firestore",
       "type": "uses"
+    },
+    {
+      "from": "module.assignments",
+      "to": "decision.readiness-handover-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.assignments",
+      "to": "file:day/learning-gate.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assignments",
+      "to": "file:storage/work-evidence.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.assignments",
@@ -24038,6 +24151,11 @@
     {
       "from": "module.notifications.inbox",
       "to": "file:day/grade-notice-backfill.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.notifications.inbox",
+      "to": "file:diary/application/school-alerts.test.mjs",
       "type": "verified-by"
     },
     {
@@ -25159,6 +25277,11 @@
       "from": "module.school-diary",
       "to": "decision.mesh-web-login-2026-11-02",
       "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "file:diary/application/diff.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.school-diary",

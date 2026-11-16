@@ -13,7 +13,7 @@ const sections = {
   },
   marks: {
     key: (item) => `${item.subject_id}:${item.period ?? ''}`,
-    value: (item) => ({ average: item.average, count: item.count, target: item.target, marks: item.marks, fixed_value: item.fixed_value, period: item.period }),
+    value: (item) => ({ average: item.average, count: item.count, target: item.target, marks: item.marks, recentMarks: item.recentMarks ?? [], fixed_value: item.fixed_value, period: item.period }),
   },
   assignments: {
     key: (item) => item.sourceItemId,

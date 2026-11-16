@@ -6,7 +6,7 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 import { loadReleaseNote } from './release-note.mjs'
-import { stageSchoolAlerts } from '../diary/application/school-alerts.mjs'
+import { stageSchoolAlerts, verifySchoolAlerts } from '../diary/application/school-alerts.mjs'
 import { assertGradeNoticeOwner, createGradeNotices, gradeNoticeBackfill } from '../day/grade-notice-backfill.mjs'
 import { meshChildIdentityId } from '../packages/education-runtime/identity.mjs'
 
@@ -157,7 +157,8 @@ async function publishSchoolAlerts() {
   const batch = db.batch()
   const recipients = await stageSchoolAlerts(db, batch, snapshots[0], owner)
   if (recipients) await batch.commit()
-  console.log(JSON.stringify({ sourceDate: snapshots[0].fetchedAt, recipients }))
+  const readback = await verifySchoolAlerts(db, snapshots[0], owner)
+  console.log(JSON.stringify({ sourceDate: snapshots[0].fetchedAt, recipients, ...readback }))
 }
 
 /** @see ../docs/modules/notifications/inbox.md#notification-producers */

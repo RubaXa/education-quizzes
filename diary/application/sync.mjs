@@ -16,6 +16,11 @@ export async function syncDiary({ adapter, dataDir, date }) {
     ['schedule', () => adapter.getSchedule(date)],
     ['marks', () => adapter.getMarks()],
     ['assignments', () => adapter.getAssignments(date, previous?.assignments ?? [])],
+    ...(typeof adapter.getMarkFeed === 'function' ? [['recentMarks', async () => {
+      const raw = await adapter.getMarkFeed(), marks = raw?.payload ?? raw
+      if (!Array.isArray(marks)) throw new Error('INVALID_MARK_FEED')
+      return marks
+    }]] : []),
   ]) {
     try { result[key] = await load() }
     catch (error) {
@@ -25,6 +30,11 @@ export async function syncDiary({ adapter, dataDir, date }) {
         result.incompleteDetails = error.incompleteDetails
       }
     }
+  }
+  if (Array.isArray(result.recentMarks) && Array.isArray(result.marks)) {
+    result.markFeedScope = 'recent-not-date-filtered'
+    result.marks = result.marks.map(subject => ({ ...subject, recentMarks: result.recentMarks.filter(mark =>
+      mark.subject_id != null && subject.subject_id != null && String(mark.subject_id) === String(subject.subject_id) || Boolean(mark.subject_name) && mark.subject_name === subject.subject_name) }))
   }
   if (!result.profile || typeof result.profile !== 'object' || Array.isArray(result.profile)) result.errors.profile ??= 'INVALID_SHAPE'
   for (const key of ['schedule', 'marks', 'assignments']) {
