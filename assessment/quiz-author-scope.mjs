@@ -34,9 +34,16 @@ async function capture(db,context){
  for(const s of indexes)if(s.data().familyId!==undefined||s.data().childId!==undefined)assertOwned(s.data(),context.owner)
  const previewToken=indexes[0].data().previewToken;if(indexes.some(s=>s.data().previewToken!==previewToken))fail('Индексы указывают на разные предпросмотры.')
  const extraRefs=[db.doc(`previews/${previewToken}`),db.doc(`dayOwners/${context.source.pageId}`),db.doc(`dayPages/${context.source.pageId}`),...context.indexPaths.map(p=>db.doc(p.split('/').slice(0,2).join('/')))]
- const extras=await db.getAll(...extraRefs);if(extras.some(s=>!s.exists))fail('Предпросмотр или точное назначение отсутствует.')
+ const extras=await db.getAll(...extraRefs);if(extras.slice(0,3).some(s=>!s.exists))fail('Предпросмотр или точное назначение отсутствует.')
  const preview=extras[0].data(),owner=extras[1].data(),page=extras[2].data();assertOwned(owner,context.owner);assertOwned(page,context.owner)
- for(const [i,header] of extras.slice(3).entries()){assertBoardOwner(header.data(),context);if(header.data().kind!==['student','parent'][i])fail('Роль ролевого списка не подтверждена заголовком board.')}
+ const legacy=same(context.legacyBoardOwner,context.owner)
+ for(const [i,header] of extras.slice(3).entries()){
+  // Legacy create writes learner child documents without a learner header.
+  // Its absent snapshot is still part of the export, transaction CAS and readback.
+  if(!header.exists){if(i!==0||!legacy)fail('Заголовок ролевого списка отсутствует без подтверждённого legacy-наследования.');continue}
+  const value=header.data();assertBoardOwner(value,context)
+  if(value.kind!==undefined?value.kind!==['student','parent'][i]:!legacy)fail('Роль ролевого списка не подтверждена заголовком board.')
+ }
  if(page.kind!=='student'||preview.testId!==assignment.testId||!same(preview.questions,assignment.questions))fail('Исходная ролевaя проекция не совпадает с тестом.')
  const task=sourceTask(page,context.source.taskId)
  if(task.testToken!==token&&!page.testPlacements?.some(p=>p.token===token&&p.taskId===context.source.taskId))fail('Тест не связан с указанным текущим назначением.')
