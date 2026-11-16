@@ -232,3 +232,9 @@ preflight, транзакционное CAS и post-write readback. До зап�
 period-risk-check использует уже полученный journal без дополнительных Mesh или
 Firestore source reads; enqueueSyncJob повторно проверяет прежний адресный job
 транзакцией для дедупликации, как остальные виды поручений.
+
+Живой readback16.11 выявил границу недели: для target page, чей source owner
+не попал в source-date диапазон, один условный get dayOwners/TOKEN проверяет
+владельца по точному ID. До чтения progress/uploads сравниваются family/child.
+Это устраняет пропуск понедельника с воскресным source owner, не расширяя
+глобальную выборку и не доверяя семейным полям только одной страницы.

@@ -6,7 +6,7 @@
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** @see ../docs/modules/synchronization/task-routing.md */
 /** @see ../docs/modules/materials/material-clarification.md */
-import { inspectDeadlinePage } from '../sync/deadline-evidence.mjs'
+import { inspectDeadlinePage, deadlinePageOwner } from '../sync/deadline-evidence.mjs'
 import { hasSourceReceipt } from '../src/lib/materialRequest.ts'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
@@ -115,7 +115,7 @@ async function discover() {
   for (const doc of pages.docs) {
     const page = doc.data()
     if (page.kind !== 'student' || !window.has(page.targetDate)) continue
-    const owner = ownerByToken.get(doc.id)
+    const owner = await deadlinePageOwner(db, { token: doc.id, page, ownerByToken })
     if (!owner?.familyId || !owner?.childId) continue
     const deadline = await inspectDeadlinePage(db, { page, owner, token: doc.id, today: todayMoscow() })
     measurements.sourceDocuments.deadlineEvidence = (measurements.sourceDocuments.deadlineEvidence ?? 0) + deadline.fetched

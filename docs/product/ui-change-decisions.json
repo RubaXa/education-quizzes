@@ -2442,7 +2442,7 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "bf24dd64c89bf38407676a3043273c7490616986ff46e77fdc18372617f6ad79",
+      "sha256": "d7ff0c7dafb53b1fe35535ca9322426e5efab652fc3806782742c55c0a84d016",
       "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
       "specs": [
         "docs/modules/assignments/deadline-control.md"
@@ -8131,7 +8131,7 @@
       }
     },
     "sync/deadline-evidence.mjs": {
-      "sha256": "1a9edfc4e030880733b15f44a5b4f47d6e3cfddebac7ad95429d276c4d343fc6",
+      "sha256": "c2a87b6240669562578d63272452c8c150d448afef70c47743d9a76069c9e65f",
       "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
       "specs": [
         "docs/modules/assignments/deadline-control.md"

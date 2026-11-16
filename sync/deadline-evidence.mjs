@@ -22,3 +22,10 @@ export async function inspectDeadlinePage(db, { page, owner, token, today }) {
   })
   return { checks, fetched: progress.size + uploads.size }
 }
+
+/** A target Monday can have a source owner dated Sunday, outside the source-date query. */
+export async function deadlinePageOwner(db, { token, page, ownerByToken }) {
+  const owner = ownerByToken.get(token) ?? (await db.doc(`dayOwners/${token}`).get()).data()
+  if (!owner?.familyId || !owner?.childId || owner.familyId !== page.familyId || owner.childId !== page.childId) throw new Error('deadline_owner_mismatch')
+  return owner
+}
