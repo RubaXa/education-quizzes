@@ -833,7 +833,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
   }
   // Comments on marks can contain a real lesson remark, even when MESH notifications are empty.
   // @see ../docs/modules/notifications/inbox.md#school-alerts
-  if (notifyGrades && familyOwner?.familyId && familyOwner?.childId) await stageSchoolAlerts(db, batch, latestCompleteDiarySnapshot(), familyOwner)
+  if (familyOwner?.familyId && familyOwner?.childId) await stageSchoolAlerts(db, batch, latestCompleteDiarySnapshot(), familyOwner)
   return { source, pair, taskIds }
 }
 

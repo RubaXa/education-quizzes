@@ -11,6 +11,7 @@ import { quizDecision, programmingAssignment } from '../assessment/decision-grap
 import { openMaterialRequest, materialRequestErrors } from '../src/lib/materialRequest.ts'
 import { lessonSubjectKey } from '../day/subject-identity.mjs'
 import { previousLessonReference, repetitionDecision } from '../assessment/lesson-repetition.mjs'
+import { learningGate } from '../day/learning-gate.mjs'
 const guidancePolicyRevision='personal-step-explanations-2026-10-30'
 /** @see ../docs/decisions/guidance-refresh-readback-2026-10-25.md */
 const guidanceChecks=['adult-readable-class-level-route-review','learner-current-point-and-safe-hint-review','exact-attempt-steps-and-preserved-credit','explain-bridge-before-one-probe','private-response-branches-and-both-role-readback']
@@ -33,9 +34,11 @@ export function missingTaskMaterial(task) {
  * Printed restrictions and historical participation flags do not authorize a hold. */
 export function competitionHold() { return false }
 
-export function taskRoute(task = {}, subject = 'generic', { placement = false } = {}) {
+export function taskRoute(task = {}, subject = 'generic', { placement = false, learningEvidence = {} } = {}) {
   const key = adapters[subject] ? subject : lessonSubjectKey(subject) ?? subject
   const route = { taskId: task.id ?? null, subject: key, adapter: programmingAssignment(task) ? adapters.informatics : adapters[key] ?? 'subject-aware-guidance:generic',
+    learningGate: learningGate({ ...learningEvidence, prepared: learningEvidence.prepared === true, requiredIds: task.problems?.length ? task.problems.map(problem => problem.id) : task.id ? [task.id] : [],
+      readinessRequired: ['control-diagnostic', 'control-followup'].includes(task.assessmentIntent?.mode) || /(?:демо.?вариант|подготов[а-я]*)[^.]{0,80}(?:контрольн|самостоятельн)/iu.test(task.meshText ?? '') }),
     known: [], unknown: [], next: null, steps: [], complete: false,
     verification: ['owner-and-revision', 'both-role-readback', 'preserve-attempts-and-optionality'] }
   const select = (next, steps = []) => ({ ...route, next,

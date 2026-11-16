@@ -660,41 +660,37 @@
       }
     },
     "diary/application/school-alerts.mjs": {
-      "sha256": "6ba4b7810893e16bf145c5654a85f0a8c660eccd7616f8fd0b5f45adf2062c94",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "a75da4205a9ac4b2e023afe54eabb8f5005227ce6ed60205aa175ec89d646719",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "storage/work-evidence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "c812103b3b997d0be86ee6007e18c2e8a8831f92f0738e1a55d4643e6b5acff8"
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "diary/application/sync.mjs": {
-      "sha256": "d4bdf28699a5e7285992ee7bfb5f89e1fa0df20b9195ccfbc34adcd177dea15a",
-      "record": "docs/decisions/grade-mark-details-2026-10-14.md",
+      "sha256": "a9b807c88514744b397e8bcfb2976681817f4dc0ceb232993a977b606f12819c",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/grades.md",
-        "docs/modules/school-diary/README.md"
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-marks.test.mjs"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "diary/application/sync.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 14.10.2026 прямо попросил нажимать на конкретную оценку в списке и видеть вид работы и комментарий учителя из МЭШ."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "1dff1e18908079d4d3a19dbf6825e3fe2bd9b00a3cf1db1cf1946e97e80fe28d"
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "operator/operation-contract.mjs": {
@@ -801,19 +797,20 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "28233f420d68d72efd438ad29743e24db3773509c69da3f555260ed4645df192",
-      "record": "docs/decisions/mesh-mark-work-2026-11-16.md",
+      "sha256": "c81157fa1a92833160d0c0a3b86f1896964b87b7665c91659f7f883287c4b17c",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/README.md"
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "diary/application/mark-details.test.mjs",
-        "diary/application/mark-files.test.mjs",
-        "packages/education-connect/lib/mesh-marks.test.mjs"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "diary/application/sync.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -1979,20 +1976,20 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "39b319cdc0b75b9d66763b4602630ff69e2cdcd629666afb437fe319c580e162",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "ff57fe3dba428120e63b48a1ba1124677438de7bb27ceeb683f946977527fc1b",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "diary/application/sync.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2257,21 +2254,20 @@
       }
     },
     "scripts/notifications.mjs": {
-      "sha256": "73cf40a519a868179207df6e4cf2a79bef9b1312e36e2b363c1ad1decec12d35",
-      "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
+      "sha256": "77af69bffba80aa3d157d0c10baf7f40975a2d61482ef54380eb6fb02ff6ae33",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
+        "docs/modules/assignments/README.md",
         "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "day/grade-notice-backfill.test.mjs"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "diary/application/sync.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "f0764b49699f8344236a5605b71e772d548b6e0b9229a05b0c821bb7046c14e6"
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "scripts/publish-pages.mjs": {
@@ -6085,19 +6081,20 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "498b5d0eb28a991b093cf217e7c7804e540bbd7f023f28edb4344aba7bd03885",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "e0014e3509d15b920c4c77e50c615e498d8f7514815a7c58b3afb1853396b7ee",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "storage/work-evidence.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     },
     "operator/route-plan.mjs": {
@@ -8052,6 +8049,74 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
+      }
+    },
+    "diary/application/diff.mjs": {
+      "sha256": "c6a9889fabbe5fb9e305c69a3a06e8bf20cbad54444c1ad51c562485f2b75b0c",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "specs": [
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
+      ],
+      "tests": [
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "diary/application/sync.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+      }
+    },
+    "day/learning-gate.mjs": {
+      "sha256": "2495819023529fb9ceb313238e32df5799775d641717f1572a6c9f6044e04977",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "specs": [
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
+      ],
+      "tests": [
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "storage/work-evidence.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+      }
+    },
+    "scripts/work-evidence.mjs": {
+      "sha256": "9989e4791a92d361448f52409cc590c85fca22cfe66ad1027551b57caabc9d9a",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "specs": [
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
+      ],
+      "tests": [
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "storage/work-evidence.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+      }
+    },
+    "storage/work-evidence.mjs": {
+      "sha256": "470840fa8332f12f0345a11993589ad0ef41b2b8ba68a5b1160b1a4020bdc8a8",
+      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "specs": [
+        "docs/modules/assignments/README.md",
+        "docs/modules/notifications/inbox.md"
+      ],
+      "tests": [
+        "day/learning-gate.test.mjs",
+        "diary/application/school-alerts.test.mjs",
+        "storage/work-evidence.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
       }
     }
   }

@@ -108,3 +108,10 @@ it('classifies programming platform practice, including technology, without clai
   expect(taskRoute({...confirmed,testToken:'existing'}, 'technology').next).toBe('existing-assessment')
   expect(taskRoute({...task,meshText:'Сделать деревянную подставку'}, 'technology').adapter).toBe('subject-aware-guidance:generic')
 })
+
+it('keeps published preparation distinct from independent readiness and school handover', () => {
+  const route = taskRoute({ ...ready, meshText: 'Демо-вариант контрольной работы', problems: [{ id: 'p1' }] }, 'math', { learningEvidence: { prepared: true } })
+  expect(route.learningGate).toMatchObject({ preparation: 'published', readiness: 'not-confirmed', deadlineRisk: 'independent-result-not-confirmed', handover: 'unknown' })
+  expect(route.next).toBe('prepare-written-guidance')
+  expect(route.complete).toBe(false)
+})

@@ -46,3 +46,16 @@ describe('полный журнал отметок МЭШ', () => {
     ] }], '2026-10-14')).toThrow(/неполный/)
   })
 })
+
+it('shares the recent feed within one adapter run, retries failures and refreshes a new run', async () => {
+  const create = () => new MeshDiaryAdapter({ token: 'synthetic', studentId: 'student', profileId: 'profile' }, () => {})
+  const first = create()
+  first.api.apiFetch = vi.fn(async () => [])
+  await Promise.all([first.getMarkFeed(), first.getMarkFeed()])
+  expect(first.api.apiFetch).toHaveBeenCalledTimes(1)
+  const second = create()
+  second.api.apiFetch = vi.fn().mockRejectedValueOnce(new Error('API 500')).mockResolvedValue([])
+  await expect(second.getMarkFeed()).rejects.toThrow('API 500')
+  await second.getMarkFeed()
+  expect(second.api.apiFetch).toHaveBeenCalledTimes(2)
+})
