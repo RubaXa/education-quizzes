@@ -1722,6 +1722,30 @@
       "path": "docs/decisions/mesh-login-stages-2026-11-01.md"
     },
     {
+      "id": "decision.mesh-mark-work-2026-11-16",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.school-diary",
+      "uses": [],
+      "consumers": [
+        "parent",
+        "sync operator"
+      ],
+      "code": [
+        "diary/application/mark-details.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/mesh-mark-work-2026-11-16.md"
+    },
+    {
       "id": "decision.mesh-renewal-order-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -5715,6 +5739,34 @@
       "kind": "artifact",
       "purpose": "Семейные исключения из расписания",
       "consumer": "Синхронизатор дневника"
+    },
+    {
+      "id": "file:diary/application/mark-details.mjs",
+      "path": "diary/application/mark-details.mjs",
+      "kind": "artifact",
+      "purpose": "Адресная карточка отметки и отдельная recent-feed без подмены дат",
+      "consumer": "Оператор; CLI"
+    },
+    {
+      "id": "file:diary/application/mark-details.test.mjs",
+      "path": "diary/application/mark-details.test.mjs",
+      "kind": "verification",
+      "purpose": "Scope, дата, ID и сохранение полного ответа",
+      "consumer": "Оператор; CLI"
+    },
+    {
+      "id": "file:diary/application/mark-files.mjs",
+      "path": "diary/application/mark-files.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытые оригиналы и хэшированные версии фото",
+      "consumer": "Оператор; CLI"
+    },
+    {
+      "id": "file:diary/application/mark-files.test.mjs",
+      "path": "diary/application/mark-files.test.mjs",
+      "kind": "verification",
+      "purpose": "Файлы при ложном флаге и сохранность истории",
+      "consumer": "Оператор; CLI"
     },
     {
       "id": "file:diary/application/school-alerts.mjs",
@@ -12770,6 +12822,9 @@
         "packages/education-connect/lib/prompts.mjs",
         "scripts/connect.mjs",
         "scripts/day.mjs",
+        "diary/application/mark-details.mjs",
+        "diary/application/mark-files.mjs",
+        "diary/cli.mjs",
         "src/components/ConnectionInvite.tsx"
       ],
       "parent": "product.education",
@@ -17482,6 +17537,21 @@
     },
     {
       "from": "file:diary/application/lesson-visibility.mjs",
+      "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/application/mark-details.mjs",
+      "to": "decision.mesh-mark-work-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/application/mark-details.mjs",
+      "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/application/mark-files.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -25077,6 +25147,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "decision.mesh-mark-work-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
       "to": "decision.mesh-renewal-order-2026-11-01",
       "type": "contains"
     },
@@ -25084,6 +25159,16 @@
       "from": "module.school-diary",
       "to": "decision.mesh-web-login-2026-11-02",
       "type": "contains"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "file:diary/application/mark-details.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary",
+      "to": "file:diary/application/mark-files.test.mjs",
+      "type": "verified-by"
     },
     {
       "from": "module.school-diary",

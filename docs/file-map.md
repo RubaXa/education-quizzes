@@ -1341,3 +1341,9 @@
 | [scripts/lib/child-birthday.mjs](../scripts/lib/child-birthday.mjs) | [Семейный день рождения](modules/families/README.md) | Подтверждённая дата и адресный readback | family CLI |
 | [scripts/lib/child-birthday.test.mjs](../scripts/lib/child-birthday.test.mjs) | [Семейный день рождения](modules/families/README.md) | Scope и сохранность профиля | Vitest |
 | [docs/decisions/birthday-theme-2026-11-14.md](decisions/birthday-theme-2026-11-14.md) | [Семейная модель](modules/families/README.md) | Основание праздничной темы и границы | Product; developer |
+
+| [diary/application/mark-details.mjs](../diary/application/mark-details.mjs) | [Порт дневника](modules/school-diary/README.md) | Адресная карточка отметки и отдельная recent-feed без подмены дат | Оператор; CLI |
+| [diary/application/mark-details.test.mjs](../diary/application/mark-details.test.mjs) | [Порт дневника](modules/school-diary/README.md) | Scope, дата, ID и сохранение полного ответа | Оператор; CLI |
+| [diary/application/mark-files.mjs](../diary/application/mark-files.mjs) | [Порт дневника](modules/school-diary/README.md) | Закрытые оригиналы и хэшированные версии фото | Оператор; CLI |
+| [diary/application/mark-files.test.mjs](../diary/application/mark-files.test.mjs) | [Порт дневника](modules/school-diary/README.md) | Файлы при ложном флаге и сохранность истории | Оператор; CLI |
+| [docs/decisions/mesh-mark-work-2026-11-16.md](decisions/mesh-mark-work-2026-11-16.md) | [Порт дневника](modules/school-diary/README.md) | Основание адресной прямой загрузки фото | Developer; оператор |

@@ -354,6 +354,39 @@ export class MeshDiaryAdapter {
       return normalizeSubjectPeriods(data.payload || data)
     })
   }
+  async getMarkFeed() {
+    return observeMesh(this.telemetry, 'mesh.get-mark-feed', () => {
+      const url = new URL('https://school.mos.ru/api/family/mobile/v1/marks')
+      url.searchParams.set('student_id', this.secret.studentId)
+      url.searchParams.set('profile_id', this.secret.profileId)
+      return this.api.apiFetch(url.toString())
+    })
+  }
+  async getMarkDetails(_date, markId) {
+    if (!/^\d{1,20}$/.test(markId ?? '')) throw new Error('invalid_mark_id')
+    return observeMesh(this.telemetry, 'mesh.get-mark-details', () => {
+      const url = new URL(`https://school.mos.ru/api/family/mobile/v1/marks/${markId}`)
+      url.searchParams.set('student_id', this.secret.studentId)
+      url.searchParams.set('profile_id', this.secret.profileId)
+      return this.api.apiFetch(url.toString())
+    })
+  }
+  async getMarkFile(sourceUrl) {
+    const url = new URL(sourceUrl)
+    if (url.origin !== 'https://school.mos.ru' || !/^\/storage\/controlwork\/\d+\/\d+\/[a-f0-9-]+$/i.test(url.pathname) || url.search || url.hash) throw new Error('unsafe_mark_file_url')
+    const response = await meshFetch(url.toString(), { redirect: 'manual', signal: AbortSignal.timeout(30_000), headers: { 'Auth-Token': this.api.token, Authorization: `Bearer ${this.api.token}`, Accept: '*/*' } }, this.telemetry, this.signal, this.httpTrace)
+    if (!response.ok) throw new Error(`mesh_mark_file_http_${response.status}`)
+    const chunks = []; let size = 0
+    for await (const chunk of response.body) {
+      size += chunk.length
+      if (size > 25 * 1024 * 1024) throw new Error('mesh_mark_file_too_large')
+      chunks.push(chunk)
+    }
+    const bytes = Buffer.concat(chunks)
+    const image = bytes[0] === 0xff && bytes[1] === 0xd8 || bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+    if (!image && bytes.subarray(0, 5).toString() !== '%PDF-') throw new Error('mesh_mark_file_invalid_binary')
+    return bytes
+  }
   async getLessonDetails(event) {
     return observeMesh(this.telemetry, 'mesh.get-lesson-details', async () => {
       const url = new URL(`https://school.mos.ru/api/family/mobile/v1/lesson_schedule_items/${encodeURIComponent(String(event.id))}`)

@@ -801,19 +801,19 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "9a2ce017393a0bf8983a86d66af46810417acbe9a8524d78d243462338a96fb8",
-      "record": "docs/decisions/mesh-web-login-2026-11-02.md",
+      "sha256": "28233f420d68d72efd438ad29743e24db3773509c69da3f555260ed4645df192",
+      "record": "docs/decisions/mesh-mark-work-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/README.md",
-        "docs/shared/server-runtime.md"
+        "docs/modules/school-diary/README.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-auth.test.mjs",
-        "packages/education-connect/lib/login-diagnostics.test.mjs"
+        "diary/application/mark-details.test.mjs",
+        "diary/application/mark-files.test.mjs",
+        "packages/education-connect/lib/mesh-marks.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель02.11.2026 потребовал восстановить локальный CLI с первым вводом телефона/СНИЛС/пароля, последующим SMS и подробной трассировкой; исследовать документацию и подходящие библиотеки."
+        "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -7868,19 +7868,19 @@
       }
     },
     "diary/cli.mjs": {
-      "sha256": "13d511b719d35a9e335af3e400b2d4205d3ca33fa1588a71005c99986163f339",
-      "record": "docs/decisions/mesh-web-login-2026-11-02.md",
+      "sha256": "057c8a0d811e9b38dec0400c38463d446c095042e927b1b90c76187fda928cca",
+      "record": "docs/decisions/mesh-mark-work-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/README.md",
-        "docs/shared/server-runtime.md"
+        "docs/modules/school-diary/README.md"
       ],
       "tests": [
-        "diary/login-pty.test.mjs",
-        "diary/login.test.mjs"
+        "diary/application/mark-details.test.mjs",
+        "diary/application/mark-files.test.mjs",
+        "packages/education-connect/lib/mesh-marks.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель02.11.2026 потребовал восстановить локальный CLI с первым вводом телефона/СНИЛС/пароля, последующим SMS и подробной трассировкой; исследовать документацию и подходящие библиотеки."
+        "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
       }
     },
     "packages/education-connect/lib/login-diagnostics.mjs": {
@@ -8020,6 +8020,38 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
+      }
+    },
+    "diary/application/mark-details.mjs": {
+      "sha256": "0288bf2bdbac9e0442b5aa026c675e0d644f52c147c2cdde639a96d7ce15cb8e",
+      "record": "docs/decisions/mesh-mark-work-2026-11-16.md",
+      "specs": [
+        "docs/modules/school-diary/README.md"
+      ],
+      "tests": [
+        "diary/application/mark-details.test.mjs",
+        "diary/application/mark-files.test.mjs",
+        "packages/education-connect/lib/mesh-marks.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
+      }
+    },
+    "diary/application/mark-files.mjs": {
+      "sha256": "cc4fe37d1cdc479c3efe5a04a052c570bbcb906d9e8afd38a9e7cd3972fb871a",
+      "record": "docs/decisions/mesh-mark-work-2026-11-16.md",
+      "specs": [
+        "docs/modules/school-diary/README.md"
+      ],
+      "tests": [
+        "diary/application/mark-details.test.mjs",
+        "diary/application/mark-files.test.mjs",
+        "packages/education-connect/lib/mesh-marks.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель16.11 поручил получить оригиналы контрольной из МЭШ через существующий прямой доступ, без браузера и повторной передачи фото."
       }
     }
   }
