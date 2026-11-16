@@ -1,4 +1,5 @@
 import {subjectDecisionProfiles} from '../sync/subject-decisions.mjs'
+import {presentationContractForRule} from '../packages/education-presentation/task-presentation.mjs'
 /** Stable graph identity shared by the operator plan, real task frames and UI Kit.
  * @see ../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 const decisionRef='docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md'
@@ -28,3 +29,56 @@ export const decisionEdges=[
  ...Object.values(subjectDecisionProfiles).flatMap(p=>p.rules.flatMap(r=>[edge(r.edgeIds[0],'subject.choose',r.nodeId,r.when,r.specRef),edge(r.edgeIds[1],r.nodeId,'artifact.prepare',r.product,r.specRef)])),
  ...[['artifact.prepare','view.role'],['view.role','view.component'],['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
 ]
+
+/** Bind every graph element to real compositions; shared steps retain the selected subject.
+ * Technical steps have no independent family screen: the inspector names their observable consequence.
+ * @see ../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
+const rules=Object.values(subjectDecisionProfiles).flatMap(profile=>profile.rules)
+const ruleIds=rules.map(rule=>rule.id)
+const productContractIds=[...new Set(rules.map(rule=>presentationContractForRule(rule).id))]
+const technicalNotes={
+ 'source.identity':'Отдельной семейной карточки нет. Сопоставление определяет, к какому назначению относятся оригинал и работа.',
+ 'learner.evidence':'Отдельной семейной карточки нет. Подтверждённые результаты влияют на следующий вопрос и объём помощи.',
+ publish:'Отдельной семейной карточки нет. Результат виден в опубликованной карточке обеих ролей после обратного чтения.',
+ knowledge:'Отдельной семейной карточки нет. Новое наблюдение сохраняется отдельно от зачёта и учитывается при следующей подготовке.',
+}
+function bind(item,rule,scope,technicalNote){
+ item.uiScenarioIds=rule?[rule.id]:[...ruleIds]
+ if(rule)item.uiScenarioId=rule.id
+ item.presentationScope=scope
+ item.presentationContractIds=scope==='source'?['source-context']:scope==='result'?['review-result']:rule?[presentationContractForRule(rule).id]:[...productContractIds]
+ item.technical=Boolean(technicalNote)
+ if(technicalNote)item.presentationNote=technicalNote
+}
+const commonNodeScopes={
+ 'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source',
+ 'learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
+ publish:'context',review:'result',knowledge:'result',
+}
+const commonEdgeScopes={
+ 'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
+ 'criteria:choose':'context','evidence:choose':'result','artifact.prepare:view.role':'context','view.role:view.component':'context',
+ 'view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
+}
+/** New common graph elements require an explicit binding, never an inferred generic card. */
+export function decisionCommonScope(kind,id){
+ const scopes=kind==='node'?commonNodeScopes:kind==='edge'?commonEdgeScopes:undefined
+ if(!scopes||!Object.hasOwn(scopes,id))throw Error(`Нет утверждённого макета общего элемента ${kind}:${id}.`)
+ return scopes[id]
+}
+for(const item of decisionNodes){
+ const rule=rules.find(rule=>rule.nodeId===item.id)
+ bind(item,rule,rule?'rule':decisionCommonScope('node',item.id),technicalNotes[item.id])
+}
+for(const item of decisionEdges){
+ const rule=rules.find(rule=>rule.edgeIds.includes(item.id))
+ bind(item,rule,rule?'rule':decisionCommonScope('edge',item.id),item.to==='knowledge'||item.to==='learner.evidence'?technicalNotes.knowledge:item.to==='publish'?technicalNotes.publish:undefined)
+}
+export function decisionPresentationBinding(itemId,scenarioId){
+ const item=[...decisionNodes,...decisionEdges].find(item=>item.id===itemId)
+ if(!item)return undefined
+ const rule=rules.find(rule=>rule.id===scenarioId)
+ if(!rule||!item.uiScenarioIds.includes(rule.id))return undefined
+ const contractIds=item.presentationScope==='source'?['source-context']:item.presentationScope==='result'?['review-result']:[presentationContractForRule(rule).id]
+ return {item,uiScenarioId:rule.id,contractIds,technical:item.technical,note:item.presentationNote}
+}

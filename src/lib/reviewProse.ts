@@ -57,6 +57,7 @@ function proseErrors(value: unknown, fields: ProseFields, path = ''): string[] {
     const text = (value as Record<string, unknown>)[key]
     const name = path ? `${path}.${key}` : key
     if (typeof rule === 'object') return proseErrors(text, rule, name)
+    if (Array.isArray(text)) return text.flatMap((item,index)=>typeof item==='string'&&formatReviewProse(item)!==item?[`${name}[${index}]: нужны читаемые пробелы. Предлагаемая запись: ${formatReviewProse(item)}`]:[])
     if (typeof text !== 'string') return []
     const formatted = rule === 'observation' ? formatReviewObservation(text) : formatReviewProse(text)
     return formatted === text ? [] : [`${name}: нужны читаемые пробелы. Предлагаемая запись: ${formatted}`]
@@ -72,7 +73,7 @@ export function parentGuideProseErrors(guide: unknown): string[] {
 /** Authored reading aids and clarification questions, never the teacher's original text. */
 export function taskSupportProseErrors(task: unknown): string[] {
   return proseErrors(task, {
-    support: { skill: true, facts: { label: true, value: true }, find: true, firstQuestion: true },
-    materialRequest: { question: true, photoPrompt: true, resolvedTopic: true },
+    support: { skill: true, facts: { label: true, value: true }, find: true, parts:{title:true,facts:{label:true,value:true},find:true}, firstQuestion: true },
+    materialRequest: { question: true, photoPrompt: true, resolvedTopic: true, presentation:{available:true,missing:true,reason:true,action:true,checkedSources:true,continuation:{label:true}} },
   })
 }

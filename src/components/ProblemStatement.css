@@ -30,6 +30,10 @@
 .problem-statement-help-button:focus-visible{outline:3px solid var(--edu-problem-help-focus);outline-offset:2px}.problem-statement-help-button:disabled{opacity:.65;cursor:wait}
 .problem-statement-help-used{display:block;margin-top:8px;color:var(--edu-problem-help-muted);font-size:.72rem}
 .problem-statement-error{margin:8px 0 0!important;color:var(--edu-problem-error-ink)!important;font-size:.76rem!important}
+/* @see ../../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
+.problem-statement-part{min-width:0;margin-top:14px}
+.problem-statement-part+.problem-statement-part{padding-top:14px;border-top:1px solid var(--edu-problem-transcript-border)}
+.problem-statement-part h4{margin:0;color:var(--edu-problem-heading);font-size:1rem;line-height:1.4}
 .problem-statement-help{margin-top:14px}
 .problem-statement-help>summary{width:max-content;max-width:100%;padding:9px 12px;border:1px solid var(--edu-problem-help-border);border-radius:10px;background:var(--edu-surface);color:var(--edu-problem-help-ink);font-size:.82rem;font-weight:800;cursor:pointer}
 .problem-statement-help form{margin-top:12px;padding:12px;border:1px solid var(--edu-problem-help-form-border);border-radius:11px;background:var(--edu-surface)}

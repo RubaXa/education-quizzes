@@ -24,6 +24,8 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+16.11, `task-presentation`: адресная коррекция читает только переданные dayOwner и две роли; после проверки владельца — перечисленные закрытые guides. Не более одного точного continuation проверяется по его owner/student page той же семьи. Четыре места чтения в `storage/task-presentation-edit.mjs`: initial getAll трёх документов, extra getAll выбранных guides/continuation, transaction getAll того же набора, final getAll обеих ролей/изменённых guides. Continuation входит в extras; без query/listener/collectionGroup. Повтор transaction защищает CAS; final read подтверждает запись. Стоимость ограничена числом явно переданных изменений (до100); нет чтения при клиентском рендере. Каталог storage пока вне автоматического индекса, поэтому эти места перечислены здесь явно.
+
 16.11, `task-audit`: явная разовая сверка заданий читает только пары страниц из
 закрытого day-links (не более 100), сначала dayOwners и обе роли. Затем только
 для текущих/будущих дней и until-complete листов читает известные task IDs:

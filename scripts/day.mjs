@@ -16,6 +16,8 @@ import { supplementalAssessmentPlacement } from '../assessment/decision-graph.mj
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { ensureContinuousPreparation } from '../sync/preparation-window.mjs'
 import { parentGuideProseErrors, taskSupportProseErrors } from '../src/lib/reviewProse.ts'
+/** @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate */
+import {problemPresentationErrors,guidePresentationErrors,materialRequestPresentationErrors} from '../packages/education-presentation/task-presentation.mjs'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -354,7 +356,7 @@ function validateAssignedInstruction(item, task, sourceDocument) {
 /** Parent-only reference material must be anchored to this exact task and family-linked pages.
  * @see ../docs/modules/reviews/subject-aware-guidance.md#parent-card */
 function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
-  const proseErrors = parentGuideProseErrors(guide)
+  const proseErrors = [...parentGuideProseErrors(guide),...guidePresentationErrors(guide)]
   if (proseErrors.length) fail(proseErrors.join('\n'))
   if (task.id.startsWith('mesh-') && task.instructionStatus?.state !== 'reviewed' || !['structured-notes', 'worked-solution', 'text-structure'].includes(guide.kind)
     || !guide.overview?.trim() || !Array.isArray(guide.stages) || !guide.stages.length) fail(`У ${task.id} родительский ориентир не сверен.`)
@@ -367,7 +369,7 @@ function validateParentGuide(guide, task, sourceDocument, problem, subjectId) {
       || !roles || guide.stages.length !== roles.length
       || guide.stages.map((stage) => stage.role).join(',') !== roles.join(',')
       || profile !== 'extended' && !guide.depthReason?.trim()
-      || guide.stages.some((stage) => !Array.isArray(stage.rows) || !stage.rows.length || !stage.hintPreview?.trim() || !stage.revealPreview?.trim())
+      || guide.stages.some((stage) => !(stage.rows?.length || stage.blocks?.length) || !stage.hintPreview?.trim() || !stage.revealPreview?.trim())
       || guide.stages.slice(0, -1).some((stage) => stage.answer || stage.verification)
       || !last?.answer?.trim() || !Array.isArray(last.verification) || !last.verification.length
       || guide.stages.slice(0, -1).some((stage) => JSON.stringify(stage).includes(last.answer))) {
@@ -416,7 +418,7 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
       ids.add(task.id)
       const flowErrors = learnerFlowErrors(task, materialPlan.taskPages[task.id] ?? [])
       if (flowErrors.length) fail(flowErrors.join(' '))
-      const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task)]
+      const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task), ...(task.materialRequest?.state==='open'?materialRequestPresentationErrors(task.materialRequest):[])]
       if (requestErrors.length) fail(requestErrors.join(' '))
       if (task.assessmentIntent) {
         const intent = task.assessmentIntent
@@ -496,9 +498,11 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
           if (!support?.skill?.trim() || !['unknown', 'provisional', 'practicing', 'demonstrated'].includes(support.state)
             || !support.evidence?.trim() || !Array.isArray(support.evidenceRefs) || !support.evidenceRefs.length
             || !Array.isArray(support.facts) || support.facts.some((fact) => !fact.label?.trim() || !fact.value?.trim())
-            || !support.find?.trim() || !support.firstQuestion?.trim() || !Number.isInteger(support.revision) || support.revision < 1) {
+            || !support.parts?.length&&!support.find?.trim() || !support.firstQuestion?.trim() || !Number.isInteger(support.revision) || support.revision < 1) {
             fail(`У ${problem.id} нет проверяемого педагогического слоя с первым вопросом.`)
           }
+          const presentationErrors=problemPresentationErrors(problem)
+          if(presentationErrors.length)fail(`${problem.id}: ${presentationErrors.join(' ')}`)
           ids.add(problem.id)
           numbers.add(`${problem.variantId ?? ''}:${problem.number}`)
           if (problem.parentGuide) validateParentGuide(problem.parentGuide, task, source, problem, subject.id)
