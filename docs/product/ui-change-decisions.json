@@ -8450,7 +8450,7 @@
       }
     },
     "src/components/MaterialRequest.css": {
-      "sha256": "8183090906386ec7067c62ff78831c89d332943f55d9e7c9c22e64463bd9b296",
+      "sha256": "0caabea4814a2b06bcb8fe13092d9464b8bdf7a232824e46b7f2b7504a47df5a",
       "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
       "specs": [
         "docs/shared/design/task-presentation.md",
