@@ -6,6 +6,7 @@
 /** @see ../docs/decisions/sync-task-routing-2026-10-23.md */
 /** @see ../docs/modules/synchronization/task-routing.md */
 /** @see ../docs/modules/materials/material-clarification.md */
+import { inspectDeadlinePage } from '../sync/deadline-evidence.mjs'
 import { hasSourceReceipt } from '../src/lib/materialRequest.ts'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
@@ -78,8 +79,13 @@ function inboxSnapshot() {
   if (snapshot.complete !== true || !Array.isArray(snapshot.items)) throw new Error('Неполная очередь Firebase: новые работы не могут считаться отсутствующими.')
   return snapshot
 }
+function taskRevision(page, taskId) {
+  const task = (page.subjects ?? []).flatMap(subject => subject.tasks ?? []).find(item => item.id === taskId)
+  return [task?.meshText, task?.instructionStatus, task?.assessmentIntent, task?.testToken ?? null, page.sourceRevision ?? null]
+}
 async function discover() {
   const taskRoutes = []
+  const deadlineChecks = []
   const inboxStarted = performance.now()
   const inbox = inboxSnapshot()
   measurements.phaseMs.inbox = Math.round(performance.now() - inboxStarted)
@@ -111,6 +117,14 @@ async function discover() {
     if (page.kind !== 'student' || !window.has(page.targetDate)) continue
     const owner = ownerByToken.get(doc.id)
     if (!owner?.familyId || !owner?.childId) continue
+    const deadline = await inspectDeadlinePage(db, { page, owner, token: doc.id, today: todayMoscow() })
+    measurements.sourceDocuments.deadlineEvidence = (measurements.sourceDocuments.deadlineEvidence ?? 0) + deadline.fetched
+    for (const check of deadline.checks) {
+      deadlineChecks.push({ familyId: owner.familyId, childId: owner.childId, ...check })
+      candidates.push(job('deadline-check', owner.familyId, owner.childId, `${check.dueDate}:${check.taskId}`,
+        { type: 'day-task', dayToken: doc.id, taskId: check.taskId, date: check.dueDate, checkpoint: check },
+        [check, taskRevision(page, check.taskId)], check.stage === 'overdue' || check.stage === 'due' ? 8 : 25))
+    }
     for (const subject of page.subjects ?? []) for (const task of subject.tasks ?? []) {
       const placement = (page.testPlacements ?? []).some((item) => item.taskId === task.id) || Boolean(supplementalAssessmentPlacement(task, page.testPlacements))
       taskRoutes.push({ familyId: owner.familyId, childId: owner.childId, date: page.targetDate,
@@ -208,7 +222,7 @@ async function discover() {
   })
   candidates.push(...orphanGroups.flat())
   measurements.phaseMs.reviewedUploads = Math.round(performance.now() - reviewedStarted)
-  return { inbox, taskRoutes, candidates: [...new Map(candidates.map((candidate) =>
+  return { inbox, taskRoutes, deadlineChecks, candidates: [...new Map(candidates.map((candidate) =>
     [syncJobId(candidate.kind, candidate.familyId, candidate.childId, candidate.sourceId), candidate])).values()] }
 }
 async function verifiedResolution(record) {
@@ -343,7 +357,7 @@ async function reportQueue(touched = [], snapshotOverride = null) {
 }
 if (command === 'scan') {
   const discoveryStarted = performance.now()
-  const { inbox, candidates, taskRoutes } = await discover()
+  const { inbox, candidates, taskRoutes, deadlineChecks } = await discover()
   measurements.phaseMs.discovery = Math.round(performance.now() - discoveryStarted)
   const previousFingerprints = process.argv.includes('--full-audit') ? null : candidateCache()
   const nextFingerprints = {}
@@ -391,7 +405,7 @@ if (command === 'scan') {
   const queue = await reportQueue(touched, resolved === 0 ? prior : null)
   measurements.phaseMs.projection = Math.round(performance.now() - projectionStarted)
   console.log(JSON.stringify({ scannedAt: new Date().toISOString(), inboxCounts: inbox.counts, inboxSnapshot: inbox,
-    routePlan: syncRoutePlan(taskRoutes, queue.active),
+    routePlan: { ...syncRoutePlan(taskRoutes, queue.active), deadlineChecks },
     candidates: candidates.length, created, unchanged, fullAudit: previousFingerprints === null,
     resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
       totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))

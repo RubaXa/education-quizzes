@@ -1021,6 +1021,30 @@
       "path": "docs/decisions/day-merge-order-2026-10-22.md"
     },
     {
+      "id": "decision.deadline-in-sync-2026-11-16",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.assignments",
+      "uses": [
+        "module.assignments.deadline-control"
+      ],
+      "consumers": [
+        "parent",
+        "sync operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/deadline-in-sync-2026-11-16.md"
+    },
+    {
       "id": "decision.device-binding-recovery-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -11268,6 +11292,34 @@
       "consumer": "`day/dashboard-index.mjs`; `sync/publication-audit.test.mjs`"
     },
     {
+      "id": "file:sync/deadline-control.mjs",
+      "path": "sync/deadline-control.mjs",
+      "kind": "artifact",
+      "purpose": "Правила близкого срока и риска периода",
+      "consumer": "Оператор; синхронизация"
+    },
+    {
+      "id": "file:sync/deadline-control.test.mjs",
+      "path": "sync/deadline-control.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии срока и доказательств",
+      "consumer": "Оператор; синхронизация"
+    },
+    {
+      "id": "file:sync/deadline-evidence.mjs",
+      "path": "sync/deadline-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Адресные текущие progress/uploads до постановки поручения",
+      "consumer": "Оператор; синхронизация"
+    },
+    {
+      "id": "file:sync/deadline-evidence.test.mjs",
+      "path": "sync/deadline-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Изоляция ребёнка и сохранение зачётов",
+      "consumer": "Оператор; синхронизация"
+    },
+    {
       "id": "file:sync/dispatch-workspace.mjs",
       "path": "sync/dispatch-workspace.mjs",
       "kind": "artifact",
@@ -11812,7 +11864,7 @@
         "проверки-и-ограничения"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-16",
+      "updated": "2026-11-16",
       "consumers": [
         "parent",
         "student",
@@ -11826,6 +11878,33 @@
         "scripts/work-evidence.mjs"
       ],
       "path": "docs/modules/assignments/README.md"
+    },
+    {
+      "id": "module.assignments.deadline-control",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "module.assignments",
+      "uses": [
+        "module.synchronization.task-routing"
+      ],
+      "consumers": [
+        "sync operator",
+        "parent",
+        "student"
+      ],
+      "code": [
+        "sync/deadline-control.mjs",
+        "sync/deadline-evidence.mjs"
+      ],
+      "sections": [
+        "existing-pass",
+        "evidence",
+        "period-risk",
+        "limits"
+      ],
+      "path": "docs/modules/assignments/deadline-control.md"
     },
     {
       "id": "module.families",
@@ -13464,7 +13543,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-23",
-      "updated": "2026-10-25",
+      "updated": "2026-11-16",
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.event-queue",
@@ -15991,6 +16070,11 @@
     {
       "from": "decision.day-merge-order-2026-10-22",
       "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.deadline-in-sync-2026-11-16",
+      "to": "module.assignments.deadline-control",
       "type": "uses"
     },
     {
@@ -23029,6 +23113,16 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/deadline-control.mjs",
+      "to": "module.assignments.deadline-control",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/deadline-evidence.mjs",
+      "to": "module.assignments.deadline-control",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/dispatch-workspace.mjs",
       "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
@@ -23564,6 +23658,26 @@
       "type": "uses"
     },
     {
+      "from": "module.assignments.deadline-control",
+      "to": "file:sync/deadline-control.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assignments.deadline-control",
+      "to": "file:sync/deadline-evidence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assignments.deadline-control",
+      "to": "module.synchronization.task-routing",
+      "type": "uses"
+    },
+    {
+      "from": "module.assignments",
+      "to": "decision.deadline-in-sync-2026-11-16",
+      "type": "contains"
+    },
+    {
       "from": "module.assignments",
       "to": "decision.readiness-handover-2026-11-16",
       "type": "contains"
@@ -23582,6 +23696,11 @@
       "from": "module.assignments",
       "to": "module.assessments.quizzes",
       "type": "uses"
+    },
+    {
+      "from": "module.assignments",
+      "to": "module.assignments.deadline-control",
+      "type": "contains"
     },
     {
       "from": "module.assignments",

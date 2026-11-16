@@ -12,6 +12,7 @@
  * @see ../docs/modules/school-diary/school-calendar.md
  * @see ../docs/decisions/pupil-vacations-2026-10-19.md
  */
+import { periodRiskChecks } from '../sync/deadline-control.mjs'
 import { randomUUID } from 'node:crypto'
 import { existsSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
@@ -257,6 +258,11 @@ async function collectChild(target, adapter, runId, today, timing) {
         : Object.values(result.errors).includes('AUTH_REQUIRED') ? 'auth-required' : 'incomplete-mesh'
       await measure(timing, 'statusWrite', () => status(target, runId, 'blocked', { reason, checkedDates: checked, currentDate: date, lastFullMeshAt: lastFull }))
       return { state: 'blocked', reason, checkedDates: checked, lastFullMeshAt: lastFull, changes, schoolCalendar }
+    }
+    if (index === 0) for (const check of periodRiskChecks(result.marks, today)) {
+      await measure(timing, 'enqueuePeriodRisk', () => enqueueSyncJob(db, { kind: 'period-risk-check', familyId: target.familyId, childId: target.childId,
+        sourceId: `${check.subjectId}:${check.periodEnd ?? 'unknown'}`, source: { type: 'subject-period', date: today, ...check },
+        fingerprint: syncFingerprint(check), priority: 22, runId }))
     }
     await measure(timing, 'persistCapture', () => persistMeshCapture({ runDir, runId, familyId: target.familyId, childId: target.childId, snapshot: result }))
     captures++
