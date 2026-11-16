@@ -2465,21 +2465,17 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "e13cd33dbb6d49ae0cce7a8cbdd09554740e9f4e6e3eb20a380be190f56e45fa",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "517edf33276daee26c02bb1801eb038ae005f043ae703983cacde70640edb24b",
+      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
         "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "scripts/sync-queue-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Пользователь16.11.2026 потребовал сверить все текущие задания по предметному графу и исправить обнаруженные пробелы рабочего процесса."
       }
     },
     "scripts/telegram-bot.mjs": {
