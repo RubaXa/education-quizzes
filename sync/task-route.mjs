@@ -50,6 +50,7 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false, l
     ...(['math','special'].includes(key)&&next==='prepare-written-guidance'?{policyRevision:guidancePolicyRevision}:{}),
     steps: ['math','special'].includes(key)&&next==='prepare-written-guidance'
       ? [...steps.slice(0,2),...guidanceChecks,...steps.slice(2)] : steps })
+  if (route.subjectPlan.obligationErrors.length) return select('correct-unassigned-obligation', ['reread-teacher-text-and-assigned-files','remove-inferred-platform-duty-and-upload-request','preserve-existing-reading-test-and-attempts','both-role-readback'])
   if (task.meshText) route.known.push('raw-assignment')
   if (task.instructionStatus?.state === 'reviewed') route.known.push('reviewed-instruction')
   if (previousLessonReference(task)) {

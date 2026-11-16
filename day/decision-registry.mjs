@@ -11,6 +11,8 @@ export const decisionNodes=[
  node('source.identity','Владелец и ревизия','code','docs/shared/data/firestore.md'),
  node('source.criteria','Полные условия и критерии','agent+gate','docs/modules/reviews/criteria-and-knowledge.md#criteria'),
  node('learner.evidence','Свидетельства навыков','code','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
+ node('source.obligation','Какое действие прямо назначено?','agent+gate','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
+ node('source.context','Служебные сведения без учебной обязанности','code','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  node('subject.choose','Выбор предметного действия','agent+code','docs/modules/synchronization/subject-decision-graph.md#subjects'),
  node('artifact.prepare','Нужный учебный продукт','agent+gate','docs/modules/reviews/card-generation-policy.md'),
  node('view.role','Проекции ученика и родителя','code','docs/modules/reviews/subject-card-viewmodel.md'),
@@ -24,7 +26,9 @@ const edge=(id,from,to,label,specRef)=>({id,from,to,label,specRef,decisionRef})
 export const decisionEdges=[
  ...['mesh','upload','parent'].map(source=>edge(`input:${source}`,`source.${source}`,'source.identity','Сопоставить назначение','docs/modules/synchronization/subject-decision-graph.md#inputs')),
  edge('identity:criteria','source.identity','source.criteria','Разобрать полный источник','docs/modules/reviews/criteria-and-knowledge.md#criteria'),
- edge('criteria:choose','source.criteria','subject.choose','Выделить независимые действия','docs/modules/synchronization/subject-decision-graph.md#subjects'),
+ edge('criteria:choose','source.criteria','source.obligation','Отделить назначение от служебных сведений','docs/modules/synchronization/subject-decision-graph.md#subjects'),
+ edge('obligation:choose','source.obligation','subject.choose','Есть прямое назначение: выбрать действие','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
+ edge('obligation:context','source.obligation','source.context','Только счётчик или метаданные: не создавать долг','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  edge('evidence:choose','learner.evidence','subject.choose','Учесть прежние результаты и помощь','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  ...Object.values(subjectDecisionProfiles).flatMap(p=>p.rules.flatMap(r=>[edge(r.edgeIds[0],'subject.choose',r.nodeId,r.when,r.specRef),edge(r.edgeIds[1],r.nodeId,'artifact.prepare',r.product,r.specRef)])),
  ...[['artifact.prepare','view.role'],['view.role','view.component'],['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
@@ -37,6 +41,7 @@ const rules=Object.values(subjectDecisionProfiles).flatMap(profile=>profile.rule
 const ruleIds=rules.map(rule=>rule.id)
 const productContractIds=[...new Set(rules.map(rule=>presentationContractForRule(rule).id))]
 const technicalNotes={
+ 'source.context':'Отдельной семейной карточки нет. Учебного долга нет. Счётчик материалов помогает оператору найти источник, но не требует от ребёнка выполнения или загрузки результата.',
  'source.identity':'Отдельной семейной карточки нет. Сопоставление определяет, к какому назначению относятся оригинал и работа.',
  'learner.evidence':'Отдельной семейной карточки нет. Подтверждённые результаты влияют на следующий вопрос и объём помощи.',
  publish:'Отдельной семейной карточки нет. Результат виден в опубликованной карточке обеих ролей после обратного чтения.',
@@ -51,13 +56,13 @@ function bind(item,rule,scope,technicalNote){
  if(technicalNote)item.presentationNote=technicalNote
 }
 const commonNodeScopes={
- 'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source',
+ 'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source','source.obligation':'source','source.context':'source',
  'learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
  publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
- 'criteria:choose':'context','evidence:choose':'result','artifact.prepare:view.role':'context','view.role:view.component':'context',
+ 'criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','view.role:view.component':'context',
  'view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
 }
 /** New common graph elements require an explicit binding, never an inferred generic card. */

@@ -222,13 +222,16 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
   const photoUrls = useRef(new Set<string>())
   const uploadJobs = useRef(new Map<string, Promise<void>>())
   /** @see ../docs/modules/school-diary/dashboard.md#schedule-homework-status */
-  const [focusTaskId] = useState(() => {
+  const [focusRequest] = useState<{dayToken:string;taskId:string}|null>(() => {
     const stored = sessionStorage.getItem('education-day-focus-task')
     sessionStorage.removeItem('education-day-focus-task')
-    if (!stored) return ''
-    try { const request = JSON.parse(stored) as { dayToken: string; taskId: string }; return request.dayToken === token ? request.taskId : '' }
-    catch { return '' }
+    if (!stored) return null
+    try { const request = JSON.parse(stored) as { dayToken: string; taskId: string }; return typeof request?.dayToken==='string'&&typeof request.taskId==='string'?request:null }
+    catch { return null }
   })
+  // LearningRoute resolves a canonical student link to the authenticated role.
+  // Wait for that page before matching its verified aliases; never accept another day.
+  const focusTaskId=focusRequest&&[token,page?.studentToken].includes(focusRequest.dayToken)?focusRequest.taskId:''
   const focusHandled = useRef({ initial: false, settled: false })
   const focusedQuizPlacement = focusTaskId.startsWith('quiz:') && page
     ? findQuizPlacement((page.testPlacements ?? []).filter((placement) => (placement.originDate ?? page.targetDate) === page.targetDate), tests, focusTaskId.slice(5))

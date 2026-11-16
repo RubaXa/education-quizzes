@@ -13940,10 +13940,12 @@
       ],
       "code": [
         "sync/subject-decisions.mjs",
-        "sync/decision-evidence.mjs"
+        "sync/decision-evidence.mjs",
+        "day/homework-kind.mjs"
       ],
       "sections": [
         "inputs",
+        "teacher-obligation",
         "subjects",
         "products",
         "graphs",
@@ -18022,6 +18024,11 @@
     {
       "from": "file:day/homework-kind.mjs",
       "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/homework-kind.mjs",
+      "to": "module.synchronization.subject-decision-graph",
       "type": "implements"
     },
     {

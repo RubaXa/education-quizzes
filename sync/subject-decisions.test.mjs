@@ -1,6 +1,13 @@
 import { expect, it } from 'vitest'
 import { subjectDecisionPlan, subjectDecisionProfiles } from './subject-decisions.mjs'
 import { taskRoute } from './task-route.mjs'
+it.each(['geography','biology'])('does not turn a material counter or an authored platform card into teacher homework: %s',subject=>{
+ const task={id:'mesh-counter',kind:'check',meshText:'п.38',outputKind:'platform-result',materialCounts:{count_execute:1},instructionStatus:{state:'reviewed'},assessmentIntent:{state:'confirmed',mode:'ordinary',topic:'Параграф',evidenceRef:'book:38'}}
+ const plan=subjectDecisionPlan(task,subject)
+ expect(plan.actions.some(a=>a.action==='platform')).toBe(false);expect(plan.obligationErrors).toHaveLength(1)
+ const route=taskRoute(task,subject);expect(route.next).toBe('correct-unassigned-obligation');expect(route.steps).not.toContain('await-source-upload')
+ expect(taskRoute({...task,meshText:'Выполнить ЦДЗ'},subject).next).not.toBe('correct-unassigned-obligation')
+})
 it('has a separate subject registry and three required input origins',()=>{
  expect(Object.keys(subjectDecisionProfiles)).toEqual(expect.arrayContaining(['math','special','russian','literature','english','history','geography','biology','informatics','technology']))
  const p=subjectDecisionPlan({kind:'read',meshText:'Читать главы6и7'},'literature')

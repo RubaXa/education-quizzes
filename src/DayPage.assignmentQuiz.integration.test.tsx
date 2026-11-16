@@ -828,6 +828,17 @@ it.each([false,true])('collapses every ordinary assignment on entry while keepin
 })
 
 
+it.each(['student-token','foreign-token'])('opens a canonical source request in its parent projection only for the same day: %s',async(requested)=>{
+ scene.page!.subjects=[{id:'english',name:'Английский язык',icon:'',materials:'',mesh:'Запись',summary:'',tasks:[{id:'previous-work',kind:'written',status:'unknown',title:'Уже присланные страницы',detail:'Сохранённая работа',source:'МЭШ'}]}]
+ scene.page!.studentToken='student-token';scene.page!.testPlacements=[];scene.page!.materialLinks={};scene.uploads=[];scene.reviews=[];scene.role='parent'
+ sessionStorage.setItem('education-day-focus-task',JSON.stringify({dayToken:requested,taskId:'previous-work'}))
+ const oldFrame=window.requestAnimationFrame,oldCancel=window.cancelAnimationFrame,oldScroll=HTMLElement.prototype.scrollIntoView
+ window.requestAnimationFrame=cb=>{cb(0);return 1};window.cancelAnimationFrame=()=>{};HTMLElement.prototype.scrollIntoView=()=>{}
+ const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+ try{await act(async()=>root.render(<DayPage token="parent-token" parent headerReturnTarget={null}/>));expect(host.querySelector<HTMLDetailsElement>('#day-task-previous-work')!.open).toBe(requested==='student-token')}
+ finally{await act(async()=>root.unmount());host.remove();window.requestAnimationFrame=oldFrame;window.cancelAnimationFrame=oldCancel;HTMLElement.prototype.scrollIntoView=oldScroll}
+})
+
 it.each(['ordinary','quiz'])('opens only the explicitly targeted %s assignment and respects a later manual close',async(kind)=>{
  const tasks=kind==='ordinary'?[{id:'focus-task',kind:'written' as const,status:'unknown' as const,title:'Моё задание',detail:'Подробности',source:'МЭШ'}]:[{id:'focus-task',kind:'read' as const,status:'unknown' as const,title:'Прочитать параграф',detail:'Подробности',source:'МЭШ',testToken:'diagrams-test'}]
  scene.page!.subjects=[{id:'math',name:'Математика',icon:'∑',materials:'',mesh:'Назначение.',summary:'',tasks}];scene.page!.materialLinks={};scene.page!.testPlacements=kind==='quiz'?[{token:'diagrams-test',subjectId:'math',taskId:'focus-task'}]:[];scene.uploads=[];scene.reviews=[]
