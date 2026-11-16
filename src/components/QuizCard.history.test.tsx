@@ -98,6 +98,6 @@ describe('stable projection helpers',()=>{
   })
   it('separates partial, unanswered, pending and excluded',()=>{
     const results=answers(6,1);results[1].points=.5;results[2].answer='';results[3].points=null;results[4].skipped=true
-    expect(quizAnswerCounts({...chain[0],results})).toEqual({correct:1,partial:1,incorrect:1,unanswered:1,pending:1,excluded:1})
+    expect(quizAnswerCounts({...chain[0],results})).toEqual({correct:1,partial:1,incorrect:1,unanswered:1,pending:1,excluded:0,skipped:1})
   })
 })

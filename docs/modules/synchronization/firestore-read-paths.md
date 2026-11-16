@@ -24,6 +24,32 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+16.11, `quiz scope-export/scope-correct`: только явный token и связанное текущее
+назначение. `assessment/quiz-author-scope.mjs` адресно читает assignment/key/public
+review/private, затем ровно два известных ролевых index и их boardheaders,
+preview, dayOwner/dayPage. Owner/role/source binding проверяются без query и
+наследуются для legacy лишь из проверенного локального people/legacyDayOwner.
+Fingerprint экспорта включает весь этот набор. Применение дополнительно читает
+один вычисленный scopeHistory ID и через prepareLearningWrites — только новые
+learningEvidence и затронутые навыки. Транзакция повторяет тот же набор и history;
+финальный getAll подтверждает проекции, ключ/ответы и историю, knowledge.verify —
+новое unknown-свидетельство. Нет новых клиентских reads/listeners, широких обходов
+семей или автоматического вызова операции. Цена ограничена одним тестом, двумя
+ролями и выбранными IDs; purpose — явная коррекция автора, не mastery.
+
+`quiz revise-open --author-scope` для не начатого ordinary дополнительно адресно
+читает вычисленный private scopeHistory и прежний quizReviewPrivate в транзакции;
+архив и обновлённые проекции подтверждаются readback. Guard начала/ответов и
+существующие ролевые/ключевые проверки остаются обязательными.
+
+16.11, context-evidence: штатный `submissions validate/review` использует прежнее
+разрешение владельца по дате/адресному upload. Контекстный branch не читает критерии,
+навыки или learning evidence; читает только текущие private/public review документы
+и после записи их же и адресный upload. Транзакционный fence перечитывает владельца,
+страницу, upload и прежние review snapshots. Новых коллекций, клиентских чтений и
+подписок нет; [квитанция](../reviews/review-criteria-provenance.md#context-evidence)
+не является оценкой задания.
+
 16.11, `task-presentation`: адресная коррекция читает только переданные dayOwner и две роли; после проверки владельца — перечисленные закрытые guides. Не более одного точного continuation проверяется по его owner/student page той же семьи. Четыре места чтения в `storage/task-presentation-edit.mjs`: initial getAll трёх документов, extra getAll выбранных guides/continuation, transaction getAll того же набора, final getAll обеих ролей/изменённых guides. Continuation входит в extras; без query/listener/collectionGroup. Повтор transaction защищает CAS; final read подтверждает запись. Стоимость ограничена числом явно переданных изменений (до100); нет чтения при клиентском рендере. Каталог storage пока вне автоматического индекса, поэтому эти места перечислены здесь явно.
 
 16.11, `task-audit`: явная разовая сверка заданий читает только пары страниц из

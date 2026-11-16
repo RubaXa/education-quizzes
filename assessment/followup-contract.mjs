@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** Content-independent safeguards for a linked quiz and an unopened revision.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold
  * @see ../docs/modules/assessments/quiz-chain-proposal.md#связь-с-кодом-и-проверками */
@@ -49,6 +50,16 @@ export function openQuizRevision({ current, spec, owner, revisedAt }) {
       reading: spec.reading ?? null, questions, revisedAt },
     index: { title: spec.title, description: spec.description, board: spec.board, revisedAt },
   }
+}
+
+/** A wrong author scope may be corrected in place only before the first attempt.
+ * @see ../docs/modules/assessments/quizzes.md#author-scope-correction */
+export function authorSourceQuizRevision(input){
+ const {current,spec,plan}=input,proof=spec.authorScopeCorrection
+ if(plan?.mode!=='ordinary'||current?.assessment?.mode!=='ordinary'||plan.subjectAdapter!==current.assessment.subjectAdapter
+  ||current.linkedToTestId||spec.linkedToTestId||current.authorScopeExclusions
+  ||typeof proof?.reason!=='string'||proof.reason.trim().length<20||!Array.isArray(proof.evidenceRefs)||!proof.evidenceRefs.length||proof.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim()))throw Error('Авторская ревизия требует ordinary, неизменный предметный адаптер, причину и точные источники.')
+ return openQuizRevision(input)
 }
 
 /** Rename an unstarted test without changing content, key, links or owner.

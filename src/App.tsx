@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /**
@@ -14,7 +15,7 @@ import { ReadingCard, ThemeFrame, ThemeHero } from '@/components/SubjectTheme'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { countAnswered, grade, summarize } from '@/lib/quiz'
+import { countAnswered, grade, summarize, excludedQuizQuestionIds, requiredQuizQuestionCount } from '@/lib/quiz'
 import { sharedQuestionTopic } from '@/lib/questionTopicPresentation'
 import { buildFollowUpPrompt } from '@/lib/followup'
 import { WriteQueue } from '@/lib/writeQueue'
@@ -166,7 +167,8 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
             <ResultBadge input={summary.pending ? {kind:'waiting'} : {kind:'score',points:summary.earned,maxPoints:summary.possible}} />
           </div>
           <ResultMeter input={summary.pending ? {kind:'waiting'} : {kind:'score',points:summary.earned,maxPoints:summary.possible}} label="Процент набранных баллов" />
-          {summary.skipped > 0 && <p className="text-sm text-muted-foreground">Пропущено без оценки: {summary.skipped} из {assignment.questions.length}.</p>}
+          {summary.excluded > 0 && <p className="text-sm text-muted-foreground">Не входят в зачёт этого задания: {summary.excluded}.</p>}
+          {summary.skipped > 0 && <p className="text-sm text-muted-foreground">Пропущено без оценки: {summary.skipped} из {requiredQuizQuestionCount(assignment)}.</p>}
           {summary.pending > 0 && <p className="text-sm text-muted-foreground">Итог предварительный. Полный разбор появится по этой же ссылке после проверки.</p>}
         </CardContent>
       </Card>
@@ -385,7 +387,9 @@ function QuizRunner({ token }: { token: string }) {
   if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
 
   const answered = countAnswered({ ...assignment, answers })
-  const progress = assignment.questions.length ? Math.round(100 * answered / assignment.questions.length) : 0
+  const requiredCount = requiredQuizQuestionCount(assignment)
+  const excluded = excludedQuizQuestionIds(assignment)
+  const progress = requiredCount ? Math.round(100 * answered / requiredCount) : 0
   const sharedTopic = sharedQuestionTopic(assignment.questions)
 
   return (
@@ -393,18 +397,18 @@ function QuizRunner({ token }: { token: string }) {
       <div className="space-y-6">
       <ThemeHero subject={assignment.subject} visual={assignment.visual} title={assignment.title} description={assignment.description}>
         <div className="flex flex-wrap items-center gap-4 text-sm">
-          <span className="flex items-center gap-2"><CircleHelp className="size-4" /> {assignment.questions.length} {wordForm(assignment.questions.length, 'вопрос', 'вопроса', 'вопросов')}</span>
+          <span className="flex items-center gap-2"><CircleHelp className="size-4" /> {requiredCount} {wordForm(requiredCount, 'вопрос', 'вопроса', 'вопросов')}{excluded.size ? ' в зачёте' : ''}</span>
           <span className="flex items-center gap-2"><Clock3 className="size-4" /> Можно продолжить позже по этой ссылке</span>
         </div>
       </ThemeHero>
       <ReadingCard reading={assignment.reading} />
       <div className="sticky-progress rounded-2xl bg-white/95 px-5 py-3 shadow-sm backdrop-blur">
-        <div className="mb-2 flex justify-between text-sm"><span>Ваш прогресс</span><strong>{answered} из {assignment.questions.length}</strong></div>
+        <div className="mb-2 flex justify-between text-sm"><span>Ваш прогресс</span><strong>{answered} из {requiredCount}</strong></div>
         <Progress value={progress} />
       </div>
       {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
       <div className="space-y-5">{assignment.questions.map((question, index) => (
-        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} subject={assignment.subject} visual={assignment.visual} showTopic={!sharedTopic} />
+        <QuestionCard key={question.id} question={question} index={index} answer={answers[question.id]} onAnswer={(value) => updateAnswer(question.id, value)} excluded={excluded.has(question.id)} disabled={excluded.has(question.id)} subject={assignment.subject} visual={assignment.visual} showTopic={!sharedTopic} />
       ))}</div>
       {error && <p className="rounded-xl bg-rose-50 p-3 text-sm text-rose-800">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm sm:flex-row sm:items-center">
@@ -436,7 +440,7 @@ function Preview({ token }: { token: string }) {
       <ThemeHero subject={preview.subject} visual={preview.visual} title={preview.title} description={preview.description} preview />
       <ReadingCard reading={preview.reading} />
       {sharedTopic && <p className="text-sm text-muted-foreground">Тема вопросов: {sharedTopic}</p>}
-      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled subject={preview.subject} visual={preview.visual} showTopic={!sharedTopic} onAnswer={() => {}} />)}
+      {preview.questions.map((question, index) => <QuestionCard key={question.id} question={question} index={index} disabled excluded={excludedQuizQuestionIds(preview).has(question.id)} subject={preview.subject} visual={preview.visual} showTopic={!sharedTopic} onAnswer={() => {}} />)}
       </div>
     </ThemeFrame>
   )
@@ -554,7 +558,7 @@ function Dashboard({ token, parent = false }: { token: string; parent?: boolean 
           subject: item.subject || assignment.subject,
           status: assignment.status,
           answered: countAnswered(assignment),
-          total: assignment.questions.length,
+          total: requiredQuizQuestionCount(assignment),
           createdAt: (assignment.createdAt ?? item.createdAt) as { seconds?: number } | null,
           submittedAt: assignment.submittedAt as { seconds?: number } | null,
           startedAt: assignment.startedAt, updatedAt: assignment.updatedAt,

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/informatics-assessment-2026-11-01.md */
 import {resolveReviewReplyStep, reviewReplyErrors, sameReviewValue} from '../../packages/education-presentation/review-reply.mjs'
 import type {ReviewReply} from '../../packages/education-presentation/review-reply.mjs'
@@ -131,6 +132,8 @@ function taskConditionOnPage(page: DayPageData | undefined, taskId: string): str
 }
 export type DayHelp = { id: string; taskId: string; revision: number; requestedAt?: unknown; requestKind?: 'condition' | 'start' | 'step' | 'check'; requestText?: string; photoUploadIds?: string[]; planRevision?: number; eventReceiptId?: string; reviewReply?: ReviewReply }
 export type DayWorkReview = {
+  /** Observed context only; never completes this assignment or changes its quiz. */
+  contextEvidence?: import('../../storage/context-evidence.mjs').ContextEvidence[];
   correctedAt?: unknown;
   purpose?: 'source-material'; sourceAnalysis?: SourceAnalysis;
   id: string; taskId: string; status?: 'verified' | 'needs-fix' | 'partial' | 'cannot-assess';

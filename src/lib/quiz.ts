@@ -1,4 +1,6 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/program-explanation-2026-11-01.md */
+/** @see ../../docs/modules/assessments/quizzes.md#author-scope-correction */
 /**
  * @see ../../docs/product/assessments.md
  * @see ../../docs/modules/assessments/README.md
@@ -60,6 +62,8 @@ export type Assignment = {
   familyChoiceBy?: string
   /** Public routing metadata only; private assessment plan and learner evidence stay in work/. */
   assessment?: { policyVersion: 1; mode: 'ordinary' | 'control-diagnostic' | 'control-followup' | 'targeted-followup'; subjectAdapter: string; unansweredPolicy?: 'optional' }
+  /** Operator correction of an author's out-of-scope question; never pupil optionality. */
+  authorScopeExclusions?: { version: 1; revision: number; questionIds: string[] }
   title: string
   description?: string
   subject: string
@@ -75,10 +79,24 @@ export type Assignment = {
 }
 
 export function countAnswered(assignment: Assignment): number {
+  const excluded = excludedQuizQuestionIds(assignment)
   return assignment.questions.filter((question) => {
+    if (excluded.has(question.id)) return false
     const answer = assignment.answers?.[question.id]
     return typeof answer === 'string' ? answer.trim().length > 0 : Array.isArray(answer) && answer.length > 0
   }).length
+}
+
+/** Only the addressed, admin-written author correction affects assessment scope. */
+export function excludedQuizQuestionIds(assignment: Pick<Assignment, 'authorScopeExclusions'>): Set<string> {
+  const scope = assignment.authorScopeExclusions
+  return scope?.version === 1 && Number.isInteger(scope.revision) && scope.revision > 0 && Array.isArray(scope.questionIds)
+    ? new Set(scope.questionIds.filter(id => typeof id === 'string')) : new Set()
+}
+
+export function requiredQuizQuestionCount(assignment: Pick<Assignment, 'questions' | 'authorScopeExclusions'>): number {
+  const excluded = excludedQuizQuestionIds(assignment)
+  return assignment.questions.filter(q => !excluded.has(q.id)).length
 }
 
 export type AnswerKey = {
@@ -119,6 +137,7 @@ export type QuestionResult = {
   correctAnswer?: Answer
   points: number | null
   skipped?: boolean
+  excluded?: boolean
   explanation?: string
   source?: string
   learning?: LearningGuide
@@ -139,8 +158,10 @@ export function grade(
   key: AnswerKey,
   review?: ManualReview,
 ): QuestionResult[] {
+  const excluded = excludedQuizQuestionIds(assignment)
   return assignment.questions.map((question) => {
     const answer = assignment.answers[question.id]
+    if (excluded.has(question.id)) return { question, answer, points: null, excluded: true }
     const expected = key.entries[question.id]
     const manual = review?.entries?.[question.id]
     const answered = typeof answer === 'string' ? Boolean(answer.trim()) : Array.isArray(answer) && answer.length > 0
@@ -204,9 +225,10 @@ export function grade(
 
 export function summarize(results: QuestionResult[]) {
   return {
-    earned: results.reduce((total, result) => total + (result.points ?? 0), 0),
-    possible: results.reduce((total, result) => total + (result.skipped ? 0 : result.question.points), 0),
-    pending: results.filter((result) => !result.skipped && result.points === null).length,
+    earned: results.reduce((total, result) => total + (result.excluded ? 0 : result.points ?? 0), 0),
+    possible: results.reduce((total, result) => total + (result.skipped || result.excluded ? 0 : result.question.points), 0),
+    pending: results.filter((result) => !result.skipped && !result.excluded && result.points === null).length,
     skipped: results.filter((result) => result.skipped).length,
+    excluded: results.filter((result) => result.excluded).length,
   }
 }

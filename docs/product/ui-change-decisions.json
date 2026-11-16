@@ -128,35 +128,37 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "ade566f9a423ba6e642d66ad2d7036b6b44727a6c09c1fffb2bd196c7b1b9073",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "1701ec00b335f0359449fbd17acf2849c10a2af13825f04befd36bba535d9212",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
-      }
-    },
-    "assessment/followup-contract.mjs": {
-      "sha256": "4b805a3d04ad52cbc1c9c5f9bf38565bf38a81f2a9aac7e70d4cd32aabe8b1ce",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
-      "specs": [
-        "docs/modules/assessments/quizzes.md"
-      ],
-      "tests": [
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
         "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель просил проверить внешний вид тестов; мобильная проверка05.11 обнаружила обрезанный заголовок. Исправляется только название без изменения работы."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+      }
+    },
+    "assessment/followup-contract.mjs": {
+      "sha256": "3090d25db75e555f82150753dcb0d1f0c321f91e077ebe2fb20ea5758ccf5f31",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "assessment/question-copy.mjs": {
@@ -199,31 +201,20 @@
       }
     },
     "assessment/quiz-lineage.mjs": {
-      "sha256": "bfa3bf6df1123917bbe57a420edae48a4b40185087e0d2801759419d2244add5",
-      "record": "docs/decisions/history-default-universal-request-2026-10-16.md",
+      "sha256": "366b7da0b5a0c14d347b5604906ca279a8b1dce9da86db54e6ffa5425a5c257f",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/QuizCard.test.tsx",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/store.optionalQuiz.test.ts",
-        "assessment/quiz-lineage.test.mjs"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 прямо требует закрытую по умолчанию историю и универсальную кнопку нового теста, включая100%, с учётом всех предыдущих попыток по общей автоматической политике."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "3299c1c263ab7c59e860d192ea68e14da6141b235378d2d27aff6ebf6a48e6b3"
-      },
-      "specificationLifecycle": {
-        "record": "docs/decisions/specification-lifecycle-2026-10-16.md",
-        "previousSha256": "673f03ef5846bc10e1bc6a12d368ee3ab0cfb3b82da1e747ab89692f8414497a"
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "day/assignment-routing.mjs": {
@@ -314,19 +305,20 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "a0df2774a4574c7d83cc9cde7ce067d92f78bf1511aed3142b346b252e6f83d7",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "784223b730b3bec38747528effc3375860369f716a7a9822e00921b8b26af3fc",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "day/family-source-graph.mjs": {
@@ -2313,23 +2305,20 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "317f3fd54e66ee9bcd2f19b089c4055f157cf0d127f4d55a4931213df049c9fe",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "887a18d075df56420430ae4354211eee8ffd52a05db704a403ad23c15cdfac17",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "scripts/release-note.mjs": {
@@ -2399,23 +2388,20 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "ab6cd74f0b03576791a4e5e04bbcef10cbb632f3e36a1491e5e337961c2be6d1",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "d37d6dcc0c4ac07494077b0d165d7a49f063546d9da68cc4a9883c525b460225",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2596,20 +2582,20 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "4759d1a5f4d1a7cccc6391190184a6a0fbc4b0cd1a8c067a06c4b2a3a49de2de",
-      "record": "docs/decisions/photo-outbox-route-recovery-2026-11-07.md",
+      "sha256": "4d811ed3f7a99a55fb897d6c139cf57c76b6db8f54d1bbf3725401a7b8edff14",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/services/upload-worker/README.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/lib/browserAccessTrace.test.ts",
-        "storage/photo-transfer-recovery.test.mjs"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11.2026 прямо поручил исправить зависание передачи русского246 и добавить диагностику этапов вместо повторных просьб загрузить заново."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/DayDashboard.css": {
@@ -2666,21 +2652,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "aa4e98424528417ca64ce7a389ac3cce790704cecfd804689794b976722206e6",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "2dace624e1d682b89604b907a538ce52ad68d503f79ced961dc35e9e137bf52b",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/mixed-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx",
+        "src/components/QuizCard.history.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/UiKit.css": {
@@ -3525,26 +3512,20 @@
       }
     },
     "src/components/QuizAttemptReview.tsx": {
-      "sha256": "34e646a8c3b91ad66e716e2e619cbc31d13044527482ea61c984fe365dba6cac",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "069af965f4231e8e6778c690e40c40c0576a90ef12c624e0182d04d0a678e761",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "82539d6178bf1bddab9a761eee800a47423134ff27416ef7557c5c60762d45a6"
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/components/QuizCard.css": {
@@ -3568,38 +3549,37 @@
       }
     },
     "src/components/QuizCard.tsx": {
-      "sha256": "ebf5cab0ba9e815a415fb85c85e7d00d947ac5e97f0f3fb2eea45e31e9211fd3",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "06cbfbee77c21cf10a699904c5ee53c6e1d4abe8924c43be1c503acb11473471",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "4208e79fc10778d655735e60d3a2f5ab96c103bd3f90319d712e51b9d47106da",
-      "record": "docs/decisions/program-explanation-2026-11-01.md",
+      "sha256": "b1c5f198322e502e834dc8b1b9354038a53922929212110a780847d58809add8",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал объяснять выполнение программы по шагам, убрать пустой input и показать причину отличия ответа."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -3866,21 +3846,20 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "0540e9a1c6986654f6212d3b2faba7248890d0e810dff383dad78d33aea314f6",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "90cd6c352f072a6c08adad2b3c02823c5e125ef3cd087b5abb10df44eb1412a2",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -4185,21 +4164,20 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "1eb00fed176472433053b11d51328433c8617b4a070b3a88ad020679519bb56a",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "8546bcb466524c1007b13c5c8da4d514a687a33c5867a84b1ce61bdbaae7404e",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4596,35 +4574,37 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "ac405334800ee995924f7f0c10b78c398cd2979294e4eb402edf6098391f4038",
-      "record": "docs/decisions/program-explanation-2026-11-01.md",
+      "sha256": "be3e2b6ccf245d9d0e6114b8c6a086b7f3de87bbf4e3fdec087f12b56a7b74ea",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал объяснять выполнение программы по шагам, убрать пустой input и показать причину отличия ответа."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "e0c8028c428fe2a30cac43e52ca3051d737c6555ac7564af5602da069fb85a85",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "183f40ce021e49bb7d103cb044353f49ae379052ccce3abcc5195d81975acd04",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/lib/quizCompletion.ts": {
@@ -4800,24 +4780,20 @@
       }
     },
     "src/lib/store.ts": {
-      "sha256": "7345e7b72a1c15dad3ecd83ade695afd99b1d6e5d120f8c6a5c73dcc00f99814",
-      "record": "docs/decisions/olympiad-shared-infrastructure-2026-10-28.md",
+      "sha256": "8093abfb27db14c1ac20e39645a555f64773abaa0ac2e9aa3b7adfcd683629f4",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md",
-        "docs/modules/synchronization/education-pipeline.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "assessment/learning-context-backfill.test.mjs",
-        "assessment/learning-context.test.mjs",
-        "day/family-assignment.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "src/lib/educationEventProducers.test.ts",
-        "sync/event-task-artifact.test.mjs"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь 28.10 прямо потребовал общий механизм уроков, семейных прав, фотографий и синхронизации для олимпиад."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/lib/taskUploadPresentation.ts": {
@@ -5219,24 +5195,20 @@
       }
     },
     "storage/review-projection.mjs": {
-      "sha256": "d202844323bae0285c955cbd08bba46bbe265b6e363366b8620e4d04e5eac2fb",
-      "record": "docs/decisions/compact-review-rollout-2026-10-31.md",
+      "sha256": "27ab63752b09a552759b3fa7bbe3bcc1c842aafc7818943f8f67dcac981117b5",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/compact-review.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/reviews/subject-aware-guidance.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/UiKit.test.tsx",
-        "storage/tutoring-decision.test.mjs",
-        "packages/education-presentation/review-content.test.mjs"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "31.10 родитель одобрил конкретный компактный разбор: «Да, так уже лучше. Исправь подсказку, чтобы она не выдавала ответ заранее, и внедряй этот формат для всех разборов. Обнови инструкции, спецификации и UI Kit». Сохранение ролей, статусов и истории обязательно."
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "storage/review-publication-event.mjs": {
@@ -5254,23 +5226,20 @@
       }
     },
     "storage/review-readback.mjs": {
-      "sha256": "108f02982e51a7ead853db51144e5572b08054afdaad2cf79a2904bc24de5dd6",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "59c627c69454fbb312cb32a032c1d20106f6a8883f8d62b40bfef1260c5829cb",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "storage/review-requirements.mjs": {
@@ -7747,21 +7716,20 @@
       }
     },
     "src/ui-kit/ReviewConversationExample.tsx": {
-      "sha256": "2b31a5b62941ca1453007090d7c51eb742fb7cdfb1dc5d2232aabadbf7158f67",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "58b00e1f7a8bf760f9af8273923564ce8a5d72d99c23e9a4a602fba37b863adb",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
-        "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/components/TaskDisclosure.css": {
@@ -7866,18 +7834,20 @@
       }
     },
     "src/components/QuizQuestionCard.tsx": {
-      "sha256": "8c0e28fd40573c3a7b110def3a530c8837c88e7e2cb2f4e277b37c4b28f5f209",
-      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "sha256": "206b35f9f8b404c0c33b4605f37a494a6eb7436206ec253df18afbc0f5588673",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/QuizQuestionCard.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "src/lib/wordForm.ts": {
@@ -7896,18 +7866,20 @@
       }
     },
     "src/ui-kit/QuizRunnerExample.tsx": {
-      "sha256": "453aba01eb5cf447904ce3973df4756717de5a59438593191a5d9ca4134a51f7",
-      "record": "docs/decisions/quiz-runner-kit-audit-2026-11-01.md",
+      "sha256": "d0847e2e2eb71fc80e6e1c2f7786764d8b2f962effafb0c9de7b62f48610e765",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/shared/design/ui-kit.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "src/components/QuizQuestionCard.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал проверить мобильные тесты по UI Kit, исправить дефекты и влить готовое изменение."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "diary/cli.mjs": {
@@ -8237,23 +8209,20 @@
       }
     },
     "assessment/manual-review-contract.mjs": {
-      "sha256": "f5f7c49fa0a24b4f777dc30f6e50c61ad634374811ee4d8d86ed86c0ff213b21",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "10f60c0e2ded09cbfff1ee8d8a334cc5a7050214a4a9d9bff4484330cf113307",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     },
     "day/decision-registry.mjs": {
@@ -8485,6 +8454,57 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
+      }
+    },
+    "assessment/quiz-author-scope.mjs": {
+      "sha256": "95c03bb405594115f16b0ab6bfe496d656a7462c64d0ebbd246637d6721b9a67",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "src/lib/quiz.authorScope.test.ts",
+        "assessment/quiz-author-scope.test.mjs",
+        "assessment/followup-contract.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+      }
+    },
+    "storage/context-evidence-projection.mjs": {
+      "sha256": "c6774fa3a2ea7d211ed6f349ef791062c39f67959ec423210c107e171901ff37",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+      }
+    },
+    "storage/context-evidence.mjs": {
+      "sha256": "e7dc72e9471e0641e7bda6a52831ca0f35f2c491d3bbfd6392520bb39ba7f7e7",
+      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "specs": [
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/reviews/review-criteria-provenance.md"
+      ],
+      "tests": [
+        "storage/context-evidence.test.mjs",
+        "scripts/submissions.context-evidence.test.mjs",
+        "src/components/WorkReview.contextEvidence.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
       }
     }
   }

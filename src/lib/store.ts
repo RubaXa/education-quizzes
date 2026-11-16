@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 import {
   collection,
   doc,
@@ -221,6 +222,7 @@ export async function loadPreview(token: string): Promise<{
   visual?: QuizVisual
   reading?: QuizReading
   questions: QuizQuestion[]
+  authorScopeExclusions?: Assignment['authorScopeExclusions']
 }> {
   const snapshot = await getDoc(doc(db, 'previews', token))
   if (!snapshot.exists()) throw new Error('Ссылка предпросмотра не найдена.')
@@ -231,6 +233,7 @@ export async function loadPreview(token: string): Promise<{
     visual?: QuizVisual
     reading?: QuizReading
     questions: QuizQuestion[]
+  authorScopeExclusions?: Assignment['authorScopeExclusions']
   }
 }
 

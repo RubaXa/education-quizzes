@@ -362,6 +362,59 @@
       "path": "docs/decisions/assignment-decoding-2026-11-10.md"
     },
     {
+      "id": "decision.assignment-source-audit-corrections-2026-11-16",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-16",
+      "updated": "2026-11-16",
+      "parent": "product.ui-change-control",
+      "uses": [
+        "module.assessments.quizzes",
+        "module.reviews.review-criteria-provenance",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "assessment/decision-graph.mjs",
+        "assessment/followup-contract.mjs",
+        "assessment/manual-review-contract.mjs",
+        "assessment/quiz-author-scope.mjs",
+        "assessment/quiz-lineage.mjs",
+        "day/data-contract.mjs",
+        "scripts/quiz.mjs",
+        "scripts/submissions.mjs",
+        "src/App.tsx",
+        "src/DayPage.tsx",
+        "src/components/QuizAttemptReview.tsx",
+        "src/components/QuizCard.tsx",
+        "src/components/QuizQuestionCard.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/WorkReview.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/quiz.ts",
+        "src/lib/quizCardViewModel.ts",
+        "src/lib/store.ts",
+        "src/ui-kit/QuizRunnerExample.tsx",
+        "src/ui-kit/ReviewConversationExample.tsx",
+        "storage/context-evidence-projection.mjs",
+        "storage/context-evidence.mjs",
+        "storage/review-projection.mjs",
+        "storage/review-readback.mjs"
+      ],
+      "sections": [
+        "reason",
+        "change",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md"
+    },
+    {
       "id": "decision.audio-compact-controls-2026-10-23",
       "status": "accepted",
       "implementation": "partial",
@@ -5351,6 +5404,20 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:assessment/quiz-author-scope.mjs",
+      "path": "assessment/quiz-author-scope.mjs",
+      "kind": "artifact",
+      "purpose": "Адресный экспорт, CAS-исключение чужого вопроса из оценки, закрытая история и ролевой readback без изменения попытки",
+      "consumer": "Quiz CLI; общий grading; оператор"
+    },
+    {
+      "id": "file:assessment/quiz-author-scope.test.mjs",
+      "path": "assessment/quiz-author-scope.test.mjs",
+      "kind": "verification",
+      "purpose": "Синтетические регрессии stale/foreign/CAS, сохранности ответа/ключа, legacy-владения и unknown-наблюдения",
+      "consumer": "Vitest; оператор"
+    },
+    {
       "id": "file:assessment/quiz-lineage.mjs",
       "path": "assessment/quiz-lineage.mjs",
       "kind": "artifact",
@@ -8431,6 +8498,13 @@
       "consumer": "Ученик; автор; UI Kit"
     },
     {
+      "id": "file:scripts/submissions.context-evidence.test.mjs",
+      "path": "scripts/submissions.context-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Native validate/review без знания/вердикта; сохранение задания и попытки",
+      "consumer": "Vitest; оператор"
+    },
+    {
       "id": "file:scripts/submissions.criteria-workflow.test.mjs",
       "path": "scripts/submissions.criteria-workflow.test.mjs",
       "kind": "verification",
@@ -9922,6 +9996,13 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:src/components/WorkReview.contextEvidence.test.tsx",
+      "path": "src/components/WorkReview.contextEvidence.test.tsx",
+      "kind": "verification",
+      "purpose": "Обе роли видят результат без новой работы или ложного зачёта",
+      "consumer": "Vitest; UI Kit"
+    },
+    {
       "id": "file:src/components/WorkReview.css",
       "path": "src/components/WorkReview.css",
       "kind": "artifact",
@@ -10608,6 +10689,13 @@
       "consumer": "`src/App.tsx`"
     },
     {
+      "id": "file:src/lib/quiz.authorScope.test.ts",
+      "path": "src/lib/quiz.authorScope.test.ts",
+      "kind": "verification",
+      "purpose": "RED→GREEN общего знаменателя без подаренных баллов и ложного зачёта",
+      "consumer": "Vitest; карточка/история теста"
+    },
+    {
       "id": "file:src/lib/quiz.test.ts",
       "path": "src/lib/quiz.test.ts",
       "kind": "verification",
@@ -11123,6 +11211,34 @@
       "path": "storage/audio-library.test.mjs",
       "kind": "verification",
       "purpose": "Регрессии общего каталога, точного подбора, ambiguous WB clarification, fail-closed и приватности evidence",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:storage/context-evidence-projection.mjs",
+      "path": "storage/context-evidence-projection.mjs",
+      "kind": "artifact",
+      "purpose": "Общий allowlist безопасной квитанции без server imports",
+      "consumer": "`review-projection`; WorkReview showcase"
+    },
+    {
+      "id": "file:storage/context-evidence.d.mts",
+      "path": "storage/context-evidence.d.mts",
+      "kind": "artifact",
+      "purpose": "Общий тип наблюдаемого результата и граница проекции",
+      "consumer": "`dayStore`; `WorkReview`"
+    },
+    {
+      "id": "file:storage/context-evidence.mjs",
+      "path": "storage/context-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Валидирует факт результата без оценки задания; добавляет неизменяемую безопасную квитанцию",
+      "consumer": "`submissions`; public/private review"
+    },
+    {
+      "id": "file:storage/context-evidence.test.mjs",
+      "path": "storage/context-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Негативные пакеты, сохранение оценки и строгий readback",
       "consumer": "Vitest"
     },
     {
@@ -12090,7 +12206,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-11-16",
       "consumers": [
         "student",
         "parent",
@@ -12098,6 +12214,10 @@
         "assessment pipeline"
       ],
       "code": [
+        "assessment/quiz-author-scope.mjs",
+        "assessment/followup-contract.mjs",
+        "scripts/quiz.mjs",
+        "src/lib/quiz.ts",
         "assessment/question-guidance.mjs",
         "assessment/canonical-short-key.mjs",
         "assessment/question-copy.mjs",
@@ -12137,7 +12257,8 @@
         "родительский-просмотр-и-право-ответа",
         "принятая-компактная-история-16102026",
         "разбор-выполненной-программы",
-        "настоящий-экран-вопросов-в-каталоге"
+        "настоящий-экран-вопросов-в-каталоге",
+        "author-scope-correction"
       ],
       "path": "docs/modules/assessments/quizzes.md"
     },
@@ -13171,7 +13292,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-11",
-      "updated": "2026-10-19",
+      "updated": "2026-11-16",
       "consumers": [
         "student",
         "parent",
@@ -13188,7 +13309,10 @@
         "src/lib/reviewPresentation.ts",
         "src/lib/reviewProse.ts",
         "storage/review-challenge.mjs",
-        "storage/review-requirements.mjs"
+        "storage/review-requirements.mjs",
+        "storage/context-evidence.mjs",
+        "storage/context-evidence-projection.mjs",
+        "storage/context-evidence.d.mts"
       ],
       "parent": "module.reviews",
       "uses": [
@@ -13196,6 +13320,7 @@
         "module.reviews.subject-aware-guidance"
       ],
       "sections": [
+        "context-evidence",
         "readable-feedback",
         "два-прохода-для-письменной-работы",
         "источник-пакет-перед-вердиктом",
@@ -16357,6 +16482,21 @@
       "type": "uses"
     },
     {
+      "from": "decision.assignment-source-audit-corrections-2026-11-16",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.assignment-source-audit-corrections-2026-11-16",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.assignment-source-audit-corrections-2026-11-16",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.audio-compact-controls-2026-10-23",
       "to": "decision.audio-stable-controls-2026-10-22",
       "type": "uses"
@@ -17633,6 +17773,11 @@
     },
     {
       "from": "file:assessment/decision-graph.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/decision-graph.mjs",
       "to": "decision.informatics-assessment-2026-11-01",
       "type": "implements"
     },
@@ -17653,6 +17798,11 @@
     },
     {
       "from": "file:assessment/followup-contract.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/followup-contract.mjs",
       "to": "decision.moving-preparation-window-2026-11-05",
       "type": "implements"
     },
@@ -17664,6 +17814,11 @@
     {
       "from": "file:assessment/followup-contract.mjs",
       "to": "module.assessments.quiz-chain-proposal",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/followup-contract.mjs",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -17698,6 +17853,11 @@
     },
     {
       "from": "file:assessment/manual-review-contract.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/manual-review-contract.mjs",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
@@ -17714,6 +17874,21 @@
     {
       "from": "file:assessment/question-guidance.mjs",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/quiz-author-scope.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/quiz-author-scope.mjs",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/quiz-lineage.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -17864,6 +18039,11 @@
     {
       "from": "file:day/dashboard-index.mjs",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/data-contract.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -20203,6 +20383,11 @@
     },
     {
       "from": "file:scripts/quiz.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
       "to": "decision.concept-short-omission",
       "type": "implements"
     },
@@ -20224,6 +20409,11 @@
     {
       "from": "file:scripts/quiz.mjs",
       "to": "module.assessments.assessment-decision-graph",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
+      "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
@@ -20279,6 +20469,11 @@
     {
       "from": "file:scripts/student-review.mjs",
       "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -20564,6 +20759,11 @@
     {
       "from": "file:src/App.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -21523,6 +21723,11 @@
     },
     {
       "from": "file:src/components/QuizAttemptReview.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizAttemptReview.tsx",
       "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
@@ -21544,6 +21749,11 @@
     {
       "from": "file:src/components/QuizCard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizCard.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -21578,6 +21788,11 @@
     },
     {
       "from": "file:src/components/QuizQuestionCard.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizQuestionCard.tsx",
       "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "implements"
     },
@@ -21594,6 +21809,11 @@
     {
       "from": "file:src/components/QuizResultCard.css",
       "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -22063,6 +22283,11 @@
     },
     {
       "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
@@ -22234,6 +22459,11 @@
     {
       "from": "file:src/DayPage.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -22449,6 +22679,11 @@
     {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -22918,6 +23153,11 @@
     },
     {
       "from": "file:src/lib/quiz.ts",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quiz.ts",
       "to": "decision.program-explanation-2026-11-01",
       "type": "implements"
     },
@@ -22928,12 +23168,22 @@
     },
     {
       "from": "file:src/lib/quiz.ts",
+      "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quiz.ts",
       "to": "module.assessments",
       "type": "implements"
     },
     {
       "from": "file:src/lib/quiz.ts",
       "to": "product.assessments",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizCardViewModel.ts",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -23084,6 +23334,11 @@
     {
       "from": "file:src/lib/spellingFeedback.ts",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/store.ts",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -23283,12 +23538,22 @@
     },
     {
       "from": "file:src/ui-kit/QuizRunnerExample.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/QuizRunnerExample.tsx",
       "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "implements"
     },
     {
       "from": "file:src/ui-kit/QuizRunnerExample.tsx",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ReviewConversationExample.tsx",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -23457,6 +23722,31 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/context-evidence-projection.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/context-evidence-projection.mjs",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/context-evidence.d.mts",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/context-evidence.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/context-evidence.mjs",
+      "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/criteria-contract.mjs",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
@@ -23583,6 +23873,11 @@
     },
     {
       "from": "file:storage/review-projection.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-projection.mjs",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
@@ -23604,6 +23899,11 @@
     {
       "from": "file:storage/review-publication-event.mjs",
       "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-readback.mjs",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
     {
@@ -24133,6 +24433,11 @@
     },
     {
       "from": "module.assessments.quizzes",
+      "to": "file:assessment/quiz-author-scope.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
       "to": "file:scripts/firestore-rules-followup.test.mjs",
       "type": "verified-by"
     },
@@ -24179,6 +24484,11 @@
     {
       "from": "module.assessments.quizzes",
       "to": "file:src/lib/questionTopicPresentation.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.quizzes",
+      "to": "file:src/lib/quiz.authorScope.test.ts",
       "type": "verified-by"
     },
     {
@@ -25568,7 +25878,17 @@
     },
     {
       "from": "module.reviews.review-criteria-provenance",
+      "to": "file:scripts/submissions.context-evidence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
       "to": "file:src/components/ReviewProse.integration.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
+      "to": "file:src/components/WorkReview.contextEvidence.test.tsx",
       "type": "verified-by"
     },
     {
@@ -25579,6 +25899,11 @@
     {
       "from": "module.reviews.review-criteria-provenance",
       "to": "file:src/lib/reviewProse.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.review-criteria-provenance",
+      "to": "file:storage/context-evidence.test.mjs",
       "type": "verified-by"
     },
     {
@@ -27575,6 +27900,11 @@
       "from": "product.school-day",
       "to": "module.school-diary",
       "type": "uses"
+    },
+    {
+      "from": "product.ui-change-control",
+      "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "contains"
     },
     {
       "from": "product.ui-change-control",

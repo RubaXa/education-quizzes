@@ -1,7 +1,18 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/modules/materials/material-clarification.md */
 import { isDeepStrictEqual } from 'node:util'
 import { studentReviewProjection } from './review-projection.mjs'
+import {appendContextEvidence} from './context-evidence.mjs'
+/** Context receipts must preserve the entire previous assignment assessment.
+ * @see ../docs/modules/reviews/review-criteria-provenance.md#context-evidence */
+export function assertContextEvidenceReadback({entry,previous,privateDoc,publicDoc,uploads}){
+ const receipt=privateDoc?.contextEvidence?.find(r=>r.uploadId===entry.evidence.uploadId&&r.purpose==='context-evidence')
+ if(!receipt||!isDeepStrictEqual(appendContextEvidence(previous,entry,receipt.checkedAt),privateDoc)
+  ||!isDeepStrictEqual(studentReviewProjection(privateDoc),publicDoc)
+  ||uploads.length!==entry.uploadIds.length||entry.uploadIds.some(id=>!uploads.some(u=>u.id===id&&u.status==='reviewed')))throw Error('Квитанция контекста не подтверждена или изменила прежнюю оценку задания.')
+ return {verified:true,contextEvidence:1,reviewedUploads:uploads.length}
+}
 /** A guidance/context edit may change a page revision without changing the task. */
 export function sameReviewAssignmentAfterUpdate(page, correction, currentTask) {
   return page.planRevision > correction.planRevision && Boolean(

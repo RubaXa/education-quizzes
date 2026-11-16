@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import { workFilePresentation } from '../../storage/work-file-types.mjs'
 /** @see ../../docs/decisions/personal-tutoring-2026-10-30.md */
@@ -40,12 +41,16 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
   const paused = processing?.phase === 'paused'
   const stale = Boolean(processing && !paused && processingIsStale(processing, now))
   const running = Boolean(processing && processing.phase !== 'paused' && !stale)
+  const receipts=review?.contextEvidence??[]
+  const receipt=receipts.at(-1)
+  const receiptDate=receipt && Number.isFinite(Date.parse(receipt.observedDate))
+    ? new Intl.DateTimeFormat('ru-RU',{day:'numeric',month:'long',timeZone:'UTC'}).format(new Date(receipt.observedDate)) : receipt?.observedDate
   useEffect(() => {
     if (!pending.length) return
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(timer)
   }, [pending.length])
-  if (!pending.length && !review?.status) return null
+  if (!pending.length && !review?.status && !receipt) return null
 
   const requiredActions = requiredFamilyActions(review, decisions)
   const familyStages = stageCompletion(review, decisions)
@@ -85,9 +90,12 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
       {!paused && <time aria-hidden="true">{elapsed}</time>}
     </div>}
 
+    {review && receipt && !review.status && <ReviewConversation review={review} parent={parent} data={{id:receipt.id,label:'Результат сохранён',status:'neutral',stateLabel:'Результат платформы',confirmed:`${receipt.title}: ${receipt.points}/${receipt.maxPoints}`,focus:receipt.summary,meta:`${receiptDate} · ${receipt.duration} мин`}} />}
+
     {review?.status && <ReviewConversation key={`${review.id}:${JSON.stringify(review.checkedAt)}:${JSON.stringify(review.correctedAt)}`} review={review} binding={conversation} parent={parent} data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
       label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?(parent?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:'Готово'):accepted?(parent?'Засчитано родителем':'Засчитано'):undefined}),
       meta:parent&&review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
+        {receipt && <p>{formatReviewProse(`${receipt.title}: ${receipt.points}/${receipt.maxPoints} · ${receiptDate} · ${receipt.duration} мин. ${receipt.summary}`)}</p>}
         {parent && !!review.requirementChecks?.length && <details className="edu-review-detail day-work-review-requirements"><summary>Проверка требований МЭШ</summary><section aria-label="Проверка требований МЭШ">
           <h4>Что задано в МЭШ и что видно на фото</h4>
           <p>Подтверждено {review.requirementChecks.filter((check) => check.result === 'confirmed').length} из {review.requirementChecks.length} обязательных пунктов. Невидимую часть не считаем ошибкой.</p>

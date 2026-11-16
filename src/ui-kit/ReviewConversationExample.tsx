@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** Interactive examples of received/checked/next. Synthetic data, no network writes.
  * @see ../../docs/shared/design/student-review-step.md */
 import {useCallback,useEffect,useRef,useState} from 'react'
@@ -10,6 +11,8 @@ import {reviewBriefWorkExample} from '@/lib/reviewBriefExamples'
 export default function ReviewConversationExample(){
  const [revision,setRevision]=useState(1),[parent,setParent]=useState(false),[history,setHistory]=useState<DayHelp[]>([]),[responses,setResponses]=useState<DayGuidance[]>([])
  const [outcome,setOutcome]=useState<ReviewResponse['outcome']>('correct')
+ const [contextOnly,setContextOnly]=useState(false)
+ const contextReview:DayWorkReview={id:'demo-context',taskId:'demo',contextEvidence:[{id:'demo-receipt',purpose:'context-evidence',type:'platform-result',title:'Учебный тематический тест',points:10,maxPoints:10,duration:3,observedDate:'2026-11-16',uploadId:'demo-photo',location:'Карточка результата',summary:'Наблюдаемый результат сохранён отдельно от оценки задания.'}]}
  const review:DayWorkReview={...reviewBriefWorkExample(reviewStepExamples[0].data),id:`demo:${revision}`,taskId:'demo',checkedAt:{seconds:revision}}
  const listeners=useRef(new Set<(h:DayHelp[])=>void>())
  const historyRef=useRef(history)
@@ -27,7 +30,8 @@ export default function ReviewConversationExample(){
  }
  return <section aria-label="Ответ и следующий шаг"><h3>Ответ → отклик → следующий шаг</h3><p>Учебный пример. Отправка здесь локальная; готовый отклик проверяющего показывается отдельной кнопкой. Пример не определяет правильность введённой записи.</p>
   <div className="edu-kit-presets"><button onClick={()=>setParent(false)} aria-pressed={!parent}>Ученик отвечает</button><button onClick={()=>setParent(true)} aria-pressed={parent}>Родитель смотрит</button></div>
-  <div style={{maxWidth:390}}><WorkReview parent={parent} review={review} uploads={[]} conversation={{canReply:!parent,ready:true,help:latest,guidance:responses,loadHistory,send:async(reply,note,operationId)=>{const id=operationId.replaceAll('-','').padEnd(64,'0');setHistory(rows=>[...rows,{id,taskId:'demo',revision:1,reviewReply:reply,requestText:note,eventReceiptId:id,requestedAt:{seconds:Date.now()/1000}}]);return id}}}/></div>
+  <div className="edu-kit-presets"><button aria-pressed={!contextOnly} onClick={()=>setContextOnly(false)}>Учебный разбор</button><button aria-pressed={contextOnly} onClick={()=>setContextOnly(true)}>Квитанция результата без оценки</button></div>
+  <div style={{maxWidth:390}}><WorkReview parent={parent} review={contextOnly?contextReview:review} uploads={[]} conversation={{canReply:!parent,ready:true,help:latest,guidance:responses,loadHistory,send:async(reply,note,operationId)=>{const id=operationId.replaceAll('-','').padEnd(64,'0');setHistory(rows=>[...rows,{id,taskId:'demo',revision:1,reviewReply:reply,requestText:note,eventReceiptId:id,requestedAt:{seconds:Date.now()/1000}}]);return id}}}/></div>
   <label>Пример результата проверки <select aria-label="Результат проверки примера" value={outcome} onChange={e=>setOutcome(e.target.value as ReviewResponse['outcome'])}>{(['correct','partial','retry','stuck','clarify'] as const).map((k,i)=><option key={k} value={k}>{['Верный переход','Часть верна','Нужно проверить','Непонятно','Неясный ответ'][i]}</option>)}</select></label>
   <div className="edu-kit-presets"><button disabled={!latest||responses.some(r=>r.sourceRequestEventId===latest.eventReceiptId)} onClick={process}>Показать проверенный отклик</button><button onClick={()=>{setRevision(n=>n+1);setHistory([]);setResponses([])}}>Начать пример заново</button></div>
  </section>

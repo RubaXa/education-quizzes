@@ -33,4 +33,18 @@ describe('one quiz runner in the app and UI Kit',()=>{
    expect(host.querySelector('.code-frame')?.textContent).toContain('print(s)')
   }finally{await act(async()=>root.unmount());host.remove()}
  })
+ it('shows author-scope exclusion in the real Kit question/result cards and preserves the selected answer',async()=>{
+  const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+  try{
+   await act(async()=>root.render(createElement(QuizRunnerExample)))
+   await act(async()=>host.querySelector<HTMLButtonElement>('[role="radio"]')!.click())
+   await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent==='Вне задания')!.click())
+   expect(host.textContent).toContain('Не входит в зачёт этого задания')
+   expect(host.textContent).toContain('Ваш ответ')
+   expect(host.textContent).toContain('The box is big enough for all the books.')
+   expect(host.querySelectorAll('[role="radio"][aria-checked="true"]')).toHaveLength(1)
+   expect([...host.querySelectorAll<HTMLButtonElement>('[role="radio"]')].every(b=>b.disabled)).toBe(true)
+   expect(host.querySelector('.edu-review-brief')).not.toBeNull()
+  }finally{await act(async()=>root.unmount());host.remove()}
+ })
 })
