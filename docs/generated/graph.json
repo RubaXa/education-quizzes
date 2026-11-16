@@ -13578,7 +13578,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-21",
+      "updated": "2026-11-16",
       "consumers": [
         "parent",
         "student",

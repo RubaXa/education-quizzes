@@ -2652,22 +2652,24 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "2dace624e1d682b89604b907a538ce52ad68d503f79ced961dc35e9e137bf52b",
+      "sha256": "8027e9df5f23b328a697f58a98354b2d80de21a0fc606519817c41e88a189a30",
       "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/review-criteria-provenance.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
         "src/lib/quiz.authorScope.test.ts",
         "assessment/quiz-author-scope.test.mjs",
         "assessment/followup-contract.test.mjs",
         "src/components/WorkReview.contextEvidence.test.tsx",
-        "src/components/QuizCard.history.test.tsx"
+        "src/components/QuizCard.history.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Прямой запрос родителя 16.11.2026 и финальный production readback: сохранить квитанцию в обеих linked quiz ветках и убрать повторный запрос всех принятых ответов после partial, сохранив исходные условия и действия."
       }
     },
     "src/UiKit.css": {
