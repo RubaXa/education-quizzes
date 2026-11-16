@@ -8457,7 +8457,7 @@
       }
     },
     "assessment/quiz-author-scope.mjs": {
-      "sha256": "95c03bb405594115f16b0ab6bfe496d656a7462c64d0ebbd246637d6721b9a67",
+      "sha256": "62ae3385166dd5a32d67fc0355489382b2ddc670602a1ad9d86da0b2702eeef4",
       "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
