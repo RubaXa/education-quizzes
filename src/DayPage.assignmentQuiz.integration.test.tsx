@@ -18,6 +18,8 @@ const scene = vi.hoisted(() => ({
   guides: {} as Record<string, unknown>,
   choiceCalls: [] as boolean[],
   quizOptional: false,
+  quizSubmitted: false,
+  quizSubject: 'Математика',
   quizSlug: 'diagrams',
   quizChoiceCalls: [] as boolean[],
   guidanceCalls: [] as unknown[][],
@@ -50,11 +52,11 @@ vi.mock('./lib/useParentCompletions', () => ({
 }))
 vi.mock('./lib/useDayQuizOutcomes', () => ({
   useDayQuizOutcomes: () => ({
-    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: 'Математика', slug: scene.quizSlug, previewToken: 'preview-only' }],
-    tests: { 'diagrams-test': { testId: 'quiz-1', status: 'open', title: 'Диаграммы — тренировка', subject: 'Математика',
-      description: 'Самопроверка по теме.', questions: Array.from({ length: 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional,
+    boardEntries: [{ token: 'diagrams-test', testId: 'quiz-1', title: 'Диаграммы — тренировка', subject: scene.quizSubject, slug: scene.quizSlug, previewToken: 'preview-only' }],
+    tests: { 'diagrams-test': { testId: 'quiz-1', status: scene.quizSubmitted ? 'submitted' : 'open', title: 'Диаграммы — тренировка', subject: scene.quizSubject,
+      description: 'Самопроверка по теме.', questions: Array.from({ length: scene.quizSubmitted ? 8 : 20 }, (_, index) => ({ id: `q-${index}` })), answers: {}, familyOptional: scene.quizOptional,
       createdAt: { seconds: 1792000000, nanoseconds: 0 }, updatedAt: { seconds: 1792003600, nanoseconds: 0 } } },
-    scores: {}, ready: true,
+    scores: scene.quizSubmitted ? { 'diagrams-test': { points: 8, maxPoints: 8 } } : {}, ready: true,
   }),
 }))
 vi.mock('./lib/store', async (importOriginal) => ({
@@ -112,6 +114,8 @@ beforeEach(() => {
   scene.guides = { [firstProblemIds[0]]: { guide: { kind: 'worked-solution', presentation: 'math-route', overview: 'Разбор для родителя', stages: [] } } }
   scene.choiceCalls = []
   scene.quizOptional = false
+  scene.quizSubmitted = false
+  scene.quizSubject = 'Математика'
   scene.quizSlug = 'diagrams'
   scene.quizChoiceCalls = []
   scene.guidanceCalls = []
@@ -865,5 +869,54 @@ it.each([true, false])('preserves the private guide beside a quiz-only reading t
   expect(view.host.textContent?.includes('Закрытая сверка конкретной попытки')).toBe(parent)
   expect(view.host.textContent?.includes('Полный ответ только взрослому')).toBe(parent)
   expect(view.host.querySelectorAll('.day-task')).toHaveLength(0)
+ }finally{await view.cleanup()}
+})
+
+/** The actual linked-quiz consumer must keep a context receipt inside its assignment. */
+it.each([[false,false],[false,true],[true,false],[true,true]])('keeps a distinct context receipt with the linked selftest (parent=%s, placed=%s)',async(parent,placed)=>{
+ const id='mesh-geography'
+ scene.page!.subjects=[{id:'geography',name:'География',icon:'🌍',materials:'',mesh:'п.38',summary:'',tasks:[{id,title:'Гидросфера и человек',kind:'read',status:'unknown',detail:'Прочитай §38.',meshText:'п.38',source:'МЭШ',testToken:'diagrams-test'}]}]
+ scene.page!.testPlacements=placed?[{token:'diagrams-test',subjectId:'geography',taskId:id}]:[]
+ scene.quizSubmitted=true;scene.quizSubject='География';scene.decisions=[];scene.guides={};scene.uploads=[]
+ scene.reviews=[{id:'context',taskId:id,contextEvidence:[{id:'receipt',purpose:'context-evidence',type:'platform-result',title:'Гидросфера',points:10,maxPoints:10,duration:3,observedDate:'2026-11-16',uploadId:'screenshot',location:'Карточка результата',summary:'Сохранён результат на присланном снимке.'}]}]
+ const view=await renderPage(parent)
+ try{
+  const card=view.host.querySelector<HTMLDetailsElement>(`#day-task-${id}`)!
+  expect(card).not.toBeNull();expect(card.open).toBe(false)
+  await act(async()=>card.querySelector<HTMLElement>('summary')!.click())
+  expect(card.open).toBe(true)
+  expect(card.querySelector('.day-quiz-lineage-score')?.textContent).toContain('8 из 8')
+  expect(card.textContent).toContain('Результат сохранён')
+  expect(card.textContent).toContain('Гидросфера: 10/10')
+  expect(view.host.querySelectorAll('.day-review-stack')).toHaveLength(1)
+  expect(view.host.querySelectorAll(`#day-task-${id}`)).toHaveLength(1)
+  expect(card.querySelector('input[type=file]')).toBeNull()
+  expect(card.textContent).not.toContain('Что исправить')
+  expect(scene.reviews[0].status).toBeUndefined()
+  expect(scene.quizChoiceCalls).toEqual([])
+ }finally{await view.cleanup()}
+})
+
+it.each([false,true])('keeps original submission requirements historical after a specific partial review (parent=%s)',async parent=>{
+ const id='mesh-biology',original='Изучить §8. Письменно ответить на вопросы 5, 6, 7.'
+ scene.page!.subjects=[{id:'biology',name:'Биология',icon:'🌱',materials:'',mesh:original,summary:'',tasks:[{id,title:'§8, вопросы 5–7',kind:'written',status:'partial',detail:original,meshText:original,source:'МЭШ',submission:{buttonLabel:'Прислать дополнение',lead:'Пришли свою запись трёх ответов на вопросы 5, 6, 7.',items:['Вопрос 5 — строение.','Вопрос 6 — расположение.','Вопрос 7 — связь.'],photo:'Должны читаться номера 5, 6, 7.'}}]}]
+ scene.page!.testPlacements=[];scene.decisions=[];scene.guides={}
+ scene.uploads=[{id:'student-token:photo',taskId:id,status:'reviewed'}]
+ scene.reviews=[{id:'checked',taskId:id,status:'partial',checkedAt:{seconds:100},studentFeedback:{title:'Уточни одну связь',confirmed:'Ответы на вопросы 5 и 6 приняты.',focus:'В вопросе 7 нужна одна связь.',question:'Как расположение частей помогает их работе?'},nextStep:'Уточни только связь в вопросе 7.'}]
+ const view=await renderPage(parent)
+ try{
+  const card=view.host.querySelector<HTMLDetailsElement>(`#day-task-${id}`)!
+  expect(card.querySelector('.edu-review-question')?.textContent).toContain('Как расположение частей помогает их работе?')
+  expect(card.textContent).toContain('Ответы на вопросы 5 и 6 приняты.')
+  const historical=card.querySelector<HTMLDetailsElement>('details.day-submission-instructions')
+  expect(historical).not.toBeNull();expect(historical!.open).toBe(false)
+  expect(historical!.querySelector('summary')?.textContent).toBe('Первоначальные требования к сдаче')
+  expect(historical!.textContent).toContain('Пришли свою запись трёх ответов на вопросы 5, 6, 7.')
+  expect(historical!.textContent).toContain('Должны читаться номера 5, 6, 7.')
+  expect(card.textContent).not.toContain('Что исправить и сфотографировать')
+  expect(card.querySelector<HTMLInputElement>('input[type=file]')!==null).toBe(!parent)
+  await act(async()=>historical!.querySelector<HTMLElement>('summary')!.click())
+  expect(historical!.open).toBe(true)
+  expect(historical!.querySelectorAll('li')).toHaveLength(3)
  }finally{await view.cleanup()}
 })
