@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** Private, deterministic history of linked attempts. Never publish raw answers.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold */
 /** @see ../docs/modules/assessments/quiz-chain-proposal.md#связь-с-кодом-и-проверками */
@@ -14,8 +15,8 @@ export function followupQueueSource(assignment, answerKey, review) {
   if (assignment?.status !== 'submitted' || !answerKey?.entries) return null
   const results = grade(assignment, answerKey, review), score = summarize(results)
   if (score.pending || !needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(assignment.followupRequestedAt))) return null
-  return { type: 'quiz', testId: assignment.testId, originalCount: assignment.questions.length,
-    errorCount: results.filter((result) => !result.skipped && result.points < result.question.points).length,
+  return { type: 'quiz', testId: assignment.testId, originalCount: results.filter(r=>!r.excluded).length,
+    errorCount: results.filter((result) => !result.skipped && !result.excluded && result.points < result.question.points).length,
     historyRequired: true, targetCount: null,
     trigger: assignment.followupRequestedAt ? 'parent-request' : 'below-threshold' }
 }
@@ -39,7 +40,7 @@ export function continuationPlan(history, historyFingerprint, coverageCount = 0)
   const strategy = errors.length ? 'repair' : 'consolidation'
   const targetCount = errors.length ? followupQuestionCount(current.questionCount, errors.length)
     : Math.max(root.questionCount, coverageCount) + Math.min(3, weaknesses.length) + 2
-  const direct = strategy === 'repair' ? errors : root.items
+  const direct = strategy === 'repair' ? errors : root.items.filter(item=>item.outcome!=='excluded')
   for (const item of direct) add(strategy === 'repair' ? 'current-error' : 'topic-coverage', {
     sourceTestId: strategy === 'repair' ? current.testId : root.testId, sourceQuestionId: item.questionId, topic: item.topic })
   if (strategy === 'consolidation') while (slots.length < Math.max(root.questionCount, coverageCount)) add('topic-coverage', {})
@@ -68,18 +69,18 @@ export function quizLineageStatistics(attempts, coverageCount = 0) {
     if (score.pending || !score.possible) throw new Error('История содержит непроверенные свободные ответы или пустой результат.')
     const items = results.map((result) => {
       const topic = result.question.topic?.trim() || 'Тема не указана'
-      const outcome = result.skipped ? 'skipped' : result.points === result.question.points ? 'correct'
+      const outcome = result.excluded ? 'excluded' : result.skipped ? 'skipped' : result.points === result.question.points ? 'correct'
         : result.points > 0 ? 'partial' : 'incorrect'
-      const record = topics.get(topic) ?? { topic, correct: 0, partial: 0, incorrect: 0, skipped: 0 }
+      const record = topics.get(topic) ?? { topic, correct: 0, partial: 0, incorrect: 0, skipped: 0, excluded: 0 }
       record[outcome]++
       topics.set(topic, record)
       return { questionId: result.question.id, topic, kind: result.question.kind, outcome,
-        points: result.points, possible: result.question.points,
+        points: result.points, possible: result.excluded ? 0 : result.question.points,
         selectedOptionIds: ['single', 'multiple', 'figure'].includes(result.question.kind)
           ? result.answer ?? null : null }
     })
     return { testId: assignment.testId, linkedToTestId: assignment.linkedToTestId ?? null,
-      questionCount: items.length, earned: score.earned, possible: score.possible,
+      questionCount: items.filter(item=>item.outcome!=='excluded').length, earned: score.earned, possible: score.possible,
       incorrectQuestionIds: items.filter((item) => item.outcome === 'incorrect' || item.outcome === 'partial').map((item) => item.questionId),
       correctQuestionIds: items.filter((item) => item.outcome === 'correct').map((item) => item.questionId), items }
   })
@@ -89,7 +90,7 @@ export function quizLineageStatistics(attempts, coverageCount = 0) {
   }
   const historyFingerprint = createHash('sha256').update(JSON.stringify(stable(attempts.map(({ assignment, answerKey, review }) => ({
     testId: assignment.testId, linkedToTestId: assignment.linkedToTestId ?? null,
-    questions: assignment.questions, answers: assignment.answers, assessment: assignment.assessment ?? null, answerKey, review,
+    questions: assignment.questions, answers: assignment.answers, authorScopeExclusions: assignment.authorScopeExclusions ?? null, assessment: assignment.assessment ?? null, answerKey, review,
   }))))).digest('hex')
   return { schemaVersion: 1, attempts: history, topics: [...topics.values()].sort((a, b) => a.topic.localeCompare(b.topic, 'ru')),
     next: continuationPlan(history, historyFingerprint, coverageCount) }

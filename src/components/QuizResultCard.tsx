@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 import {projectReviewSupplement} from '../../packages/education-presentation/review-content.mjs'
@@ -21,7 +22,8 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
  * @see ../../docs/shared/design/statuses.md#components
  */
 export default function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
-  const skipped = result.skipped === true
+  const excluded = result.excluded === true
+  const skipped = result.skipped === true || excluded
   const wrong = result.points === 0
   const pending = result.points === null && !skipped
   const partial = !pending && !wrong && !skipped && result.points !== result.question.points
@@ -35,12 +37,12 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
   if(guidance) details.push({label:'Источник вопроса',text:[guidance.source.title,guidance.source.edition,guidance.source.section,guidance.source.pages,guidance.source.locator].join('. ')})
   else if(result.source) details.push({label:'Источник вопроса',text:result.source})
   const state=skipped?'skipped':pending?'waiting':wrong?'incorrect':partial?'revise':'verified'
-  const stateLabel=skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
+  const stateLabel=excluded?'Не входит в зачёт этого задания':skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
   const missing=needsReflection&&!spelling&&!guidance?'Для этого вопроса ещё нет проверенного разбора с точным источником.':undefined
   return <ReviewBrief context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined} data={{id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
     prompt:result.question.prompt,response:{label:'Ваш ответ',value:answerText(result.question,result.answer)},
     meta:skipped?'Без оценки':pending?`Баллы уточняются · максимум ${result.question.points}`:`${result.points} из ${result.question.points} баллов`,
-    body:pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
+    body:excluded?'Вопрос и собственный ответ сохранены в истории. Баллы не начисляются.':pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
     focus:needsReflection&&!spelling&&guidance?guidance.observation:missing,
     bridge:needsReflection&&execution?guidance?.reason:undefined,
     question:needsReflection&&!spelling&&!execution&&guidance?guidance.question:undefined,

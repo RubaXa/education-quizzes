@@ -1,10 +1,11 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/concept-short-omission-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 import { randomBytes,createHash } from 'node:crypto'
 import {isDeepStrictEqual} from 'node:util'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, realpathSync, statSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 import { initializeApp, applicationDefault } from 'firebase-admin/app'
@@ -13,7 +14,7 @@ import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision } from '../assessment/followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision, authorSourceQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, conceptShortOmissionRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
@@ -22,6 +23,8 @@ import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { learningContext } from '../assessment/learning-context.mjs'
 import {assertManualQuizReview,assertQuestionRubric,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision,quizSkillId} from '../assessment/manual-review-contract.mjs'
 import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
+import {exportAuthorScope,correctAuthorScope,authorScopeFingerprint} from '../assessment/quiz-author-scope.mjs'
+/** @see ../docs/modules/assessments/quizzes.md#author-scope-correction */
 /** @see ../docs/modules/reviews/criteria-and-knowledge.md */
 
 const projectId = 'education-9d7c6'
@@ -171,7 +174,7 @@ function validateBoardDetails(board) {
   }
 }
 
-const [command, first, second, third] = process.argv.slice(2)
+const [command, first, second, third, fourth] = process.argv.slice(2)
 if (command !== 'validate') {
   prepareLocalFirebaseLogin()
   initializeApp({ credential: applicationDefault(), projectId })
@@ -198,7 +201,7 @@ async function inspectedFollowupSource(spec, plan, owner) {
   if (!needsQuizFollowup({ points: score.earned, maxPoints: score.possible }, Boolean(parent.followupRequestedAt))) {
     fail('Исходный тест зачтён: продолжение создаётся только по запросу родителя.')
   }
-  const errorQuestionIds = results.filter((result) => !result.skipped && result.points !== null
+  const errorQuestionIds = results.filter((result) => !result.skipped && !result.excluded && result.points !== null
     && result.points < result.question.points).map((result) => result.question.id)
   const attempts = await loadLineage(parents.docs[0].id, { assignment: parent, answerKey: parentKey.data(), review: parentReview.data() ?? null })
   const { targetCount } = assertLineageContinuation(plan, spec, attempts)
@@ -364,21 +367,27 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   const plan = validateSpec(spec, specPath)
   const titleOnly = process.argv.includes('--title-only')
   const topicsOnly = process.argv.includes('--topics-only')
+  const authorScope = process.argv.includes('--author-scope')
+  const correction=spec.authorScopeCorrection
+  if(authorScope&&(titleOnly||topicsOnly||plan.mode!=='ordinary'||spec.linkedToTestId
+    ||typeof correction?.reason!=='string'||correction.reason.trim().length<20||!Array.isArray(correction.evidenceRefs)||!correction.evidenceRefs.length||correction.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim())))fail('Авторская ревизия требует ordinary без цепочки, причину и точные источники в закрытом authorScopeCorrection.')
   if (titleOnly && topicsOnly) fail('Выберите только один вид правки метаданных.')
-  if (!titleOnly && !topicsOnly && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения.')
+  if (!titleOnly && !topicsOnly && !authorScope && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения или явной авторской коррекции ordinary.')
   const owner = assignmentOwner(studentPersonId)
-  if (!titleOnly && !topicsOnly) await inspectedFollowupSource(spec, plan, owner)
+  if (!titleOnly && !topicsOnly && !authorScope) await inspectedFollowupSource(spec, plan, owner)
   const ownerToken = dashboardToken()
   const assignmentRef = db.doc(`assignments/${learnerToken}`)
   const keyRef = db.doc(`answerKeys/${learnerToken}`)
   const ownerIndexRef = db.doc(`dashboard/${ownerToken}/assignments/${learnerToken}`)
   const revisedAt = Timestamp.now()
   let readbackRefs = null
+  let authorHistoryRef = null
   await db.runTransaction(async (transaction) => {
     const [assignmentDoc, keyDoc, ownerIndexDoc] = await Promise.all([
       transaction.get(assignmentRef), transaction.get(keyRef), transaction.get(ownerIndexRef),
     ])
     if (!assignmentDoc.exists || !keyDoc.exists || !ownerIndexDoc.exists) fail('Для ревизии нужны назначение, ключ и родительский индекс.')
+    if(authorScope&&(assignmentDoc.data().assessment?.mode!=='ordinary'||assignmentDoc.data().linkedToTestId||assignmentDoc.data().authorScopeExclusions))fail('Авторская ревизия допускает только исходный ordinary без прежних исключений.')
     const previewToken = ownerIndexDoc.data().previewToken
     if (!previewToken) fail('У теста нет связанного предпросмотра.')
     const previewRef = db.doc(`previews/${previewToken}`)
@@ -390,12 +399,23 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
     ])
     const indexDocs = [ownerIndexDoc, ...additionalIndexDocs]
     if (!previewDoc.exists || indexDocs.some((doc) => !doc.exists)) fail('Не все ролевые индексы и предпросмотр существуют.')
+    let correctionHistory
+    let previousPrivate
+    if(authorScope){
+      correctionHistory=db.doc(`quizReviewPrivate/${learnerToken}/scopeHistory/${authorScopeFingerprint({assignment:assignmentDoc.data(),spec})}`)
+      const [history,privateBefore]=await Promise.all([transaction.get(correctionHistory),transaction.get(db.doc(`quizReviewPrivate/${learnerToken}`))])
+      if(history.exists)fail('Эта авторская ревизия уже записана.')
+      previousPrivate=privateBefore.data()??null
+      authorHistoryRef=correctionHistory
+    }
     const patch = topicsOnly ? topicsOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
       : titleOnly ? titleOnlyQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,answerKey:keyDoc.data(),index:ownerIndexDoc.data()})
+      : authorScope ? authorSourceQuizRevision({current:assignmentDoc.data(),spec,owner,revisedAt,plan})
       : openQuizRevision({ current: assignmentDoc.data(), spec, owner, revisedAt })
     const shapeErrors = assignmentShapeErrors({ ...assignmentDoc.data(), ...patch.assignment })
     if (shapeErrors.length) fail(`Ревизия нарушает модель назначения: ${shapeErrors.join(' ')}`)
     transaction.update(assignmentRef, patch.assignment)
+    if(correctionHistory)transaction.create(correctionHistory,{...owner,kind:'unstarted-author-source-revision',reason:correction.reason,evidenceRefs:correction.evidenceRefs,previousAssignment:assignmentDoc.data(),previousKey:keyDoc.data(),previousPrivate,createdAt:revisedAt})
     if (!titleOnly && !topicsOnly) {
       transaction.update(keyRef, patch.answerKey)
       transaction.set(db.doc(`quizReviewPrivate/${learnerToken}`),{familyId:owner.familyId,childId:owner.childId,rubrics:Object.fromEntries(spec.questions.filter(q=>q.answer?.criteria).map(q=>[q.id,q.answer.criteria]))},{merge:true})
@@ -407,7 +427,34 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   const docs = await db.getAll(...readbackRefs)
   const result = assertOpenRevisionReadback({ assignment: docs[0].data(), answerKey: docs[1].data(),
     preview: docs[2].data(), indexes: docs.slice(3).map((doc) => doc.data()), spec })
+  if(authorHistoryRef){const saved=await authorHistoryRef.get();if(!saved.exists||saved.data().reason!==correction.reason||!isDeepStrictEqual(saved.data().evidenceRefs,correction.evidenceRefs)||saved.data().familyId!==owner.familyId||saved.data().childId!==owner.childId)fail('Закрытая история авторской ревизии не подтверждена.')}
   console.log(JSON.stringify(result))
+}
+
+function scopePrivatePath(filename,{output=false}={}){
+  const path=resolve(filename??''),root=realpathSync(localDir)
+  if(!path.endsWith('.json')||!path.startsWith(`${localDir}/`)||!(realpathSync(dirname(path))===root||realpathSync(dirname(path)).startsWith(`${root}/`)))fail('Пакет авторской коррекции должен быть внутри .local/.')
+  if(!output||existsSync(path))if(!realpathSync(path).startsWith(`${root}/`)||(statSync(path).mode&0o777)!==0o600)fail('Закрытый JSON требует путь .local/ и права 0600.')
+  return path
+}
+function scopeContext(learnerToken,source,personId){
+  if(!existsSync(learnerBoardTokenFile)||!existsSync(parentBoardTokenFile))fail('Для адресной коррекции нужны оба известных ролевых списка.')
+  const files=[learnerBoardTokenFile,parentBoardTokenFile]
+  const boards=[...new Set(files.map(file=>readFileSync(file,'utf8').trim()))]
+  const owner=assignmentOwner(personId),registry=loadJson(resolve(localDir,'family-access.json')),person=registry.people?.[personId]
+  const legacy=person?.role==='student'&&person.familyId===owner.familyId&&person.childId===owner.childId&&isDeepStrictEqual(registry.legacyDayOwner,owner)?owner:undefined
+  return {learnerToken,owner,source,indexPaths:boards.map(board=>`dashboard/${board}/assignments/${learnerToken}`),...(legacy?{legacyBoardOwner:legacy}:{})}
+}
+async function scopeExport(learnerToken,sourcePath,outputPath,personId){
+  const source=JSON.parse(readFileSync(scopePrivatePath(sourcePath),'utf8'))
+  const packet=await exportAuthorScope(db,scopeContext(learnerToken,source,personId)),path=scopePrivatePath(outputPath,{output:true})
+  writeFileSync(path,JSON.stringify(packet,null,2)+'\n',{mode:0o600})
+  console.log(JSON.stringify({exported:true,path,testId:packet.testId}))
+}
+async function scopeCorrect(learnerToken,requestPath,personId){
+  const request=JSON.parse(readFileSync(scopePrivatePath(requestPath),'utf8'))
+  if(!isDeepStrictEqual(request.context,scopeContext(learnerToken,request.context?.source,personId)))fail('Адреса или владелец не совпадают с известными ролевыми списками.')
+  console.log(JSON.stringify(await correctAuthorScope(db,request,{apply:process.argv.includes('--apply'),now:Timestamp.now()})))
 }
 
 async function addToLearnerBoard(manifestPath, studentPersonId) {
@@ -604,7 +651,7 @@ async function reviewAttempt(learnerToken, reviewPath) {
   const [assignmentDoc,keyDoc,privateDoc]=await db.getAll(assignmentRef,keyRef,privateRef)
   const assignment=assignmentDoc.data(),key=privateQuizKey(keyDoc.data(),privateDoc.data()),criteria=assertManualQuizReview(assignment,key,review)
   for(const result of grade(assignment,key,publicManualReview(review))){
-    if(result.question.kind==='long'||result.skipped||result.points===null)continue
+    if(result.question.kind==='long'||result.skipped||result.excluded||result.points===null)continue
     const label=result.question.topic??assignment.subject
     const skillId=quizSkillId(assignment.subject,label)
     criteria.push({id:result.question.id,skillId,skillLabel:label,finding:{result:result.points===result.question.points?'confirmed':result.points===0?'not-met':'partial',score:result.points,maxPoints:result.question.points,observation:result.explanation??'Автоматическая сверка по сохранённому ключу',uploadId:`answer:${result.question.id}`,location:`question:${result.question.id}`}})
@@ -665,6 +712,8 @@ try {
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)
   else if (command === 'rubric') await registerRubric(first,second)
+  else if (command === 'scope-export') await scopeExport(first,second,third,fourth)
+  else if (command === 'scope-correct') await scopeCorrect(first,second,third)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
   else if (command === 'accept-concept-omission') await repairCanonicalShortAnswers(first, second, false, third === '--apply' ? undefined : third, true)
   else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true, third === '--apply' ? undefined : third)

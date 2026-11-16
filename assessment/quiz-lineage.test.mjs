@@ -19,8 +19,8 @@ describe('linked quiz history', () => {
     ])
     expect(result.next).toMatchObject({ sourceTestId: 'second', errorQuestionIds: ['a', 'b'], targetCount: 5 })
     expect(result.topics).toEqual([
-      { topic: 'Тема А', correct: 0, partial: 0, incorrect: 2, skipped: 0 },
-      { topic: 'Тема Б', correct: 1, partial: 0, incorrect: 1, skipped: 0 },
+      { topic: 'Тема А', correct: 0, partial: 0, incorrect: 2, skipped: 0, excluded: 0 },
+      { topic: 'Тема Б', correct: 1, partial: 0, incorrect: 1, skipped: 0, excluded: 0 },
     ])
     expect(result.attempts[0].items[0].selectedOptionIds).toBe('wrong')
   })

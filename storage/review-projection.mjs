@@ -1,6 +1,8 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 import { projectReviewSupplement } from '../packages/education-presentation/review-content.mjs'
+import {contextEvidenceProjection} from './context-evidence-projection.mjs'
 /** @see ../docs/modules/materials/material-clarification.md */
 /** Only this projection may be stored under learner-readable dayProgress.
  * @see ../docs/modules/reviews/adaptive-problem-card.md#показ-ученику
@@ -10,7 +12,8 @@ export function studentReviewProjection(review) {
   const prune = (value) => Array.isArray(value) ? value.map(prune)
     : value && typeof value === 'object' && !(typeof value.toDate === 'function')
       ? Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined).map(([key, item]) => [key, prune(item)])) : value
-  if (review.purpose === 'source-material') return prune({ date: review.date, taskId: review.taskId, planRevision: review.planRevision, uploadIds: review.uploadIds, purpose: review.purpose, sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, checkedAt: review.checkedAt })
+  const context=review.contextEvidence?.length?{contextEvidence:contextEvidenceProjection(review.contextEvidence)}:{}
+  if (review.purpose === 'source-material') return prune({ date: review.date, taskId: review.taskId, planRevision: review.planRevision, uploadIds: review.uploadIds, purpose: review.purpose, sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, checkedAt: review.checkedAt,...context })
   const basis = review.assessmentBasis
   const dispute = basis?.disputedRequirements?.map((item) => ({ id: item.id, action: item.action }))
   const history = review.history?.map((entry) => ({
@@ -18,6 +21,7 @@ export function studentReviewProjection(review) {
     ...(entry.studentFeedback?.title ? { studentFeedback: { title: entry.studentFeedback.title } } : {}),
   }))
   return prune({
+    ...context,
     date: review.date, taskId: review.taskId, planRevision: review.planRevision,
     uploadIds: review.uploadIds, status: review.status, checkedAt: review.checkedAt,
     ...(review.checkableStageIds ? { checkableStageIds: review.checkableStageIds } : {}),

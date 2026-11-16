@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { Fragment, useId, useState, type ReactNode } from 'react'
@@ -45,7 +46,7 @@ export function QuizProgress({ test }: { test: QuizCardAttempt }) {
         <span><b className={counts && counts.incorrect + counts.partial + counts.unanswered > 0 ? 'day-quiz-wrong' : ''}>{counts ? counts.incorrect + counts.partial + counts.unanswered : '—'}</b><small>с ошибкой</small></span>
         <span><ResultPoints points={test.points} maxPoints={test.maxPoints} /><small>баллов</small></span>
       </div>
-      {counts && (counts.partial > 0 || counts.excluded > 0) && <p className="day-quiz-count-note">{counts.partial > 0 && `Частично верно: ${counts.partial}. `}{counts.excluded > 0 && `Не оценивалось: ${counts.excluded}.`}</p>}
+      {counts && (counts.partial > 0 || counts.excluded > 0 || counts.skipped > 0) && <p className="day-quiz-count-note">{counts.partial > 0 && `Частично верно: ${counts.partial}. `}{counts.skipped > 0 && `Не оценивалось: ${counts.skipped}. `}{counts.excluded > 0 && `Не входит в зачёт этого задания: ${counts.excluded}.`}</p>}
     </> : <p>{test.status === 'submitted' ? 'Тест отправлен · результат уточняется' : test.answered ? `В процессе · отвечено ${test.answered} из ${test.total} · осталось ${Math.max(0,test.total-test.answered)}` : `${test.total} ${questionWord(test.total)}`}</p>}
     <ResultMeter input={input} label={test.status === 'submitted' ? 'Результат теста в процентах' : 'Ответы на вопросы теста'} />
   </div>

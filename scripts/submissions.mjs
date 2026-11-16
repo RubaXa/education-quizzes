@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/known-part-review-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/review-coverage-revision-2026-11-09.md */
@@ -27,8 +28,9 @@ import { studentReviewProjection } from '../storage/review-projection.mjs'
 import { validateRequirementChecks } from '../storage/review-requirements.mjs'
 import {freezeCriteria,assertCriteriaCoverage,assignmentDigest,assignedCriteriaSources} from '../storage/criteria-contract.mjs'
 import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
+import {contextEvidenceErrors,appendContextEvidence} from '../storage/context-evidence.mjs'
 /** @see ../docs/modules/reviews/criteria-and-knowledge.md */
-import { assertReviewReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
+import { assertReviewReadback, assertContextEvidenceReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 import { stageReviewPublishedEvents } from '../storage/review-publication-event.mjs'
@@ -314,6 +316,7 @@ async function stageReviewNotice(batch, owner, page, review, entries, type, now)
 /** @see ../docs/modules/materials/storage-privacy.md#review-publication */
 async function publishProgress(filename, phase) {
   const review = privateReviewFile(filename)
+  if(review.purpose==='context-evidence')throw Error('Квитанция контекста использует только validate/review, без этапов учебной проверки.')
   const shared = Boolean(review.reviews)
   const { owner, refs: photoRefs, page } = await linkedReviewPhotos(review, shared)
   const labels = { download: 'Открываем фото для проверки', source: 'Сверяем с учебником', review: 'Разбираем ответы', publish: 'Сохраняем результат', paused: 'Фото получено · техническая задержка' }
@@ -340,6 +343,11 @@ async function publishProgress(filename, phase) {
 
 /** @see ../docs/modules/reviews/review-criteria-provenance.md#second-pass */
 function validateReviewResult(review, page, guide, { requireChallenge = false,criteriaContract } = {}) {
+  if(review.purpose==='context-evidence'){
+    const errors=[...contextEvidenceErrors(review),...reviewProseErrors({summary:review.evidence?.summary})]
+    if(errors.length)throw Error(errors.join(' '))
+    return
+  }
   const proseErrors = reviewProseErrors(review)
   if (proseErrors.length) throw new Error(proseErrors.join('\n'))
   const sourceTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === review.taskId)
@@ -476,10 +484,11 @@ function validateStudentFeedback(review) {
 }
 
 function resultRecord(review, previous, now, date, planRevision) {
+  const context=previous?.contextEvidence?.length?{contextEvidence:previous.contextEvidence}:{}
   const priorReviews = previous?.status || previous?.purpose === 'source-material' ? [...(previous.history ?? []), Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'history' && key !== 'processing'))] : previous?.history ?? []
-  if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20) }
+  if (review.purpose === 'source-material') return { date, taskId: review.taskId, planRevision, uploadIds: review.uploadIds, purpose: 'source-material', sourceAnalysis: review.sourceAnalysis, summary: review.summary, nextStep: review.nextStep, source: review.source, checkedAt: now, history: priorReviews.slice(-20),...context }
   const { taskId, uploadIds, status, summary, nextStep, source, items, checkableStageIds, requirementChecks, mathReasoning, studentFeedback, assessmentBasis, workCoverage, challengeReview, tutoringPlan, workScope } = review
-  return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,
+  return { date, taskId, planRevision, uploadIds, status, summary, nextStep, source, items,...context,
     ...(review.criteriaFingerprint?{criteriaFingerprint:review.criteriaFingerprint,criteriaChecks:review.criteriaChecks}:{}),
     ...(review.learningObservationId?{learningObservationId:review.learningObservationId}:{}),
     ...(workScope ? { workScope } : {}),
@@ -495,6 +504,7 @@ function resultRecord(review, previous, now, date, planRevision) {
 /** Correct a previously published explanation for the same reviewed photo without inventing a new learner attempt. */
 async function publishFeedbackCorrection(filename) {
   const correction = privateReviewFile(filename)
+  if(correction.purpose==='context-evidence')throw Error('Квитанция контекста не является коррекцией оценки; используйте validate/review с новым ожидающим снимком.')
   if (correction.reviews || !correction.correctionReason?.trim()) throw new Error('Исправление одного номера требует correctionReason.')
   if (!correction.purpose) validateStudentFeedback(correction)
   const owners = (await db.collection('dayOwners').where('date', '==', correction.date).get()).docs
@@ -570,6 +580,12 @@ async function preparedReview(filename) {
   const coverage = shared ? reviewCoverage(review) : null
   const { owner, refs, photos, page,pageDoc } = await linkedReviewPhotos(review, shared)
   const entries = review.reviews ?? [review]
+  if(entries.some(entry=>entry.purpose==='context-evidence')){
+    if(shared)throw Error('Квитанция контекста публикуется отдельно от проверки работы.')
+    validateReviewResult(review,page)
+    if(photos.some(photo=>photo.data().storage?.state!=='stored'))throw Error('Фото ещё не перенесено на Диск.')
+    return {review,coverage,owner,refs,photos,page,entries,guides:new Map(),fence:[owner,pageDoc,...photos]}
+  }
   const routeEntries = entries
   const guideDocs = routeEntries.length
     ? await db.getAll(...routeEntries.map((entry) => db.doc(`dayTaskGuides/${owner.id}/items/${entry.taskId}`))) : []
@@ -590,6 +606,7 @@ async function validateReviewFile(filename) {
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
 async function publishReview(filename) {
   const { review, coverage, owner, refs, photos, page, entries,guides,fence } = await preparedReview(filename)
+  if(review.purpose==='context-evidence')return publishContextEvidence({review,owner,refs,fence})
   const reviewRefs = entries.map((entry) => db.doc(`dayProgress/${owner.id}/items/${entry.taskId}`))
   const privateRefs = entries.map((entry) => db.doc(`dayReviewPrivate/${owner.id}/items/${entry.taskId}`))
   const previousSnapshots=await db.getAll(...privateRefs,...reviewRefs)
@@ -628,6 +645,25 @@ async function publishReview(filename) {
     uploads: readback.slice(entries.length * 2).map((item) => item.data()) })
   console.log(JSON.stringify({ reviewedPhotos: refs.length, taskStatuses: entries.map(({ taskId, status }) => ({ taskId, status })),
     publishedToFirebase: true, verified: verified.verified }))
+}
+
+/** No grading, knowledge writes, assignment mutation or review-publication event.
+ * @see ../docs/modules/reviews/review-criteria-provenance.md#context-evidence */
+async function publishContextEvidence({review,owner,refs,fence}){
+ const privateRef=db.doc(`dayReviewPrivate/${owner.id}/items/${review.taskId}`)
+ const publicRef=db.doc(`dayProgress/${owner.id}/items/${review.taskId}`)
+ const snapshots=await db.getAll(privateRef,publicRef)
+ const previous=snapshots[0].data()??snapshots[1].data()
+ const now=Timestamp.now(),full=appendContextEvidence(previous,review,now)
+ await db.runTransaction(async tx=>{
+  await assertCurrentSnapshots(tx,[...fence,...snapshots])
+  tx.set(privateRef,full)
+  tx.set(publicRef,studentReviewProjection(full))
+  refs.forEach(ref=>tx.update(ref,{status:'reviewed',reviewedAt:now,processingTaskIds:FieldValue.delete()}))
+ })
+ const readback=await db.getAll(privateRef,publicRef,...refs)
+ const verified=assertContextEvidenceReadback({entry:review,previous,privateDoc:readback[0].data(),publicDoc:readback[1].data(),uploads:readback.slice(2).map(s=>({id:s.id,...s.data()}))})
+ console.log(JSON.stringify({purpose:review.purpose,taskId:review.taskId,reviewedPhotos:refs.length,publishedToFirebase:true,verified:verified.verified,learningObservationCreated:false,assignmentAssessed:false}))
 }
 
 /** Moves legacy expert prose out of learner-readable documents without losing history. */

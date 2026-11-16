@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /**
@@ -138,6 +139,7 @@ export function quizDecision(task) {
 
 export function pendingManualQuestionIds(assignment, review) {
   return (assignment?.questions ?? [])
+    .filter((question) => !assignment?.authorScopeExclusions?.questionIds?.includes(question.id))
     .filter((question) => question.kind === 'long')
     .filter((question) => {
       const answer = assignment?.answers?.[question.id]

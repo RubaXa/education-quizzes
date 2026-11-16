@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision } from './followup-contract.mjs'
+import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision, authorSourceQuizRevision } from './followup-contract.mjs'
 import { followupQuestionCount } from '../src/lib/quizCompletion.ts'
 
 const spec = { slug: 'same-link', subject: 'История', linkedToTestId: 'source', title: 'Новый раунд',
@@ -85,4 +85,20 @@ describe('follow-up coverage and unopened revision', () => {
     expect(() => openQuizRevision({ current: { ...current, answers: { old: 'answer' } }, spec,
       owner: { familyId: 'family', childId: 'child' }, revisedAt: 'now' })).toThrow('без сохранённых ответов')
   })
+})
+
+
+it('revises ordinary author scope in place only before any start, response or submission',()=>{
+ const owner={familyId:'synthetic-family',childId:'synthetic-child'}
+ const current={...owner,status:'open',testId:'same-id',slug:'same-link',subject:'История',answers:{},startedAt:null,updatedAt:null,submittedAt:null,assessment:{mode:'ordinary',subjectAdapter:'history'}}
+ const ordinary={...spec,linkedToTestId:null,authorScopeCorrection:{reason:'Автор исправляет вопрос за пределами назначенного источника.',evidenceRefs:['synthetic-current-teacher-text']}}
+ const args={current,spec:ordinary,owner,revisedAt:'now',plan:{mode:'ordinary',subjectAdapter:'history'}}
+ expect(authorSourceQuizRevision(args).assignment.questions).toHaveLength(3)
+ expect(authorSourceQuizRevision(args).assignment).not.toHaveProperty('testId')
+ expect(authorSourceQuizRevision(args).assignment).not.toHaveProperty('answers')
+ for(const changed of [{startedAt:'started'},{answers:{old:'saved'}},{status:'submitted'},{updatedAt:'saved'},{submittedAt:'submitted'}])expect(()=>authorSourceQuizRevision({...args,current:{...current,...changed}})).toThrow(/без сохранённых ответов/)
+ expect(()=>authorSourceQuizRevision({...args,owner:{...owner,childId:'foreign'}})).toThrow(/владельца/)
+ expect(()=>authorSourceQuizRevision({...args,spec:{...ordinary,authorScopeCorrection:undefined}})).toThrow(/Авторская/)
+ expect(()=>authorSourceQuizRevision({...args,plan:{mode:'targeted-followup'}})).toThrow(/ordinary/)
+ expect(()=>authorSourceQuizRevision({...args,current:{...current,linkedToTestId:'other'}})).toThrow(/ordinary/)
 })

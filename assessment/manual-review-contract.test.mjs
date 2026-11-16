@@ -30,3 +30,11 @@ it('regrades the same entries when the key or rubric changed instead of skipping
  expect(assertQuizReviewRevision(previous,next)).toBe('changed')
  expect(assertQuizReviewRevision(next,next)).toBe('unchanged')
 })
+
+
+it('author-excluded questions require no manual score and produce no skill finding',()=>{
+ const a={...assignment,authorScopeExclusions:{version:1,revision:1,questionIds:['q1']}}
+ const empty={...review(),attemptFingerprint:quizAttemptDigest(a,key),entries:{}}
+ expect(assertManualQuizReview(a,key,empty)).toEqual([])
+ expect(()=>assertManualQuizReview(a,key,{...review(),attemptFingerprint:quizAttemptDigest(a,key)})).toThrow(/Исключённый/)
+})

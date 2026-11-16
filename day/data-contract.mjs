@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
@@ -93,6 +94,10 @@ export function assignmentShapeErrors(assignment) {
   if (!text(assignment.testId) || !text(assignment.title) || !text(assignment.subject)) errors.push('У теста нет ID, названия или предмета.')
   if (!['open', 'submitted'].includes(assignment.status)) errors.push('Неизвестный статус теста.')
   if (!Array.isArray(assignment.questions)) return [...errors, 'Вопросы теста должны быть массивом.']
+  if(assignment.authorScopeExclusions!==undefined){
+    const scope=assignment.authorScopeExclusions,ids=new Set(assignment.questions.map(q=>q.id))
+    if(!object(scope)||scope.version!==1||!Number.isSafeInteger(scope.revision)||scope.revision<1||!Array.isArray(scope.questionIds)||!scope.questionIds.length||new Set(scope.questionIds).size!==scope.questionIds.length||scope.questionIds.some(id=>!ids.has(id))||Object.keys(scope).some(k=>!['version','revision','questionIds'].includes(k)))errors.push('Неверная адресная коррекция авторского объёма теста.')
+  }
   const seen = new Set()
   for (const question of assignment.questions) {
     if (!object(question) || !text(question.id) || !text(question.prompt)) { errors.push('У вопроса нет ID или текста.'); continue }

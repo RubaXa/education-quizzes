@@ -53,3 +53,18 @@ describe('specific quiz feedback', () => {
     expect(html).toContain(guidance.source.locator)
   })
 })
+
+
+it('keeps an author-excluded prompt and own answer without displaying credit, key or another exercise',()=>{
+ const a={...assignment,authorScopeExclusions:{version:1 as const,revision:1,questionIds:['unit']}}
+ const result=grade(a,{entries:{unit:{correct:'PRIVATE-OUTSIDE-KEY',guidance}}})[0]
+ const html=renderToStaticMarkup(createElement(ResultCard,{result,index:0}))
+ expect(html).toContain('Не входит в зачёт этого задания')
+ expect(html).toContain(assignment.questions[0].prompt)
+ expect(html).toContain('Ваш ответ')
+ expect(html).toContain('%')
+ expect(html).not.toContain('PRIVATE-OUTSIDE-KEY')
+ expect(html).not.toContain('Ждёт проверки')
+ expect(html).not.toContain('Верно')
+ expect(html).not.toContain(guidance.question)
+})

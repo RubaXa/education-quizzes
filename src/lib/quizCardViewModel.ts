@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 import type {ResultInput} from './resultPresentation'
 import type { Assignment, QuestionResult } from './quiz'
 import { isCdzTask } from './dayStore'
@@ -38,9 +39,10 @@ export function quizHistoryNewestFirst(tests: QuizCardAttempt[]): QuizCardAttemp
 
 export function quizAnswerCounts(test: QuizCardAttempt) {
   if (!test.results) return undefined
-  const counts = { correct: 0, partial: 0, incorrect: 0, unanswered: 0, pending: 0, excluded: 0 }
+  const counts = { correct: 0, partial: 0, incorrect: 0, unanswered: 0, pending: 0, excluded: 0, skipped: 0 }
   for (const result of test.results) {
-    if (result.skipped) counts.excluded++
+    if (result.excluded) counts.excluded++
+    else if (result.skipped) counts.skipped++
     else if (result.points === null) counts.pending++
     else if (result.points === result.question.points) counts.correct++
     else if (result.answer === undefined || result.answer === '' || Array.isArray(result.answer) && !result.answer.length) counts.unanswered++

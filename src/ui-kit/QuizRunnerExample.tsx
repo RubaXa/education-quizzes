@@ -1,6 +1,8 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /** @see ../../docs/modules/assessments/quizzes.md */
 import {useState} from 'react'
+import QuizResultCard from '@/components/QuizResultCard'
 import QuestionCard from '@/components/QuizQuestionCard'
 import {ThemeFrame,ThemeHero} from '@/components/SubjectTheme'
 import type {Answer,QuizQuestion} from '@/lib/quiz'
@@ -12,11 +14,11 @@ const questions:QuizQuestion[]=[
  {id:'long',kind:'long',prompt:'Объясни свой переход одним или двумя предложениями.',points:3},
 ]
 export default function QuizRunnerExample(){
- const [selected,setSelected]=useState(0),[answers,setAnswers]=useState<Record<string,Answer>>({}),[preview,setPreview]=useState(false)
+ const [selected,setSelected]=useState(0),[answers,setAnswers]=useState<Record<string,Answer>>({}),[preview,setPreview]=useState(false),[excluded,setExcluded]=useState(false)
  const q=questions[selected],subject=q.id==='code'?'Информатика':'Английский язык'
  return <section aria-label="Экран вопроса теста"><h3>Экран вопроса теста</h3><p>Условные данные. Те же шапка, плашки, варианты и поля, что в настоящем тесте. Ответы остаются только в этом примере.</p>
- <div className="edu-kit-presets" aria-label="Формат вопроса">{['Один вариант','Несколько вариантов','Код Python','Короткий ответ','Объяснение'].map((label,i)=><button key={label} aria-pressed={selected===i} onClick={()=>setSelected(i)}>{label}</button>)}<button aria-pressed={preview} onClick={()=>setPreview(!preview)}>Только чтение</button></div>
+ <div className="edu-kit-presets" aria-label="Формат вопроса">{['Один вариант','Несколько вариантов','Код Python','Короткий ответ','Объяснение'].map((label,i)=><button key={label} aria-pressed={selected===i} onClick={()=>setSelected(i)}>{label}</button>)}<button aria-pressed={preview} onClick={()=>setPreview(!preview)}>Только чтение</button><button aria-pressed={excluded} onClick={()=>setExcluded(!excluded)}>Вне задания</button></div>
  <ThemeFrame subject={subject}><div className="space-y-6"><ThemeHero subject={subject} title="Повторение изученного материала: проверка после перерыва" description="Проверка к3ноября. Уже принятую работу переписывать не нужно." preview={preview}/>
- <QuestionCard question={q} index={selected} answer={answers[q.id]} onAnswer={value=>setAnswers({...answers,[q.id]:value})} subject={subject} disabled={preview}/></div></ThemeFrame>
+ <QuestionCard question={q} index={selected} answer={answers[q.id]} onAnswer={value=>setAnswers({...answers,[q.id]:value})} subject={subject} disabled={preview} excluded={excluded}/>{excluded&&<QuizResultCard result={{question:q,answer:answers[q.id],points:null,excluded:true}} index={selected}/>}</div></ThemeFrame>
  </section>
 }

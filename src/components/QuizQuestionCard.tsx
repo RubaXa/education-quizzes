@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
 /** @see ../../docs/modules/assessments/quizzes.md */
 import type {Answer,QuizQuestion,QuizVisual} from '@/lib/quiz'
@@ -19,6 +20,7 @@ export default function QuestionCard({
   visual,
   disabled = false,
   showTopic = true,
+  excluded = false,
 }: {
   question: QuizQuestion
   index: number
@@ -28,7 +30,9 @@ export default function QuestionCard({
   visual?: QuizVisual
   disabled?: boolean
   showTopic?: boolean
+  excluded?: boolean
 }) {
+  const readOnly = disabled || excluded
   const optionList = question.options ?? []
   const asString = typeof answer === 'string' ? answer : ''
   const asArray = Array.isArray(answer) ? answer : []
@@ -38,7 +42,7 @@ export default function QuestionCard({
       <CardHeader className="gap-3">
         <div className="quiz-question-topline flex flex-wrap items-center justify-between gap-2">
           <Badge variant="secondary">Вопрос {index + 1}</Badge>
-          <span className="text-sm text-muted-foreground">{question.points} {wordForm(question.points, 'балл', 'балла', 'баллов')}</span>
+          <span className="text-sm text-muted-foreground">{excluded ? 'Не входит в зачёт этого задания' : <>{question.points} {wordForm(question.points, 'балл', 'балла', 'баллов')}</>}</span>
         </div>
         <CardTitle className="text-xl leading-snug sm:text-2xl">{question.prompt}</CardTitle>
         {showTopic && question.topic && <CardDescription>Тема: {question.topic}</CardDescription>}
@@ -47,7 +51,7 @@ export default function QuestionCard({
         {question.code && <CodeBlock code={question.code} />}
         {question.imageUrl && <EducationImage className="question-image" source={question.imageUrl} alt={question.imageAlt ?? 'Иллюстрация к вопросу'} aspectRatio="16 / 9" />}
         {(question.kind === 'single' || question.kind === 'figure') && (
-          <RadioGroup value={asString} onValueChange={onAnswer} disabled={disabled} className="gap-3">
+          <RadioGroup value={asString} onValueChange={onAnswer} disabled={readOnly} className="gap-3">
             {optionList.map((option) => (
               <label key={option.id} className="option-tile">
                 <RadioGroupItem value={option.id} aria-label={option.label} />
@@ -66,7 +70,7 @@ export default function QuestionCard({
               <label key={option.id} className="option-tile">
                 <Checkbox
                   checked={asArray.includes(option.id)}
-                  disabled={disabled}
+                  disabled={readOnly}
                   onCheckedChange={(checked) => onAnswer(checked ? [...asArray, option.id] : asArray.filter((item) => item !== option.id))}
                 />
                 <span className="min-w-0 flex-1">{option.label}</span>
@@ -75,7 +79,7 @@ export default function QuestionCard({
           </div>
         )}
         {(question.kind === 'short' || question.kind === 'number' || question.kind === 'long') && (
-          <QuizTextAnswer kind={question.kind} value={asString} disabled={disabled} subject={subject} visual={visual} onAnswer={onAnswer} />
+          <QuizTextAnswer kind={question.kind} value={asString} disabled={readOnly} subject={subject} visual={visual} onAnswer={onAnswer} />
         )}
       </CardContent>
     </Card>
