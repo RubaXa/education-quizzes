@@ -24,7 +24,7 @@
     "check:reads": "node scripts/firestore-read-index.mjs --self-test && node scripts/firestore-read-index.mjs",
     "check:spec": "node scripts/check-spec-map.mjs && node scripts/spec-graph.mjs && node scripts/check-ui-contract.mjs && node scripts/check-requirement-copy.mjs",
     "specs:generate": "node scripts/spec-graph.mjs --write",
-    "check": "npm run check:spec && npm run check:reads && npm run lint && npm run test && npm run build",
+    "check": "npm run check:spec && npm run check:reads && npm run check:assessment-formats && npm run lint && npm run test && npm run build",
     "prepare": "lefthook install",
     "preview": "vite preview",
     "quiz": "node scripts/quiz.mjs",
@@ -71,7 +71,9 @@
     "connect:diagnose": "node scripts/connect-diagnose.mjs",
     "task:presentation": "node scripts/task-presentation.mjs",
     "review:presentation": "node scripts/review-presentation.mjs",
-    "quiz:parent-review": "node scripts/quiz-parent-review.mjs"
+    "quiz:parent-review": "node scripts/quiz-parent-review.mjs",
+    "quiz:plan": "node scripts/quiz-format-plan.mjs",
+    "check:assessment-formats": "vitest run assessment/format-plan.test.mjs --maxWorkers=2"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

@@ -1,8 +1,26 @@
+/** @see ../docs/decisions/assessment-format-gates-2026-11-17.md */
 /** @see ../docs/decisions/concept-short-omission-2026-11-09.md */
 import { createHash } from 'node:crypto'
 
 export function correctionFingerprint(value) {
   return createHash('sha256').update(JSON.stringify(value)).digest('hex')
+}
+
+/** Accept only the exact observed, semantically reviewed response. No fuzzy grading.
+ * @see ../docs/modules/assessments/quizzes.md#semantic-short-answer */
+export function semanticShortAnswerRepair(assignment,key,request){
+ const q=assignment?.questions?.find(q=>q.id===request?.questionId),entry=key?.entries?.[request?.questionId],answer=assignment?.answers?.[request?.questionId]
+ if(assignment?.status!=='submitted'||!assignment.testId||request?.testId!==assignment.testId
+  ||assignment.assessment?.dictation||!['ordinary','targeted-followup','control-followup','control-diagnostic'].includes(assignment.assessment?.mode)
+  ||request.criterion!=='concept-only'||request.semanticChecked!==true||request.spellingNotAssessed!==true
+  ||!request.reason?.trim()||!Array.isArray(request.evidenceRefs)||!request.evidenceRefs.length
+  ||request.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim())
+  ||q?.kind!=='short'||typeof answer!=='string'||!answer.trim()||answer!==request.observedAnswer
+  ||typeof entry?.correct!=='string'||!entry.correct.trim()
+  ||entry.accepted!==undefined&&(!Array.isArray(entry.accepted)||entry.accepted.some(v=>typeof v!=='string')))throw Error('Нужны отправленный короткий ответ, точный смысловой разбор и источник; написание не переоценивается.')
+ const accepted=entry.accepted??[entry.correct]
+ if(accepted.includes(answer))return {key,changed:[]}
+ return {key:{...key,entries:{...key.entries,[q.id]:{...entry,accepted:[...new Set([...accepted,entry.correct,answer])]}}},changed:[q.id]}
 }
 
 /** Add only an already declared canonical short answer; never edit a response.

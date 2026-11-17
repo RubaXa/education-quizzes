@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assessment-format-gates-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
@@ -272,7 +273,7 @@ export function validateAssessmentPlan(plan, spec) {
     errors.push('Связанное продолжение требует linkedToTestId; первый тест не должен его иметь.')
   }
   if (plan.subjectAdapter === 'math' && (spec.questions ?? []).some((question) => ['single', 'multiple'].includes(question.kind))
-    && !nonempty(plan.mathChoiceApprovedRef)) errors.push('Выбор ответа в математике требует ссылки на прямую просьбу родителя.')
+    && !plan.formatPlan && !nonempty(plan.mathChoiceApprovedRef)) errors.push('Выбор ответа в математике требует детерминированного плана форматов.')
   if (plan.subjectAdapter === 'informatics') {
     if (plan.programming?.language !== 'python' || !nonempty(plan.programming.languageEvidenceRef)
       || !nonempty(plan.programming.executionEvidenceRef)) errors.push('Информатика: нужны подтверждённый Python и проверка конечных примеров интерпретатором.')

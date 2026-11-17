@@ -1458,3 +1458,9 @@
 | [docs/decisions/restore-parent-route-2026-11-17.md](decisions/restore-parent-route-2026-11-17.md) | [Родительский путь](modules/reviews/parent-review.md) | Коррекция преемственности канонического компонента и восстановления сессии МЭШ | Родитель; оператор |
 
 | [docs/decisions/canonical-evidence-and-learning-2026-11-17.md](decisions/canonical-evidence-and-learning-2026-11-17.md) | [Компоненты](shared/design/components.md) | Коррекция ссылки на фото и дублирования номера | Разработчик; Education |
+
+| [assessment/format-plan.mjs](../assessment/format-plan.mjs) | [План форматов](modules/assessments/format-plan.md) | Детерминированные группы и барьер публикации | Quiz CLI |
+| [assessment/format-plan.test.mjs](../assessment/format-plan.test.mjs) | [План форматов](modules/assessments/format-plan.md) | Регрессии сплошного ввода и офлайн CLI | Vitest |
+| [scripts/quiz-format-plan.mjs](../scripts/quiz-format-plan.mjs) | [План форматов](modules/assessments/format-plan.md) | Закрытый офлайн план и проверка | Operator |
+| [docs/modules/assessments/format-plan.md](modules/assessments/format-plan.md) | [План форматов](modules/assessments/format-plan.md) | Правило состава и пределы механической проверки | Автор; CLI |
+| [docs/decisions/assessment-format-gates-2026-11-17.md](decisions/assessment-format-gates-2026-11-17.md) | [Решение](decisions/assessment-format-gates-2026-11-17.md) | Основание и сохранённые действия | Operator; release |

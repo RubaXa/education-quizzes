@@ -3,7 +3,7 @@ id: service.operator-cli
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-11-16
+updated: 2026-11-17
 consumers:
   - "Education operator"
   - "operator CLI"
@@ -19,6 +19,7 @@ parent: product.education
 uses:
   - module.synchronization
   - module.assessments
+  - module.assessments.format-plan
   - module.reviews
   - shared.data.firestore
   - shared.server-runtime
@@ -97,6 +98,9 @@ flowchart TD
 Для теста `DecisionPacket` проходит [граф самопроверок](../../modules/assessments/assessment-decision-graph.md): ниже 85% — адресное продолжение после полной проверки, при 85–99% — только по запросу родителя, при 100% — без работы над ошибками. План содержит текущую тему, подтверждённые старые ошибки, отдельное интервальное повторение и перенос. Для письменной работы используется общий `assessmentBasis`/`requirementChecks`; предметный адаптер меняет критерий, но не происхождение требования.
 
 ## Контракт операции {#operation-contract}
+
+Перед новым тестом `npm run quiz:plan -- INPUT.json OUTPUT.json` рассчитывает закрытые слоты выбора, самостоятельного ответа и объяснения. `npm run quiz:plan -- check PLAN.json QUIZ.json` проверяет фактические форматы. Тот же обязательный барьер встроен в quiz validate/create/revise-open; `npm run check:assessment-formats` включён в общий check. [Входы, исключение диктанта и пределы](../../modules/assessments/format-plan.md).
+
 
 Каждый scan сохраняет детерминированный [план по предметам, источникам и событиям](../../modules/synchronization/task-routing.md). `npm run education -- plan SCAN_RUN_UUID` извлекает его в закрытый JSON из существующего stdout.routePlan; возвращает время и агрегаты. Это локальная диагностика, не новая синхронизация и не complete. Отсутствующая страница без валидного запроса теперь создаёт material-needed; публикация запроса не закрывает предметное обогащение.
 
