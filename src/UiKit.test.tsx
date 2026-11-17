@@ -44,7 +44,8 @@ it('has internally consistent example points and counts',()=>{
 it('uses the actual work-review and quiz adapters in the shared review catalogue', async()=>{
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Компактный разбор')!.click())
- expect(host.querySelectorAll('.edu-review-brief')).toHaveLength(4)
+ expect(host.querySelectorAll('.edu-review-brief')).toHaveLength(5)
+ expect(host.querySelector('[aria-label="Диалог в результате теста"]')?.textContent).toContain('Отправить ответ')
  const program=host.querySelector('[aria-label="Вопрос 1"]:last-of-type')
  expect(host.textContent).toContain('0 > 0 ложно: тело не запускается')
  expect(program?.querySelector('input')).toBeNull()

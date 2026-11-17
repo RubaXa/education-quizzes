@@ -849,19 +849,21 @@
       }
     },
     "packages/education-events/envelope.mjs": {
-      "sha256": "7ecdf4884478bcb55cf561e985f729266ce0fa645d2f48650bc03ac1d7c012cb",
-      "record": "docs/decisions/olympiad-history-2026-10-31.md",
+      "sha256": "7700955f7736a9c2fdd9b43ed4e6a967295b3756ee69bc21aab43206597b3c58",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/olympiad-history.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/OlympiadHistory.test.tsx",
-        "scripts/firestore-rules-olympiad-history.test.mjs",
-        "storage/learning-file-access.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь31.10.2026 прямо поручил реализовать историю сезонов, этапов, результатов и работ в карточках олимпиад через существующий Education/UI Kit с проверками и публикацией без дополнительных согласований."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "packages/education-presentation/notification.mjs": {
@@ -2589,30 +2591,21 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "0f00fb51ee04f58cd09a9b89436abf9e9a30c06d7ed826eb76f8d59528bca0d3",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "bf0b455c10b2a4118b9d081488b0421e8335135c6d40c527276ee3a1bda87214",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/DayDashboard.css": {
@@ -3553,30 +3546,21 @@
       }
     },
     "src/components/QuizAttemptReview.tsx": {
-      "sha256": "9db9180a8d50976260e8ea9fd2415b72ea90b7d0f806671b9be70802f5252338",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "5c1138a25b12605484341c4a47a0bba5e935360cf19a062a952a336c7dd5f083",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/components/QuizCard.css": {
@@ -3617,30 +3601,21 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "42f7c38ccc003a89b1cef7dde68c991b8e9976499a6374d2dba36cff313afdc6",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "116d7c9d100fccbb9ee6e18f326b4adf193ef7896d56bafb7a112431e433989a",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -4698,20 +4673,21 @@
       }
     },
     "src/lib/quizCardViewModel.ts": {
-      "sha256": "183f40ce021e49bb7d103cb044353f49ae379052ccce3abcc5195d81975acd04",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "14137f1e482573351b70afa454ad97046e6649a8a9d18d151fccbd51351a34ff",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/lib/quizCompletion.ts": {
@@ -5470,30 +5446,21 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "c93d84f5264e9691848ad1c72497dfde08c81028333f02f335bf36664f91f3b1",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "37d927e67eea40a15a57d047ba6ebe7b617ea6732ed9ee16ddd2a0d1eede2ea7",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6689,30 +6656,21 @@
       }
     },
     "sync/help-response.mjs": {
-      "sha256": "7619ca19829110a34c2e5ad9be67d87af3983d09f12e31cae978a1d01901298a",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "deb88777d3e01b4b93b88970376be16f7d12af39dd7ccdf0fe8b8c1f049c8fef",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/components/SharedTabs.tsx": {
@@ -7240,18 +7198,21 @@
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "e375e40830fed178d7f4aad57f8e4b4c658bcb000d4aad1728a914dc50089d14",
-      "record": "docs/decisions/program-explanation-2026-11-01.md",
+      "sha256": "135b1a9cf3b6109cd7c2598d4c5ec0d45ab3a3a98963b406a15258979659a831",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
+        "docs/shared/design/student-review-step.md",
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.test.tsx"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал объяснять выполнение программы по шагам, убрать пустой input и показать причину отличия ответа."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/components/ReviewTypography.css": {
@@ -7859,30 +7820,21 @@
       }
     },
     "src/components/ReviewConversation.tsx": {
-      "sha256": "6ea81f2387aa811ba511e0f6acc4b86fc19e6a10cbf403a6f244c65a9311e309",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "9b5423a254223179796ea864e022bcca508355f0a3911a8f20f7b56f0650d537",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     },
     "src/components/ReviewReplyControls.tsx": {
@@ -8922,6 +8874,78 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель17.11.2026 поручил привести старые разборы текущих заданий к общему блоку по реальным ответам, проверить обе роли и не запрашивать уже присланное."
+      }
+    },
+    "packages/education-presentation/quiz-review-reply.mjs": {
+      "sha256": "e2010f6f104efd08c1398f7f4d663035a66594ab3536df3974b599c9f8e91858",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+      }
+    },
+    "src/components/QuizResultConversation.tsx": {
+      "sha256": "e4dc43869d475420cc87659737c545174ee94830d21ff81f914278f01651858c",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+      }
+    },
+    "src/lib/quizReviewConversation.ts": {
+      "sha256": "98b0194084a0ba56f0d7fcc1037348c24a8c7bb89cc62da763c733cd153faf56",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+      }
+    },
+    "src/ui-kit/QuizReviewDialogueExample.tsx": {
+      "sha256": "425a9a2bd6b0e6bd138eb6839d9815ca08e10f9ae7f7380f5ba9be7ea4e091f3",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "src/components/QuizResultCard.dialogue.test.tsx",
+        "src/lib/quizReviewConversation.test.ts",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "src/components/ReviewConversation.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
       }
     }
   }

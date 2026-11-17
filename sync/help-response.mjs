@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import {reviewResponseErrors,sameReviewValue,reviewSupportTransition} from '../packages/education-presentation/review-reply.mjs'
 /** Publish one response to one immutable request through the shared guidance collection.
@@ -31,8 +32,8 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
     const event = eventSnap.data(), artifact = artifactSnap.data()
     if (event.eventId !== eventId || event.eventType !== 'help.requested' || artifact.eventId !== eventId
       || artifact.artifactId !== artifactId || validateTaskArtifact(artifact, { eventId, now: artifact.verifiedAt }).state !== 'ready') fail('help_response_artifact_invalid')
-    const dayToken = event.sourceRef?.dayToken, taskId = event.sourceRef?.taskId
-    const responseRef = db.doc(`dayGuidance/${dayToken}/items/help-${eventId}`)
+    const dayToken = event.sourceRef?.dayToken, quizToken=event.sourceRef?.quizToken, taskId = event.sourceRef?.taskId
+    const responseRef = db.doc(`${quizToken?'quizStepGuidance':'dayGuidance'}/${quizToken??dayToken}/items/help-${eventId}`)
     const jobRef = db.doc(`operatorSyncJobs/${syncJobId('triage-help', event.familyId, event.childId, eventId)}`)
     const [existing, jobSnap] = await Promise.all([tx.get(responseRef), tx.get(jobRef)])
     const job = jobSnap.data()
@@ -52,7 +53,7 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
     if (validateTaskArtifact(artifact, { eventId, observation, now }).state !== 'ready') fail('help_response_artifact_invalid')
     const transactionalDb = { doc: path => ({ get: () => tx.get(db.doc(path)) }), collection:path=>({where:(...args)=>({get:()=>tx.get(db.collection(path).where(...args))})}) }
     const inputs = await captureEventTaskInputs(transactionalDb, event)
-    if (!Number.isInteger(inputs.source.planRevision) || taskArtifactFingerprint({ eventId, inputs }) !== artifact.fingerprint
+    if ((!quizToken&&!Number.isInteger(inputs.source.planRevision)) || taskArtifactFingerprint({ eventId, inputs }) !== artifact.fingerprint
       || (inputs.source.reviewReply ? !reviewResponse : (inputs.source.requestKind!=='condition'&&!Array.isArray(inputs.source.photoUploadIds) || reviewResponse))) fail('help_response_source_changed')
     const condition=inputs.source.requestKind==='condition'&&!inputs.source.photoUploadIds&&!inputs.source.reviewReply
     if(condition&&(decision?.conditionChecked!==true||decision?.archiveChecked!==true||decision?.noAnswerChecked!==true||trimmed.length>480||!['clarified','ask-child','ask-parent'].includes(decision?.disposition)||typeof decision?.reason!=='string'||decision.reason.trim().length<20))fail('help_condition_decision_invalid')
@@ -60,7 +61,7 @@ export async function publishHelpResponse(db, { eventId, artifactId, text, revie
     const response = { taskId, stageId: 'help-response', stageIndex: 0, level: 'reveal', text: trimmed,
       guideRevision: inputs.source.revision, actorPersonId: 'education-operator', createdAt: new Date(now),
       sourceRequestEventId: eventId, sourceArtifactId: artifactId, sourceFingerprint: artifact.fingerprint,
-      sourcePlanRevision: inputs.source.planRevision, ...(condition?{clarification:decision.disposition}:{}), ...(reviewResponse ? {reviewResponse,reviewContext:inputs.reviewContext,sourceStepId:inputs.source.reviewReply.sourceId} : {}) }
+      ...(quizToken?{quizToken}:{sourcePlanRevision: inputs.source.planRevision}), ...(condition?{clarification:decision.disposition}:{}), ...(reviewResponse ? {reviewResponse,reviewContext:inputs.reviewContext,sourceStepId:inputs.source.reviewReply.sourceId} : {}) }
     const knowledge=learningObservation({owner:{familyId:event.familyId,childId:event.childId},taskId,attemptRef:`educationEvents/${eventId}`,sourceRevision:artifact.fingerprint,
       outcome:reviewResponse?.outcome??'support-published',scope:condition?'source-material':'micro-step',helpLevel:'guided'})
     const knowledgeRef=db.doc(`families/${event.familyId}/children/${event.childId}/learningEvidence/${knowledge.id}`)

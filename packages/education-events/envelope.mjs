@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** Portable identity helpers for the shared educationEvents queue. @see ../../docs/modules/synchronization/event-queue.md#конверт-и-идентичность */
 
 const validId = (value) => typeof value === 'string' && value.length > 0 && value.length <= 500
@@ -13,8 +14,9 @@ export function canonicalEducationEventSourceRef(sourceRef) {
   }
   const parts = sourceRef.documentPath.split('/')
   const matches = {
-    help: parts.length === 4 && parts[0] === 'dayHelp' && parts[2] === 'items'
-      && sourceRef.dayToken === parts[1] && sourceRef.taskId === parts[3],
+    help: parts.length === 4 && parts[2] === 'items' && sourceRef.taskId === parts[3]
+      && (parts[0] === 'dayHelp' && sourceRef.dayToken === parts[1] && sourceRef.quizToken === undefined
+        || parts[0] === 'quizStepReplies' && sourceRef.quizToken === parts[1] && sourceRef.dayToken === undefined),
     quiz: parts.length === 2 && parts[0] === 'assignments' && sourceRef.quizToken === parts[1],
     guidance: parts.length === 4 && parts[0] === 'dayGuidance' && parts[2] === 'items'
       && sourceRef.dayToken === parts[1] && Boolean(sourceRef.taskId),

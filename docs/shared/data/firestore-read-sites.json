@@ -9120,6 +9120,114 @@
     "note": "Адресная сверка source для известной незавершённой передачи после online/visibility; родитель без исходных байтов не создаёт это чтение."
   },
   {
+    "id": "src/lib/quizReviewConversation.ts#onSnapshot#bdb449e9a4c3",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 14,
+    "api": "onSnapshot",
+    "target": "query(collection(db,'quizStepReplies',token,'items',questionId,'requests'),limit(100))",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#onSnapshot#a25c60cebb3a",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 19,
+    "api": "onSnapshot",
+    "target": "query(collection(db,'quizStepGuidance',token,'items'),where('taskId','==',questionId),limit(100))",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#getDocFromServer#f3d5b2446814",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 26,
+    "api": "getDocFromServer",
+    "target": "assignmentRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#transaction.get#dcdab8d7a8d3",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 32,
+    "api": "transaction.get",
+    "target": "assignmentRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#transaction.get#43037fba58b8",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 32,
+    "api": "transaction.get",
+    "target": "keyRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#transaction.get#7fa46154fa16",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 32,
+    "api": "transaction.get",
+    "target": "currentRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#transaction.get#0d08d447bb2e",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 32,
+    "api": "transaction.get",
+    "target": "historyRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#transaction.get#62e5165edd30",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 37,
+    "api": "transaction.get",
+    "target": "doc(db,'quizStepGuidance',token,'items',reply.sourceId)",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "src/lib/quizReviewConversation.ts#getDocFromServer#7d4e629544c0",
+    "file": "src/lib/quizReviewConversation.ts",
+    "line": 43,
+    "api": "getDocFromServer",
+    "target": "historyRef",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
     "id": "src/lib/store.ts#getDoc#43706fdac516",
     "file": "src/lib/store.ts",
     "line": 54,
@@ -9362,7 +9470,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#215df23c00aa",
     "file": "sync/event-task-artifact.mjs",
-    "line": 49,
+    "line": 52,
     "api": "admin.get",
     "target": "db.doc(`${base}/skills/${skillId}`)",
     "group": "operator-other",
@@ -9374,7 +9482,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#466f813cece1",
     "file": "sync/event-task-artifact.mjs",
-    "line": 51,
+    "line": 54,
     "api": "admin.get",
     "target": "db.doc(`${base}/learningEvidence/${evidenceId}`)",
     "group": "operator-other",
@@ -9386,7 +9494,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b1c12cec0440",
     "file": "sync/event-task-artifact.mjs",
-    "line": 73,
+    "line": 77,
     "api": "admin.get",
     "target": "db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -9398,7 +9506,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#c3c7bccf4565",
     "file": "sync/event-task-artifact.mjs",
-    "line": 79,
+    "line": 83,
     "api": "admin.get",
     "target": "db.doc(`${event.sourceRef.documentPath}/requests/${event.eventId}`)",
     "group": "operator-other",
@@ -9410,7 +9518,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3331e971078e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 83,
+    "line": 87,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}`)",
     "group": "operator-other",
@@ -9422,7 +9530,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#f9faf24e7446",
     "file": "sync/event-task-artifact.mjs",
-    "line": 83,
+    "line": 87,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/children/${event.childId}`)",
     "group": "operator-other",
@@ -9434,7 +9542,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#46c080246ca9",
     "file": "sync/event-task-artifact.mjs",
-    "line": 88,
+    "line": 92,
     "api": "admin.get",
     "target": "db.doc(`deviceSessions/${event.actor.uid}`)",
     "group": "operator-other",
@@ -9446,7 +9554,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#4f585bd3f691",
     "file": "sync/event-task-artifact.mjs",
-    "line": 91,
+    "line": 95,
     "api": "admin.get",
     "target": "db.doc(`accessLinks/${token}`)",
     "group": "operator-other",
@@ -9458,7 +9566,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3fc8dabdced1",
     "file": "sync/event-task-artifact.mjs",
-    "line": 94,
+    "line": 98,
     "api": "admin.get",
     "target": "db.doc(`families/${event.familyId}/members/${personId}`)",
     "group": "operator-other",
@@ -9470,7 +9578,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#0a9c38bec98f",
     "file": "sync/event-task-artifact.mjs",
-    "line": 103,
+    "line": 107,
     "api": "admin.get",
     "target": "db.doc(`dayOwners/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -9482,7 +9590,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#224e522b8786",
     "file": "sync/event-task-artifact.mjs",
-    "line": 106,
+    "line": 110,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${event.sourceRef.dayToken}`)",
     "group": "operator-other",
@@ -9494,7 +9602,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#3d7f0f861d8e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 118,
+    "line": 122,
     "api": "admin.get",
     "target": "db.doc(`dayReviewPrivate/${event.sourceRef.dayToken}/items/${taskId}`)",
     "group": "operator-other",
@@ -9506,7 +9614,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#69fb8c989f12",
     "file": "sync/event-task-artifact.mjs",
-    "line": 119,
+    "line": 123,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${event.sourceRef.dayToken}/items/${taskId}`)",
     "group": "operator-other",
@@ -9518,7 +9626,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b191d628ad86",
     "file": "sync/event-task-artifact.mjs",
-    "line": 120,
+    "line": 124,
     "api": "admin.get",
     "target": "db.doc(`dayTaskGuides/${event.sourceRef.dayToken}/items/${taskId}/criteriaContract/current`)",
     "group": "operator-other",
@@ -9530,7 +9638,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#0ecd4419432a",
     "file": "sync/event-task-artifact.mjs",
-    "line": 133,
+    "line": 137,
     "api": "admin.get",
     "target": "db.doc(`dayProgress/${event.sourceRef.dayToken}/items/${taskId}`)",
     "group": "operator-other",
@@ -9542,7 +9650,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#af8f2859361b",
     "file": "sync/event-task-artifact.mjs",
-    "line": 135,
+    "line": 139,
     "api": "admin.get",
     "target": "db.doc(`dayGuidance/${event.sourceRef.dayToken}/items/${sourceId}`)",
     "group": "operator-other",
@@ -9554,7 +9662,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#c6b8b573daa4",
     "file": "sync/event-task-artifact.mjs",
-    "line": 138,
+    "line": 142,
     "api": "admin.get",
     "target": "db.collection(`dayGuidance/${event.sourceRef.dayToken}/items`).where('taskId','==',taskId)",
     "group": "operator-other",
@@ -9566,7 +9674,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#c097ca978a4f",
     "file": "sync/event-task-artifact.mjs",
-    "line": 151,
+    "line": 155,
     "api": "admin.get",
     "target": "db.doc(`dayUploads/${event.sourceRef.dayToken}/files/${id}`)",
     "group": "operator-other",
@@ -9576,9 +9684,81 @@
     "note": "Адресное чтение сохранённой версии запроса и принадлежащих задаче фото; наличие и целостность проверяются до обработки."
   },
   {
+    "id": "sync/event-task-artifact.mjs#admin.get#ddede76a79b3",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 175,
+    "api": "admin.get",
+    "target": "db.doc(`assignments/${token}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#cd72843b429a",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 175,
+    "api": "admin.get",
+    "target": "db.doc(`answerKeys/${token}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#74ef7380abdf",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 176,
+    "api": "admin.get",
+    "target": "db.doc(`quizReviewPrivate/${token}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#249a5d1cb347",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 176,
+    "api": "admin.get",
+    "target": "db.doc(`reviews/${token}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#9b5a7b42c84c",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 186,
+    "api": "admin.get",
+    "target": "db.doc(`quizStepGuidance/${token}/items/${sourceId}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
+    "id": "sync/event-task-artifact.mjs#admin.get#f86eb6fe8aa0",
+    "file": "sync/event-task-artifact.mjs",
+    "line": 188,
+    "api": "admin.get",
+    "target": "db.collection(`quizStepGuidance/${token}/items`).where('taskId','==',taskId)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "fresh-authorized-point",
+    "refresh": "per opened question, explicit reply or verified event; transaction retry",
+    "note": "Адресный диалог конкретного вопроса теста: ограниченная история/помощь, попытка, ключ и проверка; без поиска дня и глобального polling. Публикация перечитывает те же источники для CAS. docs/shared/design/student-review-step.md#quiz-dialogue"
+  },
+  {
     "id": "sync/event-task-artifact.mjs#admin.get#555d00a595b4",
     "file": "sync/event-task-artifact.mjs",
-    "line": 172,
+    "line": 196,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${event.sourceRef.quizToken}`)",
     "group": "operator-other",
@@ -9590,7 +9770,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#9107451b281e",
     "file": "sync/event-task-artifact.mjs",
-    "line": 173,
+    "line": 197,
     "api": "admin.get",
     "target": "db.doc(`quizReviewPrivate/${event.sourceRef.quizToken}`)",
     "group": "operator-other",
@@ -9602,7 +9782,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#48c2690f6e85",
     "file": "sync/event-task-artifact.mjs",
-    "line": 173,
+    "line": 197,
     "api": "admin.get",
     "target": "db.doc(`reviews/${event.sourceRef.quizToken}`)",
     "group": "operator-other",
@@ -9614,7 +9794,7 @@
   {
     "id": "sync/event-task-artifact.mjs#admin.get#b21a38de531c",
     "file": "sync/event-task-artifact.mjs",
-    "line": 208,
+    "line": 232,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9710,7 +9890,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4",
     "file": "sync/help-response.mjs",
-    "line": 29,
+    "line": 30,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9722,7 +9902,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-2",
     "file": "sync/help-response.mjs",
-    "line": 29,
+    "line": 30,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9734,7 +9914,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-3",
     "file": "sync/help-response.mjs",
-    "line": 37,
+    "line": 38,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9746,7 +9926,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-4",
     "file": "sync/help-response.mjs",
-    "line": 37,
+    "line": 38,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9758,7 +9938,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-5",
     "file": "sync/help-response.mjs",
-    "line": 50,
+    "line": 51,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9770,7 +9950,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-6",
     "file": "sync/help-response.mjs",
-    "line": 53,
+    "line": 54,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9782,7 +9962,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#2d269cb946c4-7",
     "file": "sync/help-response.mjs",
-    "line": 53,
+    "line": 54,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -9794,7 +9974,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#53b1ad5df27f",
     "file": "sync/help-response.mjs",
-    "line": 72,
+    "line": 73,
     "api": "admin.get",
     "target": "db.doc(result.path)",
     "group": "operator-other",
@@ -9806,7 +9986,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#4b34c125965d",
     "file": "sync/help-response.mjs",
-    "line": 72,
+    "line": 73,
     "api": "admin.get",
     "target": "db.doc(result.jobPath)",
     "group": "operator-other",
@@ -9818,7 +9998,7 @@
   {
     "id": "sync/help-response.mjs#admin.get#934b339879bd",
     "file": "sync/help-response.mjs",
-    "line": 73,
+    "line": 74,
     "api": "admin.get",
     "target": "db.doc(result.knowledgePath)",
     "group": "operator-other",

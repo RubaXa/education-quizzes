@@ -17,7 +17,7 @@ test('educationEvents denies reads and mutation after create', () => {
 
 test('education event envelope rejects scope, actor, event, and source spoofing', () => {
   const rules = readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8')
-  const helperStart = rules.indexOf('function validEducationEventSource(')
+  const helperStart = rules.indexOf('function validDayEducationEventSource(')
   const helperEnd = rules.indexOf('\n    function dayUploadOwner(', helperStart)
   const helpers = rules.slice(helperStart, helperEnd)
   assert.ok(helperStart > 0 && helperEnd > helperStart)

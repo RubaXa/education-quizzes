@@ -186,3 +186,11 @@ reviewCheckedAt=null: выбор семейного плана не привяз
 неизменяемый requests/{eventId} и атомарный help.requested. Ответ оператора в
 существующем dayGuidance может содержать только clarification:
 clarified/ask-child/ask-parent; закрытое обоснование остаётся в operator job.
+
+### Адресный диалог вопроса теста
+
+quizStepReplies/{quizToken}/items/{questionId} — текущий собственный микроответ;
+requests/{eventId} — его неизменяемая атомарная история. quizStepGuidance/{quizToken}/items/help-{eventId}
+— только операторский отклик. Владелец берётся из assignments, ученик семьи пишет
+только точный публичный шаг, родитель читает. Ни assignments.answers, ни reviews
+этот путь не изменяет. [Общий протокол](../design/student-review-step.md#quiz-dialogue).

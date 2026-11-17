@@ -1,0 +1,17 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
+/** @see ../../docs/shared/design/student-review-step.md#quiz-dialogue */
+import {useCallback,useEffect,useState} from 'react'
+import QuizResultCard from './QuizResultCard'
+import {sendQuizReviewReply,watchQuizReplyHistory,watchQuizStepGuidance} from '@/lib/quizReviewConversation'
+import type {DayGuidance} from '@/lib/dayGuidance'
+import type {QuestionResult} from '@/lib/quiz'
+import type {ReviewConversationBinding} from './ReviewConversation'
+export default function QuizResultConversation({result,index,parent=false,token,submittedAt}:{result:QuestionResult;index:number;parent?:boolean;token?:string;submittedAt?:unknown}){
+ const [guidance,setGuidance]=useState<DayGuidance[]>([]),[ready,setReady]=useState(false),[readError,setReadError]=useState(false)
+ const active=Boolean(token&&!result.excluded&&!result.skipped&&result.points!==null&&result.points<result.question.points&&result.guidance?.question&&result.guidance.presentation?.activity)
+ const questionId=result.question.id
+ useEffect(()=>{if(!active)return;return watchQuizStepGuidance(token!,questionId,items=>{setGuidance(items);setReady(true);setReadError(false)},()=>{setReady(false);setReadError(true)})},[active,token,questionId])
+ const loadHistory=useCallback<ReviewConversationBinding['loadHistory']>((change,error)=>watchQuizReplyHistory(token!,questionId,change,error),[token,questionId])
+ const binding=active?{canReply:!parent,ready,guidance,loadHistory,send:(...args:Parameters<ReviewConversationBinding['send']>)=>sendQuizReviewReply(token!,questionId,...args)}:undefined
+ return <>{readError&&<p role="alert">Не удалось загрузить отклики. Обнови страницу перед отправкой.</p>}<QuizResultCard result={result} index={index} parent={parent} submittedAt={submittedAt} conversation={binding}/></>
+}

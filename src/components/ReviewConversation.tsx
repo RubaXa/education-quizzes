@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/shared/design/student-review-step.md */
 import {useEffect,useEffectEvent,useRef,useState,type ReactNode} from 'react'
@@ -11,7 +12,7 @@ export type ReviewConversationBinding={canReply:boolean;ready:boolean;help?:DayH
 const requestTime=(h:DayHelp)=>{const t=h.requestedAt as {seconds?:number;nanoseconds?:number};return (t?.seconds??0)*1000+(t?.nanoseconds??0)/1e6}
 const labels={correct:'Шаг получился',partial:'Почти получилось',retry:'Проверь ещё раз',stuck:'Попробуем проще',clarify:'Уточним мысль'}
 /** A persisted, causal dialogue. Only the checked response chooses the next step. */
-export default function ReviewConversation({data,review,binding,parent,children}:{data:ReviewBriefData;review:DayWorkReview;binding?:ReviewConversationBinding;parent:boolean;children?:ReactNode}){
+export default function ReviewConversation({data,review,binding,parent,children,context:sourceContext}:{data:ReviewBriefData;review:DayWorkReview;binding?:ReviewConversationBinding;parent:boolean;children?:ReactNode;context?:ReactNode}){
  const [history,setHistory]=useState<DayHelp[]>([]),[loaded,setLoaded]=useState(false),[readError,setReadError]=useState(false)
  const [sending,setSending]=useState(false),[error,setError]=useState(''),[local,setLocal]=useState<DayHelp>(),[note,setNote]=useState('')
  const article=useRef<HTMLElement>(null),wasWaiting=useRef(false)
@@ -35,9 +36,9 @@ export default function ReviewConversation({data,review,binding,parent,children}
   const response=responses.find(g=>g.sourceRequestEventId===request.eventReceiptId)
   if(!response){pending=request;break}
   last=response;sourceId=response.id
-  if(response.reviewResponse?.complete){current={id:sourceId,label:labels[response.reviewResponse.outcome],status:'neutral'};break}
+  if(response.reviewResponse?.complete){current={prompt:data.prompt,response:data.response,meta:data.meta,id:sourceId,label:labels[response.reviewResponse.outcome],status:'neutral'};break}
   const f=response.reviewResponse!.next!
-  current={id:sourceId,label:f.title,status:'neutral',confirmed:f.confirmed,focus:f.focus,bridge:f.bridge,question:f.question,activity:f.presentation.activity,visual:f.presentation.visual,details:f.presentation.details}
+  current={prompt:data.prompt,response:data.response,meta:data.meta,id:sourceId,label:f.title,status:'neutral',confirmed:f.confirmed,focus:f.focus,bridge:f.bridge,question:f.question,activity:f.presentation.activity,visual:f.presentation.visual,details:f.presentation.details}
  }
  async function send(intent:'answer'|'stuck',value:ReviewValue,text:string){
   if(parent||!binding?.canReply||!binding.ready||!loaded||readError||sending||!current.activity||!current.question)return
@@ -53,7 +54,7 @@ export default function ReviewConversation({data,review,binding,parent,children}
  const waiting=Boolean(busy),responseId=last?.id
  useEffect(()=>{if(wasWaiting.current&&!waiting&&responseId)article.current?.querySelector<HTMLElement>('.edu-review-question,.edu-step-feedback')?.focus();wasWaiting.current=waiting},[waiting,responseId])
  const action=!parent&&active&&binding?.canReply&&binding.ready&&loaded&&!readError&&!busy&&!last?.reviewResponse?.complete?{sending,send,error}:undefined
- return <ReviewBrief readOnly={parent} articleRef={article} data={busy?{...current,activity:undefined,question:undefined,focus:undefined,bridge:undefined,visual:undefined,details:undefined}:current} reply={action} context={feedback?<div tabIndex={-1} className="edu-step-feedback" role="status"><strong>{labels[feedback.outcome]}</strong><p>{feedback.message}</p></div>:undefined}>
+ return <ReviewBrief readOnly={parent} articleRef={article} data={busy?{...current,activity:undefined,question:undefined,focus:undefined,bridge:undefined,visual:undefined,details:undefined}:current} reply={action} context={<>{sourceContext}{feedback?<div tabIndex={-1} className="edu-step-feedback" role="status"><strong>{labels[feedback.outcome]}</strong><p>{feedback.message}</p></div>:undefined}</>}>
   {parent&&!busy&&requests.at(-1)&&<div className="edu-step-child-reply"><strong>Ответ ребёнка</strong><p>{describeValue(requests.at(-1)!.reviewReply!)}</p>{requests.at(-1)!.requestText&&<p>{requests.at(-1)!.requestText}</p>}</div>}
   {busy&&pending&&<div className="edu-step-wait" role="status"><strong>{pending.reviewReply?.intent==='stuck'?'Вопрос отправлен':'Ответ отправлен'}</strong><p>{pending.reviewReply?.intent==='stuck'?'Помогу разобраться с этим шагом. Ответ появится здесь после проверки.':'Проверю твою мысль. Следующий шаг появится здесь после проверки.'}</p>
     <details><summary>Что отправлено</summary><p>{pending.reviewReply?.step.question}</p><p>{describeValue(pending.reviewReply!)}</p>{pending.requestText&&<p>{pending.requestText}</p>}</details>

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 import type {ResultInput} from './resultPresentation'
 import type { Assignment, QuestionResult } from './quiz'
@@ -10,7 +11,7 @@ export type QuizCardAttempt = {
   token: string; testId: string; linkedToTestId?: string | null; title: string; description?: string;
   slug: string; previewToken?: string; status: Assignment['status']; answered: number; total: number;
   points?: number; maxPoints?: number;
-  /** Already graded under the same access policy as the full result; no row subscriptions. */
+  /** Already graded under the same access policy as the full result; micro-dialogue subscribes only in an expanded error card. */
   results?: QuestionResult[];
   createdAt?: unknown; startedAt?: unknown; updatedAt?: unknown; submittedAt?: unknown;
   followupRequested?: boolean;
