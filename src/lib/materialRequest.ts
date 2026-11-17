@@ -3,7 +3,8 @@
  * @see ../../docs/modules/materials/material-clarification.md */
 import {materialRequestPresentationErrors} from '../../packages/education-presentation/task-presentation.mjs'
 export type MaterialRequest = {
-  id: string; state: 'open' | 'resolved'; question: string; photoPrompt: string;
+  id: string; state: 'open' | 'resolved' | 'superseded'; question: string; photoPrompt: string;
+  supersededReason?: string;
   resolvedTopic?: string; uploadIds?: string[];
   presentation?: import('../../packages/education-presentation/task-presentation.mjs').MaterialRequestPresentation;
 }
@@ -12,17 +13,18 @@ export type SourceAnalysis = {
   limitation: string; nextStep: string;
   evidence: { uploadId: string; location: string; text: string }[];
 }
-type RequestTask = { learnerFlow?: { scope?: string; source?: { pageId?: string } }; materialRequest?: MaterialRequest; testToken?: string; assessmentIntent?: { state: string } }
+type RequestTask = { learnerFlow?: { scope?: string; source?: { pageId?: string } }; materialRequest?: MaterialRequest; testToken?: string; assessmentIntent?: { state: string;mode?:string } }
 type SourceReview = { workScope?: { kind: string; requestId: string; sourceRef: string; scope: string; observedContent: string }; purpose?: string; sourceAnalysis?: SourceAnalysis; status?: unknown; workCoverage?: unknown; assessmentBasis?: unknown; uploadIds?: string[] }
 const text = (value: unknown): value is string => typeof value === 'string' && value.trim().length >= 8
 export function materialRequestErrors(task: RequestTask): string[] {
   const r = task.materialRequest
   if (!r) return []
-  if (!/^[a-z0-9-]{3,64}$/.test(r.id) || !['open','resolved'].includes(r.state)
+  if (!/^[a-z0-9-]{3,64}$/.test(r.id) || !['open','resolved','superseded'].includes(r.state)
     || !text(r.question) || !text(r.photoPrompt)) return ['Запрос материала требует ID, вопрос, вид снимка и состояние.']
   if (r.state === 'open' && task.testToken) return ['До привязки теста разрешите запрос материала и сохраните источники.']
   if (r.state === 'open' && !['needs-topic','needs-review'].includes(task.assessmentIntent?.state ?? '')) return ['Открытый запрос материала требует незавершённого уточнения задания.']
   if (r.state === 'resolved' && (!r.resolvedTopic?.trim() || !r.uploadIds?.length)) return ['Разрешённый запрос должен сохранить тему и исходные снимки.']
+  if(r.state==='superseded'&&(!r.supersededReason?.trim()||r.supersededReason.trim().length<20||!task.testToken||task.assessmentIntent?.state!=='confirmed'||task.assessmentIntent.mode!=='control-diagnostic'))return ['Замена ожидания точного варианта требует опубликованную подготовку к контрольной по проверенному курсу и причину.']
   if(r.presentation)return materialRequestPresentationErrors(r)
   return []
 }

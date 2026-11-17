@@ -5,6 +5,14 @@ const task = { assessmentIntent:{state:'needs-topic'}, materialRequest:{id:'note
 const analysis = {requestId:'notes-1',topic:'Баллада',observed:'Виден заголовок и три определения.',quality:'Определения читаются, правый край обрезан.',limitation:'По снимку неизвестно, насколько самостоятельно сделаны записи.',nextStep:'Уточним последний пример по целой строке.',evidence:[{uploadId:'photo-1',location:'Верхняя часть страницы',text:'Заголовок «Баллада» и записи ниже.'}]}
 /** @see ../../docs/modules/materials/material-clarification.md */
 describe('a source request is separate from completion',()=>{
+  it('preserves an unavailable exact control variant as superseded when verified course preparation is published',()=>{
+    const prepared={assessmentIntent:{state:'confirmed',mode:'control-diagnostic'},testToken:'published-control-quiz',materialRequest:{...task.materialRequest,state:'superseded' as const,supersededReason:'Точный вариант не получен; подготовка по подтверждённому курсу опубликована.'}}
+    expect(materialRequestErrors(prepared)).toEqual([])
+    expect(materialRequestView(prepared,[])).toBeUndefined()
+    expect(materialRequestErrors({...prepared,testToken:undefined})).not.toEqual([])
+    expect(materialRequestErrors({...prepared,assessmentIntent:{state:'confirmed',mode:'ordinary'}})).not.toEqual([])
+    expect(materialRequestErrors({...prepared,materialRequest:{...prepared.materialRequest,supersededReason:''}})).not.toEqual([])
+  })
   it('validates a request and never invents a topic from the MESH pointer',()=>{
     expect(materialRequestErrors(task)).toEqual([])
     expect(materialRequestView(task,[])?.phase).toBe('waiting')

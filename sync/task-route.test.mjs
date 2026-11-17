@@ -8,6 +8,11 @@ const ready = { id: 'mesh-456', meshText: 'Упр.4 письменно', kind: '
   instructionStatus: { state: 'reviewed' }, materialStatus: { state: 'textbook-page-linked' } }
 
 describe('deterministic task route from existing source state', () => {
+  it('keeps a superseded exact-variant request out of the material queue without claiming it arrived',()=>{
+    const task={id:'control',kind:'check',meshText:'Самостоятельная работа',testToken:'prepared',materialStatus:{state:'teacher-attachment-needed'},assessmentIntent:{state:'confirmed',mode:'control-diagnostic'},materialRequest:{id:'missing-variant',state:'superseded',question:'Точный вариант учителя не получен.',photoPrompt:'Ранее ожидался назначенный учителем файл.',supersededReason:'Теперь подготовка по проверенному курсу опубликована, точного варианта по-прежнему нет.'}}
+    expect(taskRoute(task,'math').next).toBe('existing-assessment')
+    expect(taskRouteCandidates(task)).toEqual([])
+  })
   it.each([undefined, 'home', 'competition'])('reviews home practice even when the printed source has a future deadline (%s)', practiceMode => {
     const task = { ...ready, practiceMode, competitionUntil: '2026-11-05T23:59:59.000Z' }
     expect(taskRoute(task, 'math').next).toBe('prepare-written-guidance')
