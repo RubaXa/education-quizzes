@@ -1414,3 +1414,7 @@
 | [src/components/MaterialRequest.css](../src/components/MaterialRequest.css) | [Контракт](modules/materials/material-clarification.md) | Общая читаемая группировка найденного и недостающего | MaterialRequest |
 | [src/components/MaterialRequest.test.tsx](../src/components/MaterialRequest.test.tsx) | [Контракт](modules/materials/material-clarification.md) | Обе роли и полученное фото без повторной просьбы | Vitest |
 | [docs/decisions/assignment-source-audit-corrections-2026-11-16.md](../docs/decisions/assignment-source-audit-corrections-2026-11-16.md) | [Контроль изменений](product/ui-change-control.md) | Основание и проверки авторской коррекции объёма и квитанции внешнего результата | Оператор; родитель; общий UI Kit |
+
+| [storage/guidance-correction.mjs](../storage/guidance-correction.mjs) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Адресные export/CAS/замена публичного hint и закрытый полный архив, без новой попытки | day CLI; оператор |
+| [storage/guidance-correction.test.mjs](../storage/guidance-correction.test.mjs) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Владельцы, полнота предыдущей помощи, TaskGuidance, приватный архив и повторный publish | Vitest |
+| [docs/decisions/stale-guidance-safety-correction-2026-11-17.md](decisions/stale-guidance-safety-correction-2026-11-17.md) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Основание и границы адресного исправления устаревшего ответа | day CLI; оператор |

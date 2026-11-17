@@ -1981,21 +1981,18 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "26f311c27187f436001312fa552b632529ee00889054e3938bd3c4f420782485",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "0511051136487d35aabb9599d4f989382be639be495a495cf627bbf479266db9",
+      "record": "docs/decisions/stale-guidance-safety-correction-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/mixed-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "storage/guidance-correction.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
+        "evidence": "Прямой запрос родителя и production readback17.11.2026: исправить ранее открытый ответ на текущий вопрос, сохранив полный закрытый guide, события и прежние попытки штатным адресным CLI."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -8507,6 +8504,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+      }
+    },
+    "storage/guidance-correction.mjs": {
+      "sha256": "4f2ae818ef1b3536d0949093c7c5d535be48cb05b7d2d217e128803c450c9dd3",
+      "record": "docs/decisions/stale-guidance-safety-correction-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/subject-aware-guidance.md",
+        "docs/shared/design/student-review-step.md"
+      ],
+      "tests": [
+        "storage/guidance-correction.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос родителя и production readback17.11.2026: исправить ранее открытый ответ на текущий вопрос, сохранив полный закрытый guide, события и прежние попытки штатным адресным CLI."
       }
     }
   }

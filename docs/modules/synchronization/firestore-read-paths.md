@@ -24,6 +24,15 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+17.11, guidance-export/correct: только явно названные studentToken/taskId. По одному
+get owner/page/закрытый guide/privateReview/publicReview, плюс where(taskId) limit100
+в dayGuidance; при достижении100 — отказ от частичного экспорта. Apply читает те же
+документы и query внутри транзакции; readback повторяет тот же ограниченный набор.
+Это операторская разовая коррекция, без collectionGroup, всех дней, polling, новых
+клиентских подписок и чтения других задач. Полный CAS включает прежний закрытый
+record, текущий вопрос и manifest всех событий задачи. [Контракт](../reviews/subject-aware-guidance.md#guidance-correction).
+
+
 16.11, `quiz scope-export/scope-correct`: только явный token и связанное текущее
 назначение. `assessment/quiz-author-scope.mjs` адресно читает assignment/key/public
 review/private, затем ровно два известных ролевых index и их boardheaders,
