@@ -4440,21 +4440,19 @@
       }
     },
     "src/lib/materialRequest.ts": {
-      "sha256": "081246cb5573c65f3bd119ffe1477ea1606a45887ceac21c2dbfaabf83d998c7",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "99d1ec1f2fe563618135d1987aec3750770f892f19cd7c29720bb1b5e5ea3d01",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/assignments/deadline-control.md",
         "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "src/lib/materialRequest.test.ts",
+        "sync/task-route.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель17.11 требует подготовку за три дня даже без точного варианта. Прежний запрос сохраняется как заменённый подготовкой по курсу; получение отсутствующего файла не выдумывается."
       }
     },
     "src/lib/networkRetry.ts": {
@@ -6143,23 +6141,19 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "6c41f103c95c5895fdc1a2c4c4b31dff8f712dd0178a34dba07480f4ce593eda",
+      "sha256": "ac8f640017ea101028afdf11733a98a29f662cc32938d0ae67a0d3d5c635f9e3",
       "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
         "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/materials/material-clarification.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/lib/materialRequest.test.ts",
+        "sync/task-route.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Родитель17.11 требует подготовку за три дня даже без точного варианта. Прежний запрос сохраняется как заменённый подготовкой по курсу; получение отсутствующего файла не выдумывается."
       }
     },
     "operator/route-plan.mjs": {

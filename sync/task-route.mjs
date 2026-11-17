@@ -26,6 +26,7 @@ const adapters = {
   geography: 'subject-aware-guidance:map-and-source', biology: 'subject-aware-guidance:structure-function',
 }
 export function missingTaskMaterial(task) {
+  if(task?.materialRequest?.state==='superseded'&&!materialRequestErrors(task).length)return false
   if (task?.instructionStatus?.state === 'reviewed' && task.materialRequest?.state === 'resolved'
     && materialRequestErrors(task).length === 0) return false
   return ['textbook-page-needed', 'teacher-attachment-needed'].includes(task?.materialStatus?.state)
