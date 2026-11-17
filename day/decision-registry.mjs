@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import {subjectDecisionProfiles} from '../sync/subject-decisions.mjs'
@@ -14,6 +15,7 @@ export const decisionNodes=[
  node('source.parent','Контекст родителя','agent','docs/modules/synchronization/subject-decision-graph.md#inputs'),
  node('source.identity','Владелец и ревизия','code','docs/shared/data/firestore.md'),
  node('source.criteria','Полные условия и критерии','agent+gate','docs/modules/reviews/criteria-and-knowledge.md#criteria'),
+ node('learner.recurrence','Повторная ошибка и адресная тренировка','agent+gate','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  node('learner.evidence','Свидетельства навыков','code','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  node('source.obligation','Какое действие прямо назначено?','agent+gate','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  node('source.context','Служебные сведения без учебной обязанности','code','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
@@ -38,6 +40,8 @@ export const decisionEdges=[
  edge('criteria:choose','source.criteria','source.obligation','Отделить назначение от служебных сведений','docs/modules/synchronization/subject-decision-graph.md#subjects'),
  edge('obligation:choose','source.obligation','subject.choose','Есть прямое назначение: выбрать действие','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  edge('obligation:context','source.obligation','source.context','Только счётчик или метаданные: не создавать долг','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
+ edge('evidence:recurrence','learner.evidence','learner.recurrence','Сопоставить подтверждённые ошибки разных работ','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
+ edge('recurrence:prepare','learner.recurrence','artifact.prepare','Новая самостоятельная тренировка и критерии','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  edge('evidence:choose','learner.evidence','subject.choose','Учесть прежние результаты и помощь','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  ...Object.values(subjectDecisionProfiles).flatMap(p=>p.rules.flatMap(r=>[edge(r.edgeIds[0],'subject.choose',r.nodeId,r.when,r.specRef),edge(r.edgeIds[1],r.nodeId,'artifact.prepare',r.product,r.specRef)])),
  edge('component:context','view.component','learner.context','Получить ответ или уточнение','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
@@ -62,6 +66,7 @@ const productContractIds=[...new Set(rules.map(rule=>presentationContractForRule
 const technicalNotes={
  'source.context':'Отдельной семейной карточки нет. Учебного долга нет. Счётчик материалов помогает оператору найти источник, но не требует от ребёнка выполнения или загрузки результата.',
  'source.identity':'Отдельной семейной карточки нет. Сопоставление определяет, к какому назначению относятся оригинал и работа.',
+ 'learner.recurrence':'Отдельной семейной карточки нет. Агент объясняет повторение родителю и готовит обычный адресный тест по двум источникам; создание не доказывает освоение.',
  'learner.evidence':'Отдельной семейной карточки нет. Подтверждённые результаты влияют на следующий вопрос и объём помощи.',
  publish:'Отдельной семейной карточки нет. Результат виден в опубликованной карточке обеих ролей после обратного чтения.',
  knowledge:'Отдельной семейной карточки нет. Новое наблюдение сохраняется отдельно от зачёта и учитывается при следующей подготовке.',
@@ -77,13 +82,13 @@ function bind(item,rule,scope,technicalNote){
 }
 const commonNodeScopes={
  'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source','source.obligation':'source','source.context':'source',
- 'learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
+ 'learner.recurrence':'context','learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
  'view.parent-review':'parent-review','view.student-support':'student-support',
  'learner.context':'clarification','family.requirement':'clarification','review.support':'result',publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
- 'criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
+ 'evidence:recurrence':'result','recurrence:prepare':'context','criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
  'component:context':'clarification','family:component':'clarification','context:clarification':'clarification','clarification:family':'clarification','review:support':'result','support:component':'result','view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
 }
 /** New common graph elements require an explicit binding, never an inferred generic card. */

@@ -214,9 +214,8 @@
 |---|---|---|---|
 | [src/lib/taskUploadPresentation.ts](../src/lib/taskUploadPresentation.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отдельные владение галереей, педагогические свидетельства и ссылки | День; выходные; LinkedWorkPhotos |
 | [src/lib/taskUploadPresentation.test.ts](../src/lib/taskUploadPresentation.test.ts) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Legacy, классификация, неизменность места, источник | Vitest |
-| [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Просмотр ссылок на решения и доступное время исходного фото | День; выходные; UI Kit |
-| [src/components/LinkedWorkPhotos.css](../src/components/LinkedWorkPhotos.css) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Компактная ссылка и время раскрытого фото | LinkedWorkPhotos |
-| [src/components/LinkedWorkPhotos.test.tsx](../src/components/LinkedWorkPhotos.test.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отложенный просмотр, accessible timestamp, отсутствие управления исходником | Vitest |
+| [src/components/LinkedWorkPhotos.tsx](../src/components/LinkedWorkPhotos.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Адаптер покрытия к общей галерее миниатюр и времени исходника | День; выходные; UI Kit |
+| [src/components/LinkedWorkPhotos.test.tsx](../src/components/LinkedWorkPhotos.test.tsx) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Общий просмотр миниатюр, accessible timestamp, отсутствие управления исходником | Vitest |
 | [docs/decisions/upload-origin-links-2026-10-18.md](decisions/upload-origin-links-2026-10-18.md) | [Место загрузки и покрытие](modules/materials/storage-privacy.md) | Отмена размножения галерей и сохранение coverage | Разработчик |
 
 | Файл | Спецификация | Назначение | Потребитель |
@@ -1208,7 +1207,7 @@
 | [src/components/PhotoUploadControl.css](../src/components/PhotoUploadControl.css) | [Контракт](shared/design/components.md) | Существующие стили загрузки принадлежат общему контролу | Education; разработчик |
 | [src/components/WorkAttachmentThumbnail.tsx](../src/components/WorkAttachmentThumbnail.tsx) | [Контракт](shared/design/components.md) | Общая кнопка миниатюры,выбора и соседнего компактного удаления | Education; разработчик |
 | [src/components/WorkAttachmentThumbnail.css](../src/components/WorkAttachmentThumbnail.css) | [Контракт](shared/design/components.md) | Согласованные размеры и состояния интерактивной миниатюры | Education; разработчик |
-| [src/components/TaskWorkEvidence.tsx](../src/components/TaskWorkEvidence.tsx) | [Контракт](shared/design/components.md) | Общий состав собственных вложений и связанных ссылок с явным layout | Education; разработчик |
+| [src/components/TaskWorkEvidence.tsx](../src/components/TaskWorkEvidence.tsx) | [Контракт](shared/design/components.md) | Одна галерея собственных и связанных вложений с явным layout | Education; разработчик |
 | [src/components/TaskWorkEvidence.test.tsx](../src/components/TaskWorkEvidence.test.tsx) | [Контракт](shared/design/components.md) | Действия двух вариантов,выбор и точное удаление | Education; разработчик |
 | [src/ui-kit/TaskAttachmentsExample.tsx](../src/ui-kit/TaskAttachmentsExample.tsx) | [Контракт](shared/design/ui-kit.md) | Действующие композиции дня/выходного листа на локальных данных | Education; разработчик |
 | [e2e/task-attachments.e2e.ts](../e2e/task-attachments.e2e.ts) | [Контракт](shared/design/ui-kit.md) | Сравнение реальных контролов,ролей,геометрии и действий | Education; разработчик |
@@ -1456,3 +1455,5 @@
 | [scripts/quiz-parent-review.mjs](../scripts/quiz-parent-review.mjs) | [Полный родительский разбор](modules/reviews/parent-review.md) | Раздельные продукты родителя и ученика; адресная публикация и проверка | Родитель; ученик; оператор; UI Kit |
 
 | [docs/decisions/restore-parent-route-2026-11-17.md](decisions/restore-parent-route-2026-11-17.md) | [Родительский путь](modules/reviews/parent-review.md) | Коррекция преемственности канонического компонента и восстановления сессии МЭШ | Родитель; оператор |
+
+| [docs/decisions/canonical-evidence-and-learning-2026-11-17.md](decisions/canonical-evidence-and-learning-2026-11-17.md) | [Компоненты](shared/design/components.md) | Коррекция ссылки на фото и дублирования номера | Разработчик; Education |

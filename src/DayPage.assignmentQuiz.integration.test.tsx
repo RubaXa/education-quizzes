@@ -231,7 +231,7 @@ it.each([false, true])('shows an exact non-action MESH notice without an empty c
   } finally { await view.cleanup() }
 })
 
-it.each([false, true])('keeps the file at its upload origin and shows only references elsewhere, parent=%s', async (parent) => {
+it.each([false, true])('keeps the file at its upload origin and shows the same thumbnails elsewhere, parent=%s', async (parent) => {
   const view = await renderPage(parent)
   try {
     await act(async () => view.host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
@@ -243,10 +243,10 @@ it.each([false, true])('keeps the file at its upload origin and shows only refer
     expect(origin.querySelector('.day-upload-expanded')).toBeNull()
     for (const id of firstProblemIds.slice(1)) {
       const other = view.host.querySelector<HTMLElement>(`#${id}`)!
-      expect(other.querySelector('.day-upload-list')).toBeNull()
-      expect(other.querySelector('.linked-work-photos')?.textContent).toContain('Марки Ивана')
-      expect(other.querySelector('.linked-work-photos .education-image')).toBeNull()
-      expect(other.querySelector('.linked-work-photos .day-upload-delete')).toBeNull()
+      expect(other.querySelector('.day-upload-list')).not.toBeNull()
+      expect(other.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+      expect(other.querySelector('.day-upload-strip .education-image')).not.toBeNull()
+      expect(other.querySelector('.day-upload-delete')).toBeNull()
     }
     expect(view.host.querySelector('.problem-group-toggle')?.getAttribute('aria-label')).toContain('5 из 5')
   } finally { await view.cleanup() }
@@ -262,8 +262,8 @@ it.each([false, true])('keeps ordinary task galleries separate when one photo pr
     const origin = view.host.querySelector('#day-task-origin')!
     const other = view.host.querySelector('#day-task-other')!
     expect(origin.querySelectorAll('.day-upload-chip')).toHaveLength(1)
-    expect(other.querySelector('.day-upload-list')).toBeNull()
-    expect(other.querySelector('.linked-work-photos')?.textContent).toContain('Запись в тетради')
+    expect(other.querySelector('.day-upload-list')).not.toBeNull()
+    expect(other.querySelectorAll('.day-upload-chip')).toHaveLength(1)
     expect(other.textContent).toContain('Готово')
   } finally { await view.cleanup() }
 })

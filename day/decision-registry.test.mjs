@@ -63,3 +63,9 @@ it('splits the role into a complete parent product and a safe learner product wi
  expect(decisionEdges.some(e=>e.from==='view.role'&&e.to==='view.component')).toBe(false)
  for(const id of ['role:parent','role:student','parent:component','student:component'])expect(decisionPresentationBinding(id,'literature.reading')).toBeDefined()
 })
+
+it('keeps the recurrent-error transition explicit and bound to existing presentation',()=>{
+ expect(decisionNodes.find(n=>n.id==='learner.recurrence')?.actor).toBe('agent+gate')
+ expect(decisionEdges.find(e=>e.id==='evidence:recurrence')?.from).toBe('learner.evidence')
+ expect(decisionEdges.find(e=>e.id==='recurrence:prepare')?.to).toBe('artifact.prepare')
+})

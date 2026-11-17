@@ -2664,30 +2664,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "a28ba2c1ea57ed68db377b27b2511c6e3d07a37910ee46398d8263a5be9fab1c",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "bcfbcffa201bf4d385258a538ffa99e8ff28659914b7753a64cd6054e426c046",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/UiKit.css": {
@@ -2711,21 +2702,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "280a5568cb26a03dc442130e6125022605d0e158ec0da3968aafb138442a2068",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "25d98b823ff0ac7e3142284ed298e6a27a2ac6046c40b9349c1029fd18b4da93",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/UiKit.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3161,43 +3152,22 @@
         "evidence": "Прямой запрос родителя14.11: поздравление и праздничное оформление Education в день рождения, без выдуманного возраста."
       }
     },
-    "src/components/LinkedWorkPhotos.css": {
-      "sha256": "81054ffbfaf0c6f50db0415ff288edf0b252a21560062e7a23b0bef7811a9014",
-      "record": "docs/decisions/upload-photo-timestamp-2026-10-21.md",
+    "src/components/LinkedWorkPhotos.tsx": {
+      "sha256": "c00c6986ef45f0bfcc355ea4de319af9225942496ef606fdc0255f9f59254c19",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
+        "docs/modules/materials/storage-privacy.md",
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/lib/uploadTimestamp.test.ts",
-        "src/components/WorkPhotoGallery.test.tsx",
         "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 21.10.2026: показывать время загрузки каждой фотографии ребёнка в подсказке и доступном названии."
-      }
-    },
-    "src/components/LinkedWorkPhotos.tsx": {
-      "sha256": "7d91d94a5b15eb288ec252aa683e408af0be84688eb54d2ced61aa554580a7d4",
-      "record": "docs/decisions/solution-file-uploads-2026-10-31.md",
-      "specs": [
-        "docs/shared/media-storage.md",
-        "docs/modules/materials/storage-privacy.md"
-      ],
-      "tests": [
-        "storage/direct-upload.test.mjs",
-        "storage/work-file-types.test.mjs",
-        "storage/work-file-validation.test.mjs",
-        "src/components/SolutionFiles.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/lib/educationEventProducers.test.ts",
-        "scripts/firestore-rules-photo-upload-suite.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямой запрос31.10.2026: принимать PDF, DOCX, Excel, текстовые и другие файлы решений, показывать соответствующую иконку и действие «Загрузить решение»."
+        "evidence": "Прямой запрос17.11: все фото показывать одним существующим блоком миниатюр, убрать дубли номеров и сохранить управление только у исходной загрузки."
       }
     },
     "src/components/MaterialReader.tsx": {
@@ -3415,23 +3385,21 @@
       }
     },
     "src/components/ProblemCard.tsx": {
-      "sha256": "496c8d74e0482363df1e27af32bb1b29fb4c3d05cd074146184ed6a75c0f31fb",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "594832c10cdeb7d49cb6bfccbceda0030b849e1626c315ec9c7060622f050ae3",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/components/ProblemGroup.css": {
@@ -3865,21 +3833,21 @@
       }
     },
     "src/components/WorkPhotoGallery.tsx": {
-      "sha256": "04b3bed63f1680c075164e296290934acf95c6ba4724514294efcd814759cee9",
-      "record": "docs/decisions/photo-auth-resume-2026-11-08.md",
+      "sha256": "bf5af247b975f1e1cbc279f58f30a11551d63f6fa070bcc238b78e7238167c80",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/services/upload-worker/README.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/lib/photoOutbox.browser.integration.test.ts",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "storage/photo-transfer-recovery.test.mjs"
+        "src/components/LinkedWorkPhotos.test.tsx",
+        "src/components/TaskWorkEvidence.test.tsx",
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель08.11.2026 прямо потребовал устранить зависание фото246 и не заменять исправление повторными просьбами загрузить фото."
+        "evidence": "Прямой запрос17.11: все фото показывать одним существующим блоком миниатюр, убрать дубли номеров и сохранить управление только у исходной загрузки."
       }
     },
     "src/components/WorkReview.tsx": {
@@ -7042,23 +7010,21 @@
       }
     },
     "src/components/TaskWorkEvidence.tsx": {
-      "sha256": "25fd8537d50a936b68b021f9ff129f7be0393bbc8a777e942051ca4fb76bc05f",
-      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "sha256": "7d0bc3803115f8f5643f3a89a399a28eb65710722c0090849be67ce05db12015",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/materials/storage-privacy.md",
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/components.md"
       ],
       "tests": [
+        "src/components/LinkedWorkPhotos.test.tsx",
         "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/SolutionFiles.test.tsx",
-        "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/components/ProblemCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+        "evidence": "Прямой запрос17.11: все фото показывать одним существующим блоком миниатюр, убрать дубли номеров и сохранить управление только у исходной загрузки."
       }
     },
     "src/ui-kit/TaskAttachmentsExample.tsx": {
@@ -8399,21 +8365,17 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "d7da673e318a26dc7255cedbe76cb4123d2ad63aea0a76ef32e58d419d5daca0",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "9ac60d630db73fe4ba4d620b51dec07b135d8414e5fc63a7362af5bf24e30ae8",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/reviews/criteria-and-knowledge.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {

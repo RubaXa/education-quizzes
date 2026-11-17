@@ -7,6 +7,12 @@ const problem = { id: 'p1', number: 1, title: 'Марки Ивана', detail: '
 
 // @see ../../docs/shared/design/statuses.md#components
 describe('compact problem status', () => {
+  it.each(['№ 1', '№ 1. Марки Ивана'])('does not repeat a number already in title %s', title => {
+    const host = document.createElement('div')
+    host.innerHTML = renderToStaticMarkup(<ProblemCard problem={{ ...problem, title }} state={{ tone: 'ready', label: 'Не начато' }}>Условие</ProblemCard>)
+    expect(host.querySelector('summary strong')?.textContent).toBe(title)
+    expect(host.querySelector('summary')?.getAttribute('aria-label')).not.toContain('№ 1. № 1')
+  })
   it('shows one ready icon without repeating Не начато in every numbered row', () => {
     const host = document.createElement('div')
     host.innerHTML = renderToStaticMarkup(<ProblemCard problem={problem} state={{ tone: 'ready', label: 'Не начато' }}><p>Условие</p></ProblemCard>)

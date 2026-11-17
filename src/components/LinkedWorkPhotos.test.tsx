@@ -7,7 +7,7 @@ import LinkedWorkPhotos from './LinkedWorkPhotos'
 import type { DayUpload } from '@/lib/dayStore'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
-vi.mock('./ArtifactAvatar', () => ({ WorkArtifactImage: ({ upload }: { upload: DayUpload }) => <output data-photo={upload.id}>Исходное фото</output>, WorkUploadTime: () => <time dateTime="2026-10-20T10:03:00.000Z">20 октября 2026, 13:03 МСК</time>, workUploadTimeLabel: () => 'Загружено 20 октября 2026, 13:03 МСК' }))
+vi.mock('./ArtifactAvatar', () => ({ default: ({children}: {children: import('react').ReactNode}) => <span>{children}</span>, WorkArtifactImage: ({ upload }: { upload: DayUpload }) => <output data-photo={upload.id}>Исходное фото</output>, WorkUploadTime: () => <time dateTime="2026-10-20T10:03:00.000Z">20 октября 2026, 13:03 МСК</time>, workUploadTimeLabel: () => 'Загружено 20 октября 2026, 13:03 МСК' }))
 
 describe('source sheet photo reference', () => {
   it('shows only the selected original intake photo without a second upload', async () => {
@@ -16,11 +16,11 @@ describe('source sheet photo reference', () => {
     const unrelated = { id: 'day:photo-one', taskId: 'unrelated', status: 'pending' } as DayUpload
     try {
       await act(async () => root.render(<LinkedWorkPhotos taskId="task" uploads={[upload, unrelated]} pages={[]} source={{ intakeTaskId: 'intake', uploadIds: ['photo-one'] }} />))
-      expect(host.querySelectorAll('button')).toHaveLength(1)
+      expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(1)
       expect(host.textContent).toContain('Фото условия')
       await act(async () => host.querySelector<HTMLButtonElement>('button')!.click())
       expect(host.querySelector('[data-photo]')?.getAttribute('data-photo')).toBe(upload.id)
-      expect(host.textContent).toContain('исходное фото листа')
+      expect(host.textContent).toContain('Фото условия')
       expect(host.querySelector('input')).toBeNull()
     } finally { await act(async () => root.unmount()) }
   })
@@ -33,22 +33,23 @@ describe('read-only photo reference', () => {
     const upload = { id: 'day:photo', taskId: 'p1', coveredTaskIds: ['p1', 'p2'], status: 'reviewed', createdAt: '2026-10-20T10:03:00Z' } as DayUpload
     try {
       await act(async () => root.render(<LinkedWorkPhotos taskId="p2" uploads={[upload]} pages={[]} />))
-      expect(host.textContent).toContain('Фото загружено в «другое задание»')
-      const reference = host.querySelector<HTMLButtonElement>('button')!
+      expect(host.textContent).toContain('Фото работы')
+      expect(host.textContent).not.toContain('Фото загружено в')
+      const reference = host.querySelector<HTMLButtonElement>('.day-upload-chip')!
       expect(reference.title).toContain('Фото 1')
       expect(reference.title).toContain('Проверено')
       expect(reference.title).toContain('20 октября 2026, 13:03 МСК')
       expect(reference.getAttribute('aria-label')).toContain(reference.title)
-      expect(host.querySelector('[data-photo]')).toBeNull()
+      expect(host.querySelector('.day-upload-expanded')).toBeNull()
       expect(host.querySelector('input')).toBeNull()
       await act(async () => reference.click())
       expect(reference.getAttribute('aria-expanded')).toBe('true')
       expect(host.querySelector('[data-photo]')?.getAttribute('data-photo')).toBe(upload.id)
-      expect(host.textContent).toContain('файл остаётся в месте загрузки')
-      expect(host.querySelector('.linked-work-photo-view time')?.textContent).toContain('МСК')
-      expect(host.querySelectorAll('button')).toHaveLength(1)
+      expect(host.querySelector('.day-upload-delete')).toBeNull()
+      expect(host.querySelector('.day-upload-expanded time')?.textContent).toContain('МСК')
+      expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(1)
       await act(async () => reference.click())
-      expect(host.querySelector('[data-photo]')).toBeNull()
+      expect(host.querySelector('.day-upload-expanded')).toBeNull()
       await act(async () => root.render(<LinkedWorkPhotos taskId="p1" uploads={[upload]} pages={[]} />))
       expect(host.querySelector('.linked-work-photos')).toBeNull()
     } finally { await act(async () => root.unmount()) }

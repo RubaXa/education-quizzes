@@ -70,22 +70,22 @@ it('uses the actual work-review and quiz adapters in the shared review catalogue
 })
 
 /** @see ../docs/modules/materials/storage-privacy.md#multi-task-photo */
-it('demonstrates one attachment and read-only references using the real shared component', async () => {
+it('demonstrates one attachment and canonical read-only thumbnails using the real shared component', async () => {
  document.body.append(host);root=createRoot(host);await act(async()=>root!.render(<UiKit/>))
  await act(async()=>[...host.querySelectorAll<HTMLButtonElement>('nav button')].find(button=>button.textContent==='Связанные фото')!.click())
- expect(host.querySelectorAll('.artifact-avatar')).toHaveLength(1)
- expect(host.querySelectorAll('.linked-work-photo-reference')).toHaveLength(2)
+ expect(host.querySelectorAll('.artifact-avatar')).toHaveLength(3)
+ expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(3)
  expect(host.querySelector('.day-upload-chip')?.getAttribute('title')).toContain('20 октября 2026, 13:03 МСК')
- expect(host.querySelectorAll('.linked-work-photo-view')).toHaveLength(0)
+ expect(host.querySelectorAll('.day-upload-expanded')).toHaveLength(0)
  await act(async()=>host.querySelector<HTMLButtonElement>('.day-upload-chip')!.click())
  expect(host.querySelector('.day-upload-expanded img')).not.toBeNull()
  expect(host.querySelector('.day-upload-expanded time')?.textContent).toContain('МСК')
  await act(async()=>host.querySelector<HTMLButtonElement>('[aria-label="Закрыть фото"]')!.click())
  expect(host.querySelector('.day-upload-expanded')).toBeNull()
- await act(async()=>host.querySelector<HTMLButtonElement>('.linked-work-photo-reference')!.click())
- expect(host.querySelectorAll('.linked-work-photo-view')).toHaveLength(1)
- expect(host.querySelector('.linked-work-photo-reference')?.getAttribute('title')).toContain('20 октября 2026, 13:03 МСК')
- expect(host.querySelector('.linked-work-photo-view time')?.textContent).toContain('МСК')
+ await act(async()=>host.querySelectorAll<HTMLButtonElement>('.day-upload-chip')[1].click())
+ expect(host.querySelectorAll('.day-upload-expanded')).toHaveLength(1)
+ expect(host.querySelectorAll('.day-upload-chip')[1]?.getAttribute('title')).toContain('20 октября 2026, 13:03 МСК')
+ expect(host.querySelector('.day-upload-expanded time')?.textContent).toContain('МСК')
  expect(host.querySelector('input[type="file"]')).toBeNull()
 })
 
