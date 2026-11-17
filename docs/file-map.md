@@ -1411,6 +1411,9 @@
 | [storage/task-presentation-edit.mjs](../storage/task-presentation-edit.mjs) | [Контракт](modules/reviews/adaptive-problem-card.md) | Адресная коррекция представления с owner/CAS и readback без смены критериев | Operator CLI |
 | [storage/task-presentation-edit.test.mjs](../storage/task-presentation-edit.test.mjs) | [Контракт](modules/reviews/adaptive-problem-card.md) | Защита владельца, неизменных данных, истории и транзакции | Vitest |
 | [scripts/task-presentation.mjs](../scripts/task-presentation.mjs) | [Контракт](modules/reviews/adaptive-problem-card.md) | Штатный приватный пакет коррекции представления | Education operator |
+| [scripts/review-presentation.mjs](../scripts/review-presentation.mjs) | [Контракт](shared/design/student-review-step.md) | Экспорт и адресная миграция модели ответа без переоценки | Education operator |
+| [storage/review-presentation-edit.mjs](../storage/review-presentation-edit.mjs) | [Контракт](shared/design/student-review-step.md) | CAS и ролевой readback вопроса/activity с сохранением оценки и знаний | Operator CLI |
+| [storage/review-presentation-edit.test.mjs](../storage/review-presentation-edit.test.mjs) | [Контракт](shared/design/student-review-step.md) | Защита источника, попытки, принятых частей и конкурирующих ответов | Vitest |
 | [src/components/MaterialRequest.css](../src/components/MaterialRequest.css) | [Контракт](modules/materials/material-clarification.md) | Общая читаемая группировка найденного и недостающего | MaterialRequest |
 | [src/components/MaterialRequest.test.tsx](../src/components/MaterialRequest.test.tsx) | [Контракт](modules/materials/material-clarification.md) | Обе роли и полученное фото без повторной просьбы | Vitest |
 | [docs/decisions/assignment-source-audit-corrections-2026-11-16.md](../docs/decisions/assignment-source-audit-corrections-2026-11-16.md) | [Контроль изменений](product/ui-change-control.md) | Основание и проверки авторской коррекции объёма и квитанции внешнего результата | Оператор; родитель; общий UI Kit |
@@ -1424,6 +1427,7 @@
 | [src/lib/useSubjectRequirementCommand.ts](../src/lib/useSubjectRequirementCommand.ts) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Стабильные ID повторов при выборе обязательности нескольких заданий | Ребёнок; родитель; UI Kit |
 | [src/ui-kit/AssignmentClarificationExample.tsx](../src/ui-kit/AssignmentClarificationExample.tsx) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Настоящий блок уточнения и решения родителя с локальным транспортом | Ребёнок; родитель; UI Kit |
 | [docs/decisions/adaptive-review-modes-2026-11-17.md](decisions/adaptive-review-modes-2026-11-17.md) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Основания, ролевые границы и регрессии общего блока | Разработчик; оператор |
+| [docs/decisions/review-presentation-migration-2026-11-17.md](decisions/review-presentation-migration-2026-11-17.md) | [Миграция прежнего разбора](shared/design/student-review-step.md) | Основание адресной смены модели без переоценки | Разработчик; оператор |
 
 | [day/task-requirement.mjs](../day/task-requirement.mjs) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |
 | [day/task-requirement.d.mts](../day/task-requirement.d.mts) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |

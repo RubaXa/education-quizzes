@@ -8893,6 +8893,36 @@
         "status": "direct-request",
         "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
+    },
+    "scripts/review-presentation.mjs": {
+      "sha256": "0d977f693eb190668011af100d6223ebb11ce432486af84adc8bf8ff6c0f8b3f",
+      "record": "docs/decisions/review-presentation-migration-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/services/operator-cli/README.md"
+      ],
+      "tests": [
+        "storage/review-presentation-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 поручил привести старые разборы текущих заданий к общему блоку по реальным ответам, проверить обе роли и не запрашивать уже присланное."
+      }
+    },
+    "storage/review-presentation-edit.mjs": {
+      "sha256": "d65b778276502b5aa49932a8254741cad73d371db0c979f6ad1cbf21cb7bf679",
+      "record": "docs/decisions/review-presentation-migration-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md",
+        "docs/services/operator-cli/README.md"
+      ],
+      "tests": [
+        "storage/review-presentation-edit.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 поручил привести старые разборы текущих заданий к общему блоку по реальным ответам, проверить обе роли и не запрашивать уже присланное."
+      }
     }
   }
 }

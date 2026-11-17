@@ -3258,6 +3258,37 @@
       "path": "docs/decisions/math-parent-stage-review-2026-10-19.md"
     },
     {
+      "id": "decision.reviews.presentation-migration-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "shared.design.student-review-step",
+      "uses": [
+        "service.operator-cli",
+        "module.reviews.subject-aware-guidance",
+        "shared.data.firestore"
+      ],
+      "consumers": [
+        "Education operator",
+        "student",
+        "parent"
+      ],
+      "code": [
+        "scripts/review-presentation.mjs",
+        "storage/review-presentation-edit.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "границы-и-проверки",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/review-presentation-migration-2026-11-17.md"
+    },
+    {
       "id": "decision.scoped-learner-flow-2026-10-21",
       "type": "decision",
       "status": "accepted",
@@ -8568,6 +8599,13 @@
       "consumer": "`publish-pages.mjs`; `notifications.mjs`"
     },
     {
+      "id": "file:scripts/review-presentation.mjs",
+      "path": "scripts/review-presentation.mjs",
+      "kind": "artifact",
+      "purpose": "Экспорт и адресная миграция модели ответа без переоценки",
+      "consumer": "Education operator"
+    },
+    {
       "id": "file:scripts/route-assignment.mjs",
       "path": "scripts/route-assignment.mjs",
       "kind": "artifact",
@@ -11583,6 +11621,20 @@
       "kind": "verification",
       "purpose": "Проверка явной привязки фото к номерам",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:storage/review-presentation-edit.mjs",
+      "path": "storage/review-presentation-edit.mjs",
+      "kind": "artifact",
+      "purpose": "CAS и ролевой readback вопроса/activity с сохранением оценки и знаний",
+      "consumer": "Operator CLI"
+    },
+    {
+      "id": "file:storage/review-presentation-edit.test.mjs",
+      "path": "storage/review-presentation-edit.test.mjs",
+      "kind": "verification",
+      "purpose": "Защита источника, попытки, принятых частей и конкурирующих ответов",
+      "consumer": "Vitest"
     },
     {
       "id": "file:storage/review-projection.d.mts",
@@ -16240,7 +16292,9 @@
       "code": [
         "src/components/ReviewActivity.tsx",
         "packages/education-presentation/review-activity.mjs",
-        "scripts/student-review.mjs"
+        "scripts/student-review.mjs",
+        "scripts/review-presentation.mjs",
+        "storage/review-presentation-edit.mjs"
       ],
       "sections": [
         "текущий-шаг",
@@ -16249,7 +16303,8 @@
         "миграция-и-проверка",
         "отправка-и-ответ",
         "adaptive-support",
-        "assignment-clarification"
+        "assignment-clarification",
+        "addressed-presentation-migration"
       ],
       "path": "docs/shared/design/student-review-step.md"
     },
@@ -17474,6 +17529,21 @@
     {
       "from": "decision.reviews.math-parent-stage-review",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.reviews.presentation-migration-2026-11-17",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.reviews.presentation-migration-2026-11-17",
+      "to": "service.operator-cli",
+      "type": "uses"
+    },
+    {
+      "from": "decision.reviews.presentation-migration-2026-11-17",
+      "to": "shared.data.firestore",
       "type": "uses"
     },
     {
@@ -20664,6 +20734,16 @@
     {
       "from": "file:scripts/release-note.mjs",
       "to": "module.notifications.inbox",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/review-presentation.mjs",
+      "to": "decision.reviews.presentation-migration-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/review-presentation.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -24229,6 +24309,16 @@
     {
       "from": "file:storage/review-coverage.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-presentation-edit.mjs",
+      "to": "decision.reviews.presentation-migration-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-presentation-edit.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -29253,6 +29343,11 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "decision.reviews.presentation-migration-2026-11-17",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "decision.student-review-reply-2026-11-01",
       "type": "contains"
     },
@@ -29284,6 +29379,11 @@
     {
       "from": "shared.design.student-review-step",
       "to": "file:src/components/SubjectRequirementSwitch.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:storage/review-presentation-edit.test.mjs",
       "type": "verified-by"
     },
     {
