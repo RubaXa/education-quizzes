@@ -2399,20 +2399,21 @@
       }
     },
     "scripts/submissions.mjs": {
-      "sha256": "d37d6dcc0c4ac07494077b0d165d7a49f063546d9da68cc4a9883c525b460225",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "22ca22856bd26ef415f074335476cc1e89fb8c44cb5bc3f9a6453933bd44f9b9",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "scripts/sync-books.mjs": {
@@ -2664,17 +2665,17 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "bcfbcffa201bf4d385258a538ffa99e8ff28659914b7753a64cd6054e426c046",
+      "sha256": "540f05b4cc6451e007a05535f0f5715f7603d1b279c10cb14ed453b56dfdf17a",
       "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/UiKit.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
@@ -2741,20 +2742,21 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "8745b1e3c38c2e789bda601a9eb25bea18e3de9cf9ae5c23f3594da14e1a98e7",
-      "record": "docs/decisions/weekend-self-check-2026-11-14.md",
+      "sha256": "df22818f6c34c9b1f5a0de882fa015c4de2788e52c21cb25cb80af7918f42d79",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель14.11.2026 прямо просит выходную подготовку к понедельничной контрольной по русскому, аналогично спецкурсу. Сохраняются прежние листы, фотографии, зачёты и общие ролевые правила."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -3385,17 +3387,17 @@
       }
     },
     "src/components/ProblemCard.tsx": {
-      "sha256": "594832c10cdeb7d49cb6bfccbceda0030b849e1626c315ec9c7060622f050ae3",
+      "sha256": "88592ecd4be49a5650f8dac874d70f451039c93d939dfa0b784234af163f318f",
       "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/ProblemCard.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
@@ -4754,21 +4756,21 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "66e441b2a94fd86bbff14e7784e7d8a8b0e25854c5e797ca764f86a462b71170",
-      "record": "docs/decisions/photo-auth-resume-2026-11-08.md",
+      "sha256": "f874673f2b736d017b8dcbf5a815125cb3256cb03177cd25df0e2983ef3298a0",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/services/upload-worker/README.md",
-        "docs/modules/materials/storage-privacy.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/photoOutbox.test.tsx",
-        "src/lib/photoOutbox.browser.integration.test.ts",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "storage/photo-transfer-recovery.test.mjs"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель08.11.2026 прямо потребовал устранить зависание фото246 и не заменять исправление повторными просьбами загрузить фото."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/lib/reviewProse.ts": {
@@ -4841,23 +4843,21 @@
       }
     },
     "src/lib/taskUploadPresentation.ts": {
-      "sha256": "7be4c820a02efbc2b2790f989272774e5140fd1f81176cdc778873d9a4393e58",
-      "record": "docs/decisions/upload-origin-links-2026-10-18.md",
+      "sha256": "d5be51d2415e0f54b02ef836719868fd6a847ff32ddcf471c3c4f0624ace79e4",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/materials/storage-privacy.md",
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx",
-        "src/lib/taskUploadPresentation.test.ts",
-        "src/components/LinkedWorkPhotos.test.tsx",
-        "src/UiKit.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 18.10: файл должен оставаться только в месте загрузки; в других заданиях нужны связи на него, без перемешивания элементов загрузки."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/lib/uiErrors.ts": {
@@ -5270,20 +5270,21 @@
       }
     },
     "storage/review-readback.mjs": {
-      "sha256": "59c627c69454fbb312cb32a032c1d20106f6a8883f8d62b40bfef1260c5829cb",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "8116e50088d3bcfce3a81450859892a37fe6655f8238a330e2934a731f12687b",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "storage/review-readback.test.mjs",
+        "scripts/submissions.criteria-workflow.test.mjs",
+        "src/components/ProblemCard.test.tsx",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "storage/review-requirements.mjs": {

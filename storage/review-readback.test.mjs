@@ -64,3 +64,14 @@ describe('personal explanation publication proof', () => {
     expect(() => assertReviewReadback(data)).toThrow('projection')
   })
 })
+
+it('resolves a numbered correction through the same assignment identity after a neighbouring edit',async()=>{
+ const {reviewTarget}=await import('./review-readback.mjs')
+ const parent={id:'mesh-sheet',meshText:'Решить задачи из файла',detail:'Лист учителя',problems:[{id:'p1'},{id:'p4'}]}
+ const page={planRevision:5,subjects:[{tasks:[parent]}]}
+ const target=reviewTarget(page,'p4')
+ expect(target).toEqual({...parent,id:'p4',problems:[{id:'p4'}]})
+ expect(sameReviewAssignmentAfterUpdate(page,{planRevision:4,meshText:parent.meshText},target)).toBe(true)
+ expect(sameReviewAssignmentAfterUpdate(page,{planRevision:4,meshText:'Другое задание'},target)).toBe(false)
+ expect(()=>reviewTarget(page,'missing')).toThrow('Задание отсутствует')
+})

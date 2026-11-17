@@ -20,6 +20,11 @@ sections:
   - проверки
   - согласование
 code:
+  - src/lib/taskUploadPresentation.ts
+  - src/WeekendMathSlot.tsx
+  - src/lib/reviewPresentation.ts
+  - scripts/submissions.mjs
+  - storage/review-readback.mjs
   - src/DayPage.tsx
   - src/UiKit.tsx
   - day/decision-registry.mjs
@@ -49,11 +54,20 @@ LinkedWorkPhotos.tsx только выбирает данные для той ж
 SourceFragment сохранён. ProblemCard.tsx не повторяет уже имеющийся номер.
 Полный ответ родителя и безопасный текущий шаг ребёнка не меняются.
 
+Коррекция после изменения соседнего задания использует тот же адресный reviewTarget
+из storage/review-readback.mjs в scripts/submissions.mjs: исходное назначение,
+критерии, статус и фото всё равно сверяются. Вложенный номер не теряет родителя.
+Общий problemCardHeading в src/lib/reviewPresentation.ts используется в
+src/components/ProblemCard.tsx, src/DayPage.tsx, src/WeekendMathSlot.tsx и
+src/lib/taskUploadPresentation.ts, включая доступные подписи миниатюр.
+
 ## Проверки
 TaskWorkEvidence.test.tsx проверяет смешанный набор, устранение дублей ID,
 просмотр связанного файла и сохранение удаления своего файла в обоих layout.
 LinkedWorkPhotos.test.tsx проверяет источник, кроп и обычную галерею.
 ProblemCard.test.tsx проверяет оба варианта заголовка и прежние статусы.
+storage/review-readback.test.mjs проверяет тот же номер после правки соседа,
+отказ для другого исходного текста и отсутствие неизвестного ID.
 Живой выпуск и обе ролевые проекции проверяются отдельно.
 
 ## Согласование

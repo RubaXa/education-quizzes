@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/known-part-review-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
@@ -30,7 +31,7 @@ import {freezeCriteria,assertCriteriaCoverage,assignmentDigest,assignedCriteriaS
 import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
 import {contextEvidenceErrors,appendContextEvidence} from '../storage/context-evidence.mjs'
 /** @see ../docs/modules/reviews/criteria-and-knowledge.md */
-import { assertReviewReadback, assertContextEvidenceReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
+import { reviewTarget, assertReviewReadback, assertContextEvidenceReadback, sameReviewAssignmentAfterUpdate, reviewCorrectionStatusAllowed } from '../storage/review-readback.mjs'
 import { YandexDiskStorage } from '../storage/yandex-disk.mjs'
 import { notificationId, reviewAttemptKey, stageFamilyNotice, taskContext } from '../storage/inbox-notifications.mjs'
 import { stageReviewPublishedEvents } from '../storage/review-publication-event.mjs'
@@ -202,12 +203,6 @@ function privateReviewFile(filename) {
   return review
 }
 
-function reviewTarget(page,taskId){
- const task=page.subjects?.flatMap(s=>s.tasks??[]).find(t=>t.id===taskId||t.problems?.some(p=>p.id===taskId))
- if(!task)throw Error('Задание отсутствует в текущей странице.')
- const problem=task.problems?.find(p=>p.id===taskId)
- return problem?{...task,id:problem.id,problems:[problem]}:task
-}
 function criteriaSourceRefs(page,taskId){
  return assignedCriteriaSources(page,taskId).sourceRefs
 }
@@ -522,7 +517,7 @@ async function publishFeedbackCorrection(filename) {
   if (matches.length !== 1) throw new Error('Исправление не связано однозначно с одним ребёнком, заданием и набором фото.')
   const { owner, page,pageDoc, progressDoc, privateDoc, photos } = matches[0]
   const previous = privateDoc.data() ?? progressDoc.data()
-  const currentTask = page.subjects?.flatMap(subject => subject.tasks ?? []).find(task => task.id === correction.taskId)
+  const currentTask = reviewTarget(page, correction.taskId)
   const sameAssignmentAfterPageUpdate = sameReviewAssignmentAfterUpdate(page, correction, currentTask)
   const expectedPriorStatus = correction.previousStatus ?? correction.status
   if (page.planRevision !== correction.planRevision && !sameAssignmentAfterPageUpdate
