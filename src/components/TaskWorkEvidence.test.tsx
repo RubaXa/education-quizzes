@@ -63,3 +63,11 @@ describe('canonical task evidence layouts', () => {
     } finally { await act(async () => root.unmount()) }
   })
 })
+
+it('uses the supplied canonical heading in gallery accessibility text',async()=>{
+ const host=document.createElement('div'),root=createRoot(host)
+ try{
+  await act(async()=>root.render(<TaskWorkEvidence layout="day" taskId="task" taskTitle="№ 4" studentToken="demo" uploads={uploads} localPhotos={[]} now={0} pages={[]} />))
+  expect(host.querySelector('.day-upload-list')?.getAttribute('aria-label')).toBe('Файлы задания «№ 4»')
+ }finally{await act(async()=>root.unmount())}
+})

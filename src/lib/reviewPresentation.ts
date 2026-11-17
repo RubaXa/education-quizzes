@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../../docs/decisions/photo-auth-resume-2026-11-08.md */
 import type { DayUpload, DayWorkReview } from './dayStore'
 import { formatReviewProse } from './reviewProse'
@@ -161,4 +162,11 @@ export function photoTransferMessage(upload: DayUpload, locallySending = false):
     ? 'Передаём сохранённый файл. Повторно выбирать фото не нужно.'
     : 'Ссылка готова. Сервер ждёт файл с устройства отправки.'
   return ''
+}
+
+/** One visible and accessible heading, preserving an existing source number.
+ * @see ../../docs/modules/school-diary/day-page.md#task-disclosure */
+export function problemCardHeading(problem: {number: number; title: string}) {
+ const titleNumber=problem.title.trim().match(/^№\s*(\d+)(?:\s*[.:)]\s*|\s+|$)/)?.[1]
+ return titleNumber===String(problem.number)?problem.title:`№ ${problem.number}. ${problem.title}`
 }

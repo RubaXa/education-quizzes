@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
 /** @see ../docs/modules/materials/material-clarification.md */
@@ -54,4 +55,13 @@ export function assertReviewReadback({ entries, planRevision, privateDocs, publi
   }
   if (uploads.some((upload) => upload?.status !== 'reviewed')) throw new Error('Review upload status was not read back.')
   return { reviewedTasks: entries.length, reviewedUploads: uploads.length, verified: true }
+}
+
+/** Same addressed task resolver for criteria and corrections, including numbered sheets.
+ * @see ../docs/modules/reviews/adaptive-problem-card.md#адресный-разбор */
+export function reviewTarget(page,taskId){
+ const task=page.subjects?.flatMap(s=>s.tasks??[]).find(t=>t.id===taskId||t.problems?.some(p=>p.id===taskId))
+ if(!task)throw Error('Задание отсутствует в текущей странице.')
+ const problem=task.problems?.find(p=>p.id===taskId)
+ return problem?{...task,id:problem.id,problems:[problem]}:task
 }

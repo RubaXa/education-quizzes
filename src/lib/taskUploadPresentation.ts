@@ -1,4 +1,6 @@
+/** @see ../../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /* @see ../../docs/decisions/upload-origin-links-2026-10-18.md */
+import { problemCardHeading } from './reviewPresentation'
 import { uploadMatchesTask } from './dayStore'
 import type { DayPageData, DayUpload } from './dayStore'
 
@@ -21,7 +23,7 @@ export function uploadOriginTitle(upload: DayUpload, pages: (DayPageData | undef
     const problem = task.problems?.find((item) => item.id === upload.taskId)
     if (problem) {
       const variant = task.practiceVariants?.find((item) => item.id === problem.variantId)?.title
-      return `${variant ? `${variant} · ` : ''}№ ${problem.number}. ${problem.title}`
+      return `${variant ? `${variant} · ` : ''}${problemCardHeading(problem)}`
     }
   }
   return 'другое задание'

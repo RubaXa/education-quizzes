@@ -882,6 +882,11 @@
         "согласование"
       ],
       "code": [
+        "src/lib/taskUploadPresentation.ts",
+        "src/WeekendMathSlot.tsx",
+        "src/lib/reviewPresentation.ts",
+        "scripts/submissions.mjs",
+        "storage/review-readback.mjs",
         "src/DayPage.tsx",
         "src/UiKit.tsx",
         "day/decision-registry.mjs",
@@ -21239,6 +21244,11 @@
     },
     {
       "from": "file:scripts/submissions.mjs",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/submissions.mjs",
       "to": "decision.known-part-review-2026-11-09",
       "type": "implements"
     },
@@ -24229,6 +24239,11 @@
     },
     {
       "from": "file:src/lib/reviewPresentation.ts",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/reviewPresentation.ts",
       "to": "decision.photo-auth-resume-2026-11-08",
       "type": "implements"
     },
@@ -24305,6 +24320,11 @@
     {
       "from": "file:src/lib/store.ts",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/taskUploadPresentation.ts",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -24699,6 +24719,11 @@
     },
     {
       "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
       "to": "decision.continuous-course-preparation-2026-11-07",
       "type": "implements"
     },
@@ -24970,6 +24995,11 @@
     {
       "from": "file:storage/review-readback.mjs",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-readback.mjs",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
