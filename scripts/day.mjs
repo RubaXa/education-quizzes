@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/stale-guidance-safety-correction-2026-11-17.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/olympiad-calendar-2026-10-31.md */
@@ -12,6 +13,7 @@
  */
 /** @see ../docs/modules/materials/material-clarification.md */
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
+import {exportGuidanceCorrection,correctGuidance} from '../storage/guidance-correction.mjs'
 import { supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { materialRequestErrors, openMaterialRequest } from '../src/lib/materialRequest.ts'
 import { ensureContinuousPreparation } from '../sync/preparation-window.mjs'
@@ -21,7 +23,7 @@ import {problemPresentationErrors,guidePresentationErrors,materialRequestPresent
 import {guidePublication} from '../storage/parent-guide-edit.mjs'
 import {platformAssignmentErrors} from '../day/homework-kind.mjs'
 import { createHash, randomBytes } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, realpathSync, statSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -1751,7 +1753,7 @@ async function repairReleasedGuidance() {
   console.log(JSON.stringify({ ...summary, status: 'repaired', applied: true }))
 }
 
-  if (!['refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner', 'family-assignment', 'olympiad-source-link'].includes(command)) fail('Неизвестная команда day.')
+  if (!['guidance-export', 'guidance-correct', 'refresh', 'build', 'validate', 'publish', 'publish-batch', 'guide-upgrade', 'repair-guidance', 'problem-support', 'dashboard', 'reconcile-grades', 'pull', 'seed-evidence', 'audit', 'repair-placements', 'repair-teacher-projections', 'repair-owner', 'family-assignment', 'olympiad-source-link'].includes(command)) fail('Неизвестная команда day.')
 if (command === 'build') {
   console.log(JSON.stringify(buildDaySource(local, date), null, 2))
   process.exit(0)
@@ -1774,6 +1776,21 @@ else if (command === 'pull') await pull()
 else if (command === 'problem-support') await publishProblemSupport()
 else if (command === 'guide-upgrade') await publishGuideUpgrade()
 else if (command === 'repair-guidance') await repairReleasedGuidance()
+else if (command === 'guidance-export') {
+  if(process.argv.length!==6)fail('Укажите guidance-export student-token task-id .local/export.json.')
+  const file=resolve(process.argv[5]),root=realpathSync(local)
+  mkdirSync(resolve(file,'..'),{recursive:true,mode:0o700})
+  if(!(realpathSync(resolve(file,'..'))===root||realpathSync(resolve(file,'..')).startsWith(root+'/'))||!file.endsWith('.json')||existsSync(file))fail('Нужен новый закрытый JSON в .local подкаталоге.')
+  const result=await exportGuidanceCorrection(db,{studentToken:date,taskId:third})
+  writeFileSync(file,JSON.stringify(result,null,2),{mode:0o600,flag:'wx'})
+  console.log(JSON.stringify({exported:true,events:result.events.length,privateOnly:true,file}))
+}
+else if (command === 'guidance-correct') {
+  if(process.argv.length>5||third&&third!=='--apply')fail('Укажите guidance-correct .local/packet.json [--apply].')
+  const file=realpathSync(resolve(date)),root=realpathSync(local)
+  if(!file.startsWith(root+'/')||!file.endsWith('.json')||(statSync(file).mode&0o777)!==0o600)fail('Пакет должен быть закрытым .local JSON с правами0600.')
+  console.log(JSON.stringify(await correctGuidance(db,json(file),{apply:third==='--apply',now:Timestamp.now()})))
+}
 else if (command === 'audit') await auditPublishedDays()
 else if (command === 'repair-placements') await repairPublishedPlacements()
 else if (command === 'repair-teacher-projections') await repairTeacherProjections()

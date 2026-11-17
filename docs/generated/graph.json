@@ -3410,6 +3410,35 @@
       "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "decision.stale-guidance-safety-correction-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "product.ui-change-control",
+      "uses": [
+        "module.reviews.subject-aware-guidance",
+        "shared.design.student-review-step"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "scripts/day.mjs",
+        "storage/guidance-correction.mjs"
+      ],
+      "sections": [
+        "reason",
+        "change",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/stale-guidance-safety-correction-2026-11-17.md"
+    },
+    {
       "id": "decision.student-review-reply-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -11312,6 +11341,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:storage/guidance-correction.mjs",
+      "path": "storage/guidance-correction.mjs",
+      "kind": "artifact",
+      "purpose": "Адресные export/CAS/замена публичного hint и закрытый полный архив, без новой попытки",
+      "consumer": "day CLI; оператор"
+    },
+    {
+      "id": "file:storage/guidance-correction.test.mjs",
+      "path": "storage/guidance-correction.test.mjs",
+      "kind": "verification",
+      "purpose": "Владельцы, полнота предыдущей помощи, TaskGuidance, приватный архив и повторный publish",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:storage/inbox-notifications.mjs",
       "path": "storage/inbox-notifications.mjs",
       "kind": "artifact",
@@ -13387,7 +13430,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-10-25",
+      "updated": "2026-11-17",
       "consumers": [
         "student",
         "parent",
@@ -13413,7 +13456,8 @@
         "src/lib/dayStore.ts",
         "day/guidance-release.mjs",
         "day/guidance-release.d.mts",
-        "day/guidance-repair.mjs"
+        "day/guidance-repair.mjs",
+        "storage/guidance-correction.mjs"
       ],
       "parent": "module.reviews",
       "uses": [
@@ -17357,6 +17401,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.stale-guidance-safety-correction-2026-11-17",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "uses"
+    },
+    {
+      "from": "decision.stale-guidance-safety-correction-2026-11-17",
+      "to": "shared.design.student-review-step",
+      "type": "uses"
+    },
+    {
       "from": "decision.student-review-reply-2026-11-01",
       "to": "module.synchronization.event-queue",
       "type": "uses"
@@ -19934,6 +19988,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "decision.scoped-learner-flow-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decision.stale-guidance-safety-correction-2026-11-17",
       "type": "implements"
     },
     {
@@ -23782,6 +23841,16 @@
       "type": "implements"
     },
     {
+      "from": "file:storage/guidance-correction.mjs",
+      "to": "decision.stale-guidance-safety-correction-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/guidance-correction.mjs",
+      "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
       "from": "file:storage/inbox-notifications.mjs",
       "to": "module.notifications.events",
       "type": "implements"
@@ -26038,6 +26107,11 @@
     },
     {
       "from": "module.reviews.subject-aware-guidance",
+      "to": "file:storage/guidance-correction.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.subject-aware-guidance",
       "to": "file:storage/tutoring-decision.test.mjs",
       "type": "verified-by"
     },
@@ -27904,6 +27978,11 @@
     {
       "from": "product.ui-change-control",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "contains"
+    },
+    {
+      "from": "product.ui-change-control",
+      "to": "decision.stale-guidance-safety-correction-2026-11-17",
       "type": "contains"
     },
     {

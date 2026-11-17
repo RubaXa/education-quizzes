@@ -3,7 +3,7 @@ id: module.reviews.subject-aware-guidance
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-10-25
+updated: 2026-11-17
 consumers:
   - "student"
   - "parent"
@@ -29,6 +29,7 @@ code:
   - "day/guidance-release.mjs"
   - "day/guidance-release.d.mts"
   - "day/guidance-repair.mjs"
+  - "storage/guidance-correction.mjs"
 parent: module.reviews
 uses:
   - module.reviews.review-criteria-provenance
@@ -103,6 +104,49 @@ studentFeedback.steps содержит stageId, uploadId, location, observation,
 ### Повторяемый маршрут математики {#math-route}
 
 Для отдельной математической задачи и спецкурса обязательный порядок подготовки, адаптивные 2–4 видимых этапа, источник каждого перехода и проверка публикации заданы в [контракте математического маршрута](math-solution-route.md#pipeline). Он применяется к следующему листу заново по его точным условиям, а не копированием чисел и ответа предыдущего номера.
+
+
+<a id="guidance-correction"></a>
+### Безопасная коррекция ранее открытого этапа
+
+Полный родительский путь и явная отправка выбранного этапа сохраняются. Исключение:
+ранее опубликованный полный этап не должен раскрывать ответ на **текущий активный
+ученический вопрос**, включая предыдущую помощь в раскрытиях. Новое правило текущего
+шага имеет приоритет над старым разрешением показать этап. Исправляется опубликованная
+подсказка, а не попытка или оценка; ранее доступная полная помощь не превращается в
+«самостоятельное решение» задним числом.
+
+`day guidance-export STUDENT_TOKEN TASK_ID .local/export.json` экспортирует только
+один task: owner, ученическую страницу, закрытый guide, private/public текущий review
+и адресные dayGuidance. Запрос taskId ограничен100 документами; достижение предела
+останавливает экспорт как неполный. Новый файл создаётся0600, без личного содержимого
+в stdout. Экспорт содержит family/child/date/targetDate, полные хэши документов,
+manifest событий и checkedAt/correctedAt текущего review.
+
+`day guidance-correct .local/packet.json [--apply]` по умолчанию только проверяет.
+Пакет задаёт schemaVersion1, studentToken/taskId/familyId/childId/date/targetDate,
+expected из экспорта, stageId, явные eventIds одного этапа, text, reason и
+semanticSafetyReviewed:true. Все reveal того же этапа должны быть выбраны, поскольку
+TaskGuidance показывает предыдущие события тоже. Текст — дословный текущий вопрос
+publicReview либо его текущая bridge и вопрос через перевод строки. Это проверка
+происхождения, а не автоматическое доказательство отсутствия ответа: смысл отдельно
+сверяет оператор; reason сохраняет основание.
+
+Одна транзакция повторно читает весь ограниченный адресный набор, проверяет owner,
+день, metadata закрытого guide и принадлежность review, полный CAS owner/page/guide/
+privateReview/publicReview/events. Выбранные существующие eventId заменяются через
+set без merge: сохраняются task/stage/index, actor/createdAt, guideRevision и известные
+receipt/operation/sourceRequest IDs; остаются только level:hint и безопасный text.
+revealContent, старая история/полные поля и неизвестное тело не остаются публичными.
+
+Полные исходные документы событий вместе с причиной, expected, временем, ID и
+отпечатками замен архивируются в guidanceCorrections[] того же **закрытого**
+dayTaskGuides record. Отмечено, что помощь прежде была доступна; unaided не выводится.
+Сам guide и текущие попытки/reviews/баллы/знания не меняются. Адресный readback сверяет
+все замены, закрытый архив, сохранность guide и review и неизменность остальных событий.
+Обычный day publish использует guidePublication с mergeFields: независимый архив
+сохраняется; повторная публикация не возвращает удалённый публичный ответ. Новый PWA
+не нужен: существующий hint renderer читает исправленный event.
 
 ## Предметные адаптеры {#adapters}
 
