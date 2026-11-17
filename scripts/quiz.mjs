@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/assessment-format-gates-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/concept-short-omission-2026-11-09.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
@@ -12,12 +13,13 @@ import { initializeApp, applicationDefault } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { assertQuizOwner } from './quiz-access.mjs'
 import { pendingManualQuestionIds, validateAssessmentPlan } from '../assessment/decision-graph.mjs'
+import {validateFormatPlan,assertFormatHistory} from '../assessment/format-plan.mjs'
 import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
 import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision, authorSourceQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
 import { grade, summarize } from '../src/lib/quiz.ts'
-import { canonicalShortKeyRepair, conceptShortOmissionRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
+import { canonicalShortKeyRepair, conceptShortOmissionRepair, semanticShortAnswerRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
 import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { learningContext } from '../assessment/learning-context.mjs'
@@ -95,7 +97,7 @@ function assignmentOwner(personId) {
   return { familyId: selected.familyId, childId: selected.childId }
 }
 
-function validateSpec(spec, specPath) {
+function validateSpec(spec, specPath, {metadataOnly=false}={}) {
   learningContext(spec.learningContext)
   if (typeof spec.title !== 'string' || !spec.title.trim()) fail('Не указано название теста.')
   if (typeof spec.description !== 'string' || !spec.description.trim()) fail('Нужно краткое описание теста для личного списка.')
@@ -161,7 +163,7 @@ function validateSpec(spec, specPath) {
   }
   const planPath = resolve(dirname(resolve(specPath)), spec.assessmentPlanPath)
   const plan = loadJson(planPath)
-  const policyErrors = validateAssessmentPlan(plan, spec)
+  const policyErrors = [...validateAssessmentPlan(plan, spec),...(metadataOnly?[]:validateFormatPlan(plan,spec))]
   if (policyErrors.length) fail(`План теста не прошёл структурную проверку:\n- ${policyErrors.join('\n- ')}`)
   return plan
 }
@@ -205,6 +207,7 @@ async function inspectedFollowupSource(spec, plan, owner) {
     && result.points < result.question.points).map((result) => result.question.id)
   const attempts = await loadLineage(parents.docs[0].id, { assignment: parent, answerKey: parentKey.data(), review: parentReview.data() ?? null })
   const { targetCount } = assertLineageContinuation(plan, spec, attempts)
+  assertFormatHistory(plan,quizLineageStatistics(attempts))
   assertFollowupCoverage(plan, spec, parent.testId, errorQuestionIds)
   return { parent, errorQuestionIds, targetCount }
 }
@@ -364,9 +367,9 @@ async function exportLineage(learnerToken, outputPath, planPath) {
 async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   if (!learnerToken || !specPath || !studentPersonId) fail('Нужны токен открытого теста, spec и ID ученика.')
   const spec = loadJson(specPath)
-  const plan = validateSpec(spec, specPath)
   const titleOnly = process.argv.includes('--title-only')
   const topicsOnly = process.argv.includes('--topics-only')
+  const plan = validateSpec(spec, specPath, {metadataOnly:titleOnly||topicsOnly})
   const authorScope = process.argv.includes('--author-scope')
   const correction=spec.authorScopeCorrection
   if(authorScope&&(titleOnly||topicsOnly||plan.mode!=='ordinary'||spec.linkedToTestId
@@ -605,7 +608,7 @@ async function exportAttempt(learnerToken, outputPath) {
 }
 
 /** @see ../docs/modules/assessments/quizzes.md#canonical-short-repair */
-async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false, studentPersonId, conceptOnly = false) {
+async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOnly = false, studentPersonId, conceptOnly = false, semanticOnly = false) {
   if (!learnerToken || !requestPath) fail('Нужны токен и JSON доказательств.')
   const request = loadJson(requestPath)
   const owner = assignmentOwner(studentPersonId)
@@ -616,7 +619,7 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOn
   if (!assignmentDoc.exists || !keyDoc.exists) fail('Назначение или ключ отсутствует.')
   const assignment = assignmentDoc.data(), key = keyDoc.data(), review = reviewDoc.data() ?? null
   assertQuizOwner(assignment, owner)
-  const repaired = conceptOnly ? conceptShortOmissionRepair(assignment, key, request) : guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
+  const repaired = semanticOnly ? semanticShortAnswerRepair(assignment,key,request) : conceptOnly ? conceptShortOmissionRepair(assignment, key, request) : guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
   const before = summarize(grade(assignment, key, review))
   const after = summarize(grade(assignment, repaired.key, review))
   if (guidanceOnly && JSON.stringify(before) !== JSON.stringify(after)) fail('Разбор не может менять оценку.')
@@ -716,6 +719,7 @@ try {
   else if (command === 'scope-correct') await scopeCorrect(first,second,third)
   else if (command === 'repair-canonical-short-answers') await repairCanonicalShortAnswers(first, second)
   else if (command === 'accept-concept-omission') await repairCanonicalShortAnswers(first, second, false, third === '--apply' ? undefined : third, true)
+  else if (command === 'accept-semantic-short-answer') await repairCanonicalShortAnswers(first, second, false, third === '--apply' ? undefined : third, false, true)
   else if (command === 'repair-question-guidance') await repairCanonicalShortAnswers(first, second, true, third === '--apply' ? undefined : third)
   else fail('Команды: validate SPEC.json | create SPEC.json [PERSON_ID] | revise-open TOKEN SPEC.json PERSON_ID | history TOKEN .local/OUTPUT.json [PLAN.json] | board-add MANIFEST.json [PERSON_ID] | board-status | sync-links [--apply] | audit-access | list | export TOKEN OUTPUT.json | review TOKEN REVIEW.json')
 } catch (error) {

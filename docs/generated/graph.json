@@ -401,6 +401,32 @@
       "path": "docs/decisions/adaptive-review-modes-2026-11-17.md"
     },
     {
+      "id": "decision.assessment-format-gates",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.assessments.format-plan",
+      "uses": [
+        "module.assessments.quizzes"
+      ],
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [
+        "assessment/decision-graph.mjs",
+        "scripts/quiz.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/assessment-format-gates-2026-11-17.md"
+    },
+    {
       "id": "decision.assignment-decoding-2026-11-10",
       "status": "accepted",
       "implementation": "implemented",
@@ -5616,6 +5642,20 @@
       "consumer": "Vitest; выпуск"
     },
     {
+      "id": "file:assessment/format-plan.mjs",
+      "path": "assessment/format-plan.mjs",
+      "kind": "artifact",
+      "purpose": "Детерминированные группы и барьер публикации",
+      "consumer": "Quiz CLI"
+    },
+    {
+      "id": "file:assessment/format-plan.test.mjs",
+      "path": "assessment/format-plan.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии сплошного ввода и офлайн CLI",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:assessment/learning-context-backfill.mjs",
       "path": "assessment/learning-context-backfill.mjs",
       "kind": "artifact",
@@ -8792,6 +8832,13 @@
       "kind": "verification",
       "purpose": "Проверка ролевого доступа к тесту",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:scripts/quiz-format-plan.mjs",
+      "path": "scripts/quiz-format-plan.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый офлайн план и проверка",
+      "consumer": "Operator"
     },
     {
       "id": "file:scripts/quiz-parent-review.mjs",
@@ -12584,7 +12631,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-11-16",
+      "updated": "2026-11-17",
       "consumers": [
         "student",
         "parent",
@@ -12637,6 +12684,31 @@
         "assessment/decision-graph.mjs"
       ],
       "path": "docs/modules/assessments/assessment-source-policy.md"
+    },
+    {
+      "id": "module.assessments.format-plan",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.assessments",
+      "uses": [
+        "module.assessments.assessment-decision-graph"
+      ],
+      "consumers": [
+        "quiz author",
+        "operator CLI"
+      ],
+      "code": [
+        "assessment/format-plan.mjs",
+        "scripts/quiz-format-plan.mjs"
+      ],
+      "sections": [
+        "решение",
+        "вход-и-план",
+        "барьеры-и-пределы"
+      ],
+      "path": "docs/modules/assessments/format-plan.md"
     },
     {
       "id": "module.assessments.lesson-repetition",
@@ -12705,7 +12777,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-11-16",
+      "updated": "2026-11-17",
       "consumers": [
         "student",
         "parent",
@@ -12757,7 +12829,8 @@
         "принятая-компактная-история-16102026",
         "разбор-выполненной-программы",
         "настоящий-экран-вопросов-в-каталоге",
-        "author-scope-correction"
+        "author-scope-correction",
+        "semantic-short-answer"
       ],
       "path": "docs/modules/assessments/quizzes.md"
     },
@@ -15749,7 +15822,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-11-16",
+      "updated": "2026-11-17",
       "consumers": [
         "Education operator",
         "operator CLI",
@@ -15767,6 +15840,7 @@
       "uses": [
         "module.synchronization",
         "module.assessments",
+        "module.assessments.format-plan",
         "module.reviews",
         "shared.data.firestore",
         "shared.server-runtime"
@@ -17038,6 +17112,11 @@
     {
       "from": "decision.adaptive-review-modes-2026-11-17",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.assessment-format-gates",
+      "to": "module.assessments.quizzes",
       "type": "uses"
     },
     {
@@ -18422,6 +18501,11 @@
     },
     {
       "from": "file:assessment/decision-graph.mjs",
+      "to": "decision.assessment-format-gates",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/decision-graph.mjs",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -18473,6 +18557,11 @@
     {
       "from": "file:assessment/followup-contract.mjs",
       "to": "module.assessments.quizzes",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/format-plan.mjs",
+      "to": "module.assessments.format-plan",
       "type": "implements"
     },
     {
@@ -21166,6 +21255,11 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/quiz-format-plan.mjs",
+      "to": "module.assessments.format-plan",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/quiz-parent-review.mjs",
       "to": "decision.parent-review-pilot-2026-11-17",
       "type": "implements"
@@ -21178,6 +21272,11 @@
     {
       "from": "file:scripts/quiz-parent-review.mjs",
       "to": "service.operator-cli",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
+      "to": "decision.assessment-format-gates",
       "type": "implements"
     },
     {
@@ -25531,6 +25630,21 @@
       "type": "uses"
     },
     {
+      "from": "module.assessments.format-plan",
+      "to": "decision.assessment-format-gates",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments.format-plan",
+      "to": "file:assessment/format-plan.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assessments.format-plan",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "module.assessments.lesson-repetition",
       "to": "file:assessment/lesson-repetition.test.mjs",
       "type": "verified-by"
@@ -25753,6 +25867,11 @@
     {
       "from": "module.assessments",
       "to": "module.assessments.assessment-source-policy",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
+      "to": "module.assessments.format-plan",
       "type": "contains"
     },
     {
@@ -29214,6 +29333,11 @@
       "from": "service.operator-cli",
       "to": "file:operator/run-operation.test.mjs",
       "type": "verified-by"
+    },
+    {
+      "from": "service.operator-cli",
+      "to": "module.assessments.format-plan",
+      "type": "uses"
     },
     {
       "from": "service.operator-cli",

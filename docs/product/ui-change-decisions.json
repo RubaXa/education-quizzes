@@ -117,37 +117,37 @@
       }
     },
     "assessment/canonical-short-key.mjs": {
-      "sha256": "55eddeb9862b34ff01fb2fc9fc97702f9a4ea22ab4db9307826e820443b64aed",
-      "record": "docs/decisions/concept-short-omission-2026-11-09.md",
+      "sha256": "a18cf2d8f9b99f7c8f1fe4afb8ccebb4684f4be61149ebf663b29b225929feaa",
+      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
       "specs": [
+        "docs/modules/assessments/format-plan.md",
         "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "assessment/canonical-short-key.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Текущий полный EducationSync разрешает стандартную проверку и публикацию; навык требует сначала отделить описку от содержательной ошибки и добавить узкую штатную операцию с тестом, если её нет."
-      }
-    },
-    "assessment/decision-graph.mjs": {
-      "sha256": "d250872d083e0a9ed2ef020d32461925037b57acdc57350e92e9e5c65f3c0422",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
-      "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
-      ],
-      "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
+        "assessment/format-plan.test.mjs",
+        "assessment/canonical-short-key.test.mjs",
         "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
+      }
+    },
+    "assessment/decision-graph.mjs": {
+      "sha256": "75401d74a4d4d19f797d3517bbdfa1face43efd8fa7211595726af42a2300de2",
+      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
+      "specs": [
+        "docs/modules/assessments/format-plan.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "assessment/format-plan.test.mjs",
+        "assessment/canonical-short-key.test.mjs",
+        "assessment/decision-graph.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -2339,20 +2339,20 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "887a18d075df56420430ae4354211eee8ffd52a05db704a403ad23c15cdfac17",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "7e542ec4780cd2391447f9baf9485267706118c9fc6b542960a6a36733dd6b9c",
+      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/assessments/format-plan.md",
+        "docs/modules/assessments/quizzes.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "assessment/format-plan.test.mjs",
+        "assessment/canonical-short-key.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
       }
     },
     "scripts/release-note.mjs": {
@@ -8977,6 +8977,40 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "assessment/format-plan.mjs": {
+      "sha256": "4408740b477c3182c97f08af9c2f46efa920d0568c4b0d216c13e482d5117268",
+      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
+      "specs": [
+        "docs/modules/assessments/format-plan.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "assessment/format-plan.test.mjs",
+        "assessment/canonical-short-key.test.mjs",
+        "assessment/decision-graph.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
+      }
+    },
+    "scripts/quiz-format-plan.mjs": {
+      "sha256": "bcb3acc090ddf852fcc57eecc4c05d095f6e5f7cc0fab42e78743017736af60b",
+      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
+      "specs": [
+        "docs/modules/assessments/format-plan.md",
+        "docs/modules/assessments/quizzes.md"
+      ],
+      "tests": [
+        "assessment/format-plan.test.mjs",
+        "assessment/canonical-short-key.test.mjs",
+        "assessment/decision-graph.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
       }
     }
   }
