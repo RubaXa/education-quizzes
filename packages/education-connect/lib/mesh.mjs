@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/restore-parent-route-2026-11-17.md */
 /** @see ../../../docs/decisions/mesh-http-trace-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-web-login-2026-11-02.md */
 /** @see ../../../docs/decisions/mesh-renewal-order-2026-11-01.md */
@@ -265,19 +266,21 @@ export class MeshDiaryAdapter {
     this.markFeedCache = null
     const httpTrace = trace ? createHttpTrace(globalThis.fetch, trace) : null
     this.httpTrace = httpTrace
+    const renewToken = async () => {
+      const updated = await refreshToken(this.secret, this.telemetry, this.signal, httpTrace)
+      if (!updated) return null
+      this.secret = { ...this.secret, ...updated }
+      this.saveSecret(this.secret)
+      return updated.token
+    }
+    this.renewToken = renewToken
     this.api = new MeshAPI({
       token: secret.token,
       studentId: secret.studentId,
       profileId: secret.profileId,
       personId: secret.personId,
       fetch: (url, options) => meshFetch(url, options, this.telemetry, this.signal, httpTrace),
-      onUnauthorized: async () => {
-        const updated = await refreshToken(this.secret, this.telemetry, this.signal, httpTrace)
-        if (!updated) return null
-        this.secret = { ...this.secret, ...updated }
-        this.saveSecret(this.secret)
-        return updated.token
-      },
+      onUnauthorized: renewToken,
     })
   }
 
@@ -290,11 +293,15 @@ export class MeshDiaryAdapter {
       : null
     if (!selected?.person_id) throw new Error('ACCESS_NOT_VERIFIED: ученический профиль не связан с аккаунтом')
 
-    const response = await meshFetch('https://dnevnik.mos.ru/acl/api/users/profile_info', {
-      headers: { 'auth-token': this.api.token, 'partner-source-id': 'MOBILE', Accept: '*/*' },
-    }, this.telemetry, this.signal, this.httpTrace)
-    if (!response.ok) throw new Error('ACCESS_NOT_VERIFIED: роль аккаунта не определена')
-    const roles = await response.json()
+    let roles
+    try { roles = await this.api.getProfileInfo() }
+    catch (error) {
+      if (meshAuthDiagnostic(error)?.httpStatus !== 403) throw error
+      const token = await this.renewToken()
+      if (!token) throw error
+      this.api.token = token
+      roles = await this.api.getProfileInfo()
+    }
     if (!Array.isArray(roles) || !roles.some((role) => role.type === 'ParentProfile')) {
       throw new Error('ACCESS_NOT_VERIFIED: нужен родительский профиль')
     }

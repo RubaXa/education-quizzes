@@ -802,20 +802,22 @@
       }
     },
     "packages/education-connect/lib/mesh.mjs": {
-      "sha256": "c81157fa1a92833160d0c0a3b86f1896964b87b7665c91659f7f883287c4b17c",
-      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "sha256": "666d1e475cfe061b0401a259f4c4fe2f942548ae7375eaab0549f2ac59e07297",
+      "record": "docs/decisions/restore-parent-route-2026-11-17.md",
       "specs": [
-        "docs/modules/assignments/README.md",
-        "docs/modules/notifications/inbox.md"
+        "docs/modules/reviews/parent-review.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
-        "day/learning-gate.test.mjs",
-        "diary/application/school-alerts.test.mjs",
-        "diary/application/sync.test.mjs"
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "src/components/ParentTaskGuide.test.tsx",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+        "evidence": "Прямое требование17.11: использовать прежний Ход решения, сохранить преемственность компонентов и восстановить зависшую синхронизацию без нового расписания."
       }
     },
     "packages/education-connect/lib/network-retry.mjs": {
@@ -8557,21 +8559,22 @@
       }
     },
     "packages/education-presentation/task-presentation.mjs": {
-      "sha256": "9a40dda52e6bf4fcbfe6d575c77533b41b68a0ec95e94a4c2c4393c4108dfdd2",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "497bd9020cb26270ad7069c7ac24a6dd58c9ac326e602e9a24110c75502c4e0c",
+      "record": "docs/decisions/restore-parent-route-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/reviews/parent-review.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
         "src/components/QuizParentReview.test.tsx",
         "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/ParentTaskGuide.test.tsx",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Прямое требование17.11: использовать прежний Ход решения, сохранить преемственность компонентов и восстановить зависшую синхронизацию без нового расписания."
       }
     },
     "scripts/task-presentation.mjs": {
@@ -8939,40 +8942,23 @@
         "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
-    "src/components/ParentReviewContent.css": {
-      "sha256": "da9cbed74226f6216215d2295f2b7cd32b277461faa8fb4b9909b0b267844758",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
-      "specs": [
-        "docs/modules/reviews/parent-review.md"
-      ],
-      "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
-      }
-    },
     "src/components/ParentReviewContent.tsx": {
-      "sha256": "7425658fd012a3dae5c2e6a371f3088c0d334f6f4c363b18288f45dc082af000",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "3491ecdc49d64ffe186b533123dda3fa2c04782b0bf0134fc3796324297a884b",
+      "record": "docs/decisions/restore-parent-route-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/reviews/parent-review.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
         "src/components/QuizParentReview.test.tsx",
         "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/ParentTaskGuide.test.tsx",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Прямое требование17.11: использовать прежний Ход решения, сохранить преемственность компонентов и восстановить зависшую синхронизацию без нового расписания."
       }
     },
     "src/lib/quizParentReview.ts": {
@@ -8994,21 +8980,22 @@
       }
     },
     "src/ui-kit/ParentReviewPilotExample.tsx": {
-      "sha256": "25ee713e509f227623e76f4e7778d5dee5bcbb0687d889be38ac328854527ece",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "fe3584d6571fedb0a729f0dd349043878aeb70936bbd049b15bc61ffa043e0a0",
+      "record": "docs/decisions/restore-parent-route-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/reviews/parent-review.md",
+        "docs/product/ui-change-control.md",
+        "docs/shared/server-runtime.md"
       ],
       "tests": [
         "src/components/QuizParentReview.test.tsx",
         "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/components/ParentTaskGuide.test.tsx",
+        "packages/education-connect/lib/mesh-auth.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Прямое требование17.11: использовать прежний Ход решения, сохранить преемственность компонентов и восстановить зависшую синхронизацию без нового расписания."
       }
     },
     "storage/quiz-parent-review.mjs": {

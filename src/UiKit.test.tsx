@@ -47,7 +47,7 @@ it('uses the actual work-review and quiz adapters in the shared review catalogue
  expect(host.querySelectorAll('.edu-review-brief')).toHaveLength(7)
  const parentPilot=host.querySelector('[aria-label="Пример: родитель"]')!
  const studentPilot=host.querySelector('[aria-label="Пример: ребёнок"]')!
- expect(parentPilot.textContent).toContain('Как правильно')
+ expect(parentPilot.textContent).toContain('Правильный ответ')
  expect(parentPilot.textContent).toContain('Архип, вопреки поручению')
  expect(parentPilot.querySelector('.edu-review-question')).toBeNull()
  expect(studentPilot.querySelector('.edu-review-question')).not.toBeNull()

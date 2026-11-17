@@ -1,9 +1,0 @@
-/* @see ../../docs/decisions/parent-review-pilot-2026-11-17.md */
-/* @see ../../docs/modules/reviews/parent-review.md */
-.edu-parent-review{display:grid;gap:var(--edu-review-gap,6px);color:var(--edu-review-ink);font-size:var(--edu-review-size,16px);line-height:var(--edu-review-leading,1.4)}
-.edu-parent-review h4{font:inherit;font-weight:700;margin:0 0 var(--edu-review-gap,6px)}
-.edu-parent-review p{margin:0;overflow-wrap:anywhere}
-.edu-parent-review>section{padding-block:var(--edu-review-gap,6px)}
-.edu-parent-review-answer{border-inline-start:3px solid var(--edu-review-accent);padding-inline-start:12px}
-.edu-parent-review .edu-method-overview{margin-block:12px}
-.edu-parent-review-source{margin-block-start:12px!important;color:var(--edu-review-muted)}
