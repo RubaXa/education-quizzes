@@ -3601,7 +3601,7 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "116d7c9d100fccbb9ee6e18f326b4adf193ef7896d56bafb7a112431e433989a",
+      "sha256": "79d6091d53e879f975aeb38b49718985c207ff16e4107985ba777c76728cfcfb",
       "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
@@ -3611,7 +3611,8 @@
         "src/components/QuizResultCard.dialogue.test.tsx",
         "src/lib/quizReviewConversation.test.ts",
         "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/QuizResultCard.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
