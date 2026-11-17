@@ -9120,6 +9120,18 @@
     "note": "Адресная сверка source для известной незавершённой передачи после online/visibility; родитель без исходных байтов не создаёт это чтение."
   },
   {
+    "id": "src/lib/quizParentReview.ts#onSnapshot#61b372e41d9f",
+    "file": "src/lib/quizParentReview.ts",
+    "line": 7,
+    "api": "onSnapshot",
+    "target": "doc(db,'quizParentReviews',token,'items',questionId)",
+    "group": "client-other",
+    "assessment": "conditional",
+    "policy": "parent-only-point",
+    "refresh": "when opening a graded question as parent; unsubscribe on role or context change",
+    "note": "Точная подписка на закрытый родительский разбор одного вопроса; ученик не делает чтение. Ролевой доступ проверяется Rules. docs/modules/reviews/parent-review.md#publication"
+  },
+  {
     "id": "src/lib/quizReviewConversation.ts#onSnapshot#bdb449e9a4c3",
     "file": "src/lib/quizReviewConversation.ts",
     "line": 14,

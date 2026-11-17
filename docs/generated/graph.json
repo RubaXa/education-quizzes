@@ -2587,6 +2587,51 @@
       "path": "docs/decisions/olympiad-source-photo-crop-2026-10-28.md"
     },
     {
+      "id": "decision.parent-review-pilot-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.reviews.parent-review",
+      "uses": [
+        "shared.design.ui-kit",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "student",
+        "Education operator"
+      ],
+      "code": [
+        "packages/education-presentation/parent-review.mjs",
+        "packages/education-presentation/parent-review.d.mts",
+        "src/components/ParentReviewContent.tsx",
+        "src/components/ParentReviewContent.css",
+        "src/components/QuizResultCard.tsx",
+        "src/components/QuizResultConversation.tsx",
+        "src/components/ReviewConversation.tsx",
+        "src/lib/quizParentReview.ts",
+        "storage/quiz-parent-review.mjs",
+        "scripts/quiz-parent-review.mjs",
+        "day/decision-registry.mjs",
+        "src/ui-kit/ParentReviewPilotExample.tsx",
+        "src/ui-kit/DecisionScenarioCatalog.tsx",
+        "src/components/ReviewBriefShowcase.tsx",
+        "src/UiKit.tsx",
+        "packages/education-presentation/task-presentation.mjs",
+        "src/components/ReviewActivity.tsx",
+        "firestore.rules"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/parent-review-pilot-2026-11-17.md"
+    },
+    {
       "id": "decision.personal-tutoring-2026-10-30",
       "status": "accepted",
       "implementation": "partial",
@@ -7095,6 +7140,20 @@
       "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
+      "id": "file:packages/education-presentation/parent-review.d.mts",
+      "path": "packages/education-presentation/parent-review.d.mts",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/parent-review.mjs",
+      "path": "packages/education-presentation/parent-review.mjs",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
       "id": "file:packages/education-presentation/quiz-review-reply.d.mts",
       "path": "packages/education-presentation/quiz-review-reply.d.mts",
       "kind": "artifact",
@@ -8642,6 +8701,13 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:scripts/quiz-parent-review.mjs",
+      "path": "scripts/quiz-parent-review.mjs",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
       "id": "file:scripts/quiz.mjs",
       "path": "scripts/quiz.mjs",
       "kind": "artifact",
@@ -9517,6 +9583,20 @@
       "consumer": "`PersonalEntry.tsx`; взрослый"
     },
     {
+      "id": "file:src/components/ParentReviewContent.css",
+      "path": "src/components/ParentReviewContent.css",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
+      "id": "file:src/components/ParentReviewContent.tsx",
+      "path": "src/components/ParentReviewContent.tsx",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
       "id": "file:src/components/ParentTaskGuide.css",
       "path": "src/components/ParentTaskGuide.css",
       "kind": "artifact",
@@ -9746,6 +9826,20 @@
       "kind": "artifact",
       "purpose": "Одна текущая попытка, процент, история, ссылки и предметные данные через props; статус не подменяется обязательностью",
       "consumer": "`src/App.tsx`; `src/DayPage.tsx`; UI Kit"
+    },
+    {
+      "id": "file:src/components/QuizParentReview.access.test.tsx",
+      "path": "src/components/QuizParentReview.access.test.tsx",
+      "kind": "verification",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
+      "id": "file:src/components/QuizParentReview.test.tsx",
+      "path": "src/components/QuizParentReview.test.tsx",
+      "kind": "verification",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
     },
     {
       "id": "file:src/components/QuizQuestionCard.test.tsx",
@@ -10994,6 +11088,13 @@
       "consumer": "`src/App.tsx`"
     },
     {
+      "id": "file:src/lib/quizParentReview.ts",
+      "path": "src/lib/quizParentReview.ts",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
       "id": "file:src/lib/quizReviewConversation.test.ts",
       "path": "src/lib/quizReviewConversation.test.ts",
       "kind": "verification",
@@ -11386,6 +11487,13 @@
       "consumer": "UI Kit"
     },
     {
+      "id": "file:src/ui-kit/ParentReviewPilotExample.tsx",
+      "path": "src/ui-kit/ParentReviewPilotExample.tsx",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
       "id": "file:src/ui-kit/QuizReviewDialogueExample.tsx",
       "path": "src/ui-kit/QuizReviewDialogueExample.tsx",
       "kind": "artifact",
@@ -11692,6 +11800,20 @@
       "kind": "verification",
       "purpose": "Закрытый источник, подмена PDF, путь, публикация и идемпотентность",
       "consumer": "Vitest"
+    },
+    {
+      "id": "file:storage/quiz-parent-review.mjs",
+      "path": "storage/quiz-parent-review.mjs",
+      "kind": "artifact",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
+    },
+    {
+      "id": "file:storage/quiz-parent-review.test.mjs",
+      "path": "storage/quiz-parent-review.test.mjs",
+      "kind": "verification",
+      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
+      "consumer": "Родитель; ученик; оператор; UI Kit"
     },
     {
       "id": "file:storage/review-challenge.mjs",
@@ -13539,6 +13661,37 @@
         "адресная-редактура"
       ],
       "path": "docs/modules/reviews/method-guided-solutions.md"
+    },
+    {
+      "id": "module.reviews.parent-review",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.reviews",
+      "uses": [
+        "module.reviews.method-guided-solutions",
+        "shared.design.student-review-step",
+        "shared.access-and-privacy"
+      ],
+      "consumers": [
+        "parent",
+        "review author",
+        "UI Kit"
+      ],
+      "code": [
+        "packages/education-presentation/parent-review.mjs",
+        "src/components/ParentReviewContent.tsx",
+        "scripts/quiz-parent-review.mjs"
+      ],
+      "sections": [
+        "roles",
+        "model",
+        "graph",
+        "publication",
+        "rollout"
+      ],
+      "path": "docs/modules/reviews/parent-review.md"
     },
     {
       "id": "module.reviews.problem-card-design-decisions",
@@ -15523,6 +15676,7 @@
         "service developer"
       ],
       "code": [
+        "scripts/quiz-parent-review.mjs",
         "scripts/education.mjs",
         "operator/operation-contract.mjs",
         "operator/run-operation.mjs",
@@ -17497,6 +17651,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.parent-review-pilot-2026-11-17",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.parent-review-pilot-2026-11-17",
+      "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
       "from": "decision.personal-tutoring-2026-10-30",
       "to": "research.personal-tutoring-2026-10-30",
       "type": "uses"
@@ -18453,6 +18617,11 @@
     },
     {
       "from": "file:day/decision-registry.mjs",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/decision-registry.mjs",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
@@ -19083,6 +19252,11 @@
     },
     {
       "from": "file:firestore.rules",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
       "to": "decision.photo-outbox-route-recovery-2026-11-07",
       "type": "implements"
     },
@@ -19472,6 +19646,26 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/education-presentation/parent-review.d.mts",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/parent-review.d.mts",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/parent-review.mjs",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/parent-review.mjs",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/education-presentation/quiz-review-reply.d.mts",
       "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
@@ -19559,6 +19753,11 @@
     {
       "from": "file:packages/education-presentation/task-presentation.mjs",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "decision.parent-review-pilot-2026-11-17",
       "type": "implements"
     },
     {
@@ -20827,6 +21026,21 @@
       "type": "implements"
     },
     {
+      "from": "file:scripts/quiz-parent-review.mjs",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz-parent-review.mjs",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz-parent-review.mjs",
+      "to": "service.operator-cli",
+      "type": "implements"
+    },
+    {
       "from": "file:scripts/quiz.mjs",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
@@ -21902,6 +22116,26 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/ParentReviewContent.css",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentReviewContent.css",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentReviewContent.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ParentReviewContent.tsx",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ParentTaskGuide.css",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
@@ -22318,6 +22552,11 @@
     },
     {
       "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
       "to": "decision.program-explanation-2026-11-01",
       "type": "implements"
     },
@@ -22334,6 +22573,11 @@
     {
       "from": "file:src/components/QuizResultCard.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultConversation.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
       "type": "implements"
     },
     {
@@ -22383,6 +22627,11 @@
     },
     {
       "from": "file:src/components/ReviewActivity.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewActivity.tsx",
       "to": "shared.design.student-review-step",
       "type": "implements"
     },
@@ -22443,6 +22692,11 @@
     },
     {
       "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
       "to": "decision.program-explanation-2026-11-01",
       "type": "implements"
     },
@@ -22464,6 +22718,11 @@
     {
       "from": "file:src/components/ReviewConversation.tsx",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewConversation.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
       "type": "implements"
     },
     {
@@ -23807,6 +24066,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/quizParentReview.ts",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizParentReview.ts",
+      "to": "module.reviews.parent-review",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/quizReviewConversation.ts",
       "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
@@ -24138,6 +24407,11 @@
     },
     {
       "from": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
@@ -24154,6 +24428,16 @@
     {
       "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ParentReviewPilotExample.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ParentReviewPilotExample.tsx",
+      "to": "module.reviews.parent-review",
       "type": "implements"
     },
     {
@@ -24239,6 +24523,11 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.parent-review-pilot-2026-11-17",
       "type": "implements"
     },
     {
@@ -24504,6 +24793,16 @@
     {
       "from": "file:storage/public-references.mjs",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/quiz-parent-review.mjs",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/quiz-parent-review.mjs",
+      "to": "module.reviews.parent-review",
       "type": "implements"
     },
     {
@@ -26542,6 +26841,41 @@
       "type": "uses"
     },
     {
+      "from": "module.reviews.parent-review",
+      "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "file:src/components/QuizParentReview.access.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "file:src/components/QuizParentReview.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "file:storage/quiz-parent-review.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "module.reviews.method-guided-solutions",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "shared.access-and-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "shared.design.student-review-step",
+      "type": "uses"
+    },
+    {
       "from": "module.reviews.problem-card-design-decisions",
       "to": "file:src/components/ProblemStatement.provenance.test.tsx",
       "type": "verified-by"
@@ -26814,6 +27148,11 @@
     {
       "from": "module.reviews",
       "to": "module.reviews.method-guided-solutions",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews",
+      "to": "module.reviews.parent-review",
       "type": "contains"
     },
     {

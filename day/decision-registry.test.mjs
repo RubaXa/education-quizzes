@@ -55,3 +55,11 @@ it('binds child clarification and parent choice to their actual common controls'
   expect(item.decisionRef).toBe('docs/decisions/adaptive-review-modes-2026-11-17.md')
  }
 })
+
+it('splits the role into a complete parent product and a safe learner product with concrete UI Kit bindings',()=>{
+ for(const [id,contract] of [['view.parent-review','parent-review'],['view.student-support','review-result']]){
+  const binding=decisionPresentationBinding(id,'literature.reading');expect(binding.contractIds).toEqual([contract]);expect(binding.item.uiScenarioId).toBe('literature.reading')
+ }
+ expect(decisionEdges.some(e=>e.from==='view.role'&&e.to==='view.component')).toBe(false)
+ for(const id of ['role:parent','role:student','parent:component','student:component'])expect(decisionPresentationBinding(id,'literature.reading')).toBeDefined()
+})

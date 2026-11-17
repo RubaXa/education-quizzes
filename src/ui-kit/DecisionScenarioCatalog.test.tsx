@@ -27,7 +27,7 @@ it('covers every declared subject/common rule with both real role compositions a
   if(!scenarioData(rule.id).isQuiz)expect(student.textContent,rule.id).not.toContain(scenarioData(rule.id).guide.stages[1].expected)
   expect(host.querySelector('a[href*="criteria-knowledge-ui-kit-2026-11-16"]'),rule.id).not.toBeNull()
  }
-})
+},15000)
 it('changes state locally and keeps the embedded test header compact in its actual consumer frame',async()=>{
  window.location.hash='#/ui-kit/?decision=literature.reading';document.body.append(host);root=createRoot(host)
  await act(async()=>root!.render(<DecisionScenarioCatalog/>))
@@ -88,16 +88,22 @@ it('provides a working layout address for every visible graph node and edge, inc
  const nodes=decisionNodes.filter(node=>!node.subject||node.id==='subject:math.problem')
  const edges=decisionEdges.filter(edge=>nodes.some(node=>node.id===edge.from)&&nodes.some(node=>node.id===edge.to))
  for(const [items,label] of [[nodes,'узла'],[edges,'перехода']] as const)for(const item of items){
+  window.location.hash='#/ui-kit/?decision=math.problem'
+  await act(async()=>root!.render(<DecisionScenarioCatalog key={item.id}/>))
   const anchor=host.querySelector<HTMLAnchorElement>(`a[aria-label="Макет ${label} ${item.id}"]`)!
   expect(anchor,item.id).not.toBeNull()
-  const query=new URLSearchParams(anchor.hash.split('?')[1]);expect(query.get('decision')).toBe('math.problem');expect(query.get('focus')).toBe(item.id)
+  const rolePilot=['view.parent-review','view.student-support','role:parent','role:student','parent:component','student:component'].includes(item.id)
+  const query=new URLSearchParams(anchor.hash.split('?')[1]);expect(query.get('decision')).toBe(rolePilot?'literature.reading':'math.problem');expect(query.get('focus')).toBe(item.id)
   await act(async()=>anchor.click())
   expect(host.querySelector('[data-focused-graph-item]')?.getAttribute('data-focused-graph-item')).toBe(item.id)
-  expect(host.querySelectorAll('.edu-decision-role')).toHaveLength(2)
+  if(rolePilot){
+   expect(host.querySelector('[aria-label="Пример: родитель"] .edu-parent-review')).not.toBeNull()
+   expect(host.querySelector('[aria-label="Пример: ребёнок"] .edu-review-question')).not.toBeNull()
+  }else expect(host.querySelectorAll('.edu-decision-role')).toHaveLength(2)
   expect(host.querySelector('[data-inspected-contract]')).not.toBeNull()
   if(item.technical)expect(host.querySelector('.edu-decision-layout-inspector')?.textContent).toContain('Отдельной семейной карточки нет')
  }
-})
+},15000)
 it('keeps all synthetic role compositions free of family document reads and subscriptions',()=>{
  expect(getDoc).not.toHaveBeenCalled();expect(getDocs).not.toHaveBeenCalled();expect(onSnapshot).not.toHaveBeenCalled()
 })

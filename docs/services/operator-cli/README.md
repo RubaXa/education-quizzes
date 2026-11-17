@@ -9,6 +9,7 @@ consumers:
   - "operator CLI"
   - "service developer"
 code:
+  - scripts/quiz-parent-review.mjs
   - "scripts/education.mjs"
   - "operator/operation-contract.mjs"
   - "operator/run-operation.mjs"
@@ -156,3 +157,8 @@ priorReviewFingerprint с закрытой рубрикой. `quiz rubric TOKEN 
 Она сохраняет предметный вердикт и знания, требует свежие отпечатки источника,
 обеих проекций, фото и помощи; не заменяет `submissions feedback` для нового зачёта
 или исправления оценки. Новые уведомления и расписания этим действием не создаются.
+
+Адресный `quiz:parent-review export/publish` подготавливает один полный родительский
+разбор без изменения попытки, баллов или помощи ученика. Сверка источника остаётся
+за автором; структура, CAS, архив и readback обязательны.
+[Ролевой контракт](../../modules/reviews/parent-review.md#publication).

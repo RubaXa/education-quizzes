@@ -10,6 +10,7 @@ import {createEducationEvent} from '../packages/education-events/envelope.mjs'
 import {quizQuestionReview} from '../packages/education-presentation/quiz-review-reply.mjs'
 import {prepareEventTaskArtifact} from '../sync/event-task-artifact.mjs'
 import {syncJobId} from '../sync/job-queue.mjs'
+import {exportQuizParentReview,publishQuizParentReview} from '../storage/quiz-parent-review.mjs'
 import {publishHelpResponse} from '../sync/help-response.mjs'
 const enabled=Boolean(process.env.FIRESTORE_EMULATOR_HOST&&process.env.FIREBASE_AUTH_EMULATOR_HOST&&/^demo-/.test(process.env.GCLOUD_PROJECT||''))
 describe.skipIf(!enabled)('quiz current-step dialogue security and publication',()=>{
@@ -74,6 +75,22 @@ describe.skipIf(!enabled)('quiz current-step dialogue security and publication',
   await store.doc(`families/${family}/members/p`).update({role:'parent'})
   expect((await getDoc(doc(db,responsePath))).data().reviewResponse).toEqual(response)
   await store.doc(`families/${family}/members/p`).update({role:'student'})
+ })
+ it('keeps a published full parent guide private from the pupil and other children without changing the attempt',async()=>{
+  const exported=await exportQuizParentReview(store,{quizToken:token,questionId:taskId})
+  const analysis={version:1,answer:'Проверенный полный ответ родителю по учебному источнику.',difference:'В условной попытке перепутаны разные действия двух персонажей.',method:{name:'Сравнение двух действий',reason:'Сверяем каждое действие с источником.',steps:['Найти поручение','Проверить поступок']},blocks:[{kind:'text',text:'Первая строка источника устанавливает поручение.'},{kind:'text',text:'Вторая строка устанавливает совершённое действие.'}],source:{label:'Условный литературный источник',location:'Глава VI, учебный пример'}}
+  const packet={schemaVersion:1,quizToken:token,questionId:taskId,familyId:family,childId:'c',expected:exported.expected,analysis,reason:'Сверены источник и наблюдаемое различие двух действий в условной попытке.',sourceEvidence:['demo:original'],semanticChecked:true,sourceChecked:true,studentSafetyChecked:true}
+  expect(await publishQuizParentReview(store,packet,{apply:true})).toMatchObject({verified:true,gradeChanged:false})
+  const path=`quizParentReviews/${token}/items/${taskId}`
+  await expect(getDoc(doc(db,path))).rejects.toMatchObject({code:'permission-denied'})
+  await store.doc(`families/${family}/members/p`).update({role:'parent'})
+  expect((await getDoc(doc(db,path))).data().analysis).toEqual(analysis)
+  await expect(setDoc(doc(db,path),{analysis:{answer:'Подмена'}})).rejects.toMatchObject({code:'permission-denied'})
+  await expect(getDoc(doc(db,`quizParentReviewPrivate/${token}/items/${taskId}`))).rejects.toMatchObject({code:'permission-denied'})
+  await store.doc(`families/${family}/members/p`).update({childIds:['other']})
+  await expect(getDoc(doc(db,path))).rejects.toMatchObject({code:'permission-denied'})
+  await store.doc(`families/${family}/members/p`).update({role:'student',childIds:['c']})
+  expect((await store.doc(`assignments/${token}`).get()).data()).toEqual(original)
  })
  it('invalidates changed roots and rejects an already correct question at operator verification',async()=>{
   await store.doc(`answerKeys/${token}`).update({'entries.q.guidance.question':'Другой вопрос?'})

@@ -194,3 +194,11 @@ requests/{eventId} — его неизменяемая атомарная ист
 — только операторский отклик. Владелец берётся из assignments, ученик семьи пишет
 только точный публичный шаг, родитель читает. Ни assignments.answers, ни reviews
 этот путь не изменяет. [Общий протокол](../design/student-review-step.md#quiz-dialogue).
+
+### Полный разбор вопроса для родителя
+
+quizParentReviews/{quizToken}/items/{questionId} содержит owner, context конкретной
+попытки и analysis версии1. Только адресное чтение родителем своей семьи; клиентская
+запись и list запрещены. quizParentReviewPrivate/.../history/{id} — неизменяемые
+обоснования и прежние версии, только оператор. Никакого копирования в answerKeys,
+dayPages, dayProgress или pupil guidance. [Контракт](../../modules/reviews/parent-review.md).

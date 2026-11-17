@@ -45,3 +45,5 @@ code:
 - [special-course-card-overlay](special-course-card-overlay.md)
 - [subject-aware-guidance](subject-aware-guidance.md)
 - [subject-card-viewmodel](subject-card-viewmodel.md)
+
+Полный родительский продукт и его отличие от подсказки ученику: [общий ролевой контракт](parent-review.md).
