@@ -67,6 +67,16 @@ export function taskRoute(task = {}, subject = 'generic', { placement = false, l
       'request-only-missing-parts','replan-after-source-upload','prepare-current-repetition-quiz'])
   }
   if (task.platformResult?.state === 'completed') return select('platform-result-confirmed', ['preserve-platform-evidence'])
+  // Missing exact variants must not stall preparation for an announced school assessment.
+  // @see ../docs/modules/assignments/deadline-control.md#control-preparation
+  if(isControlAssignment(task)&&(missingTaskMaterial(task)||task.sourceOnly||task.kind!=='written'&&!task.problems?.length)){
+    if(task.testToken||placement)return select('existing-assessment',['read-current-attempt','assessment-decision-graph','publish-three-day-preparation-and-both-role-readback'])
+    route.unknown.push('exact-teacher-variant')
+    return select(decisionContext.hasTeacherFiles?'prepare-control-from-teacher-material':'prepare-control-from-course',[
+      'read-teacher-material-first','verify-child-course-and-recent-topics','reuse-family-archive-without-reupload',
+      'research-comparable-school-assessments','confirm-scope-without-inventing-real-variant','learner-history',
+      'assessment-plan','quiz-validate-publish','publish-three-day-preparation-and-both-role-readback'])
+  }
   const request = openMaterialRequest(task)
   if (request) {
     route.known.push('student-material-request')

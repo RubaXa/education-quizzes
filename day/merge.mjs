@@ -116,7 +116,7 @@ export function mergeDayPage(existing, incoming) {
   }).map((subject) => subject.id)
   const changedSchedule = JSON.stringify(existing.todaySchedule) !== JSON.stringify(incoming.todaySchedule)
     || JSON.stringify(existing.targetSchedule) !== JSON.stringify(incoming.targetSchedule)
-  const changedWeekendSlot = JSON.stringify(existing.weekendSlot ?? null) !== JSON.stringify(incoming.weekendSlot ?? null)
+  const changedWeekendSlot = JSON.stringify([existing.weekendSlot??null,existing.controlPreparationSlot??null]) !== JSON.stringify([incoming.weekendSlot??null,incoming.controlPreparationSlot??null])
   const planChanged = added.length || removed.length || changed.length || changedSubjects.length
     || subjectOrderChanged || taskOrderChanged.length || newLinks || changedSchedule || changedWeekendSlot
   merged.planRevision = (existing.planRevision || 1) + (planChanged ? 1 : 0)

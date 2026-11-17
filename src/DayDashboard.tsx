@@ -24,7 +24,7 @@ import { currentEducationPersonId, readCachedPersonalContext } from '@/lib/perso
 import { useDashboardDayWork } from '@/lib/useDashboardDayWork'
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import WeekendMathSlot from './WeekendMathSlot'
-import { preparationVisible } from '../sync/preparation-window.mjs'
+import { activePreparations } from '../sync/preparation-window.mjs'
 import OlympiadHome from './components/OlympiadHome'
 import './DayDashboard.css'
 import { reportUiError } from '@/lib/uiErrors'
@@ -207,7 +207,7 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', refreshTime) }
   }, [])
 
-  const weekendWorks = index?.weekendWork?.filter((slot) => preparationVisible(slot, selectedDate)) ?? []
+  const weekendWorks = activePreparations(index?.weekendWork??[], selectedDate)
   const liveHomeworkRows: CachedHomeworkRow[] = nextWork.subjects.map((subject) => {
     const placements = (nextWork.page?.testPlacements ?? []).filter((placement) => placement.subjectId === subject.id && (placement.originDate ?? nextDate) === nextDate)
     const tasks = withQuizPlacements(subject.tasks, placements)

@@ -120,8 +120,7 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
     const sourceDate = /^day-source-(\d{4}-\d{2}-\d{2})\.json$/.exec(name)?.[1]
     if (!sourceDate) return []
     const source = readJson(resolve(local, name))
-    const slot = source.weekendSlot
-    if (!slot) return []
+    return [source.weekendSlot,source.controlPreparationSlot].filter(Boolean).flatMap(slot=>{
     const pair = links[sourceDate]
     if (!pair?.[role]) throw new Error(`Выходная работа ${name} не опубликована для роли ${role}.`)
     if (!validDate(source.targetDate) || !Array.isArray(slot.dates) || !slot.dates.length
@@ -150,8 +149,10 @@ export function buildDayDashboardIndex(local, links, role, now = new Date(), ret
       weekendTaskOwners.add(key)
     }
     if (slot.mode === 'until-complete' ? slot.availableFrom > end : !slot.dates.some((date) => date >= start && date <= end)) return []
-    return [{ dates: slot.dates, dayToken: pair[role], taskIds: slot.taskIds, lessonDate: source.targetDate,
+    const course=selected.some(task=>source.subjects.some(subject=>/спецкурс|специальный курс|практикум/iu.test(subject.name)&&subject.tasks?.some(t=>t.id===task.id)))
+    return [{ dates: slot.dates, dayToken: pair[role], taskIds: slot.taskIds, lessonDate: source.targetDate,kind:course?'course':slot===source.controlPreparationSlot?'control':'homework',
       dueDate, title: slot.title, ...(slot.mode === 'until-complete' ? { mode: slot.mode, availableFrom: slot.availableFrom, preparationThrough: slot.preparationThrough } : {}) }]
+    })
   })
   const dayCanonicalTokens = learningDayAliases(links)
   const index = { schemaVersion: 1, kind: role, today, timezone: 'Europe/Moscow', days, weekendWork, dayCanonicalTokens }

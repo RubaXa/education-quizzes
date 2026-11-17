@@ -102,6 +102,7 @@ export type DayPageData = {
     | { kind?: undefined; id: string; subjectId: string; targetTaskId: string; rawText: string; reason: string })[];
   retiredTaskIds?: string[];
   weekendSlot?: { dates: string[]; title: string; taskIds: string[]; dueDate?: string } | null;
+  controlPreparationSlot?: { dates: string[]; title: string; taskIds: string[]; dueDate?: string } | null;
   evidenceDayTokens?: string[]; planRevision?: number;
   changes?: { at: unknown; added: string[]; removed?: string[]; changed: string[]; changedSubjects?: string[]; newLinks: boolean; changedSchedule?: boolean; changedWeekendSlot?: boolean }[];
   grades?: { id: string; name: string; grades: { mark: number; weight: number; sourceId?: string; date?: string; workType?: string; comment?: string }[]; displayed_average: number; scenario_verified?: boolean }[];

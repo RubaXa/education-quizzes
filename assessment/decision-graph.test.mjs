@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { supplementalAssessmentPlacement, validateAssessmentPlan, validateVocabularySourceCoverage, vocabularyDictationWords } from './decision-graph.mjs'
+import { supplementalAssessmentPlacement, validateAssessmentPlan, validateVocabularySourceCoverage, vocabularyDictationWords,validateControlPreparation } from './decision-graph.mjs'
 
 const words = ['tomatoes', 'rice', 'tea']
 const checked = (entries) => entries.map(([wordId, status]) => ({ wordId, status }))
+
+it('requires reviewed comparable works even when preparation uses the verified course instead of a missing variant',()=>{
+ const plan={mode:'control-diagnostic',sources:[{id:'book',role:'family-material',ref:'verified-child-book',verified:true},{id:'example',role:'format-example',ref:'reviewed-school-sample',verified:true}],controlPreparation:{basis:'course',sourceIds:['book'],researchSourceIds:['example'],scopeChecked:true}}
+ expect(validateControlPreparation(plan)).toEqual([])
+ expect(validateControlPreparation({...plan,controlPreparation:undefined})).toHaveLength(1)
+ expect(validateControlPreparation({...plan,sources:plan.sources.slice(0,1)})).toHaveLength(1)
+ expect(validateControlPreparation({...plan,controlPreparation:{...plan.controlPreparation,scopeChecked:false}})).toHaveLength(1)
+ expect(validateControlPreparation({mode:'ordinary'})).toEqual([])
+})
 
 describe('vocabulary dictation selection', () => {
   it('requires the union of words from every assigned exercise, including the next page', () => {

@@ -58,7 +58,7 @@ describe('reviewed course assignment placement', () => {
     const index = buildDayDashboardIndex(local, f.links, role, new Date('2026-10-18T10:00:00Z'))
     expect(index.days.find((day) => day.date === '2026-10-19').homework).toEqual([{ subject: 'Математика', text: 'ЦДЗ' }])
     expect(index.days.find((day) => day.date === '2026-10-22').homework).toContainEqual({ subject: 'Спецкурс по математике', text: result.route.meshText })
-    expect(index.weekendWork).toEqual([{ dates: ['2026-10-17', '2026-10-18'], title: 'Спецкурс', taskIds: ['mesh-2'], lessonDate: '2026-10-22', dueDate: '2026-10-22', dayToken: `new-${role}` }])
+    expect(index.weekendWork).toEqual([{ dates: ['2026-10-17', '2026-10-18'], title: 'Спецкурс', taskIds: ['mesh-2'], lessonDate: '2026-10-22', dueDate: '2026-10-22', dayToken: `new-${role}`,kind:'course' }])
     expect(() => assertWeekendWorkRetention([{ lessonDate: '2026-10-19', taskIds: ['mesh-2'] }], index.weekendWork, [{ lessonDate: '2026-10-19', taskIds: ['mesh-2'], reason: 'Перенос, не отмена' }])).not.toThrow()
     buildDaySource(local, '2026-10-16')
     const rebuilt = JSON.parse(readFileSync(resolve(local, 'day-source-2026-10-16.json')))

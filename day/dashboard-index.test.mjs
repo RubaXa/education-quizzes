@@ -27,6 +27,20 @@ it('retains an owned calendar across day republishing and rejects another child�
 })
 
 describe('dashboard homework references', () => {
+  it('keeps control preparation alongside the existing course slot in both roles',()=>{
+    const local=mkdtempSync(resolve(tmpdir(),'education-control-preparation-'))
+    try{
+      mkdirSync(resolve(local,'diary'))
+      const slot={mode:'until-complete',dates:['2026-11-16'],availableFrom:'2026-11-16',preparationThrough:'2026-11-18',dueDate:'2026-11-19'}
+      const source={targetDate:'2026-11-19',subjects:[{name:'Спецкурс',tasks:[{id:'sheet',problems:[{id:'p'}]}]},{name:'Русский язык',tasks:[{id:'control',kind:'check',testToken:'quiz-token'}]}],testPlacements:[{taskId:'control',token:'quiz-token'}],weekendSlot:{...slot,title:'Текущий лист',taskIds:['sheet']},controlPreparationSlot:{...slot,title:'Подготовка',taskIds:['control']}}
+      writeFileSync(resolve(local,'day-source-2026-11-18.json'),JSON.stringify(source))
+      for(const role of ['student','parent']){
+        const rows=buildDayDashboardIndex(local,{'2026-11-18':{[role]:role+'-page'}},role,new Date('2026-11-17T10:00:00Z')).weekendWork
+        expect(rows).toHaveLength(2)
+        expect(rows.map(row=>[row.kind,row.taskIds])).toEqual([['course',['sheet']],['control',['control']]])
+      }
+    }finally{rmSync(local,{recursive:true,force:true})}
+  })
   it('projects a source-linked self-check into both weekend roles without inventing photo problems', () => {
     const local = mkdtempSync(resolve(tmpdir(), 'education-weekend-quiz-'))
     try {

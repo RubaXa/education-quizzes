@@ -4165,6 +4165,31 @@
       "path": "docs/decisions/telegram-sync-recovery-2026-10-19.md"
     },
     {
+      "id": "decision.three-day-assessment-preparation-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.assignments.deadline-control",
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "module.school-diary.dashboard"
+      ],
+      "consumers": [
+        "family",
+        "sync operator"
+      ],
+      "code": [],
+      "sections": [
+        "reason",
+        "transition",
+        "roles",
+        "verification",
+        "authorization"
+      ],
+      "path": "docs/decisions/three-day-assessment-preparation-2026-11-17.md"
+    },
+    {
       "id": "decision.ui-kit-photo-help-2026-10-27",
       "status": "accepted",
       "implementation": "partial",
@@ -12803,7 +12828,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-11-16",
-      "updated": "2026-11-16",
+      "updated": "2026-11-17",
       "parent": "module.assignments",
       "uses": [
         "module.synchronization.task-routing"
@@ -12814,11 +12839,13 @@
         "student"
       ],
       "code": [
+        "assessment/decision-graph.mjs",
         "sync/deadline-control.mjs",
         "sync/deadline-evidence.mjs"
       ],
       "sections": [
         "existing-pass",
+        "control-preparation",
         "evidence",
         "period-risk",
         "limits"
@@ -18159,6 +18186,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.three-day-assessment-preparation-2026-11-17",
+      "to": "module.school-diary.dashboard",
+      "type": "uses"
+    },
+    {
+      "from": "decision.three-day-assessment-preparation-2026-11-17",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "decision.ui-kit-photo-help-2026-10-27",
       "to": "module.olympiad-preparation",
       "type": "uses"
@@ -18406,6 +18443,11 @@
     {
       "from": "file:assessment/decision-graph.mjs",
       "to": "module.assessments.assessment-source-policy",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/decision-graph.mjs",
+      "to": "module.assignments.deadline-control",
       "type": "implements"
     },
     {
@@ -25747,6 +25789,11 @@
       "from": "module.assessments",
       "to": "shared.data.firestore",
       "type": "uses"
+    },
+    {
+      "from": "module.assignments.deadline-control",
+      "to": "decision.three-day-assessment-preparation-2026-11-17",
+      "type": "contains"
     },
     {
       "from": "module.assignments.deadline-control",

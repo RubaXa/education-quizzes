@@ -743,7 +743,7 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     testPlacements: source.testPlacements ?? [], notices: source.notices ?? [],
     sourceOnlyEntries: source.sourceOnlyEntries ?? [], retiredTaskIds: source.retiredTaskIds ?? [],
     assignmentRoutes: source.assignmentRoutes ?? [],
-    weekendSlot: source.weekendSlot ?? null, sourcePlanFingerprint: sourcePlanFingerprint(source),
+    weekendSlot: source.weekendSlot ?? null, controlPreparationSlot:source.controlPreparationSlot??null,sourcePlanFingerprint: sourcePlanFingerprint(source),
     audioProjectionVersion: 1, materialLinks: allMaterialLinks, materialLinkReplacements: source.materialLinkReplacements ?? [],
     taskPageRefs: pageRefs,
     evidenceDayTokens: [...new Set([pair.student, ...(source.evidenceDayTokens || [])])],
@@ -1093,12 +1093,10 @@ async function publishDashboard() {
     const index = buildDayDashboardIndex(local, links, role)
     for (const slot of index.weekendWork) {
       const page = (await db.doc(`dayPages/${slot.dayToken}`).get()).data()
+      const publishedSlot=[page?.weekendSlot,page?.controlPreparationSlot].find(item=>item&&isDeepStrictEqual(item.taskIds,slot.taskIds)&&isDeepStrictEqual(item.dates,slot.dates)&&item.title===slot.title&&(item.dueDate||slot.dueDate)===slot.dueDate)
       if (page?.kind !== role || page.targetDate !== slot.lessonDate
         || !slot.taskIds.every((id) => page.taskIds?.includes(id))
-        || JSON.stringify(page.weekendSlot?.taskIds) !== JSON.stringify(slot.taskIds)
-        || JSON.stringify(page.weekendSlot?.dates) !== JSON.stringify(slot.dates)
-        || page.weekendSlot?.title !== slot.title
-        || (page.weekendSlot?.dueDate || slot.dueDate) !== slot.dueDate) {
+        || !publishedSlot) {
         fail(`Выходная карточка ${slot.title} не совпадает с опубликованной страницей ${role}. Сначала выпустите её через day publish.`)
       }
     }
