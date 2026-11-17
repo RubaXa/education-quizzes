@@ -112,3 +112,8 @@ it('keeps separately verified work complete after its source request is resolved
  expect(lessonWorkItems([task],[],[source],[],{},{})).toMatchObject([{state:'done'}])
  expect(lessonWorkItems([{...task,status:'unknown'}],[],[source],[],{},{})).toMatchObject([{state:'todo'}])
 })
+
+it('uses the same single number on the home card and keeps the variant',()=>{
+ const task={id:'sheet',kind:'written',status:'unknown',title:'Лист',practiceVariants:[{id:'v',title:'Вариант 2'}],problems:[{id:'p4',number:4,title:'№ 4',variantId:'v'}]} as DayTask
+ expect(lessonWorkItems([task],[],[],[],{},{}).map(x=>x.title)).toEqual(['Вариант 2 · № 4'])
+})

@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../../docs/decisions/source-completion-consistency-2026-11-01.md */
@@ -6,7 +7,7 @@
 import { materialRequestView, hasSourceReceipt } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
-import { activeProcessing, workCoverageComplete } from './reviewPresentation'
+import { problemCardHeading, activeProcessing, workCoverageComplete } from './reviewPresentation'
 import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequired, taskRequired } from './parentCompletion'
 import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
@@ -72,7 +73,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
       const familyActions = requiredFamilyActions(review, decisions)
       const covered = workCoverageComplete(review) && !pending && !familyActions.length
       const state: LessonWorkItem['state'] = pending ? 'checking' : familyActions.length ? 'todo' : familyStageComplete || review?.status === 'verified' || accepted || covered ? 'done' : criterionPending ? 'unclear' : 'todo'
-      return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}№ ${problem.number}. ${problem.title}`, state, qualityOpen: covered,
+      return { id: problem.id, title: `${problem.variantId ? `${task.practiceVariants?.find((variant) => variant.id === problem.variantId)?.title ?? 'Вариант'} · ` : ''}${problemCardHeading(problem)}`, state, qualityOpen: covered,
         unresolvedReason: state === 'unclear' ? review?.assessmentBasis?.unresolvedReason : undefined,
         detail: familyActions.length ? `По решению родителя: ${familyActions.join('; ')}` : state === 'unclear'
           ? review?.assessmentBasis?.unresolvedReason === 'missing-evidence' ? review.studentFeedback?.title ?? 'Часть работы не видна на фото; подробности в разборе.'
