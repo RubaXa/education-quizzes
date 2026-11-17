@@ -150,3 +150,9 @@ priorReviewFingerprint с закрытой рубрикой. `quiz rubric TOKEN 
 | `npm run family:access` (`scripts/access-management.mjs`) | запрос доступа → проверенное состояние семейной связи | [Families](../../modules/families/README.md) |
 
 Для адресной редакции существующего закрытого родительского пути используется `npm run guide:edit -- .local/edit.json [--apply]`. [Контракт пакета](../../modules/reviews/method-guided-solutions.md#адресная-редактура) требует ожидаемую ревизию guide и задания, неизменные stage IDs/источники и readback. Это доменный CLI, ещё не зарегистрированная операция общего `education run`; изменение верстки не создаёт новую проверку ребёнка.
+
+`npm run review:presentation -- export DAY TASK .local/export.json`, затем
+`edit .local/packet.json [--apply]` — отдельная [коррекция вопроса и модели ответа](../../shared/design/student-review-step.md#addressed-presentation-migration).
+Она сохраняет предметный вердикт и знания, требует свежие отпечатки источника,
+обеих проекций, фото и помощи; не заменяет `submissions feedback` для нового зачёта
+или исправления оценки. Новые уведомления и расписания этим действием не создаются.

@@ -61,6 +61,15 @@ learningEvidence и затронутые навыки. Транзакция по
 
 16.11, `task-presentation`: адресная коррекция читает только переданные dayOwner и две роли; после проверки владельца — перечисленные закрытые guides. Не более одного точного continuation проверяется по его owner/student page той же семьи. Четыре места чтения в `storage/task-presentation-edit.mjs`: initial getAll трёх документов, extra getAll выбранных guides/continuation, transaction getAll того же набора, final getAll обеих ролей/изменённых guides. Continuation входит в extras; без query/listener/collectionGroup. Повтор transaction защищает CAS; final read подтверждает запись. Стоимость ограничена числом явно переданных изменений (до100); нет чтения при клиентском рендере. Каталог storage пока вне автоматического индекса, поэтому эти места перечислены здесь явно.
 
+17.11, `review:presentation`: `storage/review-presentation-edit.mjs` читает только
+адресные owner/student page/guide/private review/public review/help (один getAll
+шести документов), фото того же дня (limit100) и помощь одного taskId (where+limit100).
+Полный набор нужен, чтобы новое фото или ответ не были затёрты миграцией старого
+вопроса. Тот же набор перечитывается в транзакции и после записи; при100документах
+полнота неизвестна и запись запрещена. Нет нового клиентского чтения, listener,
+collectionGroup, сканирования семей или чтения знаний; запись ограничена двумя
+проекциями одного разбора. [Контракт миграции](../../shared/design/student-review-step.md#addressed-presentation-migration).
+
 16.11, `task-audit`: явная разовая сверка заданий читает только пары страниц из
 закрытого day-links (не более 100), сначала dayOwners и обе роли. Затем только
 для текущих/будущих дней и until-complete листов читает известные task IDs:

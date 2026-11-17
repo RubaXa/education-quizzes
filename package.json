@@ -69,7 +69,8 @@
     "test:e2e:install": "playwright install chromium",
     "guide:edit": "node scripts/parent-guide.mjs",
     "connect:diagnose": "node scripts/connect-diagnose.mjs",
-    "task:presentation": "node scripts/task-presentation.mjs"
+    "task:presentation": "node scripts/task-presentation.mjs",
+    "review:presentation": "node scripts/review-presentation.mjs"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
