@@ -882,6 +882,7 @@
         "согласование"
       ],
       "code": [
+        "src/lib/homeworkStatus.ts",
         "src/lib/taskUploadPresentation.ts",
         "src/WeekendMathSlot.tsx",
         "src/lib/reviewPresentation.ts",
@@ -23800,6 +23801,11 @@
     {
       "from": "file:src/lib/homeworkStatus.ts",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {

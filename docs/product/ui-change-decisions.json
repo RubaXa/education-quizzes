@@ -4307,30 +4307,18 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "6a098b29aa0403bcce6d34d8afda9fd728f5031174789afccf02e94ce07f4a37",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "4320e168ef8fcefd4ee2ff100dafcc743c3fd72f79eaa8f6df6a489cc48b3a1f",
+      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/adaptive-problem-card.md",
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/lib/homeworkStatus.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {

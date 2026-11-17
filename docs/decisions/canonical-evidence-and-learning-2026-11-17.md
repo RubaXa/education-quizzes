@@ -20,6 +20,7 @@ sections:
   - проверки
   - согласование
 code:
+  - src/lib/homeworkStatus.ts
   - src/lib/taskUploadPresentation.ts
   - src/WeekendMathSlot.tsx
   - src/lib/reviewPresentation.ts
@@ -59,7 +60,8 @@ SourceFragment сохранён. ProblemCard.tsx не повторяет уже 
 критерии, статус и фото всё равно сверяются. Вложенный номер не теряет родителя.
 Общий problemCardHeading в src/lib/reviewPresentation.ts используется в
 src/components/ProblemCard.tsx, src/DayPage.tsx, src/WeekendMathSlot.tsx и
-src/lib/taskUploadPresentation.ts, включая доступные подписи миниатюр.
+src/lib/taskUploadPresentation.ts, включая доступные подписи миниатюр. src/lib/homeworkStatus.ts использует тот же
+форматтер в сводке главной страницы, сохраняя название варианта.
 
 ## Проверки
 TaskWorkEvidence.test.tsx проверяет смешанный набор, устранение дублей ID,
