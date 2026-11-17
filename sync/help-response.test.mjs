@@ -86,6 +86,10 @@ describe('checked review reply publication',()=>{
   const reviewResponse={outcome,message:'Ты заметил первую связь. Проверим следующий переход.',next:{title:'Следующая связь',question:'Как можно проверить свой вывод?',presentation:{version:1,activity}}}
   await expect(publishHelpResponse(db,{eventId,artifactId:artifact.artifactId,reviewResponse,now})).rejects.toThrow('help_response_pedagogy_invalid')
   const decision={reason:'Проверены текущая запись ученика и критерий одного перехода, а не всего доказательства.',semanticChecked:true,noAnswerChecked:true}
+  if(outcome==='stuck'){
+   await expect(publishHelpResponse(db,{eventId,artifactId:artifact.artifactId,reviewResponse,decision,now})).rejects.toThrow('review_support_not_reduced')
+   reviewResponse.next.presentation.activity={kind:'choice',label:'Сравни связи',instruction:'Выбери одну связь.',tokens:[{id:'same',text:'Описан один и тот же предмет'},{id:'different',text:'Описаны разные предметы'}]}
+  }
   expect(await publishHelpResponse(db,{eventId,artifactId:artifact.artifactId,reviewResponse,decision,now})).toMatchObject({verified:true})
   const saved=rows.get(`dayGuidance/day/items/help-${eventId}`)
   expect(saved.reviewResponse).toEqual(reviewResponse);expect(saved.reviewContext).toEqual({checkedAt:review.checkedAt,correctedAt:null})
@@ -93,4 +97,19 @@ describe('checked review reply publication',()=>{
   expect(rows.get(jobPath).pedagogicalDecision.outcome).toBe(outcome)
   expect(rows.get('dayProgress/day/items/task')).toEqual(before)
  })
+})
+
+for(const disposition of ['clarified','ask-child','ask-parent'])it(`publishes ${disposition} for a text clarification without grading or a duplicate photo`,async()=>{
+ const {db,rows}=fixture(),request={taskId:'task',revision:1,planRevision:2,requestKind:'condition',requestText:'Учитель сказал читать записи. Почему тут ещё требуется фото?',eventReceiptId:eventId}
+ rows.set('dayHelp/day/items/task',request);rows.set(`dayHelp/day/items/task/requests/${eventId}`,request)
+ const artifact=await prepareEventTaskArtifact(db,event,{now}),jobPath=`operatorSyncJobs/${syncJobId('triage-help','family','child',eventId)}`
+ rows.set(jobPath,{kind:'triage-help',familyId:'family',childId:'child',eventId,sourceId:eventId,status:'queued',artifactPath:artifact.artifactPath,fingerprint:artifact.fingerprint})
+ const args={eventId,artifactId:artifact.artifactId,text:'Сверены запись и присланное. Остался один вопрос о назначении.',decision:{conditionChecked:true,archiveChecked:true,noAnswerChecked:true,disposition,reason:'Сверены назначение учителя, оригинал и ранее загруженные материалы без изменения учебного статуса.'},now}
+ await expect(publishHelpResponse(db,{...args,decision:{...args.decision,archiveChecked:false}})).rejects.toThrow('help_condition_decision_invalid')
+ expect(await publishHelpResponse(db,args)).toMatchObject({verified:true,unchanged:false})
+ expect(await publishHelpResponse(db,args)).toMatchObject({verified:true,unchanged:true})
+ expect(rows.get(`dayGuidance/day/items/help-${eventId}`).clarification).toBe(disposition)
+ expect(rows.has('dayProgress/day/items/task')).toBe(false)
+ expect(rows.get(rows.get(jobPath).learningEvidencePath)).toMatchObject({scope:'source-material',mastery:'not-inferred'})
+ await expect(publishHelpResponse(db,{...args,decision:{...args.decision,disposition:disposition==='ask-parent'?'clarified':'ask-parent'}})).rejects.toThrow('help_response_conflict')
 })

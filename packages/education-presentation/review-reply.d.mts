@@ -9,3 +9,5 @@ export function reviewValueValid(activity:ReviewActivityData,value:unknown,optio
 export function reviewCanonical(value:unknown):unknown
 export function sameReviewValue(a:unknown,b:unknown):boolean
 export function resolveReviewReplyStep(reply:ReviewReply,review:unknown,guidance?:unknown):ReviewReply['step']
+
+export function reviewSupportTransition(reply:ReviewReply,response:ReviewResponse):{nodeId:string;edgeId:string;trigger:string;outcome:string;from:string;to:string;transition:string}

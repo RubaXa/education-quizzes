@@ -45,7 +45,7 @@ vi.mock('./educationEventProducer', () => ({
   },
 }))
 
-import { recordVariantChoice, variantRequired, type ParentCompletionEvent } from './parentCompletion'
+import { recordTaskChoice, taskRequired, recordVariantChoice, variantRequired, type ParentCompletionEvent } from './parentCompletion'
 
 describe('parent decision event producer', () => {
   beforeEach(() => {
@@ -71,4 +71,14 @@ describe('parent decision event producer', () => {
     expect(decisions.map(({ action }) => action)).toEqual(['variant-required', 'variant-optional', 'variant-required'])
     expect(variantRequired(taskId, variantId, decisions)).toBe(true)
   })
+})
+
+it('persists a task choice without a review, with exact idempotent event and readback',async()=>{
+ const operationId=crypto.randomUUID()
+ await recordTaskChoice('day-token','history',false,operationId)
+ await recordTaskChoice('day-token','history',false,operationId)
+ const saved=harness.sources.get(`dayParentDecisions/day-token/events/${operationId}`)!
+ expect(saved).toMatchObject({taskId:'history',action:'task-optional',reviewCheckedAt:null,actorPersonId:'person-1'})
+ expect(taskRequired({id:'history'},[{id:operationId,...saved} as ParentCompletionEvent])).toBe(false)
+ await expect(recordTaskChoice('day-token','history',true,operationId)).rejects.toThrow('с другим решением')
 })

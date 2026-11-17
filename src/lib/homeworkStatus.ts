@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../../docs/decisions/source-completion-consistency-2026-11-01.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
@@ -6,7 +7,7 @@ import { materialRequestView, hasSourceReceipt } from './materialRequest'
 import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { activeProcessing, workCoverageComplete } from './reviewPresentation'
-import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequired } from './parentCompletion'
+import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequired, taskRequired } from './parentCompletion'
 import type { ParentCompletionEvent } from './parentCompletion'
 import { lessonSubjectKey } from '../../day/subject-identity.mjs'
 import { quizPassed } from './quizCompletion'
@@ -57,7 +58,7 @@ export function lessonSubjectId(name: string) {
 export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews: DayWorkReview[], decisions: ParentCompletionEvent[], tests: Record<string, QuizWorkState>, scores: Record<string, QuizScore>): LessonWorkItem[] {
   return tasks.flatMap((task) => {
     // Additional family practice is available separately and is not a school obligation.
-    if (task.optional === true) return []
+    if (!taskRequired(task,decisions)) return []
     // A MESH pointer to an earlier lesson is information, not a second task.
     // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
     if (task.referenceDate && !previousLessonReference(task)) return []

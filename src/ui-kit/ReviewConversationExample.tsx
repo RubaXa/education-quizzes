@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** Interactive examples of received/checked/next. Synthetic data, no network writes.
  * @see ../../docs/shared/design/student-review-step.md */
@@ -7,13 +8,19 @@ import type {DayHelp,DayWorkReview} from '@/lib/dayStore'
 import type {DayGuidance} from '@/lib/dayGuidance'
 import type {ReviewResponse} from '../../packages/education-presentation/review-reply.mjs'
 import {reviewStepExamples} from '@/lib/reviewStepExamples'
+import type {ReviewActivityData} from '../../packages/education-presentation/review-activity.mjs'
+import {reviewSupportTransition} from '../../packages/education-presentation/review-reply.mjs'
 import {reviewBriefWorkExample} from '@/lib/reviewBriefExamples'
 export default function ReviewConversationExample(){
+ const [mode,setMode]=useState<'choice'|'mark'|'write'>('mark')
  const [revision,setRevision]=useState(1),[parent,setParent]=useState(false),[history,setHistory]=useState<DayHelp[]>([]),[responses,setResponses]=useState<DayGuidance[]>([])
  const [outcome,setOutcome]=useState<ReviewResponse['outcome']>('correct')
  const [contextOnly,setContextOnly]=useState(false)
  const contextReview:DayWorkReview={id:'demo-context',taskId:'demo',contextEvidence:[{id:'demo-receipt',purpose:'context-evidence',type:'platform-result',title:'Учебный тематический тест',points:10,maxPoints:10,duration:3,observedDate:'2026-11-16',uploadId:'demo-photo',location:'Карточка результата',summary:'Наблюдаемый результат сохранён отдельно от оценки задания.'}]}
- const review:DayWorkReview={...reviewBriefWorkExample(reviewStepExamples[0].data),id:`demo:${revision}`,taskId:'demo',checkedAt:{seconds:revision}}
+ const base=reviewStepExamples[0].data
+ const initialActivity:ReviewActivityData=mode==='mark'?base.activity!:mode==='write'?{kind:'write',label:'Назови участок',instruction:'Впиши букву стороны и поясни свой выбор.',tokens:[{id:'side',text:'Буква стороны и пояснение'}],frame:[{slotId:'side'}],diagram:base.activity!.diagram}:{kind:'choice',label:'Выбери границу',instruction:'Нажми на одну строку.',tokens:[{id:'single',text:'Контур одной исходной фигуры'},{id:'joined',text:'Наружный контур после соединения'}],diagram:base.activity!.diagram}
+ const initial={...base,question:mode==='choice'?'Какую границу ты сравниваешь?':base.question,activity:initialActivity}
+ const review:DayWorkReview={...reviewBriefWorkExample(initial),id:`demo:${revision}`,taskId:'demo',checkedAt:{seconds:revision}}
  const listeners=useRef(new Set<(h:DayHelp[])=>void>())
  const historyRef=useRef(history)
  useEffect(()=>{historyRef.current=history;for(const listener of listeners.current)listener(history)},[history])
@@ -23,12 +30,15 @@ export default function ReviewConversationExample(){
   if(!latest?.reviewReply)return
   const a=reviewStepExamples[0].data.activity!
   const message=outcome==='correct'?'Ты нашёл сторону между двумя фигурами. Теперь проследи, как её считали до соединения.':outcome==='partial'?'Ты отметил нужный участок, но в выборе есть лишнее. Проверь, что осталось на наружном контуре.':outcome==='retry'?'Отмеченный отрезок остался снаружи. Проследи границу соединённых фигур.':outcome==='stuck'?'Пойдём от одной фигуры. Проследи её контур до соединения.':'По выбору пока неясно, какую границу ты сравниваешь. Уточни одну мысль.'
-  const activity=outcome==='correct'?{kind:'write' as const,diagram:a.diagram,label:'Твой подсчёт',instruction:'Впиши свой вывод о выбранном отрезке.',tokens:[{id:'count',text:'Сколько раз его учитывали до соединения?'}],frame:[{slotId:'count'}]}:outcome==='clarify'?{kind:'write' as const,label:'Твоя мысль',instruction:'Объясни, какой контур ты проследил.',tokens:[{id:'thought',text:'Что ты сравнил?'}],frame:[{slotId:'thought'}]}:a
+  const activity:ReviewActivityData=outcome==='stuck'?{kind:'choice',label:'Одна граница',instruction:'Выбери одну строку.',tokens:[{id:'first',text:'Сторона между фигурами'},{id:'outside',text:'Сторона снаружи всей фигуры'}],diagram:a.diagram}:outcome==='correct'?{kind:'write' as const,diagram:a.diagram,label:'Твой подсчёт',instruction:'Впиши свой вывод о выбранном отрезке.',tokens:[{id:'count',text:'Сколько раз его учитывали до соединения?'}],frame:[{slotId:'count'}]}:outcome==='clarify'?{kind:'write' as const,label:'Твоя мысль',instruction:'Объясни, какой контур ты проследил.',tokens:[{id:'thought',text:'Что ты сравнил?'}],frame:[{slotId:'thought'}]}:a
   const question=outcome==='correct'?'Сколько раз общая сторона входила в сумму периметров до соединения?':outcome==='clarify'?'Ты сравниваешь контур одной фигуры или обеих вместе?':outcome==='stuck'?'Какая сторона первой фигуры соприкасается со второй?':'Какой из отмеченных отрезков остался снаружи?'
   const r:DayGuidance={id:`help-${latest.eventReceiptId}`,taskId:'demo',stageId:'help-response',stageIndex:0,level:'hint',text:message,guideRevision:1,actorPersonId:'demo',createdAt:{seconds:Date.now()/1000},sourceRequestEventId:latest.eventReceiptId,reviewContext:{checkedAt:review.checkedAt,correctedAt:null},reviewResponse:{outcome,message,next:{title:outcome==='correct'?'Сосчитай до соединения':'Проверь контур',question,presentation:{version:1,activity}}}}
+  reviewSupportTransition(latest.reviewReply,r.reviewResponse!)
   setResponses(rows=>[...rows,r])
  }
- return <section aria-label="Ответ и следующий шаг"><h3>Ответ → отклик → следующий шаг</h3><p>Учебный пример. Отправка здесь локальная; готовый отклик проверяющего показывается отдельной кнопкой. Пример не определяет правильность введённой записи.</p>
+ return <section id="review-adaptive" aria-label="Ответ и следующий шаг"><h3>Ответ → отклик → следующий шаг</h3><p>Учебный пример. Отправка здесь локальная; готовый отклик проверяющего показывается отдельной кнопкой. Пример не определяет правильность введённой записи.</p>
+  <p><code>review → review.support → view.component</code>. Выбор режима ниже — настройка учебного примера, а не переключатель уровня в карточке ребёнка. Молчание режим не меняет.</p>
+  <div className="edu-kit-presets" aria-label="Режим общего блока">{([['choice','Выбор ответа'],['mark','Действие на модели'],['write','Своя запись']] as const).map(([value,label])=><button key={value} aria-pressed={mode===value} onClick={()=>{setMode(value);setRevision(n=>n+1);setHistory([]);setResponses([])}}>{label}</button>)}</div>
   <div className="edu-kit-presets"><button onClick={()=>setParent(false)} aria-pressed={!parent}>Ученик отвечает</button><button onClick={()=>setParent(true)} aria-pressed={parent}>Родитель смотрит</button></div>
   <div className="edu-kit-presets"><button aria-pressed={!contextOnly} onClick={()=>setContextOnly(false)}>Учебный разбор</button><button aria-pressed={contextOnly} onClick={()=>setContextOnly(true)}>Квитанция результата без оценки</button></div>
   <div style={{maxWidth:390}}><WorkReview parent={parent} review={contextOnly?contextReview:review} uploads={[]} conversation={{canReply:!parent,ready:true,help:latest,guidance:responses,loadHistory,send:async(reply,note,operationId)=>{const id=operationId.replaceAll('-','').padEnd(64,'0');setHistory(rows=>[...rows,{id,taskId:'demo',revision:1,reviewReply:reply,requestText:note,eventReceiptId:id,requestedAt:{seconds:Date.now()/1000}}]);return id}}}/></div>

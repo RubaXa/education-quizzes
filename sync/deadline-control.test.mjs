@@ -24,3 +24,11 @@ it('uses actual period dates, flags deterioration and keeps points outside the a
  expect(periodRiskChecks([{subject_id:7,average:'5',end:'2026-12-30',marks:[]}],'2026-11-16')).toEqual([])
  expect(periodRiskChecks([{subject_id:7,average:'5',marks:[]}],'2026-11-16')[0].reasons).toEqual(['period-end-unknown'])
 })
+
+it('honours the persisted family choice in the existing deadline pass without changing teacher requirements',()=>{
+ const task={id:'t',kind:'written',meshText:'Выполнить упражнение'},before=JSON.stringify(task)
+ const optional={id:'choice',taskId:'t',action:'task-optional',decidedAt:{seconds:100,nanoseconds:0}}
+ expect(deadlineDecision({task,today:'2026-11-16',dueDate:'2026-11-17',parentDecisions:[optional]})).toBeNull()
+ expect(deadlineDecision({task:{...task,optional:true},today:'2026-11-16',dueDate:'2026-11-17',parentDecisions:[{...optional,action:'task-required'}]})).not.toBeNull()
+ expect(JSON.stringify(task)).toBe(before)
+})

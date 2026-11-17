@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
+import {taskRequired} from '../day/task-requirement.mjs'
 /** @see ../docs/modules/assignments/deadline-control.md */
 import { learningGate } from '../day/learning-gate.mjs'
 import { isControlAssignment } from '../assessment/decision-graph.mjs'
@@ -7,9 +9,9 @@ const dateValue = value => {
 }
 const daysBetween = (end, start) => (dateValue(end) - dateValue(start)) / 86400000
 
-export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUploadIds = [], independentCheck = null } = {}) {
+export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUploadIds = [], independentCheck = null,parentDecisions=[] } = {}) {
   const days = daysBetween(dueDate, today)
-  if (!task?.id || task.optional === true || task.referenceDate && !task.repetition || !Number.isInteger(days) || days < -7 || days > 3) return null
+  if (!task?.id || !taskRequired(task,parentDecisions) || task.referenceDate && !task.repetition || !Number.isInteger(days) || days < -7 || days > 3) return null
   const control = isControlAssignment(task)
   const packing = /(?:взять|сдать|принести)[^.]{0,80}(?:тетрад|лист|альбом)/iu.test(task.meshText ?? '')
   if (!control && days > 1 || !control && !packing && !['written','read','check','cdz'].includes(task.kind)) return null

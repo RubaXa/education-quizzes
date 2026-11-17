@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
 /** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
@@ -135,7 +136,7 @@ function ErrorCard({ message, onRetry }: { message: string; onRetry?: () => void
  * Собирает результат из ответов, ключа и доступной ручной проверки.
  * @see ../docs/modules/assessments/quizzes.md#quiz-results
  */
-function ResultView({ assignment, token }: { assignment: Assignment; token: string }) {
+function ResultView({ assignment, token,parent=false }: { assignment: Assignment; token: string;parent?:boolean }) {
   const [key, setKey] = useState<AnswerKey>()
   const [review, setReview] = useState<ManualReview>()
   const [error, setError] = useState('')
@@ -173,7 +174,7 @@ function ResultView({ assignment, token }: { assignment: Assignment; token: stri
         </CardContent>
       </Card>
       <h2 className="text-xl font-semibold sm:text-2xl">Разбор по вопросам</h2>
-      <div className="space-y-4">{results.map((result, index) => <ResultCard key={result.question.id} result={result} index={index} />)}</div>
+      <div className="space-y-4">{results.map((result, index) => <ResultCard parent={parent} key={result.question.id} result={result} index={index} />)}</div>
     </div>
   )
 }
@@ -483,7 +484,7 @@ function QuizAccess({ token }: { token: string }) {
   if (student === null) return <p>Проверяем профиль…</p>
   if (student) return <QuizRunner key={token} token={token} />
   if (!assignment) return <p>Загружаем тест для просмотра…</p>
-  if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView assignment={assignment} token={token} /></ThemeFrame>
+  if (assignment.status === 'submitted') return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><ResultView parent assignment={assignment} token={token} /></ThemeFrame>
   const sharedTopic = sharedQuestionTopic(assignment.questions)
   return <ThemeFrame subject={assignment.subject} visual={assignment.visual}><div className="space-y-6">
     <ThemeHero subject={assignment.subject} visual={assignment.visual} title={assignment.title} description={assignment.description} preview />

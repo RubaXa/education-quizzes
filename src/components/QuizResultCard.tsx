@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
@@ -21,7 +22,7 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
  * @see ../../docs/modules/assessments/quizzes.md#quiz-results
  * @see ../../docs/shared/design/statuses.md#components
  */
-export default function ResultCard({ result, index }: { result: QuestionResult; index: number }) {
+export default function ResultCard({ result, index,parent=false }: { result: QuestionResult; index: number;parent?:boolean }) {
   const excluded = result.excluded === true
   const skipped = result.skipped === true || excluded
   const wrong = result.points === 0
@@ -39,7 +40,7 @@ export default function ResultCard({ result, index }: { result: QuestionResult; 
   const state=skipped?'skipped':pending?'waiting':wrong?'incorrect':partial?'revise':'verified'
   const stateLabel=excluded?'Не входит в зачёт этого задания':skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
   const missing=needsReflection&&!spelling&&!guidance?'Для этого вопроса ещё нет проверенного разбора с точным источником.':undefined
-  return <ReviewBrief context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined} data={{id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
+  return <ReviewBrief readOnly={parent} context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined} data={{id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
     prompt:result.question.prompt,response:{label:'Ваш ответ',value:answerText(result.question,result.answer)},
     meta:skipped?'Без оценки':pending?`Баллы уточняются · максимум ${result.question.points}`:`${result.points} из ${result.question.points} баллов`,
     body:excluded?'Вопрос и собственный ответ сохранены в истории. Баллы не начисляются.':pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,

@@ -47,3 +47,11 @@ it('requires explicit layout decisions for new common graph nodes and transition
  expect(()=>decisionCommonScope('node','new-stage')).toThrow('Нет утверждённого макета')
  expect(()=>decisionCommonScope('edge','source.mesh:new-stage')).toThrow('Нет утверждённого макета')
 })
+
+it('binds child clarification and parent choice to their actual common controls',()=>{
+ for(const id of ['learner.context','family.requirement','context:clarification','clarification:family','family:component']){
+  const item=[...decisionNodes,...decisionEdges].find(n=>n.id===id)
+  expect(item.presentationContractIds).toEqual(['assignment-clarification'])
+  expect(item.decisionRef).toBe('docs/decisions/adaptive-review-modes-2026-11-17.md')
+ }
+})

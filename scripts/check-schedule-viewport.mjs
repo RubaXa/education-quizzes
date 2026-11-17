@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Browser geometry regression for compact schedule rows.
  * @see ../docs/shared/design/README.md#mobile-card-headings
  * @see ../docs/decisions/calendar-fixed-height-2026-10-19.md
@@ -110,9 +111,9 @@ const proc = spawn(chrome, ['--headless=new', '--no-sandbox', '--disable-gpu', '
   `--user-data-dir=${profile}`, 'about:blank'], { stdio: 'ignore' })
 try {
   let port
-  for (let attempt = 0; attempt < 50; attempt++) {
+  for (let attempt = 0; attempt < 150; attempt++) {
     try { port = Number(readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n')[0]); break }
-    catch { await delay(100) }
+    catch { if(proc.exitCode!==null)throw new Error(`Chrome завершился до готовности DevTools: ${proc.exitCode}`);await delay(100) }
   }
   if (!port) throw new Error('Chrome DevTools не запустился.')
   const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json()

@@ -22,7 +22,7 @@ describe('photo help through the shared gallery', () => {
       await act(async () => root.render(draw))
       const details = rootElement.querySelector<HTMLDetailsElement>('details')!
       await act(async () => { details.open = true; details.dispatchEvent(new Event('toggle', { bubbles: false })) })
-      const submit = rootElement.querySelector<HTMLButtonElement>('.problem-statement-help-button')!
+      const submit = rootElement.querySelector<HTMLButtonElement>('[data-help-action=submit]')!
       expect(submit.disabled).toBe(true)
       const chips = rootElement.querySelectorAll<HTMLButtonElement>('.day-upload-chip')
       expect(chips[2].disabled).toBe(true)
@@ -41,7 +41,7 @@ describe('photo help through the shared gallery', () => {
       await act(async () => root.render(<PhotoHelpPanel studentToken="day" taskId="task" parent={false} canRequest uploads={[photo(id)]} help={{ id: 'x', taskId: 'task', revision: 1, photoUploadIds: [id], eventReceiptId: 'pending' }} guidance={[]} gallery={() => null} />))
       const textarea = host.querySelector<HTMLTextAreaElement>('textarea')!
       await act(async () => { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(textarea, 'Новое пояснение'); textarea.dispatchEvent(new Event('input', { bubbles: true })) })
-      const button = host.querySelector<HTMLButtonElement>('.problem-statement-help-button')!
+      const button = host.querySelector<HTMLButtonElement>('[data-help-action=submit]')!
       expect(button.disabled).toBe(false)
       await act(async () => button.click())
       expect(requestDayHelp).toHaveBeenLastCalledWith('day', 'task', 1, 'step', 'Новое пояснение', { photoUploadIds: [id], operationId: expect.any(String) })
@@ -57,4 +57,35 @@ describe('photo help through the shared gallery', () => {
       expect(host.textContent).not.toContain('ждём ответ')
     } finally { await act(async () => root.unmount()) }
   })
+  it('accepts an assignment clarification without making up a photo requirement', async()=>{
+    const host=document.createElement('div'),root=createRoot(host)
+    try{
+      await act(async()=>root.render(<PhotoHelpPanel studentToken="day" taskId="task" parent={false} canRequest uploads={[]} guidance={[]} gallery={()=>null}/>))
+      const choose=Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Уточнить задание')!
+      expect(choose).toBeDefined()
+      await act(async()=>choose.click())
+      const input=host.querySelector('textarea')!
+      await act(async()=>{Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value')!.set!.call(input,'Учитель сказал только читать записи, вопросов не задавал');input.dispatchEvent(new Event('input',{bubbles:true}))})
+      await act(async()=>host.querySelector<HTMLButtonElement>('[data-help-action=submit]')!.click())
+      expect(requestDayHelp).toHaveBeenLastCalledWith('day','task',1,'condition','Учитель сказал только читать записи, вопросов не задавал',{operationId:expect.any(String)})
+    }finally{await act(async()=>root.unmount())}
+  })
+
+  it('restores text clarification without demanding photos and closes parent waiting only after an explicit choice',async()=>{
+    const host=document.createElement('div'),root=createRoot(host),decide=vi.fn(async(_required:boolean,_operationId:string)=>{}),help={id:'h',taskId:'task',revision:1,requestKind:'condition' as const,requestText:'Только читать?',eventReceiptId:'event'}
+    const guidance=[{id:'g',taskId:'task',stageId:'help-response',stageIndex:0,level:'hint' as const,text:'Назначение пока спорно; нужен выбор родителя.',guideRevision:1,actorPersonId:'operator',createdAt:1,sourceRequestEventId:'event',clarification:'ask-parent' as const}]
+    try{
+      await act(async()=>root.render(<PhotoHelpPanel studentToken="day" taskId="task" parent={false} canRequest uploads={[]} help={help} guidance={guidance} gallery={()=>null}/>))
+      expect(host.textContent).not.toContain('нужно хотя бы одно сохранённое фото')
+      expect(host.textContent).toContain('Нужно решение родителя');expect(decide).not.toHaveBeenCalled()
+      await act(async()=>root.render(<PhotoHelpPanel studentToken="day" taskId="task" parent canRequest={false} uploads={[]} help={help} guidance={guidance} gallery={()=>null} onFamilyDecision={decide}/>))
+      decide.mockRejectedValueOnce(new Error('network'))
+      const click=async()=>act(async()=>Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Оставить обязательным')!.click())
+      await click();expect(host.textContent).toContain('Не удалось сохранить решение')
+      await click();expect(decide.mock.calls[0][1]).toBe(decide.mock.calls[1][1])
+      expect(host.textContent).toContain('Семейный выбор сохранён');expect(host.textContent).toContain('Семья оставила задание обязательным.')
+      expect(host.querySelectorAll('input,textarea')).toHaveLength(0)
+    }finally{await act(async()=>root.unmount())}
+  })
+
 })

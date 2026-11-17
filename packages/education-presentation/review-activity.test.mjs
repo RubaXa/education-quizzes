@@ -14,3 +14,11 @@ it('retains a passive diagram beside a written next answer without binding its s
  expect(reviewActivityValid({kind:'mark',label:a.label,instruction:a.instruction,tokens:a.tokens,diagram})).toBe(false)
  expect(reviewActivityValid({...a,diagram:{...diagram,segments:[{...diagram.segments[0],answer:'2'}]}})).toBe(false)
 })
+
+// Explicit single choice is one mode of the same published activity.
+it('accepts a choice without exposing a key and rejects unbounded or disguised choices',()=>{
+ const a={kind:'choice',label:'Выбери связь',instruction:'Выбери один вариант.',tokens:[{id:'a',text:'Первая связь'},{id:'b',text:'Вторая связь'}]}
+ expect(reviewActivityValid(a)).toBe(true)
+ expect(reviewActivityValid({...a,answer:'a'})).toBe(false)
+ expect(reviewActivityValid({...a,tokens:a.tokens.slice(0,1)})).toBe(false)
+})

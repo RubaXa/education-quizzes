@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Public manipulatives for an existing question; no solution, evaluator or persistence.
  * @see ../../docs/shared/design/student-review-step.md */
 const object=(v,allowed)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k))
@@ -6,8 +7,9 @@ const point=v=>object(v,['x','y'])&&Number.isFinite(v.x)&&v.x>=0&&v.x<=100&&Numb
 const list=(v,max,check)=>Array.isArray(v)&&v.length>0&&v.length<=max&&v.every(check)
 const unique=items=>new Set(items.map(i=>i.id)).size===items.length
 export function reviewActivityValid(a){
- if(!object(a,['kind','label','instruction','tokens','groups','joiner','repeat','maxItems','frame','diagram'])||!['mark','build','sort','write'].includes(a.kind)
+ if(!object(a,['kind','label','instruction','tokens','groups','joiner','repeat','maxItems','frame','diagram'])||!['choice','mark','build','sort','write'].includes(a.kind)
   ||!text(a.label,100)||!text(a.instruction)||!list(a.tokens,40,t=>object(t,['id','text'])&&text(t.id,60)&&text(t.text,160))||!unique(a.tokens))return false
+ if(a.kind==='choice'&&(a.tokens.length<2||a.tokens.length>6))return false
  if(a.kind==='sort'?!list(a.groups,4,g=>object(g,['id','label'])&&text(g.id,60)&&text(g.label,80))||!unique(a.groups):a.groups!==undefined)return false
  if(a.kind==='build'?(a.joiner!==undefined&&![' ',' + ',' · ',' → ',''].includes(a.joiner)||a.repeat!==undefined&&typeof a.repeat!=='boolean'):a.joiner!==undefined||a.repeat!==undefined)return false
  if(a.maxItems!==undefined&&(a.kind!=='build'||!Number.isInteger(a.maxItems)||a.maxItems<1||a.maxItems>20))return false
@@ -23,11 +25,11 @@ export function reviewActivityValid(a){
    if(d.segments!==undefined||d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.nodes,4,n=>text(n,120)))return false
   }else if(d.kind==='lines'){
    if(d.nodes!==undefined)return false
-   if(d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.segments,30,s=>object(s,['id','from','to','label'])&&(a.kind==='write'?text(s.id,60):ids.has(s.id))&&point(s.from)&&point(s.to)&&(s.label===undefined||text(s.label,20)))||!unique(d.segments))return false
+   if(d.rows!==undefined||d.columns!==undefined||d.cells!==undefined||!list(d.segments,30,s=>object(s,['id','from','to','label'])&&(['write','choice'].includes(a.kind)?text(s.id,60):ids.has(s.id))&&point(s.from)&&point(s.to)&&(s.label===undefined||text(s.label,20)))||!unique(d.segments))return false
   }else if(d.kind==='grid'){
    if(d.nodes!==undefined)return false
    if(d.segments!==undefined||!Number.isInteger(d.rows)||d.rows<1||d.rows>12||!Number.isInteger(d.columns)||d.columns<1||d.columns>12
-    ||!list(d.cells,144,c=>object(c,['row','column','mark','tokenId'])&&Number.isInteger(c.row)&&c.row>=0&&c.row<d.rows&&Number.isInteger(c.column)&&c.column>=0&&c.column<d.columns&&['hit','miss','given'].includes(c.mark)&&(c.tokenId===undefined||(a.kind==='write'?text(c.tokenId,60):ids.has(c.tokenId))))
+    ||!list(d.cells,144,c=>object(c,['row','column','mark','tokenId'])&&Number.isInteger(c.row)&&c.row>=0&&c.row<d.rows&&Number.isInteger(c.column)&&c.column>=0&&c.column<d.columns&&['hit','miss','given'].includes(c.mark)&&(c.tokenId===undefined||(['write','choice'].includes(a.kind)?text(c.tokenId,60):ids.has(c.tokenId))))
     ||new Set(d.cells.map(c=>`${c.row}:${c.column}`)).size!==d.cells.length)return false
   }else return false
  }

@@ -1029,10 +1029,13 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['taskId', 'action', 'reviewCheckedAt', 'actorPersonId', 'decidedAt'])
         && request.resource.data.taskId is string
         && request.resource.data.taskId in get(/databases/$(database)/documents/dayPages/$(studentToken)).data.taskIds
-        && request.resource.data.action in ['accept', 'reopen', 'require', 'optional', 'stage-required', 'stage-optional', 'variant-required', 'variant-optional']
+        && request.resource.data.action in ['accept', 'reopen', 'require', 'optional', 'stage-required', 'stage-optional', 'variant-required', 'variant-optional', 'task-required', 'task-optional']
         && request.resource.data.actorPersonId == currentPersonId()
         && request.resource.data.decidedAt == request.time
-        && ((request.resource.data.action in ['variant-required', 'variant-optional']
+        && ((request.resource.data.action in ['task-required','task-optional']
+            && request.resource.data.keys().hasOnly(['taskId','action','reviewCheckedAt','actorPersonId','decidedAt','eventOperationId','eventReceiptId','eventProducerVersion'])
+            && request.resource.data.reviewCheckedAt == null)
+          || (request.resource.data.action in ['variant-required', 'variant-optional']
             && request.resource.data.keys().hasOnly(['taskId', 'action', 'variantId', 'reviewCheckedAt', 'actorPersonId', 'decidedAt', 'eventOperationId', 'eventReceiptId', 'eventProducerVersion'])
             && request.resource.data.reviewCheckedAt == null
             && request.resource.data.variantId is string
@@ -1105,13 +1108,15 @@ service cloud.firestore {
         && (!('reviewReply' in request.resource.data) || (!('photoUploadIds' in request.resource.data)
           && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision
           && validReviewReply(studentToken, taskId, request.resource.data.reviewReply)))
+        && (!(request.resource.data.requestKind == 'condition' && 'planRevision' in request.resource.data) || (request.resource.data.requestText.size() > 0
+          && request.resource.data.planRevision == get(/databases/$(database)/documents/dayPages/$(studentToken)).data.planRevision))
         && request.resource.data.requestedAt == request.time
         && (resource == null || (resource.data.taskId == taskId
           && request.resource.data.revision >= resource.data.revision))
-        && ((('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
+        && ((('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data) || (request.resource.data.requestKind == 'condition' && 'planRevision' in request.resource.data) || (resource != null && 'photoUploadIds' in resource.data))
           ? validEducationEventReceipt(request.resource.data, 'help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId)
           : legacyOrEducationEventReceipt('help.requested', request.resource.data.get('eventOperationId', 'legacy'), 'dayHelp/' + studentToken + '/items/' + taskId))
-        && (!(('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data)) || (
+        && (!(('photoUploadIds' in request.resource.data) || ('reviewReply' in request.resource.data) || (request.resource.data.requestKind == 'condition' && 'planRevision' in request.resource.data)) || (
           existsAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId))
           && getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId)).data == request.resource.data));
       allow delete: if false;
@@ -1129,7 +1134,7 @@ service cloud.firestore {
         && request.resource.data.requestedAt == request.time
         && request.resource.data == getAfter(/databases/$(database)/documents/dayHelp/$(studentToken)/items/$(taskId)).data
         && (('photoUploadIds' in request.resource.data && request.resource.data.photoUploadIds is list
-          && request.resource.data.photoUploadIds.size() > 0) || 'reviewReply' in request.resource.data);
+          && request.resource.data.photoUploadIds.size() > 0) || 'reviewReply' in request.resource.data || (request.resource.data.requestKind == 'condition' && 'planRevision' in request.resource.data));
       allow update, delete: if false;
     }
 

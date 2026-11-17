@@ -35,7 +35,7 @@ describe('learner reply dialogue',()=>{
   await draw()
   expect(h.textContent).toContain('Твоя мысль подтверждена.');expect(h.querySelector('.edu-review-question')?.textContent).toBe(next.question)
   expect(h.querySelector('input')?.value).toBe('');expect(JSON.stringify(review)).toBe(before)
-  await draw(true);expect(h.textContent).not.toContain('Отправить ответ');expect(h.textContent).not.toContain('Непонятно')
+  await draw(true);expect(h.textContent).not.toContain('Отправить ответ');expect(h.textContent).not.toContain('Непонятно');expect(h.querySelectorAll('input,textarea,select')).toHaveLength(0)
  }))
  it('sends stuck in one click without text/photos and accepts a later explanation',()=>run(async(h,_draw,state)=>{
   await click(h,'Непонятно');expect(state.send.mock.calls[0]?.[0]).toMatchObject({intent:'stuck'})

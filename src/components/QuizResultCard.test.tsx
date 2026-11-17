@@ -68,3 +68,11 @@ it('keeps an author-excluded prompt and own answer without displaying credit, ke
  expect(html).not.toContain('Верно')
  expect(html).not.toContain(guidance.question)
 })
+
+it('keeps a parent result read-only while retaining the same child question and model',()=>{
+ const activity={kind:'write' as const,label:'Объясни',instruction:'Напиши, что обозначает единица.',tokens:[{id:'own',text:'Что означает единица?'}],frame:[{slotId:'own'}]}
+ const result=grade(assignment,{entries:{unit:{correct:'CLOSED-ANSWER',guidance:{...guidance,presentation:{version:1,activity}}}}})[0]
+ const parent=renderToStaticMarkup(createElement(ResultCard,{result,index:0,parent:true}))
+ expect(parent).not.toContain('<input');expect(parent).toContain(guidance.question);expect(parent).not.toContain('CLOSED-ANSWER')
+ expect(renderToStaticMarkup(createElement(ResultCard,{result,index:0}))).toContain('<input')
+})

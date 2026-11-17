@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
 import { db } from './firebase'
@@ -13,6 +14,7 @@ export type DayGuidance = {
   /** Present only for a parent-selected full reveal; contains one stage's public allowlisted fields. */
   revealContent?: DayGuidanceRevealContent;
   reviewResponse?: import('../../packages/education-presentation/review-reply.mjs').ReviewResponse;
+  clarification?: 'clarified'|'ask-child'|'ask-parent';
   reviewContext?: {checkedAt:unknown;correctedAt:unknown};
 }
 

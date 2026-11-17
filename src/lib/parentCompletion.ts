@@ -1,3 +1,5 @@
+export {taskRequired,taskRequirementChoice} from '../../day/task-requirement.mjs'
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { collection, doc, getDocFromServer, getDocs, onSnapshot, serverTimestamp, writeBatch } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth'
@@ -45,7 +47,7 @@ async function commitDecisionBatch(batch: ReturnType<typeof writeBatch>, student
 export type ParentCompletionEvent = {
   id: string
   taskId: string
-  action: 'accept' | 'reopen' | 'require' | 'optional' | 'stage-required' | 'stage-optional' | 'variant-required' | 'variant-optional'
+  action: 'accept' | 'reopen' | 'require' | 'optional' | 'stage-required' | 'stage-optional' | 'variant-required' | 'variant-optional' | 'task-required' | 'task-optional'
   requirementId?: string
   variantId?: string
   stageId?: string
@@ -103,6 +105,20 @@ export function variantRequired(taskId: string, variantId: string, events: Paren
     && ['variant-required', 'variant-optional'].includes(event.action) && stamp(event.decidedAt))
     .sort((a, b) => stamp(b.decidedAt).localeCompare(stamp(a.decidedAt)) || b.id.localeCompare(a.id))[0]
   return latest ? latest.action !== 'variant-optional' : requiredByDefault
+}
+
+/** A family choice survives publication revisions; it never changes teacher text or a verdict.
+ * @see ../../docs/shared/design/student-review-step.md#assignment-clarification */
+export async function recordTaskChoice(studentToken:string,taskId:string,required:boolean,operationId?:string){
+ const eventId=decisionId(operationId),action=required?'task-required':'task-optional'
+ const matches=(data:Record<string,any>)=>data.taskId===taskId&&data.action===action&&data.reviewCheckedAt===null
+ if(await decisionAlreadyCommitted(studentToken,eventId,matches))return
+ const envelope=await prepareDecisionEvent(studentToken,taskId,eventId),batch=writeBatch(db)
+ batch.set(doc(db,'dayParentDecisions',studentToken,'events',eventId),{taskId,action,reviewCheckedAt:null,
+  actorPersonId:currentEducationPersonId(),decidedAt:serverTimestamp(),eventOperationId:eventId,eventReceiptId:envelope.eventId,eventProducerVersion:1})
+ stagePreparedEducationEvent(batch,envelope)
+ await commitDecisionBatch(batch,studentToken,eventId,matches)
+ if(!await decisionAlreadyCommitted(studentToken,eventId,matches))throw new Error('Решение пока не подтверждено. Повтори отправку.')
 }
 
 /** A teacher's explicit choice comes before the family's later override.

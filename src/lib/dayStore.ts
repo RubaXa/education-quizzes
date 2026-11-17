@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/informatics-assessment-2026-11-01.md */
 import {resolveReviewReplyStep, reviewReplyErrors, sameReviewValue} from '../../packages/education-presentation/review-reply.mjs'
@@ -299,7 +300,9 @@ export function watchDayHelpHistory(studentToken: string, taskId: string, onChan
 export async function requestDayHelp(studentToken: string, taskId: string, revision: number, requestKind: NonNullable<DayHelp['requestKind']>, requestText: string, options?: { photoUploadIds?: string[]; operationId: string; reviewReply?: ReviewReply }) {
   const photoUploadIds = options?.photoUploadIds
   const reviewReply = options?.reviewReply
-  const immutable = Boolean(photoUploadIds || reviewReply)
+  const conditionRequest=Boolean(options&&requestKind==='condition'&&!photoUploadIds&&!reviewReply)
+  const immutable = Boolean(photoUploadIds || reviewReply || conditionRequest)
+  if(conditionRequest&&(!requestText.trim()||!/^[-a-f0-9]{36}$/i.test(options!.operationId)))throw new Error('Напиши, что нужно уточнить в задании.')
   if (reviewReply && (photoUploadIds || reviewReplyErrors(reviewReply).length || !/^[A-Za-z0-9-]{36}$/.test(options!.operationId))) throw new Error('Ответ изменился. Проверь запись и отправь снова.')
   if (photoUploadIds && (!photoUploadIds.length || new Set(photoUploadIds).size !== photoUploadIds.length || photoUploadIds.some(id => !/^[A-Za-z0-9_-]{20,80}$/.test(id)) || !/^[A-Za-z0-9-]{36}$/.test(options.operationId))) throw new Error('Выберите сохранённые фотографии задания и повторите отправку с тем же идентификатором.')
   const owner = await getDocFromServer(doc(db, 'dayOwners', studentToken))
@@ -343,7 +346,7 @@ export async function requestDayHelp(studentToken: string, taskId: string, revis
     catch { throw new Error('Разбор обновился. Открой новый шаг перед отправкой.') }
   }
   const batch = writeBatch(db)
-  const request = { taskId, revision, requestKind, requestText: sourceText, ...(photoUploadIds ? { photoUploadIds, planRevision } : {}), ...(reviewReply ? {reviewReply, planRevision} : {}), requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 }
+  const request = { taskId, revision, requestKind, requestText: sourceText, ...(photoUploadIds ? { photoUploadIds, planRevision } : {}), ...(reviewReply ? {reviewReply, planRevision} : {}), ...(conditionRequest?{planRevision}:{}), requestedAt: serverTimestamp(), eventOperationId: input.operationId, eventReceiptId: envelope.eventId, eventProducerVersion: 1 }
   batch.set(sourceRef, request)
   if (immutable) batch.set(historyRef, request)
   stagePreparedEducationEvent(batch, envelope)

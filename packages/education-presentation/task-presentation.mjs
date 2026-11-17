@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Shared presentation contracts, used by native publication and the real UI Kit.
  * Semantic correctness still requires reading the original; a length check is not a review.
  * @see ../../docs/shared/design/task-presentation.md
@@ -7,6 +8,7 @@
 import {solutionBlocksErrors,solutionMethodErrors} from './solution-blocks.mjs'
 const contract=(id,title,components,specRef,requiredFields,checks)=>({id,title,components,specRef,requiredFields,checks})
 export const presentationContracts={
+ 'assignment-clarification':contract('assignment-clarification','Уточнение назначения и выбор семьи',['PhotoHelpPanel','SubjectRequirementSwitch'],'docs/shared/design/student-review-step.md#assignment-clarification',['Что уточнил ребёнок','Проверенное объяснение','Ожидание либо решение родителя'],['Фото не требуется для текстового вопроса','Ребёнок не отменяет назначение','Решение семьи не меняет оценку']),
  'source-context':contract('source-context','Источник и точное назначение',['AssignmentBrief','SourceFragment'],'docs/modules/school-diary/day-page.md',['Точная запись','Назначенный оригинал','Граница известного'],['Источник не подменяется пересказом','Получение материала не означает выполнение']),
  'numbered-problem':contract('numbered-problem','Нумерованная задача',['ProblemTaskCard','ProblemStatement','ParentTaskGuide'],'docs/modules/reviews/adaptive-problem-card.md#presentation-gate',['Условие один раз','Отдельные данные и искомое каждого подпункта','Метод и переходы','Проверка'],['Нет полного условия в плитке Дано','Нет шаблонного Найти','Родительский ответ закрыт для ученика']),
  'written-response':contract('written-response','Письменный ответ и обоснование',['AssignmentBrief','ParentTaskGuide','WorkReview'],'docs/modules/reviews/subject-aware-guidance.md',['Назначенное действие','Источник и опора','Переходы рассуждения','Критерий результата'],['Предметный способ обоснования','Не выдумывать единственный допустимый ответ']),
@@ -15,7 +17,7 @@ export const presentationContracts={
  organization:contract('organization','Подготовить, взять, сдать',['AssignmentBrief'],'docs/modules/assignments/README.md',['Действие','Срок','Отдельное подтверждение'],['Фото решения не подтверждает физическую сдачу']),
  information:contract('information','Информация без учебного долга',['AssignmentBrief'],'docs/modules/synchronization/plan-generation.md',['Точный текст','Отсутствие учебного действия'],['Не создавать тест и требование фото']),
  platform:contract('platform','Результат внешней платформы',['AssignmentBrief','WorkReview','PhotoUploadControl'],'docs/modules/school-diary/day-page.md',['Назначение','Собственный результат платформы'],['Тест Education не заменяет ЦДЗ']),
- 'review-result':contract('review-result','Результат и следующий шаг',['WorkReview','ReviewBrief'],'docs/shared/design/compact-review.md',['Что принято','Точное место пробела','Опора','Один вопрос либо завершение'],['Сохраняются верные части','Наблюдение навыка не равно освоению']),
+ 'review-result':contract('review-result','Результат и следующий шаг',['WorkReview','ReviewConversation','ReviewBrief','ReviewActivity'],'docs/shared/design/compact-review.md',['Что принято','Точное место пробела','Опора','Один вопрос либо завершение'],['Сохраняются верные части','Наблюдение навыка не равно освоению']),
 }
 export function presentationContractForRule(rule){
  const {id='',product=''}=rule??{}
