@@ -1,9 +1,11 @@
+/** @see ../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import {subjectDecisionProfiles} from '../sync/subject-decisions.mjs'
 import {presentationContractForRule} from '../packages/education-presentation/task-presentation.mjs'
 /** Stable graph identity shared by the operator plan, real task frames and UI Kit.
  * @see ../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 const decisionRef='docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md'
+const parentRef='docs/decisions/parent-review-pilot-2026-11-17.md'
 const adaptiveRef='docs/decisions/adaptive-review-modes-2026-11-17.md'
 const node=(id,label,actor,specRef,ref=decisionRef)=>({id,label,actor,specRef,decisionRef:ref})
 export const decisionNodes=[
@@ -18,6 +20,8 @@ export const decisionNodes=[
  node('subject.choose','Выбор предметного действия','agent+code','docs/modules/synchronization/subject-decision-graph.md#subjects'),
  node('artifact.prepare','Нужный учебный продукт','agent+gate','docs/modules/reviews/card-generation-policy.md'),
  node('view.role','Проекции ученика и родителя','code','docs/modules/reviews/subject-card-viewmodel.md'),
+ node('view.parent-review','Полный ответ и разбор родителю','agent+gate','docs/modules/reviews/parent-review.md#roles',parentRef),
+ node('view.student-support','Подсказка и текущий шаг ребёнку','agent+gate','docs/modules/reviews/parent-review.md#roles',parentRef),
  node('view.component','Общая карточка и UI Kit','code','docs/shared/design/ui-kit.md'),
  node('publish','Запись и обратное чтение','code','docs/services/operator-cli/README.md'),
  node('learner.context','Что уточнил ребёнок','agent+gate','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
@@ -42,7 +46,11 @@ export const decisionEdges=[
  edge('clarification:family','review.support','family.requirement','Неразрешённое противоречие: решение родителя','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
  edge('review:support','review','review.support','Ответ, затруднение или уточнение','docs/shared/design/student-review-step.md#adaptive-support',adaptiveRef),
  edge('support:component','review.support','view.component','Тот же блок в выбранном режиме','docs/shared/design/student-review-step.md#adaptive-support',adaptiveRef),
- ...[['artifact.prepare','view.role'],['view.role','view.component'],['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
+ edge('role:parent','view.role','view.parent-review','Родитель: ответ, отличие и полный ход','docs/modules/reviews/parent-review.md#graph',parentRef),
+ edge('role:student','view.role','view.student-support','Ученик: безопасная опора и один шаг','docs/modules/reviews/parent-review.md#graph',parentRef),
+ edge('parent:component','view.parent-review','view.component','Полная родительская композиция','docs/modules/reviews/parent-review.md#graph',parentRef),
+ edge('student:component','view.student-support','view.component','Ученическая композиция без ключа','docs/modules/reviews/parent-review.md#graph',parentRef),
+ ...[['artifact.prepare','view.role'],['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
 ]
 
 /** Bind every graph element to real compositions; shared steps retain the selected subject.
@@ -62,18 +70,20 @@ function bind(item,rule,scope,technicalNote){
  item.uiScenarioIds=rule?[rule.id]:[...ruleIds]
  if(rule)item.uiScenarioId=rule.id
  item.presentationScope=scope
- item.presentationContractIds=scope==='source'?['source-context']:scope==='result'?['review-result']:scope==='clarification'?['assignment-clarification']:rule?[presentationContractForRule(rule).id]:[...productContractIds]
+ item.presentationContractIds=scope==='parent-review'?['parent-review']:scope==='student-support'?['review-result']:scope==='source'?['source-context']:scope==='result'?['review-result']:scope==='clarification'?['assignment-clarification']:rule?[presentationContractForRule(rule).id]:[...productContractIds]
+ if(['parent-review','student-support'].includes(scope))item.uiScenarioId='literature.reading'
  item.technical=Boolean(technicalNote)
  if(technicalNote)item.presentationNote=technicalNote
 }
 const commonNodeScopes={
  'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source','source.obligation':'source','source.context':'source',
  'learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
+ 'view.parent-review':'parent-review','view.student-support':'student-support',
  'learner.context':'clarification','family.requirement':'clarification','review.support':'result',publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
- 'criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','view.role:view.component':'context',
+ 'criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
  'component:context':'clarification','family:component':'clarification','context:clarification':'clarification','clarification:family':'clarification','review:support':'result','support:component':'result','view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
 }
 /** New common graph elements require an explicit binding, never an inferred generic card. */
@@ -95,6 +105,6 @@ export function decisionPresentationBinding(itemId,scenarioId){
  if(!item)return undefined
  const rule=rules.find(rule=>rule.id===scenarioId)
  if(!rule||!item.uiScenarioIds.includes(rule.id))return undefined
- const contractIds=item.presentationScope==='source'?['source-context']:item.presentationScope==='result'?['review-result']:item.presentationScope==='clarification'?['assignment-clarification']:[presentationContractForRule(rule).id]
+ const contractIds=item.presentationScope==='parent-review'?['parent-review']:item.presentationScope==='student-support'?['review-result']:item.presentationScope==='source'?['source-context']:item.presentationScope==='result'?['review-result']:item.presentationScope==='clarification'?['assignment-clarification']:[presentationContractForRule(rule).id]
  return {item,uiScenarioId:rule.id,contractIds,technical:item.technical,note:item.presentationNote}
 }

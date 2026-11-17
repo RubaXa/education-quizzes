@@ -2709,30 +2709,21 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "141dd65eda5c4994ef241f2422ded49c1c21fdfebde7f426cdd8d1f9965ae46f",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "280a5568cb26a03dc442130e6125022605d0e158ec0da3968aafb138442a2068",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3601,22 +3592,21 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "79d6091d53e879f975aeb38b49718985c207ff16e4107985ba777c76728cfcfb",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "5e7cd55d1c5650769cbad2de65358ad1583c2c79025dbab0a506996d71451870",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.dialogue.test.tsx",
-        "src/lib/quizReviewConversation.test.ts",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
         "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/QuizResultCard.test.tsx"
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -7199,21 +7189,21 @@
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "135b1a9cf3b6109cd7c2598d4c5ec0d45ab3a3a98963b406a15258979659a831",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "13c248c2fcb0045d7c1f8b2f6a62a1d364dad920d15a155f63d2292dd4bc3cc7",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.dialogue.test.tsx",
-        "src/lib/quizReviewConversation.test.ts",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
         "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/components/ReviewTypography.css": {
@@ -7733,30 +7723,21 @@
       }
     },
     "src/components/ReviewActivity.tsx": {
-      "sha256": "227a48ef94b28be323b93364dddc45a6b53f2f2bdd4037f6ab5efd251b06aae9",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "5ec40d97bca33820279ae902333d0b491f918046e6186f7bdd5f920508899402",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/lib/reviewStepExamples.ts": {
@@ -7821,21 +7802,21 @@
       }
     },
     "src/components/ReviewConversation.tsx": {
-      "sha256": "9b5423a254223179796ea864e022bcca508355f0a3911a8f20f7b56f0650d537",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "191b04ebdaf3cfa6009d8a6e45ae3afd2d5f2dc2625bfb96630fc4e80e5d4e6a",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.dialogue.test.tsx",
-        "src/lib/quizReviewConversation.test.ts",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
         "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/components/ReviewReplyControls.tsx": {
@@ -8416,30 +8397,21 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "f672bfc6bb158a6cafa3d9fed4907b3924c2e2b3eada5791bcd84ce503cfdb1c",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "d7da673e318a26dc7255cedbe76cb4123d2ad63aea0a76ef32e58d419d5daca0",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
@@ -8481,30 +8453,21 @@
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.tsx": {
-      "sha256": "2eb310e769109143d32ee88a505da9010b08e1d24c8a6cb8059a61016ea023b6",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "a6b7ad893206c4fa57e4a8e267305c37830f169b8d746508f17d8c90e6af782e",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/ui-kit/decisionScenarioFixtures.ts": {
@@ -8594,30 +8557,21 @@
       }
     },
     "packages/education-presentation/task-presentation.mjs": {
-      "sha256": "84a8b3ea33d63fb2655b56d3c2caf6e8fadeeed5c175812a06828f7f9c1f1b97",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "9a40dda52e6bf4fcbfe6d575c77533b41b68a0ec95e94a4c2c4393c4108dfdd2",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
         "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "scripts/task-presentation.mjs": {
@@ -8896,21 +8850,21 @@
       }
     },
     "src/components/QuizResultConversation.tsx": {
-      "sha256": "e4dc43869d475420cc87659737c545174ee94830d21ff81f914278f01651858c",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "6970c2bd7c072752242553287d09a68a93fa1a698c0db424abfc510e2e608ad7",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/reviews/parent-review.md"
       ],
       "tests": [
-        "src/components/QuizResultCard.dialogue.test.tsx",
-        "src/lib/quizReviewConversation.test.ts",
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
         "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     },
     "src/lib/quizReviewConversation.ts": {
@@ -8947,6 +8901,132 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
+      }
+    },
+    "packages/education-presentation/parent-review.mjs": {
+      "sha256": "61c0ef727ccd8bdc71a5282216ced19405d5df03f8396c81d0c9498880179b9e",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "scripts/quiz-parent-review.mjs": {
+      "sha256": "e861ec5886f1d3b9f394c733b506c4a2ecf5357d5c14077d9e53c33ed4d72edf",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "src/components/ParentReviewContent.css": {
+      "sha256": "da9cbed74226f6216215d2295f2b7cd32b277461faa8fb4b9909b0b267844758",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "src/components/ParentReviewContent.tsx": {
+      "sha256": "7425658fd012a3dae5c2e6a371f3088c0d334f6f4c363b18288f45dc082af000",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "src/lib/quizParentReview.ts": {
+      "sha256": "9b7755a030cf70ee047c7ae2ef6021c2f6304ce3de6fa340498aece6315e3ac6",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "src/ui-kit/ParentReviewPilotExample.tsx": {
+      "sha256": "25ee713e509f227623e76f4e7778d5dee5bcbb0687d889be38ac328854527ece",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+      }
+    },
+    "storage/quiz-parent-review.mjs": {
+      "sha256": "ca6a3f7fb5ee8319ba42ca0fdf50d6f40d9da646cd2eefa1aa7f9f4d1af96f48",
+      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "specs": [
+        "docs/modules/reviews/parent-review.md"
+      ],
+      "tests": [
+        "src/components/QuizParentReview.test.tsx",
+        "src/components/QuizParentReview.access.test.tsx",
+        "storage/quiz-parent-review.test.mjs",
+        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
       }
     }
   }

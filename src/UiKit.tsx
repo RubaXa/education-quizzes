@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/modules/families/README.md#birthday */
 import { BirthdayGreeting } from './components/BirthdayTheme'
@@ -171,6 +172,7 @@ export default function UiKit() {
   const [section,setSection] = useState<UiKitSection>(window.location.hash.includes('section=compact-review')?'compact-review':window.location.hash.includes('decision=')?'decision-cards':'results')
   useEffect(()=>{const navigate=()=>{const query=new URLSearchParams(window.location.hash.split('?')[1]);if(query.get('section')==='compact-review')setSection('compact-review');else if(query.has('decision'))setSection('decision-cards')};window.addEventListener('hashchange',navigate);return()=>window.removeEventListener('hashchange',navigate)},[])
   useEffect(()=>{if(section==='compact-review'&&new URLSearchParams(window.location.hash.split('?')[1]).get('focus')==='review.support')document.getElementById('review-adaptive')?.scrollIntoView({block:'start'})},[section])
+  useEffect(()=>{if(section==='compact-review'&&new URLSearchParams(window.location.hash.split('?')[1]).get('focus')==='review.roles')document.getElementById('review-roles')?.scrollIntoView({block:'start'})},[section])
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
   const [fileExample,setFileExample] = useState(fileExamples.find(file => file.contentType === 'application/pdf')!)

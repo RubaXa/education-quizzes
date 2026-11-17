@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/shared/design/student-review-step.md */
 import {createElement,useState} from 'react'
@@ -24,7 +25,7 @@ function Activity({activity:a,reply,question}:{activity:ReviewActivityData;reply
  const tokens=new Map(a.tokens.map(t=>[t.id,t.text])),current=selected.map(id=>tokens.get(id))
  const changed=selected.length>0||Object.values(groups).some(Boolean)||Object.values(written).some(Boolean)
  function select(id:string){setSelected(s=>a.kind==='choice'?[id]:a.kind==='build'?(s.length>=(a.maxItems??20)?s:[...s,id]):s.includes(id)?s.filter(v=>v!==id):[...s,id])}
- return <section className="edu-step" aria-label={a.label} data-decision-nodes="review.support view.component" data-decision-edges="review:support support:component" data-review-mode={a.kind}>
+ return <section className="edu-step" aria-label={a.label} data-decision-nodes="review.support view.student-support view.component" data-decision-edges="review:support support:component role:student student:component" data-review-mode={a.kind}>
   {!question&&<h4>{a.label}</h4>}{a.instruction.trim()!==question?.trim()&&<p className="edu-step-instruction">{a.instruction}</p>}
   {a.diagram&&<Diagram diagram={a.diagram} selected={selected} continuation={a.kind==='write'}/>}
   {a.kind==='sort'?<div className="edu-step-sort">{a.tokens.map(t=><label key={t.id}><span>{t.text}</span><select aria-label={`Куда поместить: ${t.text}`} value={groups[t.id]??''} onChange={e=>setGroups(g=>({...g,[t.id]:e.target.value}))}><option value="">Выбери группу</option>{a.groups!.map(g=><option key={g.id} value={g.id}>{g.label}</option>)}</select></label>)}</div>
@@ -44,6 +45,6 @@ function Activity({activity:a,reply,question}:{activity:ReviewActivityData;reply
 export default function ReviewActivity({activity,reply,readOnly=false,question}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>;readOnly?:boolean;question?:string}){
  const safe=projectReviewActivity(activity)
  if(!safe)return null
- if(readOnly)return <div className="edu-step-readonly" data-decision-nodes="review.support view.component" data-decision-edges="review:support support:component" data-review-mode={safe.kind}>{safe.diagram&&<Diagram diagram={safe.diagram} selected={[]}/>}</div>
+ if(readOnly)return <div className="edu-step-readonly" data-decision-nodes="review.support view.student-support view.component" data-decision-edges="review:support support:component role:student student:component" data-review-mode={safe.kind}>{safe.diagram&&<Diagram diagram={safe.diagram} selected={[]}/>}</div>
  return <Activity key={JSON.stringify(safe)} activity={safe} reply={reply} question={question}/>
 }
