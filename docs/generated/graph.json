@@ -2969,6 +2969,49 @@
       "path": "docs/decisions/question-guidance-2026-10-19.md"
     },
     {
+      "id": "decision.quiz-review-dialogue-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "shared.design.student-review-step",
+      "uses": [
+        "module.assessments.quizzes",
+        "module.synchronization.event-queue",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "packages/education-presentation/quiz-review-reply.mjs",
+        "packages/education-presentation/quiz-review-reply.d.mts",
+        "src/lib/quizCardViewModel.ts",
+        "src/lib/quizReviewConversation.ts",
+        "src/components/QuizResultConversation.tsx",
+        "src/components/ReviewConversation.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/QuizAttemptReview.tsx",
+        "src/App.tsx",
+        "packages/education-events/envelope.mjs",
+        "sync/event-task-artifact.mjs",
+        "sync/help-response.mjs",
+        "src/ui-kit/QuizReviewDialogueExample.tsx",
+        "src/components/ReviewBriefShowcase.tsx",
+        "firestore.rules"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/quiz-review-dialogue-2026-11-17.md"
+    },
+    {
       "id": "decision.quiz-runner-kit-audit-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -7052,6 +7095,20 @@
       "consumer": "Renderer; UI Kit; оператор; Vitest"
     },
     {
+      "id": "file:packages/education-presentation/quiz-review-reply.d.mts",
+      "path": "packages/education-presentation/quiz-review-reply.d.mts",
+      "kind": "artifact",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
+    },
+    {
+      "id": "file:packages/education-presentation/quiz-review-reply.mjs",
+      "path": "packages/education-presentation/quiz-review-reply.mjs",
+      "kind": "artifact",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
+    },
+    {
       "id": "file:packages/education-presentation/review-activity.d.mts",
       "path": "packages/education-presentation/review-activity.d.mts",
       "kind": "artifact",
@@ -8296,6 +8353,13 @@
       "kind": "verification",
       "purpose": "Синтетическая REST :test матрица атомарной пары photo source/event и границ role/scope/device/task/path",
       "consumer": "Vitest; Firestore Rules operator diagnostic"
+    },
+    {
+      "id": "file:scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+      "path": "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+      "kind": "verification",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
     },
     {
       "id": "file:scripts/firestore-rules-role-diagnostics.test.mjs",
@@ -9705,6 +9769,13 @@
       "consumer": "Разбор; UI Kit; проверка"
     },
     {
+      "id": "file:src/components/QuizResultCard.dialogue.test.tsx",
+      "path": "src/components/QuizResultCard.dialogue.test.tsx",
+      "kind": "verification",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
+    },
+    {
       "id": "file:src/components/QuizResultCard.test.tsx",
       "path": "src/components/QuizResultCard.test.tsx",
       "kind": "verification",
@@ -9717,6 +9788,13 @@
       "kind": "artifact",
       "purpose": "Правило, ход программы и отличие ответа после отправки",
       "consumer": "Ученик; родитель"
+    },
+    {
+      "id": "file:src/components/QuizResultConversation.tsx",
+      "path": "src/components/QuizResultConversation.tsx",
+      "kind": "artifact",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
     },
     {
       "id": "file:src/components/QuizTextAnswer.test.tsx",
@@ -10916,6 +10994,20 @@
       "consumer": "`src/App.tsx`"
     },
     {
+      "id": "file:src/lib/quizReviewConversation.test.ts",
+      "path": "src/lib/quizReviewConversation.test.ts",
+      "kind": "verification",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
+    },
+    {
+      "id": "file:src/lib/quizReviewConversation.ts",
+      "path": "src/lib/quizReviewConversation.ts",
+      "kind": "artifact",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
+    },
+    {
       "id": "file:src/lib/quizWrite.test.ts",
       "path": "src/lib/quizWrite.test.ts",
       "kind": "verification",
@@ -11292,6 +11384,13 @@
       "kind": "artifact",
       "purpose": "Общие условные история и resolver для примеров",
       "consumer": "UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/QuizReviewDialogueExample.tsx",
+      "path": "src/ui-kit/QuizReviewDialogueExample.tsx",
+      "kind": "artifact",
+      "purpose": "Ответ текущего шага, неизменная оценка и роли",
+      "consumer": "Ученик; родитель; оператор; проверка"
     },
     {
       "id": "file:src/ui-kit/QuizRunnerExample.tsx",
@@ -16304,7 +16403,8 @@
         "отправка-и-ответ",
         "adaptive-support",
         "assignment-clarification",
-        "addressed-presentation-migration"
+        "addressed-presentation-migration",
+        "quiz-dialogue"
       ],
       "path": "docs/shared/design/student-review-step.md"
     },
@@ -17474,6 +17574,21 @@
     {
       "from": "decision.pwa-startup-recovery-2026-10-22",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-review-dialogue-2026-11-17",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-review-dialogue-2026-11-17",
+      "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-review-dialogue-2026-11-17",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -18978,6 +19093,11 @@
     },
     {
       "from": "file:firestore.rules",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:firestore.rules",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -19323,6 +19443,11 @@
     },
     {
       "from": "file:packages/education-events/envelope.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-events/envelope.mjs",
       "to": "module.synchronization.event-queue",
       "type": "implements"
     },
@@ -19344,6 +19469,26 @@
     {
       "from": "file:packages/education-presentation/notification.mjs",
       "to": "shared.design.telegram",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/quiz-review-reply.d.mts",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/quiz-review-reply.d.mts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/quiz-review-reply.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/quiz-review-reply.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -21088,6 +21233,11 @@
     },
     {
       "from": "file:src/App.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
       "to": "decision.quiz-runner-kit-audit-2026-11-01",
       "type": "implements"
     },
@@ -22063,6 +22213,11 @@
     },
     {
       "from": "file:src/components/QuizAttemptReview.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizAttemptReview.tsx",
       "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
@@ -22168,12 +22323,27 @@
     },
     {
       "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
       "to": "module.assessments.quizzes",
       "type": "implements"
     },
     {
       "from": "file:src/components/QuizResultCard.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultConversation.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultConversation.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -22278,6 +22448,11 @@
     },
     {
       "from": "file:src/components/ReviewBriefShowcase.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBriefShowcase.tsx",
       "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
@@ -22289,6 +22464,11 @@
     {
       "from": "file:src/components/ReviewConversation.tsx",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewConversation.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
     },
     {
@@ -23588,6 +23768,11 @@
     },
     {
       "from": "file:src/lib/quizCardViewModel.ts",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizCardViewModel.ts",
       "to": "module.assessments.quiz-chain-proposal",
       "type": "implements"
     },
@@ -23619,6 +23804,16 @@
     {
       "from": "file:src/lib/quizLocalStore.ts",
       "to": "service.web-app.local-first-sync",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizReviewConversation.ts",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quizReviewConversation.ts",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -23959,6 +24154,16 @@
     {
       "from": "file:src/ui-kit/olympiadHistoryFixtures.ts",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/QuizReviewDialogueExample.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/QuizReviewDialogueExample.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -24528,6 +24733,11 @@
     },
     {
       "from": "file:sync/event-task-artifact.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-artifact.mjs",
       "to": "decision.sync-task-routing-2026-10-23",
       "type": "implements"
     },
@@ -24594,6 +24804,11 @@
     {
       "from": "file:sync/help-response.mjs",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/help-response.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
     },
     {
@@ -29343,6 +29558,11 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "decision.reviews.presentation-migration-2026-11-17",
       "type": "contains"
     },
@@ -29368,6 +29588,16 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "file:scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:src/components/QuizResultCard.dialogue.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "file:src/components/ReviewActivity.test.tsx",
       "type": "verified-by"
     },
@@ -29379,6 +29609,11 @@
     {
       "from": "shared.design.student-review-step",
       "to": "file:src/components/SubjectRequirementSwitch.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:src/lib/quizReviewConversation.test.ts",
       "type": "verified-by"
     },
     {

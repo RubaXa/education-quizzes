@@ -64,7 +64,7 @@ service cloud.firestore {
       return childMember(familyId, childId)
         && get(memberPath(familyId)).data.role == 'student';
     }
-    function validEducationEventSource(data, member, personId) {
+    function validDayEducationEventSource(data, member, personId) {
       let ref = data.sourceRef;
       let helpPath = /databases/$(database)/documents/dayHelp/$(ref.get('dayToken', 'unused'))/items/$(ref.get('taskId', 'unused'));
       let quizPath = /databases/$(database)/documents/assignments/$(ref.get('quizToken', 'unused'));
@@ -83,7 +83,7 @@ service cloud.firestore {
             && getAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId)).data.status == 'requested'
             && getAfter(/databases/$(database)/documents/families/$(data.familyId)/children/$(data.childId)/mediaRequests/$(ref.recordId)).data.eventReceiptId == data.eventId)
           || (data.eventType == 'help.requested'
-            && ref.kind == 'help' && ref.dayToken is string && ref.taskId is string
+            && ref.kind == 'help' && ref.get('dayToken', null) is string && ref.taskId is string
             && ref.documentPath == 'dayHelp/' + ref.dayToken + '/items/' + ref.taskId
             && existsAfter(/databases/$(database)/documents/dayOwners/$(ref.dayToken))
             && get(/databases/$(database)/documents/dayOwners/$(ref.dayToken)).data.familyId == data.familyId
@@ -226,6 +226,22 @@ service cloud.firestore {
             && getAfter(bookRequirementPath).data.eventProducerVersion == 1
             && getAfter(bookRequirementPath).data.eventReceiptId == data.eventId
             && getAfter(bookRequirementPath).data.eventOperationId == data.operationId));
+    }
+    function validQuizHelpEvent(data,member) {
+      let ref=data.sourceRef;
+      let a=get(/databases/$(database)/documents/assignments/$(ref.quizToken)).data;
+      let source=getAfter(/databases/$(database)/documents/quizStepReplies/$(ref.quizToken)/items/$(ref.taskId)).data;
+      return data.source == 'firestore' && ref.kind == 'help' && member.role == 'student'
+        && !ref.keys().hasAny(['dayToken']) && ref.taskId is string
+        && ref.documentPath == 'quizStepReplies/' + ref.quizToken + '/items/' + ref.taskId
+        && a.familyId == data.familyId && a.childId == data.childId && a.status == 'submitted'
+        && source.taskId == ref.taskId && source.eventProducerVersion == 1
+        && source.eventReceiptId == data.eventId && source.eventOperationId == data.operationId
+        && data.operationId.matches('^[A-Za-z0-9-]{36}$');
+    }
+    function validEducationEventSource(data,member,personId) {
+      return data.eventType == 'help.requested' && data.sourceRef.get('quizToken',null) is string
+        ? validQuizHelpEvent(data,member) : validDayEducationEventSource(data,member,personId);
     }
     function validEducationEventCreate(eventId, data) {
       let session = get(/databases/$(database)/documents/deviceSessions/$(request.auth.uid)).data;
@@ -919,6 +935,62 @@ service cloud.firestore {
         && request.resource.data.familyChoiceAt == request.time
         && request.resource.data.familyChoiceBy == currentPersonId()
         && legacyOrEducationEventReceipt('quiz.requirement_changed', request.resource.data.get('eventOperationId', 'legacy'), 'assignments/' + linkToken);
+    }
+
+
+    // @see docs/decisions/quiz-review-dialogue-2026-11-17.md
+    function quizStepOwner(token) {
+      let a=get(/databases/$(database)/documents/assignments/$(token)).data;
+      return childMember(a.familyId,a.childId);
+    }
+    function quizStepStudent(token) {
+      let a=get(/databases/$(database)/documents/assignments/$(token)).data;
+      return a.status == 'submitted' && quizStudent(a.familyId,a.childId);
+    }
+    function validQuizStep(token,taskId,reply) {
+      let a=get(/databases/$(database)/documents/assignments/$(token)).data;
+      let g=get(/databases/$(database)/documents/answerKeys/$(token)).data.entries[taskId].guidance;
+      let root={'question':g.question,'activity':g.presentation.activity};
+      let next=reply.sourceId == 'review' ? {} : get(/databases/$(database)/documents/quizStepGuidance/$(token)/items/$(reply.sourceId)).data;
+      let step=reply.sourceId == 'review' ? root : {'question':next.reviewResponse.next.question,'activity':next.reviewResponse.next.presentation.activity};
+      return reply.keys().hasOnly(['version','sourceId','checkedAt','correctedAt','step','intent','value'])
+        && reply.version == 1 && reply.intent in ['answer','stuck']
+        && reply.value is string && reply.value.size() <= 6000
+        && reply.checkedAt == a.submittedAt && reply.correctedAt == root
+        && reply.step == step
+        && (reply.sourceId == 'review' || (reply.sourceId.matches('^help-[a-f0-9]{64}$')
+          && next.taskId == taskId
+          && next.reviewContext == {'checkedAt':a.submittedAt,'correctedAt':root}));
+    }
+    match /quizStepReplies/{token}/items/{taskId} {
+      allow get: if quizStepOwner(token);
+      allow list,delete: if false;
+      allow create,update: if quizStepStudent(token)
+        && request.resource.data.keys().hasOnly(['taskId','revision','requestKind','requestText','reviewReply','requestedAt','eventOperationId','eventReceiptId','eventProducerVersion'])
+        && request.resource.data.taskId == taskId && request.resource.data.requestKind == 'step'
+        && request.resource.data.revision is int && request.resource.data.revision >= 1 && request.resource.data.revision <= 100000
+        && (resource == null || request.resource.data.revision > resource.data.revision)
+        && request.resource.data.requestText is string && request.resource.data.requestText.size() <= 800
+        && request.resource.data.requestedAt == request.time
+        && validQuizStep(token,taskId,request.resource.data.reviewReply)
+        && validEducationEventReceipt(request.resource.data,'help.requested',request.resource.data.eventOperationId,'quizStepReplies/' + token + '/items/' + taskId)
+        && existsAfter(/databases/$(database)/documents/quizStepReplies/$(token)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId))
+        && getAfter(/databases/$(database)/documents/quizStepReplies/$(token)/items/$(taskId)/requests/$(request.resource.data.eventReceiptId)).data == request.resource.data;
+      match /requests/{eventId} {
+        allow get,list: if quizStepOwner(token);
+        allow create: if quizStepStudent(token) && eventId.matches('^[a-f0-9]{64}$')
+          && request.resource.data.eventReceiptId == eventId
+          && request.resource.data.requestedAt == request.time
+          && existsAfter(/databases/$(database)/documents/educationEvents/$(eventId))
+          && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.createdAt == request.time
+          && getAfter(/databases/$(database)/documents/educationEvents/$(eventId)).data.sourceRef.documentPath == 'quizStepReplies/' + token + '/items/' + taskId
+          && request.resource.data == getAfter(/databases/$(database)/documents/quizStepReplies/$(token)/items/$(taskId)).data;
+        allow update,delete: if false;
+      }
+    }
+    match /quizStepGuidance/{token}/items/{responseId} {
+      allow get,list: if quizStepOwner(token);
+      allow write: if false;
     }
 
     match /answerKeys/{linkToken} {

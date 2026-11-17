@@ -1431,3 +1431,13 @@
 
 | [day/task-requirement.mjs](../day/task-requirement.mjs) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |
 | [day/task-requirement.d.mts](../day/task-requirement.d.mts) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |
+
+| [packages/education-presentation/quiz-review-reply.mjs](../packages/education-presentation/quiz-review-reply.mjs) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [packages/education-presentation/quiz-review-reply.d.mts](../packages/education-presentation/quiz-review-reply.d.mts) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [src/lib/quizReviewConversation.ts](../src/lib/quizReviewConversation.ts) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [src/lib/quizReviewConversation.test.ts](../src/lib/quizReviewConversation.test.ts) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [src/components/QuizResultConversation.tsx](../src/components/QuizResultConversation.tsx) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [src/components/QuizResultCard.dialogue.test.tsx](../src/components/QuizResultCard.dialogue.test.tsx) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [src/ui-kit/QuizReviewDialogueExample.tsx](../src/ui-kit/QuizReviewDialogueExample.tsx) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [scripts/firestore-rules-quiz-dialogue-emulator.test.mjs](../scripts/firestore-rules-quiz-dialogue-emulator.test.mjs) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |
+| [docs/decisions/quiz-review-dialogue-2026-11-17.md](../docs/decisions/quiz-review-dialogue-2026-11-17.md) | [Диалог теста](shared/design/student-review-step.md) | Ответ текущего шага, неизменная оценка и роли | Ученик; родитель; оператор; проверка |

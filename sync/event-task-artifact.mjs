@@ -1,3 +1,6 @@
+/** @see ../docs/decisions/quiz-review-dialogue-2026-11-17.md */
+import {quizQuestionReview} from '../packages/education-presentation/quiz-review-reply.mjs'
+import {grade} from '../src/lib/quiz.ts'
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import {resolveReviewReplyStep,reviewReplyErrors} from '../packages/education-presentation/review-reply.mjs'
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
@@ -59,7 +62,8 @@ function validate(event) {
     || event.source !== 'firestore' || !TYPES.has(event.eventType)) fail('unsupported_task_artifact')
   const source = event.sourceRef ?? {}
   const dayType = ['upload.confirmed', 'help.requested'].includes(event.eventType)
-  const expected = dayType && ID.test(source.dayToken ?? '') && validSegment(source.recordId ?? source.taskId)
+  const expected = event.eventType === 'help.requested' && ID.test(source.quizToken??'') && !source.dayToken && validSegment(source.taskId)
+    ? `quizStepReplies/${source.quizToken}/items/${source.taskId}` : dayType && ID.test(source.dayToken ?? '') && validSegment(source.recordId ?? source.taskId)
     ? `${event.eventType === 'upload.confirmed' ? 'dayUploads' : 'dayHelp'}/${source.dayToken}/${event.eventType === 'upload.confirmed' ? 'files' : 'items'}/${source.recordId ?? source.taskId}`
     : event.eventType.startsWith('quiz.') && ID.test(source.quizToken ?? '') ? `assignments/${source.quizToken}`
       : event.eventType === 'material.ready' && ID.test(source.recordId ?? '')
@@ -94,7 +98,7 @@ export async function captureEventTaskInputs(db, event, { now = new Date().toISO
     const member = await db.doc(`families/${event.familyId}/members/${personId}`).get()
     const value = member.data()
     if (!member.exists || value.active !== true || !['student', 'parent'].includes(value.role)
-      || !value.childIds?.includes(event.childId)) fail('task_actor_unavailable')
+      || !value.childIds?.includes(event.childId) || (event.eventType==='help.requested'&&event.sourceRef.quizToken&&value.role!=='student')) fail('task_actor_unavailable')
   }
   // Expiring upload transport credentials are not task evidence.
   const { upload: _transport, ...sourceEvidence } = source
@@ -165,6 +169,26 @@ export async function captureEventTaskInputs(db, event, { now = new Date().toISO
           revision: source.revision, requestedAtMs: requestTime })
       if (!legacyMatches) fail('task_source_superseded')
     }
+  } else if(event.eventType==='help.requested'&&event.sourceRef.quizToken){
+    const token=event.sourceRef.quizToken,taskId=event.sourceRef.taskId
+    const [assignment,key,privateReview,review]=await Promise.all([
+      db.doc(`assignments/${token}`).get(),db.doc(`answerKeys/${token}`).get(),
+      db.doc(`quizReviewPrivate/${token}`).get(),db.doc(`reviews/${token}`).get()])
+    const attempt=assignment.data()
+    if(!assignment.exists||attempt.familyId!==event.familyId||attempt.childId!==event.childId||attempt.status!=='submitted'||!key.exists
+      ||source.taskId!==taskId||source.eventReceiptId!==event.eventId||reviewReplyErrors(source.reviewReply).length||source.photoUploadIds!==undefined)fail('task_quiz_reply_invalid')
+    inputs.assignment=canonical(attempt)
+    inputs.answerKey=canonical(privateQuizKey(key.data(),privateReview.data()))
+    inputs.previousReview=canonical(privateReview.data()?.entries?privateReview.data():review.data())
+    const result=grade(attempt,inputs.answerKey,inputs.previousReview).find(r=>r.question.id===taskId)
+    if(!result||result.excluded||result.skipped||result.points===null||result.points>=result.question.points)fail('task_quiz_reply_not_active')
+    const current=quizQuestionReview(taskId,attempt.submittedAt,result.guidance),sourceId=source.reviewReply.sourceId
+    const releasedStep=sourceId==='review'?null:await db.doc(`quizStepGuidance/${token}/items/${sourceId}`).get()
+    try{inputs.reviewStep=canonical(resolveReviewReplyStep(source.reviewReply,current,releasedStep?.exists?{id:sourceId,...releasedStep.data()}:undefined))}catch{fail('task_review_step_changed')}
+    const released=await db.collection(`quizStepGuidance/${token}/items`).where('taskId','==',taskId).get()
+    inputs.releasedGuidance=released.docs.map(d=>canonical({id:d.id,...d.data()})).sort((a,b)=>a.id.localeCompare(b.id))
+    inputs.reviewContext={checkedAt:current.checkedAt,correctedAt:current.correctedAt}
+    inputs.context={quizToken:token,subject:attempt.subject,task:{id:taskId,title:attempt.title,question:canonical(result.question)}}
   } else if (event.eventType.startsWith('quiz.')) {
     if (source.familyId !== event.familyId || source.childId !== event.childId) fail('task_owner_mismatch')
     if (source.status !== 'submitted') fail('task_source_not_reviewable')

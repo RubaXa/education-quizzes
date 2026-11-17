@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/photo-outbox-route-recovery-2026-11-07.md */
@@ -31,7 +32,7 @@ import { PwaConnectionNotice, PwaInstallButton, PwaUpdateNotice } from './compon
 import { PersonalEntry } from './components/PersonalEntry'
 import NotificationBell from './components/NotificationBell'
 import { DiagnosticsCopyButton } from './components/DiagnosticsCopyButton'
-import ResultCard from './components/QuizResultCard'
+import ResultCard from './components/QuizResultConversation'
 import { ResultBadge, ResultMeter, ResultPoints } from './components/ui/result'
 import UiKit from './UiKit'
 import { ConnectionInvite } from './components/ConnectionInvite'
@@ -174,7 +175,7 @@ function ResultView({ assignment, token,parent=false }: { assignment: Assignment
         </CardContent>
       </Card>
       <h2 className="text-xl font-semibold sm:text-2xl">Разбор по вопросам</h2>
-      <div className="space-y-4">{results.map((result, index) => <ResultCard parent={parent} key={result.question.id} result={result} index={index} />)}</div>
+      <div className="space-y-4">{results.map((result, index) => <ResultCard token={token} submittedAt={assignment.submittedAt} parent={parent} key={result.question.id} result={result} index={index} />)}</div>
     </div>
   )
 }

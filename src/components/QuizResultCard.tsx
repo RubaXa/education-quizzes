@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/program-explanation-2026-11-01.md */
@@ -6,8 +7,10 @@ import {projectReviewSupplement} from '../../packages/education-presentation/rev
 import { spellingFeedback } from '@/lib/spellingFeedback'
 import type { Answer, QuizQuestion, QuestionResult } from '@/lib/quiz'
 import { CodeBlock } from './CodeBlock'
-import ReviewBrief, { type ReviewBriefDetail } from './ReviewBrief'
+import ReviewBrief, { type ReviewBriefData,type ReviewBriefDetail } from './ReviewBrief'
 import './QuizResultCard.css'
+import ReviewConversation,{type ReviewConversationBinding} from './ReviewConversation'
+import {quizQuestionReview} from '../../packages/education-presentation/quiz-review-reply.mjs'
 
 function answerText(question: QuizQuestion, answer?: Answer): string {
   if (answer === undefined || answer === '' || (Array.isArray(answer) && !answer.length)) return 'Ответ не дан'
@@ -22,7 +25,7 @@ function answerText(question: QuizQuestion, answer?: Answer): string {
  * @see ../../docs/modules/assessments/quizzes.md#quiz-results
  * @see ../../docs/shared/design/statuses.md#components
  */
-export default function ResultCard({ result, index,parent=false }: { result: QuestionResult; index: number;parent?:boolean }) {
+export default function ResultCard({ result, index,parent=false,submittedAt,conversation }: { result: QuestionResult; index: number;parent?:boolean;submittedAt?:unknown;conversation?:ReviewConversationBinding }) {
   const excluded = result.excluded === true
   const skipped = result.skipped === true || excluded
   const wrong = result.points === 0
@@ -40,7 +43,7 @@ export default function ResultCard({ result, index,parent=false }: { result: Que
   const state=skipped?'skipped':pending?'waiting':wrong?'incorrect':partial?'revise':'verified'
   const stateLabel=excluded?'Не входит в зачёт этого задания':skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
   const missing=needsReflection&&!spelling&&!guidance?'Для этого вопроса ещё нет проверенного разбора с точным источником.':undefined
-  return <ReviewBrief readOnly={parent} context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined} data={{id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
+  const data:ReviewBriefData = {id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
     prompt:result.question.prompt,response:{label:'Ваш ответ',value:answerText(result.question,result.answer)},
     meta:skipped?'Без оценки':pending?`Баллы уточняются · максимум ${result.question.points}`:`${result.points} из ${result.question.points} баллов`,
     body:excluded?'Вопрос и собственный ответ сохранены в истории. Баллы не начисляются.':pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
@@ -49,7 +52,10 @@ export default function ResultCard({ result, index,parent=false }: { result: Que
     question:needsReflection&&!spelling&&!execution&&guidance?guidance.question:undefined,
     activity:needsReflection&&!execution?presentation?.activity:undefined,
     visual:needsReflection?presentation?.visual:undefined,details:[...(presentation?.details??[]),...details],
-  }}>
+  }
+  const sourceLink=guidance?.source.url&&<a className="edu-review-source-link" href={guidance.source.url} target="_blank" rel="noopener noreferrer">Открыть источник</a>
+  if(conversation&&data.activity&&data.question)return <ReviewConversation parent={parent} data={data} review={quizQuestionReview(result.question.id,submittedAt,guidance)} binding={conversation} context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined}>{sourceLink}</ReviewConversation>
+  return <ReviewBrief readOnly={parent} context={result.question.code?<div className="edu-review-code"><CodeBlock code={result.question.code}/></div>:undefined} data={data}>
     {guidance?.source.url&&<a className="edu-review-source-link" href={guidance.source.url} target="_blank" rel="noopener noreferrer">Открыть источник</a>}
   </ReviewBrief>
 }
