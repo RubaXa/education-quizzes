@@ -85,7 +85,7 @@ describe('weekend source-selected practice', () => {
     const { host, close } = await renderSlot(true, { preparationThrough: '2026-10-13', selectedDate: '2026-10-20' })
     try { expect(host.textContent).toBe('') } finally { close() }
   })
-  it.each([false, true])('opens, switches and closes own reviewed photos without losing linked references, parent=%s', async (parent) => {
+  it.each([false, true])('opens, switches and closes own reviewed photos without losing linked thumbnails, parent=%s', async (parent) => {
     scene.role = parent ? 'parent' : 'student'
     scene.uploads = [1, 2].map((n) => ({ id: `student-token:photo-${n}`, taskId: 'p1', coveredTaskIds: ['p1', 'p2'], status: 'reviewed', dataUrl: `data:image/png;base64,demo${n}` }))
     const { host, close } = await renderSlot(parent)
@@ -101,8 +101,8 @@ describe('weekend source-selected practice', () => {
       expect(origin.querySelectorAll('.day-upload-expanded')).toHaveLength(1)
       await act(async () => origin.querySelector<HTMLButtonElement>('[aria-label="Закрыть фото"]')!.click())
       expect(origin.querySelector('.day-upload-expanded')).toBeNull()
-      expect(host.querySelector('[data-problem="p2"] .linked-work-photos')).not.toBeNull()
-      expect(host.querySelector('[data-problem="p2"] .weekend-math-photos')).toBeNull()
+      expect(host.querySelectorAll('[data-problem="p2"] .day-upload-chip')).toHaveLength(2)
+      expect(host.querySelector('[data-problem="p2"] .weekend-math-photos')).not.toBeNull()
     } finally { close() }
   })
   it('opens a newly selected local photo before the upload snapshot arrives', async () => {
@@ -127,9 +127,9 @@ describe('weekend source-selected practice', () => {
     try {
       await act(async () => host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
       expect(host.querySelector('[data-problem="p1"] .weekend-math-photos')).not.toBeNull()
-      expect(host.querySelector('[data-problem="p2"] .weekend-math-photos')).toBeNull()
-      expect(host.querySelector('[data-problem="p2"] .linked-work-photos')?.textContent).toContain('Задача 1')
-      expect(host.querySelector('[data-problem="p2"] .linked-work-photos .artifact-avatar')).toBeNull()
+      expect(host.querySelector('[data-problem="p2"] .weekend-math-photos')).not.toBeNull()
+      expect(host.querySelectorAll('[data-problem="p2"] .day-upload-chip')).toHaveLength(1)
+      expect(host.querySelector('[data-problem="p2"] .weekend-math-photo-delete')).toBeNull()
       expect(host.querySelector('[data-problem="p2"] .day-review-progress')?.textContent).toContain('ждёт проверки')
     } finally { close() }
   })

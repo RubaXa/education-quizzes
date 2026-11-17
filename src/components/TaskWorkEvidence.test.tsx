@@ -13,6 +13,20 @@ const uploads: DayUpload[] = [
 ]
 
 describe('canonical task evidence layouts', () => {
+  it('shows covered photos in the same gallery without transferring deletion rights', async () => {
+    const host = document.createElement('div'), root = createRoot(host), remove = vi.fn(async () => {})
+    const linked = { ...uploads[0], id: 'demo:linked', taskId: 'other', coveredTaskIds: ['task'] }
+    try {
+      await act(async () => root.render(<TaskWorkEvidence layout="day" taskId="task" taskTitle="Работа" studentToken="demo" uploads={[uploads[0], linked, linked]} localPhotos={[]} now={0} pages={[]} onDelete={remove} />))
+      expect(host.querySelectorAll('.day-upload-list')).toHaveLength(1)
+      expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(2)
+      expect(host.textContent).not.toContain('Фото загружено в')
+      await act(async () => host.querySelectorAll<HTMLButtonElement>('.day-upload-chip')[1].click())
+      expect(host.querySelector('.day-upload-expanded img')).not.toBeNull()
+      expect(host.querySelector('.day-upload-delete')).toBeNull()
+      expect(remove).not.toHaveBeenCalled()
+    } finally { await act(async () => root.unmount()) }
+  })
   it.each(['day', 'weekend'] as const)('keeps %s controls, opens images and documents and deletes the exact owned file', async layout => {
     const host = document.createElement('div'), root = createRoot(host), remove = vi.fn(async () => {})
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true)

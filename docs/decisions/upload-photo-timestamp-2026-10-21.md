@@ -11,7 +11,6 @@ code:
   - "src/UiKit.tsx"
   - "src/components/ArtifactAvatar.css"
   - "src/components/ArtifactAvatar.tsx"
-  - "src/components/LinkedWorkPhotos.css"
   - "src/components/LinkedWorkPhotos.tsx"
   - "src/components/WorkPhotoGallery.tsx"
   - "src/lib/uploadTimestamp.ts"
@@ -49,3 +48,5 @@ sections:
 ## Согласование
 
 Прямой запрос пользователя 21.10.2026. Реализация выполнена Luna Worker, интеграция и проверка — основным агентом. Выпуск в main по ранее согласованному процессу.
+
+Уточнение17.11: ссылочный вид и отдельная CSS удалены по прямому запросу; общий адаптер использует WorkPhotoGallery. [Текущее решение](canonical-evidence-and-learning-2026-11-17.md).

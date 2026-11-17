@@ -858,6 +858,41 @@
       "path": "docs/decisions/canonical-attachment-controls-2026-10-31.md"
     },
     {
+      "id": "decision.canonical-evidence-and-learning-2026-11-17",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "consumers": [
+        "parent",
+        "student"
+      ],
+      "parent": "shared.design",
+      "uses": [
+        "module.materials.storage-privacy",
+        "module.school-diary.day-page",
+        "shared.design.components",
+        "module.reviews.criteria-and-knowledge"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "code": [
+        "src/DayPage.tsx",
+        "src/UiKit.tsx",
+        "day/decision-registry.mjs",
+        "src/components/LinkedWorkPhotos.tsx",
+        "src/components/TaskWorkEvidence.tsx",
+        "src/components/WorkPhotoGallery.tsx",
+        "src/components/ProblemCard.tsx"
+      ],
+      "path": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md"
+    },
+    {
       "id": "decision.canonical-short-key-repair-2026-10-19",
       "status": "accepted",
       "implementation": "implemented",
@@ -4279,7 +4314,6 @@
         "src/UiKit.tsx",
         "src/components/ArtifactAvatar.css",
         "src/components/ArtifactAvatar.tsx",
-        "src/components/LinkedWorkPhotos.css",
         "src/components/LinkedWorkPhotos.tsx",
         "src/components/WorkPhotoGallery.tsx",
         "src/lib/uploadTimestamp.ts"
@@ -5370,7 +5404,6 @@
       "code": [
         "src/lib/taskUploadPresentation.ts",
         "src/components/LinkedWorkPhotos.tsx",
-        "src/components/LinkedWorkPhotos.css",
         "src/DayPage.tsx",
         "src/WeekendMathSlot.tsx",
         "src/UiKit.tsx"
@@ -9311,24 +9344,17 @@
       "consumer": "Vitest; родитель; ребёнок"
     },
     {
-      "id": "file:src/components/LinkedWorkPhotos.css",
-      "path": "src/components/LinkedWorkPhotos.css",
-      "kind": "artifact",
-      "purpose": "Компактная ссылка и время раскрытого фото",
-      "consumer": "LinkedWorkPhotos"
-    },
-    {
       "id": "file:src/components/LinkedWorkPhotos.test.tsx",
       "path": "src/components/LinkedWorkPhotos.test.tsx",
       "kind": "verification",
-      "purpose": "Отложенный просмотр, accessible timestamp, отсутствие управления исходником",
+      "purpose": "Общий просмотр миниатюр, accessible timestamp, отсутствие управления исходником",
       "consumer": "Vitest"
     },
     {
       "id": "file:src/components/LinkedWorkPhotos.tsx",
       "path": "src/components/LinkedWorkPhotos.tsx",
       "kind": "artifact",
-      "purpose": "Просмотр ссылок на решения и доступное время исходного фото",
+      "purpose": "Адаптер покрытия к общей галерее миниатюр и времени исходника",
       "consumer": "День; выходные; UI Kit"
     },
     {
@@ -10175,7 +10201,7 @@
       "id": "file:src/components/TaskWorkEvidence.tsx",
       "path": "src/components/TaskWorkEvidence.tsx",
       "kind": "artifact",
-      "purpose": "Общий состав собственных вложений и связанных ссылок с явным layout",
+      "purpose": "Одна галерея собственных и связанных вложений с явным layout",
       "consumer": "Education; разработчик"
     },
     {
@@ -13213,7 +13239,6 @@
         "src/lib/dayStore.ts",
         "src/lib/taskUploadPresentation.ts",
         "src/components/LinkedWorkPhotos.tsx",
-        "src/components/LinkedWorkPhotos.css",
         "src/lib/networkRetry.ts",
         "storage/review-coverage.mjs",
         "storage/submission-inbox.mjs",
@@ -17128,6 +17153,26 @@
       "type": "uses"
     },
     {
+      "from": "decision.canonical-evidence-and-learning-2026-11-17",
+      "to": "module.materials.storage-privacy",
+      "type": "uses"
+    },
+    {
+      "from": "decision.canonical-evidence-and-learning-2026-11-17",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "uses"
+    },
+    {
+      "from": "decision.canonical-evidence-and-learning-2026-11-17",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.canonical-evidence-and-learning-2026-11-17",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
       "from": "decision.collapsed-task-cards-2026-11-01",
       "to": "shared.design.components",
       "type": "uses"
@@ -18645,6 +18690,11 @@
     {
       "from": "file:day/decision-registry.mjs",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/decision-registry.mjs",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -21923,18 +21973,8 @@
       "type": "implements"
     },
     {
-      "from": "file:src/components/LinkedWorkPhotos.css",
-      "to": "decision.upload-photo-timestamp",
-      "type": "implements"
-    },
-    {
-      "from": "file:src/components/LinkedWorkPhotos.css",
-      "to": "decisions.upload-origin-links-2026-10-18",
-      "type": "implements"
-    },
-    {
-      "from": "file:src/components/LinkedWorkPhotos.css",
-      "to": "module.materials.storage-privacy",
+      "from": "file:src/components/LinkedWorkPhotos.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -22365,6 +22405,11 @@
     {
       "from": "file:src/components/ProblemCard.css",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemCard.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -22939,6 +22984,11 @@
     },
     {
       "from": "file:src/components/TaskWorkEvidence.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskWorkEvidence.tsx",
       "to": "shared.design.components",
       "type": "implements"
     },
@@ -23075,6 +23125,11 @@
     {
       "from": "file:src/components/WorkPhotoGallery.css",
       "to": "shared.design.components",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkPhotoGallery.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -23320,6 +23375,11 @@
     {
       "from": "file:src/DayPage.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -24545,6 +24605,11 @@
     {
       "from": "file:src/UiKit.tsx",
       "to": "decision.calendar-scroll-selection-2026-10-28",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
       "type": "implements"
     },
     {
@@ -30171,6 +30236,11 @@
       "from": "shared.design.ui-kit",
       "to": "shared.design",
       "type": "uses"
+    },
+    {
+      "from": "shared.design",
+      "to": "decision.canonical-evidence-and-learning-2026-11-17",
+      "type": "contains"
     },
     {
       "from": "shared.design",
