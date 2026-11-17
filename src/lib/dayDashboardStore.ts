@@ -25,7 +25,7 @@ export type DayDashboardData = {
   timezone: string
   days: IndexedDay[]
   schoolCalendar?: SchoolCalendar
-  weekendWork?: { dates: string[]; dayToken: string; taskIds: string[]; lessonDate: string; dueDate: string; title: string; mode?: 'until-complete'; availableFrom?: string; preparationThrough?: string }[]
+  weekendWork?: { dates: string[]; dayToken: string; taskIds: string[]; lessonDate: string; dueDate: string; title: string; kind?:'course'|'control'|'homework'; mode?: 'until-complete'; availableFrom?: string; preparationThrough?: string }[]
   updatedAt?: unknown
 }
 

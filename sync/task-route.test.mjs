@@ -56,7 +56,7 @@ describe('deterministic task route from existing source state', () => {
   })
   it('uses the existing assessment graph for confirmed reading and blocks unknown control topics', () => {
     expect(taskRoute({ ...ready, kind: 'read', outputKind: 'reading', meshText: 'Прочитай §36' }, 'geography').next).toBe('prepare-quiz')
-    expect(taskRoute({ ...ready, kind: 'check', meshText: 'Подготовиться к контрольной' }, 'russian').next).toBe('classify-assignment')
+    expect(taskRoute({ ...ready, kind: 'check', meshText: 'Подготовиться к контрольной' }, 'russian').next).toBe('prepare-control-from-course')
   })
   it('does not call an existing quiz or known source completed school work', () => {
     expect(taskRoute({ ...ready, testToken: 'private-token' }).next).toBe('existing-assessment')

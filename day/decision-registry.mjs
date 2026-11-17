@@ -8,6 +8,7 @@ import {presentationContractForRule} from '../packages/education-presentation/ta
 const decisionRef='docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md'
 const parentRef='docs/decisions/parent-review-pilot-2026-11-17.md'
 const adaptiveRef='docs/decisions/adaptive-review-modes-2026-11-17.md'
+const preparationRef='docs/decisions/three-day-assessment-preparation-2026-11-17.md'
 const node=(id,label,actor,specRef,ref=decisionRef)=>({id,label,actor,specRef,decisionRef:ref})
 export const decisionNodes=[
  node('source.mesh','Запись МЭШ','code','docs/modules/school-diary/README.md'),
@@ -21,6 +22,7 @@ export const decisionNodes=[
  node('source.context','Служебные сведения без учебной обязанности','code','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  node('subject.choose','Выбор предметного действия','agent+code','docs/modules/synchronization/subject-decision-graph.md#subjects'),
  node('artifact.prepare','Нужный учебный продукт','agent+gate','docs/modules/reviews/card-generation-policy.md'),
+ node('assessment.preparation','За три дня: материал учителя или курс и исследование','code+agent','docs/modules/assignments/deadline-control.md#control-preparation',preparationRef),
  node('view.role','Проекции ученика и родителя','code','docs/modules/reviews/subject-card-viewmodel.md'),
  node('view.parent-review','Полный ответ и разбор родителю','agent+gate','docs/modules/reviews/parent-review.md#roles',parentRef),
  node('view.student-support','Подсказка и текущий шаг ребёнку','agent+gate','docs/modules/reviews/parent-review.md#roles',parentRef),
@@ -42,6 +44,9 @@ export const decisionEdges=[
  edge('obligation:context','source.obligation','source.context','Только счётчик или метаданные: не создавать долг','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  edge('evidence:recurrence','learner.evidence','learner.recurrence','Сопоставить подтверждённые ошибки разных работ','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  edge('recurrence:prepare','learner.recurrence','artifact.prepare','Новая самостоятельная тренировка и критерии','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
+ edge('obligation:preparation','source.obligation','assessment.preparation','Объявлена контрольная или самостоятельная: T−3','docs/modules/assignments/deadline-control.md#control-preparation',preparationRef),
+ edge('preparation:teacher','assessment.preparation','artifact.prepare','Есть материалы учителя: проверить полный объём','docs/modules/assignments/deadline-control.md#control-preparation',preparationRef),
+ edge('preparation:course','assessment.preparation','artifact.prepare','Нет точного варианта: курс ребёнка и исследование похожих работ','docs/modules/assignments/deadline-control.md#control-preparation',preparationRef),
  edge('evidence:choose','learner.evidence','subject.choose','Учесть прежние результаты и помощь','docs/modules/reviews/criteria-and-knowledge.md#knowledge'),
  ...Object.values(subjectDecisionProfiles).flatMap(p=>p.rules.flatMap(r=>[edge(r.edgeIds[0],'subject.choose',r.nodeId,r.when,r.specRef),edge(r.edgeIds[1],r.nodeId,'artifact.prepare',r.product,r.specRef)])),
  edge('component:context','view.component','learner.context','Получить ответ или уточнение','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
@@ -82,12 +87,13 @@ function bind(item,rule,scope,technicalNote){
 }
 const commonNodeScopes={
  'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source','source.obligation':'source','source.context':'source',
- 'learner.recurrence':'context','learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','view.role':'context','view.component':'context',
+ 'learner.recurrence':'context','learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','assessment.preparation':'context','view.role':'context','view.component':'context',
  'view.parent-review':'parent-review','view.student-support':'student-support',
  'learner.context':'clarification','family.requirement':'clarification','review.support':'result',publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
+ 'obligation:preparation':'context','preparation:teacher':'context','preparation:course':'context',
  'evidence:recurrence':'result','recurrence:prepare':'context','criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
  'component:context':'clarification','family:component':'clarification','context:clarification':'clarification','clarification:family':'clarification','review:support':'result','support:component':'result','view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
 }

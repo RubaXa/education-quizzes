@@ -104,6 +104,7 @@ export function sourcePlanFingerprint(source) {
     ...(Object.keys(audioSelections).length ? { audioSelections } : {}),
     ...(source.assignmentRoutes?.length ? { assignmentRoutes: source.assignmentRoutes } : {}),
     testPlacements: source.testPlacements ?? [], weekendSlot: source.weekendSlot ?? null,
+    ...(source.controlPreparationSlot?{controlPreparationSlot:source.controlPreparationSlot}:{}),
   }
   return createHash('sha256').update(JSON.stringify(plan)).digest('hex')
 }

@@ -25,6 +25,18 @@ export const subjectAdapters = Object.freeze({
 const nonempty = (value) => typeof value === 'string' && Boolean(value.trim())
 const identifiers = (records) => new Set(records.map((record) => record.id))
 
+/** A missing teacher variant permits course-based preparation, never an untraceable generic test.
+ * @see ../docs/modules/assignments/deadline-control.md#control-preparation */
+export function validateControlPreparation(plan) {
+  if(plan?.mode!=='control-diagnostic')return []
+  const p=plan.controlPreparation,sources=plan.sources??[]
+  const valid=(ids,role)=>Array.isArray(ids)&&ids.length>0&&new Set(ids).size===ids.length
+    && ids.every(id=>sources.some(source=>source.id===id&&source.role===role&&source.verified===true&&nonempty(source.ref)))
+  return p&&['teacher-material','course'].includes(p.basis)&&p.scopeChecked===true
+    && valid(p.sourceIds,'family-material')&&valid(p.researchSourceIds,'format-example')?[]
+    :['Подготовка к контрольной требует проверенную основу (материал учителя либо курс), исследование похожих работ и сверку границ темы.']
+}
+
 /** Select the words for one linked vocabulary dictation. Incorrect and skipped
  * words remain in repair; a delayed full check is a separate phase.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#vocabulary-dictation
@@ -171,6 +183,7 @@ export function validateAssessmentPlan(plan, spec) {
     errors.push('Режим контрольной требует подтверждённое outputKind: control-prep.')
   }
   const sources = Array.isArray(plan.sources) ? plan.sources : []
+  errors.push(...validateControlPreparation(plan))
   const evidence = Array.isArray(plan.learnerEvidence) ? plan.learnerEvidence : []
   const objectives = Array.isArray(plan.objectives) ? plan.objectives : []
   const items = Array.isArray(plan.items) ? plan.items : []

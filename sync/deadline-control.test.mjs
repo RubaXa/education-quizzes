@@ -18,6 +18,13 @@ it('starts control readiness three days before; skips ordinary work then and opt
 it('does not classify independently completing an exercise as a control', () => {
  expect(deadlineDecision({task:{...task,meshText:'Самостоятельно выполнить упражнение 3'},today:'2026-11-16',dueDate:'2026-11-19'})).toBeNull()
 })
+it('requires published preparation three days before even without the exact teacher variant',()=>{
+ const control={id:'control',kind:'check',meshText:'Самостоятельная работа по комбинаторике'}
+ const d=deadlineDecision({task:control,today:'2026-11-16',dueDate:'2026-11-19'})
+ expect(d.issues).toContain('publish-control-preparation')
+ expect(d.preparation).toEqual({available:false,sourceRoute:'course-and-comparable-work',researchRequired:true})
+ expect(deadlineDecision({task:control,today:'2026-11-16',dueDate:'2026-11-19',preparationAvailable:true,teacherMaterialAvailable:true}).issues).not.toContain('publish-control-preparation')
+})
 it('uses actual period dates, flags deterioration and keeps points outside the average', () => {
  const checks=periodRiskChecks([{subject_id:7,subject_name:'Math',average:'4.60',end:'2026-11-22',marks:[{date:'2026-11-10',value:5},{date:'2026-11-11',value:4},{date:'2026-11-13',value:3}],recentMarks:[{id:8,value:2,is_point:true}]}],'2026-11-16')
  expect(checks[0]).toMatchObject({ average:4.6,periodEnd:'2026-11-22',reasons:['latest-below-five','recent-deterioration','open-low-point'] })

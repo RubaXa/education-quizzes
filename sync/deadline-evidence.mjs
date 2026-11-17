@@ -19,7 +19,9 @@ export async function inspectDeadlinePage(db, { page, owner, token, today }) {
       return ['requested','awaiting-upload','uploaded','pending'].includes(file.status)
         && [file.taskId,...(file.coveredTaskIds ?? []),...(file.processingTaskIds ?? [])].some(id => ids.has(id))
     }).map(doc => doc.id)
-    const result = deadlineDecision({ task, today, dueDate: task.dueDate ?? page.targetDate, reviews, pendingUploadIds,parentDecisions })
+    const preparationAvailable=[page.weekendSlot,page.controlPreparationSlot].some(slot=>slot?.taskIds?.includes(task.id))
+    const teacherMaterialAvailable=(page.materialLinks?.[task.id]??[]).some(link=>link.sourceType==='teacher-attachment')
+    const result = deadlineDecision({ task, today, dueDate: task.dueDate ?? page.targetDate, reviews, pendingUploadIds,parentDecisions,preparationAvailable,teacherMaterialAvailable })
     return result ? [{ taskId: task.id, subjectId, ...result, pendingUploadIds }] : []
   })
   return { checks, fetched: progress.size + uploads.size+decisions.size }

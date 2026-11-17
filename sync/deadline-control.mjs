@@ -9,7 +9,7 @@ const dateValue = value => {
 }
 const daysBetween = (end, start) => (dateValue(end) - dateValue(start)) / 86400000
 
-export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUploadIds = [], independentCheck = null,parentDecisions=[] } = {}) {
+export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUploadIds = [], independentCheck = null,parentDecisions=[],preparationAvailable=false,teacherMaterialAvailable=false } = {}) {
   const days = daysBetween(dueDate, today)
   if (!task?.id || !taskRequired(task,parentDecisions) || task.referenceDate && !task.repetition || !Number.isInteger(days) || days < -7 || days > 3) return null
   const control = isControlAssignment(task)
@@ -18,6 +18,7 @@ export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUp
   const gate = learningGate({ requiredIds: task.problems?.length ? task.problems.map(p => p.id) : [task.id], reviews,
     pendingUploadIds, readinessRequired: control, independentCheck })
   const issues = []
+  if(control&&days>=0&&!preparationAvailable)issues.push('publish-control-preparation')
   if (pendingUploadIds.length) issues.push('review-existing-uploads')
   else if (days <= 1 && !packing && gate.work !== 'verified' && task.platformResult?.state !== 'completed') issues.push('audit-homework-and-archive')
   if (control && gate.readiness !== 'confirmed') issues.push('verify-independent-readiness')
@@ -25,7 +26,8 @@ export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUp
   if (!issues.length) return null
   return { dueDate, stage: days < 0 ? 'overdue' : days === 0 ? 'due' : days === 1 ? 'before' : 'preparation',
     work: gate.work, readiness: gate.readiness, missingIds: gate.missingIds, verifiedIds: gate.verifiedIds,
-    packing: 'unknown', issues }
+    packing: 'unknown', issues,...(control?{preparation:{available:preparationAvailable,
+      sourceRoute:teacherMaterialAvailable?'teacher-material':'course-and-comparable-work',researchRequired:true}}:{}) }
 }
 
 export function periodRiskChecks(subjects, today) {

@@ -59,6 +59,14 @@ it('does not turn independently doing an exercise into a school control and keep
  expect(speaking.actions[0].ruleId).toBe('english.speaking')
  expect(speaking.actions[0].checks.join(' ')).toContain('содержательные')
 })
+it('prepares for a confirmed control from the course when its referenced teacher attachment is absent',()=>{
+ const task={id:'control',kind:'check',meshText:'Самостоятельная работа по комбинаторике',sourceOnly:true,materialStatus:{state:'teacher-attachment-needed'},materialRequest:{state:'open'}}
+ const route=taskRoute(task,'math')
+ expect(route.next).toBe('prepare-control-from-course')
+ expect(route.steps).toContain('research-comparable-school-assessments')
+ expect(route.steps).toContain('publish-three-day-preparation-and-both-role-readback')
+ expect(route.unknown).toContain('exact-teacher-variant')
+})
 it('covers each recovered previous-lesson part and does not reopen old written work',()=>{
  const plan=subjectDecisionPlan({meshText:'Повторить предыдущий урок',repetition:{parts:[
  {id:'words',kind:'written',topic:'Выучить слова',materialState:'ready',materialRef:'book:words'},

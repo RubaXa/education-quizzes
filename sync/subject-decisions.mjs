@@ -55,7 +55,7 @@ export const subjectDecisionProfiles = {
   rule('generic.oral','Подтверждённое чтение, устное, повторение',quiz,['Точный материал и проверяемое содержание','Практический навык отдельно от процента теста'])] },
 }
 for(const [subject,profile] of Object.entries(subjectDecisionProfiles))profile.rules.push(
- rule(`${subject}.control`,'Контрольная или подготовка к ней','skill-covered-independent-diagnostic',['Полная структура назначенного образца','Самостоятельная попытка и проверка открытых ответов']),
+ rule(`${subject}.control`,'Контрольная или самостоятельная: подготовка за три дня','skill-covered-independent-diagnostic',['Материал учителя; при отсутствии — подтверждённый курс и исследование сопоставимых работ','Границы темы и примеров не выдаются за точный вариант учителя','Публикация за три дня; самостоятельная попытка и проверка открытых ответов']),
  rule(`${subject}.source-classification`,'Разобрать назначенный файл','verified-material-purpose',['Полный источник, назначение и все номера','Источник не считается выполненной работой'])
 )
 subjectDecisionProfiles.common={title:'Общие действия',rules:[

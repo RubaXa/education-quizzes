@@ -35,20 +35,23 @@
       }
     },
     "sync/preparation-window.mjs": {
-      "sha256": "510c1a3be7e818200ba2186bd4b31a1d4f1d0bfd90c14cf171399ccb130b35ed",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "dfa4bc82d251855b3f1d4ea5dd9e97db602e8aac8318a76fe2c1df1839b4014f",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
+        "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
         "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "sync/dispatch-workspace.mjs": {
@@ -128,20 +131,23 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "1701ec00b335f0359449fbd17acf2849c10a2af13825f04befd36bba535d9212",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "d250872d083e0a9ed2ef020d32461925037b57acdc57350e92e9e5c65f3c0422",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -288,20 +294,23 @@
       }
     },
     "day/dashboard-index.mjs": {
-      "sha256": "162056d303f02397d1e2de8f6fbcf30671b5034ced0cf3c393e62723dcb8779a",
-      "record": "docs/decisions/weekend-self-check-2026-11-14.md",
+      "sha256": "5b8d399e42b0982b9948f0e7fad40dc9ae7ccc55bdf70c539f96a4b39e7b16c9",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
+        "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
         "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "day/data-contract.mjs": {
@@ -489,19 +498,23 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "998874337151563d4a9d0326dde1149801a07b3aef80c692491a353d307ed9d1",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "3f60ffa30885c7563fb1989b384ad9a8849453d1a2ffbd2a8324bf1ccc5c8b41",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "day/owner-repair.mjs": {
@@ -524,18 +537,23 @@
       }
     },
     "day/pipeline-contract.mjs": {
-      "sha256": "33428523d73884a078daf2f9ebaa2b4014b4fdcc68b129be408889c4a7b3ef08",
-      "record": "docs/decisions/olympiad-calendar-2026-10-31.md",
+      "sha256": "55c1626bb3dc4fae55206b483ba14499cffbb603c88c7f8476f97e20636fdaa8",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/olympiad-preparation.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/family-practice-calendar.test.mjs",
-        "src/lib/olympiad/calendar.test.ts"
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 поручил единообразно оформить олимпиады и обеспечить работающую подготовку; исправляется выявленное расхождение режима домашней практики."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "day/placement-integrity.mjs": {
@@ -1995,18 +2013,23 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "0511051136487d35aabb9599d4f989382be639be495a495cf627bbf479266db9",
-      "record": "docs/decisions/stale-guidance-safety-correction-2026-11-17.md",
+      "sha256": "6edb407b660111bd968629673d4b860ae73e8799a470046035640a45de115bba",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "storage/guidance-correction.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя и production readback17.11.2026: исправить ранее открытый ответ на текущий вопрос, сохранив полный закрытый guide, события и прежние попытки штатным адресным CLI."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2628,20 +2651,23 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "c37175e9f7fba37688f24874a450d28d85d97e0358df655ea35ef0d2813c1b95",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "abe2e7b6c0088432a8c675afdf55f1ce00217dde1a86cd961b9b21d74b055d76",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
+        "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
         "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "src/DayPage.css": {
@@ -4095,20 +4121,23 @@
       }
     },
     "src/lib/dayDashboardStore.ts": {
-      "sha256": "bdb9b8a0c94b85c7289a2fd26766e2b960ad9f1a9dd7f0922e365945cbaf23e2",
-      "record": "docs/decisions/continuous-course-preparation-2026-11-07.md",
+      "sha256": "50bd8038f390c8ebc029df4e1e5c97dc42b954c628996319a7a5a9ff0d879b16",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
+        "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
         "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
         "day/dashboard-index.test.mjs",
-        "src/WeekendMathSlot.test.tsx"
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель07.11 требует показывать спецкурс с появления до выполнения, перенести сдачу тетради на среду с напоминанием во вторник и связать правила единым графом решений."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "src/lib/dayDashboardViewCache.ts": {
@@ -4180,30 +4209,23 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "f9766cbdca1e99c3b8b0c176ece129f150a424156ad4bcc55d53995901cc9c85",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "4ac055b1b6ad45efcb58849d4e7590b37a5e86686402ef04831e22fa3578cc6c",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
+        "sync/preparation-window.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -6121,21 +6143,23 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "720452605db526a5469684be2c2c96605b1e4fed522832e172eb01ba34f6025e",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "6c41f103c95c5895fdc1a2c4c4b31dff8f712dd0178a34dba07480f4ce593eda",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs",
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
         "sync/subject-decisions.test.mjs",
-        "day/mixed-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "operator/route-plan.mjs": {
@@ -8245,75 +8269,63 @@
       }
     },
     "sync/deadline-control.mjs": {
-      "sha256": "a09295f574951cc9f4f39b776bb83544021cb7f0cc3510cd0494d60092652f70",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "68b389ceb40011e70ae10189325778d3513ee686f467decc5f6f2eaab55d6298",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
+        "sync/preparation-window.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "sync/deadline-evidence.mjs": {
-      "sha256": "e8f12312ea844215d13d61f756f8a434b463723162b26f22d1ea41fb9b2d0d69",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "050779cf47f614c7beb710c55042716f1a954c5460457f49533765f535dd193c",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
+        "sync/preparation-window.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "sync/subject-decisions.mjs": {
-      "sha256": "343e654421280fc5bf5126b0e88fb58015345c2b72f6dead6b197a31a5559978",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "055c1c4ea4e7a31444a53499080bd1274062965073fb3b8e7ab3cecb27476e15",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs",
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
         "sync/subject-decisions.test.mjs",
-        "day/mixed-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "sync/decision-evidence.mjs": {
@@ -8354,17 +8366,23 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "9ac60d630db73fe4ba4d620b51dec07b135d8414e5fc63a7362af5bf24e30ae8",
-      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
+      "sha256": "fcc0854b2eb99061567052c206d44ac04103707102d98f04df60b85a274143f5",
+      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md"
+        "docs/modules/assignments/deadline-control.md",
+        "docs/modules/synchronization/task-routing.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "day/decision-registry.test.mjs"
+        "sync/preparation-window.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/subject-decisions.test.mjs",
+        "day/dashboard-index.test.mjs",
+        "assessment/decision-graph.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
+        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
