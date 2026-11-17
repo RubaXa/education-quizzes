@@ -156,3 +156,12 @@ ReviewConversation владеет причинной цепочкой ответ
 страницы дня. Она владеет заголовком/статусом/краткими сведениями и нативным
 раскрытием, а содержимое и ролевые команды остаются у существующих потребителей.
 Тело не размонтируется. [Действующее правило](../../modules/school-diary/day-page.md#task-disclosure).
+
+
+SubjectRequirementSwitch переиспользует RequirementSwitch для семейного объёма
+предмета; собственный серверный/клиентский taskRequired общий. PhotoHelpPanel
+переиспользует прежнюю галерею и очередь также для текстового уточнения без фото.
+Узлы learner.context/family.requirement ссылаются на отдельный контракт
+assignment-clarification и эти реальные компоненты, а не на абстрактную карточку
+результата. ReviewActivity сохраняет единый renderer choice/mark/build/sort/write;
+mode и ролевой readOnly не порождают предметных копий. [Правило](student-review-step.md#adaptive-support).

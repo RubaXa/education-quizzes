@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** Same React/CSS as UI Kit; no second maintained markup.
@@ -109,10 +110,11 @@ async function main() {
         valid:CSS.supports('color',getComputedStyle(el).getPropertyValue('--edu-review-line').trim()),
         border:getComputedStyle(el).borderTopWidth,
         questionBorder:getComputedStyle(el.querySelector('.edu-review-question')).borderLeftWidth,
-        modelBorder:getComputedStyle(el.querySelector('.edu-step-result')).borderLeftWidth,
+        emptyResult:Boolean(el.querySelector('.edu-step-result')),
+        modelBorder:getComputedStyle(el.querySelector('.edu-step')).borderTopWidth,
       }))
       assert(colours.valid,`Compiled review colour invalid: ${theme}`)
-      assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.modelBorder==='2px',`Compiled review hierarchy lost: ${theme}`)
+      assert(colours.border==='1px'&&colours.questionBorder==='2px'&&colours.modelBorder==='1px'&&!colours.emptyResult,`Compiled review hierarchy lost: ${theme}`)
     }
     for(const width of [320,390,540]) {
       await page.setViewportSize({width,height:1000})

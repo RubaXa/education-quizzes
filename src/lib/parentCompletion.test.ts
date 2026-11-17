@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DayTask, DayWorkReview } from './dayStore'
-import { currentStageChoice, requiredFamilyActions, stageCompletion, variantRequired, practiceRequired, type ParentCompletionEvent } from './parentCompletion'
+import { taskRequired, currentStageChoice, requiredFamilyActions, stageCompletion, variantRequired, practiceRequired, type ParentCompletionEvent } from './parentCompletion'
 import { lessonWorkItems } from './homeworkStatus'
 
 const at = (seconds: number) => ({ seconds, nanoseconds: 0 })
@@ -90,4 +90,17 @@ describe('pre-work family practice choices', () => {
       `${taskId}-v1-p1`, 'quiz:diagrams-check',
     ])
   })
+})
+
+it('keeps a family exclusion through content revisions without erasing work or teacher optionality',()=>{
+ const task={id:'history',kind:'read',title:'Учим записи',status:'unknown'} as DayTask
+ const exclusion={id:'day:choice',taskId:'history',action:'task-optional',reviewCheckedAt:null,decidedAt:at(200)} as ParentCompletionEvent
+ const events=[exclusion],before=JSON.stringify(task)
+ expect(taskRequired(task,[])).toBe(true)
+ expect(taskRequired(task,events)).toBe(false)
+ expect(lessonWorkItems([task],[],[],events,{},{})).toEqual([])
+ expect(taskRequired(Object.assign({},task,{sourceRevision:2}),events)).toBe(false)
+ expect(taskRequired({...task,optional:true},[])).toBe(false)
+ expect(taskRequired(task,[...events,{...exclusion,id:'day:new',action:'task-required',decidedAt:at(201)}])).toBe(true)
+ expect(JSON.stringify(task)).toBe(before)
 })

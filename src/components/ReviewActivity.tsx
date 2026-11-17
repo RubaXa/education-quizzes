@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/shared/design/student-review-step.md */
 import {createElement,useState} from 'react'
 import type {ReviewActivityData} from '../../packages/education-presentation/review-activity.mjs'
@@ -18,28 +19,31 @@ function Diagram({diagram,selected,continuation=false}:{diagram:NonNullable<Revi
  </svg>
 }
 /** Local representation of the learner's own choices, never a grader. */
-function Activity({activity:a,reply}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>}){
+function Activity({activity:a,reply,question}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>;question?:string}){
  const [selected,setSelected]=useState<string[]>([]),[groups,setGroups]=useState<Record<string,string>>({}),[written,setWritten]=useState<Record<string,string>>({})
  const tokens=new Map(a.tokens.map(t=>[t.id,t.text])),current=selected.map(id=>tokens.get(id))
  const changed=selected.length>0||Object.values(groups).some(Boolean)||Object.values(written).some(Boolean)
- function select(id:string){setSelected(s=>a.kind==='build'?(s.length>=(a.maxItems??20)?s:[...s,id]):s.includes(id)?s.filter(v=>v!==id):[...s,id])}
- return <section className="edu-step" aria-label={a.label}>
-  <h4>{a.label}</h4><p className="edu-step-instruction">{a.instruction}</p>
+ function select(id:string){setSelected(s=>a.kind==='choice'?[id]:a.kind==='build'?(s.length>=(a.maxItems??20)?s:[...s,id]):s.includes(id)?s.filter(v=>v!==id):[...s,id])}
+ return <section className="edu-step" aria-label={a.label} data-decision-nodes="review.support view.component" data-decision-edges="review:support support:component" data-review-mode={a.kind}>
+  {!question&&<h4>{a.label}</h4>}{a.instruction.trim()!==question?.trim()&&<p className="edu-step-instruction">{a.instruction}</p>}
   {a.diagram&&<Diagram diagram={a.diagram} selected={selected} continuation={a.kind==='write'}/>}
   {a.kind==='sort'?<div className="edu-step-sort">{a.tokens.map(t=><label key={t.id}><span>{t.text}</span><select aria-label={`Куда поместить: ${t.text}`} value={groups[t.id]??''} onChange={e=>setGroups(g=>({...g,[t.id]:e.target.value}))}><option value="">Выбери группу</option>{a.groups!.map(g=><option key={g.id} value={g.id}>{g.label}</option>)}</select></label>)}</div>
-   :a.kind==='write'?<div className="edu-step-write">{a.tokens.map(t=><label key={t.id}><span>{t.text}</span><input value={written[t.id]??''} placeholder="…" maxLength={160} onChange={e=>setWritten(w=>({...w,[t.id]:e.target.value}))}/></label>)}</div>
+   :a.kind==='write'?<div className="edu-step-write">{a.tokens.map(t=><label key={t.id}><span>{t.text}</span><input value={written[t.id]??''} maxLength={160} onChange={e=>setWritten(w=>({...w,[t.id]:e.target.value}))}/></label>)}</div>
+    :a.kind==='choice'?<div className="edu-step-choices" role="radiogroup" aria-label="Выбери один вариант" onKeyDown={event=>{if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const index=Math.max(0,a.tokens.findIndex(t=>t.id===selected[0])),next=(index+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+a.tokens.length)%a.tokens.length;select(a.tokens[next].id);event.currentTarget.querySelectorAll<HTMLButtonElement>('button')[next]?.focus()}}>{a.tokens.map(t=><button type="button" role="radio" key={t.id} aria-checked={selected.includes(t.id)} tabIndex={(selected[0]??a.tokens[0].id)===t.id?0:-1} onClick={()=>select(t.id)}><span className="edu-step-choice-marker" aria-hidden="true"/><span>{t.text}</span></button>)}</div>
     :<div className="edu-step-tokens" role="group" aria-label={a.kind==='build'?'Карточки для записи':'Выделить на модели'}>{a.tokens.map(t=><button type="button" key={t.id} aria-label={t.text} aria-pressed={a.kind==='mark'?selected.includes(t.id):undefined} disabled={a.kind==='build'&&(!a.repeat&&selected.includes(t.id)||selected.length>=(a.maxItems??20))} onClick={()=>select(t.id)}>{a.diagram?.kind==='lines'?a.diagram.segments.find(s=>s.id===t.id)?.label??t.text:t.text}</button>)}</div>}
-  {(a.kind!=='write'||a.frame!.some(p=>p.text?.trim()))&&<div className="edu-step-result" role="status" aria-live="polite">
-   {a.kind==='write'?<><span>Твоя запись</span><output>{a.frame!.map(p=>p.slotId!==undefined?written[p.slotId]||'…':p.text).join('')}</output></>
+  {changed&&a.kind!=='choice'&&(a.kind!=='write'||a.frame!.some(p=>p.text?.trim()))&&<div className="edu-step-result" role="status" aria-live="polite">
+   {a.kind==='write'?<><span>Твоя запись</span><output>{a.frame!.map(p=>p.slotId!==undefined?written[p.slotId]||'□':p.text).join('')}</output></>
     :a.kind==='sort'?a.groups!.map(g=><div key={g.id}><strong>{g.label}</strong><span>{a.tokens.filter(t=>groups[t.id]===g.id).map(t=>t.text).join(' · ')||'—'}</span></div>)
-    :a.kind==='build'?<><span>Твоя запись</span><output>{current.length?[' + ',' · '].includes(a.joiner??'')&&current.every(t=>/^\d+$/.test(t??''))?createElement('math',{'aria-label':current.join(a.joiner)},createElement('mrow',null,...current.flatMap((t,i)=>[...(i?[createElement('mo',{key:`o${i}`},a.joiner!.trim())]:[]),createElement('mn',{key:i},t)]))):current.join(a.joiner??' '):'…'}</output></>
+    :a.kind==='build'?<><span>Твоя запись</span><output>{current.length?[' + ',' · '].includes(a.joiner??'')&&current.every(t=>/^\d+$/.test(t??''))?createElement('math',{'aria-label':current.join(a.joiner)},createElement('mrow',null,...current.flatMap((t,i)=>[...(i?[createElement('mo',{key:`o${i}`},a.joiner!.trim())]:[]),createElement('mn',{key:i},t)]))):current.join(a.joiner??' '):'Выбери карточки выше.'}</output></>
      :<><span>Ты выделил</span><output>{current.length?current.join(' · '):'Пока ничего'}</output></>}
   </div>}
   {changed&&<div className="edu-step-actions">{a.kind==='build'&&<button type="button" onClick={()=>setSelected(s=>s.slice(0,-1))}>Убрать последнюю</button>}<button type="button" onClick={()=>{setSelected([]);setGroups({});setWritten({})}}>Сбросить</button></div>}
   {reply&&<ReviewReplyControls value={{selected,groups,written}} action={{...reply,canAnswer:reviewValueValid(a,{selected,groups,written})}}/>}
  </section>
 }
-export default function ReviewActivity({activity,reply}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>}){
+export default function ReviewActivity({activity,reply,readOnly=false,question}:{activity:ReviewActivityData;reply?:Omit<ReviewReplyAction,'canAnswer'>;readOnly?:boolean;question?:string}){
  const safe=projectReviewActivity(activity)
- return safe?<Activity key={JSON.stringify(safe)} activity={safe} reply={reply}/>:null
+ if(!safe)return null
+ if(readOnly)return <div className="edu-step-readonly" data-decision-nodes="review.support view.component" data-decision-edges="review:support support:component" data-review-mode={safe.kind}>{safe.diagram&&<Diagram diagram={safe.diagram} selected={[]}/>}</div>
+ return <Activity key={JSON.stringify(safe)} activity={safe} reply={reply} question={question}/>
 }

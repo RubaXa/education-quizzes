@@ -35,6 +35,27 @@ describe.skipIf(!enabled)('shared photo help rules emulator', () => {
     await Promise.all(Object.entries(entries).map(([path, value]) => store.doc(path).set(value)))
   })
   afterAll(async () => { if (client) await deleteClientApp(client); if (admin) await deleteAdminApp(admin) })
+  it('saves text clarification atomically, rejects stale versions and preserves parent-only task choices',async()=>{
+    const operationId=randomUUID(),sourcePath=`dayHelp/${day}/items/task`
+    const event=await createEducationEvent({eventType:'help.requested',familyId:family,childId:'c',source:'firestore',sourceRef:{kind:'help',documentPath:sourcePath,dayToken:day,taskId:'task'},operationId,actor:{type:'user',uid}},serverTimestamp())
+    const request={taskId:'task',revision:1,requestKind:'condition',requestText:'Учитель просил только читать записи',planRevision:1,requestedAt:serverTimestamp(),eventOperationId:operationId,eventReceiptId:event.eventId,eventProducerVersion:1}
+    const write=async(history=true,revision=1)=>{const batch=writeBatch(db),value={...request,planRevision:revision};batch.set(doc(db,sourcePath),value);if(history)batch.set(doc(db,`${sourcePath}/requests/${event.eventId}`),value);batch.set(doc(db,`educationEvents/${event.eventId}`),event);return batch.commit()}
+    await expect(write(false)).rejects.toMatchObject({code:'permission-denied'})
+    await expect(write(true,2)).rejects.toMatchObject({code:'permission-denied'})
+    await write();expect((await getDoc(doc(db,`${sourcePath}/requests/${event.eventId}`))).data().requestText).toBe(request.requestText)
+    await expect(updateDoc(doc(db,sourcePath),{requestText:'Удалённое уточнение',requestedAt:serverTimestamp()})).rejects.toMatchObject({code:'permission-denied'})
+    const choiceId=randomUUID(),path=`dayParentDecisions/${day}/events/${choiceId}`
+    const choiceEvent=await createEducationEvent({eventType:'parent.decision',familyId:family,childId:'c',source:'firestore',sourceRef:{kind:'parent-decision',documentPath:path,dayToken:day,taskId:'task'},operationId:choiceId,actor:{type:'user',uid}},serverTimestamp())
+    const choice={taskId:'task',action:'task-optional',reviewCheckedAt:null,actorPersonId:'p',decidedAt:serverTimestamp(),eventOperationId:choiceId,eventReceiptId:choiceEvent.eventId,eventProducerVersion:1}
+    const decide=async(value=choice)=>{const batch=writeBatch(db);batch.set(doc(db,path),value);batch.set(doc(db,`educationEvents/${choiceEvent.eventId}`),choiceEvent);return batch.commit()}
+    await expect(decide()).rejects.toMatchObject({code:'permission-denied'})
+    await store.doc(`families/${family}/members/p`).update({role:'parent'})
+    try{
+      await expect(decide({...choice,taskId:'other'})).rejects.toMatchObject({code:'permission-denied'})
+      await decide();expect((await getDoc(doc(db,path))).data().action).toBe('task-optional')
+      await expect(updateDoc(doc(db,path),{action:'task-required'})).rejects.toMatchObject({code:'permission-denied'})
+    }finally{await store.doc(`families/${family}/members/p`).update({role:'student'})}
+  })
   it('accepts a learner source photo and routes the confirmed upload as an olympiad sheet', async () => {
     const fileId = 'source-upload-12345678901', operationId = `upload-transfer:${fileId}:requested`
     const sourcePath = `dayUploads/${day}/files/${fileId}`

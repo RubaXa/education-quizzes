@@ -1418,3 +1418,12 @@
 | [storage/guidance-correction.mjs](../storage/guidance-correction.mjs) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Адресные export/CAS/замена публичного hint и закрытый полный архив, без новой попытки | day CLI; оператор |
 | [storage/guidance-correction.test.mjs](../storage/guidance-correction.test.mjs) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Владельцы, полнота предыдущей помощи, TaskGuidance, приватный архив и повторный publish | Vitest |
 | [docs/decisions/stale-guidance-safety-correction-2026-11-17.md](decisions/stale-guidance-safety-correction-2026-11-17.md) | [Коррекция раскрытия](modules/reviews/subject-aware-guidance.md) | Основание и границы адресного исправления устаревшего ответа | day CLI; оператор |
+
+| [src/components/SubjectRequirementSwitch.tsx](../src/components/SubjectRequirementSwitch.tsx) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Общий родительский выбор семейного объёма предмета без изменения проверки | Ребёнок; родитель; UI Kit |
+| [src/components/SubjectRequirementSwitch.test.tsx](../src/components/SubjectRequirementSwitch.test.tsx) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Ролевой переключатель и локальный транспорт UI Kit | Ребёнок; родитель; UI Kit |
+| [src/lib/useSubjectRequirementCommand.ts](../src/lib/useSubjectRequirementCommand.ts) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Стабильные ID повторов при выборе обязательности нескольких заданий | Ребёнок; родитель; UI Kit |
+| [src/ui-kit/AssignmentClarificationExample.tsx](../src/ui-kit/AssignmentClarificationExample.tsx) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Настоящий блок уточнения и решения родителя с локальным транспортом | Ребёнок; родитель; UI Kit |
+| [docs/decisions/adaptive-review-modes-2026-11-17.md](decisions/adaptive-review-modes-2026-11-17.md) | [Адаптивный учебный диалог](shared/design/student-review-step.md) | Основания, ролевые границы и регрессии общего блока | Разработчик; оператор |
+
+| [day/task-requirement.mjs](../day/task-requirement.mjs) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |
+| [day/task-requirement.d.mts](../day/task-requirement.d.mts) | [Уточнение и семейный выбор](shared/design/student-review-step.md) | Единый выбор обязательности для клиента и существующего контроля сроков | UI; sync; тесты |

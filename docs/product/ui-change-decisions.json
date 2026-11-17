@@ -1890,20 +1890,30 @@
       }
     },
     "scripts/check-schedule-viewport.mjs": {
-      "sha256": "f266876a69e375f810b7c21d31620de168816a53956ece527df8b4c7ee3d4653",
-      "record": "docs/decisions/calendar-vacation-sticky-2026-10-19.md",
+      "sha256": "0441b974832b716afba81e2d278c8aafdd7af8c754037c01a32240e71f0da14b",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/school-diary/school-calendar.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
         "scripts/check-schedule-viewport.test.mjs",
-        "src/components/DayCalendar.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx"
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель19.10 требует привязать текст каникул к своей группе, держать его sticky слева при прокрутке и останавливать у правого края периода."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "scripts/check-source-fragment-viewport.mjs": {
@@ -2579,20 +2589,30 @@
       }
     },
     "src/App.tsx": {
-      "sha256": "4d811ed3f7a99a55fb897d6c139cf57c76b6db8f54d1bbf3725401a7b8edff14",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "0f00fb51ee04f58cd09a9b89436abf9e9a30c06d7ed826eb76f8d59528bca0d3",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/DayDashboard.css": {
@@ -2649,24 +2669,30 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "8027e9df5f23b328a697f58a98354b2d80de21a0fc606519817c41e88a189a30",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "a28ba2c1ea57ed68db377b27b2511c6e3d07a37910ee46398d8263a5be9fab1c",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx",
-        "src/components/QuizCard.history.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026 и финальный production readback: сохранить квитанцию в обеих linked quiz ветках и убрать повторный запрос всех принятых ответов после partial, сохранив исходные условия и действия."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/UiKit.css": {
@@ -2690,23 +2716,30 @@
       }
     },
     "src/UiKit.tsx": {
-      "sha256": "d5b05af748931ed86ae1b43299314276fe83de564e4ad72e31d67ca6392739e3",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "141dd65eda5c4994ef241f2422ded49c1c21fdfebde7f426cdd8d1f9965ae46f",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/WeekendMathSlot.css": {
@@ -3455,21 +3488,30 @@
       }
     },
     "src/components/ProblemStatement.css": {
-      "sha256": "6e5aee190d5115cb85b506149a222c6a8976383c93d0232e220dbe27d9737f80",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "addc802dfcbc4930ddbc218843d9295bebba650d77fa622234f582cdcf0460c5",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/ProblemStatement.tsx": {
@@ -3511,20 +3553,30 @@
       }
     },
     "src/components/QuizAttemptReview.tsx": {
-      "sha256": "069af965f4231e8e6778c690e40c40c0576a90ef12c624e0182d04d0a678e761",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "9db9180a8d50976260e8ea9fd2415b72ea90b7d0f806671b9be70802f5252338",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/QuizCard.css": {
@@ -3565,20 +3617,30 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "b1c5f198322e502e834dc8b1b9354038a53922929212110a780847d58809add8",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "42f7c38ccc003a89b1cef7dde68c991b8e9976499a6374d2dba36cff313afdc6",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -3601,22 +3663,30 @@
       }
     },
     "src/components/RequirementSwitch.css": {
-      "sha256": "d39a79e18e8d4b31e978065b494a63221119927b116d0ff1b0a52b0ef1da65bc",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "8f20de32f58144527587546a065b7fd317943aadb206c6acfe0228576b19f309",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "df927d73744fcfc90a252c8a6781f08dae072ebfd2685a111dfbc2b3995b4016"
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/RequirementSwitch.tsx": {
@@ -4123,21 +4193,30 @@
       }
     },
     "src/lib/dayGuidance.ts": {
-      "sha256": "a1b0d241948e508fd681bed1d1e2ebe2b3f0d55dd03b515fba18ee0c51219e02",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "184eef05081de0bc7e300d992bdf6e50569104b0fef7270de8979e918a4008e2",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/dayMaterialRefs.ts": {
@@ -4163,20 +4242,30 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "8546bcb466524c1007b13c5c8da4d514a687a33c5867a84b1ce61bdbaae7404e",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "f9766cbdca1e99c3b8b0c176ece129f150a424156ad4bcc55d53995901cc9c85",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4280,19 +4369,30 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "24281d7bd79092783d3dae1f01dddb1811b35e93ed6c37c6cbd3ac70c2850b7c",
-      "record": "docs/decisions/lesson-repetition-2026-11-01.md",
+      "sha256": "6a098b29aa0403bcce6d34d8afda9fd728f5031174789afccf02e94ce07f4a37",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/lesson-repetition.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "assessment/lesson-repetition.test.mjs",
-        "src/lib/homeworkStatus.test.ts",
-        "day/merge.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 потребовал общий детерминированный граф поиска прошлого урока и материалов, новый тест повторения и сохранение прежней письменной работы."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -4448,22 +4548,30 @@
       }
     },
     "src/lib/parentCompletion.ts": {
-      "sha256": "2ca3335ff2d615f65487c73f6eb3b34510305c852b240a062ebef942b32001cf",
-      "record": "docs/decisions/collapsed-variant-status-2026-10-21.md",
+      "sha256": "cb5da7d19cc9898a510b377afe132214ec0bbc3ae79b86512e676dc189d88dd7",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/README.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "src/lib/practiceVariantViewModel.test.ts",
-        "src/components/ProblemGroup.layout.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/DayDashboard.warmStart.test.tsx",
-        "scripts/check-requirement-copy.test.mjs"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос 21.10.2026: фактический статус виден в свёрнутых заголовках независимо от выбора; переключатель является единственным индикатором обязательности."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/parentFocusDay.ts": {
@@ -5362,23 +5470,30 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "a3ea071214acaab75df9a409ae59a6c59511059b8af37f6cbfc3371563e83c38",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "c93d84f5264e9691848ad1c72497dfde08c81028333f02f335bf36664f91f3b1",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "sync/event-task-export.mjs": {
@@ -6267,20 +6382,30 @@
       }
     },
     "src/components/PhotoHelpRequest.tsx": {
-      "sha256": "1570ea5bd7e56f559a86e3f8477cb061a046a4bc0961c9f902071b4671495d87",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "bc53cab2ab7face3b84d5188fc57b0509ad6efb385658147f86f1f470ac59752",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
         "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/olympiad/client.ts": {
@@ -6537,41 +6662,57 @@
       }
     },
     "src/components/PhotoHelpPanel.tsx": {
-      "sha256": "746132735fc0ea6ee4c967665cf2f471a05564cc0ae20a2a6593096638421ecb",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "a565d9a019d4c979382926c48144ad517808d8e5163f1655fba82f0fa1ece47b",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "sync/help-response.mjs": {
-      "sha256": "e228c52441c30d95b26deed5ee9a25e40c822a35b0dedf79f2196cee2aba5252",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "7619ca19829110a34c2e5ad9be67d87af3983d09f12e31cae978a1d01901298a",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/SharedTabs.tsx": {
@@ -7007,20 +7148,30 @@
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "bdf83aa87acce80d3cb2579f671b0ebefcef57045f638f2ae82b525b9827151d",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "79c6e8a0d40ada490be2cdd2582a2e5c89e0144c486198e71e23ae3beb8842b6",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
         "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7062,21 +7213,30 @@
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "f72da4d9cbe35572e2e69f0db31180d33c936753e9e6dc37845fdfb3088e95eb",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "3fae1c611b45d5a216f50bbdc002f7f4255c2cad17012d59052eafd07d4e3121",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
@@ -7540,19 +7700,30 @@
       }
     },
     "packages/education-presentation/review-activity.mjs": {
-      "sha256": "5b7ef287521bc0c2c2f0d561a5999ea4e799707ee51a94968abca0b78f82242c",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "ca3a60678f9f2a9fb066a78e0f859b49c13d9e4673e959374976908f63615774",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "packages/education-presentation/review-activity.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "scripts/student-review.mjs": {
@@ -7573,39 +7744,57 @@
       }
     },
     "src/components/ReviewActivity.css": {
-      "sha256": "5c615b97a66a784104763805d4d148863b00e0f0d89aaa9fcce7a19694d51990",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "2ba1132fda424b068fb0dc9d9e23b571f6f1f23ce551f461f3c0581ddc82a6c3",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/ReviewActivity.tsx": {
-      "sha256": "e26f638e19f3f1d055a76e9bfded29768e99c856fa811ccf0231aeae44908de0",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "227a48ef94b28be323b93364dddc45a6b53f2f2bdd4037f6ab5efd251b06aae9",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/lib/reviewStepExamples.ts": {
@@ -7643,39 +7832,57 @@
       }
     },
     "packages/education-presentation/review-reply.mjs": {
-      "sha256": "32fed1b7477bf809397694ed1d9f4a159df533a9356558bc68e9f9fed74099ee",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "2bf2df29fd3ea2a4fb1d46ac662cdbb918a850a033fb7366d4e3ace5ab4d8fa0",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/ReviewConversation.tsx": {
-      "sha256": "fdd76217d1deab9ac62933e45bda74c135ba06dbc827247c97a1c9823f05cd45",
-      "record": "docs/decisions/student-review-reply-2026-11-01.md",
+      "sha256": "6ea81f2387aa811ba511e0f6acc4b86fc19e6a10cbf403a6f244c65a9311e309",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/modules/synchronization/event-queue.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
         "src/components/ReviewConversation.test.tsx",
-        "packages/education-presentation/review-reply.test.mjs",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
         "sync/help-response.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs"
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал проверенный отклик и следующий шаг по ответу, «Непонятно» одним нажатием и текст для последующей обработки."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/ReviewReplyControls.tsx": {
@@ -7715,20 +7922,30 @@
       }
     },
     "src/ui-kit/ReviewConversationExample.tsx": {
-      "sha256": "58b00e1f7a8bf760f9af8273923564ce8a5d72d99c23e9a4a602fba37b863adb",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "d4bef4b7290d83fe432623ab6513a738d9b9f5cf09422e981789c75790e8c869",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/TaskDisclosure.css": {
@@ -8137,36 +8354,57 @@
       }
     },
     "sync/deadline-control.mjs": {
-      "sha256": "b4f94c445881fb2a21e4cb7c60e242fecf7a824639b7ea83a9c2b1fdb880df88",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "a09295f574951cc9f4f39b776bb83544021cb7f0cc3510cd0494d60092652f70",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "sync/subject-decisions.test.mjs",
-        "sync/decision-evidence.test.mjs",
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/event-task-artifact.test.mjs"
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование пользователя16.11.2026: восстановить общую систему Education, предметные решения и связи со знаниями/продуктом; карточка лишь пример разрыва."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "sync/deadline-evidence.mjs": {
-      "sha256": "c2a87b6240669562578d63272452c8c150d448afef70c47743d9a76069c9e65f",
-      "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
+      "sha256": "e8f12312ea844215d13d61f756f8a434b463723162b26f22d1ea41fb9b2d0d69",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
         "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs"
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "sync/subject-decisions.mjs": {
@@ -8225,21 +8463,30 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "531723554d6d500b3d68e3fecaebeec8cd65a35d2b4d3dbee23ab3e9092d486e",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "f672bfc6bb158a6cafa3d9fed4907b3924c2e2b3eada5791bcd84ce503cfdb1c",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/modules/synchronization/subject-decision-graph.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "day/homework-kind.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/mixed-assignment.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует: обязанности только из назначения учителя; исправить граф, снять выдуманное ЦДЗ по географии и не запрашивать несуществующий результат. Также адресное продолжение должно открывать сохранённую работу обеим ролям."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
@@ -8281,21 +8528,30 @@
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.tsx": {
-      "sha256": "0773c50dab719e2c299b7e9494a605accc5b6fff44efd73bd38ee95fed1ae527",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "2eb310e769109143d32ee88a505da9010b08e1d24c8a6cb8059a61016ea023b6",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "src/ui-kit/decisionScenarioFixtures.ts": {
@@ -8385,21 +8641,30 @@
       }
     },
     "packages/education-presentation/task-presentation.mjs": {
-      "sha256": "b01e5d571807c19c950d54176f3861e0ba525ecf37b8e2c99ac2ec3f8672c5dd",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "84a8b3ea33d63fb2655b56d3c2caf6e8fadeeed5c175812a06828f7f9c1f1b97",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/shared/design/student-review-step.md"
       ],
       "tests": [
-        "packages/education-presentation/task-presentation.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx",
-        "src/components/MaterialRequest.test.tsx"
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 прямо требует единую систему граф→контракт→макет UIKit→карточка и объяснять найденное/недостающее после поиска архива, без повторных просьб."
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     },
     "scripts/task-presentation.mjs": {
@@ -8519,6 +8784,114 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос родителя и production readback17.11.2026: исправить ранее открытый ответ на текущий вопрос, сохранив полный закрытый guide, события и прежние попытки штатным адресным CLI."
+      }
+    },
+    "src/components/SubjectRequirementSwitch.tsx": {
+      "sha256": "1be6b70bffd99b7398c013c6b700d9cd814800a0d93f8ecfb0271fd51de622d0",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+      }
+    },
+    "src/lib/useSubjectRequirementCommand.ts": {
+      "sha256": "29328e580c21917ac966df9fbc1372573d7315e446364bb5d7bb2e1a69cb9fb8",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+      }
+    },
+    "src/ui-kit/AssignmentClarificationExample.tsx": {
+      "sha256": "a59abee4711bc3416cfd39f56d2fefd6c32e8e8e9fcf5009afdb053cb8eb12b0",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+      }
+    },
+    "day/task-requirement.mjs": {
+      "sha256": "e1a3b06b5a7c561e10ff83ea055cab464071cd453a79cf2899d9096a82b227d6",
+      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "specs": [
+        "docs/shared/design/student-review-step.md"
+      ],
+      "tests": [
+        "src/components/ReviewActivity.test.tsx",
+        "src/components/ReviewConversation.test.tsx",
+        "src/components/PhotoHelpPanel.integration.test.tsx",
+        "src/components/SubjectRequirementSwitch.test.tsx",
+        "src/components/QuizResultCard.test.tsx",
+        "src/lib/parentCompletion.test.ts",
+        "src/lib/parentCompletion.producer.test.ts",
+        "sync/help-response.test.mjs",
+        "sync/deadline-control.test.mjs",
+        "sync/deadline-evidence.test.mjs",
+        "scripts/firestore-rules-help-emulator.test.mjs",
+        "scripts/check-schedule-viewport.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "day/decision-registry.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
       }
     }
   }

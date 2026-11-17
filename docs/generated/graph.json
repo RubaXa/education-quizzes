@@ -339,6 +339,68 @@
       "path": "docs/decisions/accepted-help-closure-2026-10-25.md"
     },
     {
+      "id": "decision.adaptive-review-modes-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "shared.design.student-review-step",
+      "uses": [
+        "module.assignments.deadline-control",
+        "module.reviews.criteria-and-knowledge",
+        "module.synchronization.subject-decision-graph",
+        "shared.design.ui-kit"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "day/decision-registry.mjs",
+        "day/task-requirement.mjs",
+        "packages/education-presentation/review-activity.mjs",
+        "packages/education-presentation/review-reply.mjs",
+        "packages/education-presentation/task-presentation.mjs",
+        "scripts/check-review-brief-viewport.mjs",
+        "scripts/check-schedule-viewport.mjs",
+        "src/DayPage.tsx",
+        "src/UiKit.tsx",
+        "src/components/PhotoHelpPanel.tsx",
+        "src/components/PhotoHelpRequest.tsx",
+        "src/components/ProblemStatement.css",
+        "src/components/QuizAttemptReview.tsx",
+        "src/components/QuizResultCard.tsx",
+        "src/components/RequirementSwitch.css",
+        "src/components/ReviewActivity.css",
+        "src/components/ReviewActivity.tsx",
+        "src/components/ReviewBrief.tsx",
+        "src/components/ReviewConversation.tsx",
+        "src/components/SubjectRequirementSwitch.tsx",
+        "src/lib/dayGuidance.ts",
+        "src/lib/dayStore.ts",
+        "src/lib/homeworkStatus.ts",
+        "src/lib/parentCompletion.ts",
+        "src/lib/useSubjectRequirementCommand.ts",
+        "src/ui-kit/AssignmentClarificationExample.tsx",
+        "src/ui-kit/DecisionScenarioCatalog.tsx",
+        "src/ui-kit/ReviewConversationExample.tsx",
+        "sync/deadline-control.mjs",
+        "sync/deadline-evidence.mjs",
+        "sync/event-task-artifact.mjs",
+        "sync/help-response.mjs",
+        "src/App.tsx"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/adaptive-review-modes-2026-11-17.md"
+    },
+    {
       "id": "decision.assignment-decoding-2026-11-10",
       "status": "accepted",
       "implementation": "implemented",
@@ -6021,6 +6083,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:day/task-requirement.d.mts",
+      "path": "day/task-requirement.d.mts",
+      "kind": "artifact",
+      "purpose": "Единый выбор обязательности для клиента и существующего контроля сроков",
+      "consumer": "UI; sync; тесты"
+    },
+    {
+      "id": "file:day/task-requirement.mjs",
+      "path": "day/task-requirement.mjs",
+      "kind": "artifact",
+      "purpose": "Единый выбор обязательности для клиента и существующего контроля сроков",
+      "consumer": "UI; sync; тесты"
+    },
+    {
       "id": "file:diary/adapters/mesh.mjs",
       "path": "diary/adapters/mesh.mjs",
       "kind": "artifact",
@@ -9794,6 +9870,20 @@
       "consumer": "Карточки, день, dashboard, фото, библиотека"
     },
     {
+      "id": "file:src/components/SubjectRequirementSwitch.test.tsx",
+      "path": "src/components/SubjectRequirementSwitch.test.tsx",
+      "kind": "verification",
+      "purpose": "Ролевой переключатель и локальный транспорт UI Kit",
+      "consumer": "Ребёнок; родитель; UI Kit"
+    },
+    {
+      "id": "file:src/components/SubjectRequirementSwitch.tsx",
+      "path": "src/components/SubjectRequirementSwitch.tsx",
+      "kind": "artifact",
+      "purpose": "Общий родительский выбор семейного объёма предмета без изменения проверки",
+      "consumer": "Ребёнок; родитель; UI Kit"
+    },
+    {
       "id": "file:src/components/SubjectTheme.tsx",
       "path": "src/components/SubjectTheme.tsx",
       "kind": "artifact",
@@ -11026,6 +11116,13 @@
       "consumer": "`src/DayPage.tsx`; `src/WeekendMathSlot.tsx`; `src/DayDashboard.tsx`"
     },
     {
+      "id": "file:src/lib/useSubjectRequirementCommand.ts",
+      "path": "src/lib/useSubjectRequirementCommand.ts",
+      "kind": "artifact",
+      "purpose": "Стабильные ID повторов при выборе обязательности нескольких заданий",
+      "consumer": "Ребёнок; родитель; UI Kit"
+    },
+    {
       "id": "file:src/lib/useTaskGuidance.ts",
       "path": "src/lib/useTaskGuidance.ts",
       "kind": "artifact",
@@ -11115,6 +11212,13 @@
       "kind": "artifact",
       "purpose": "Монтирование React и стилей",
       "consumer": "Браузер"
+    },
+    {
+      "id": "file:src/ui-kit/AssignmentClarificationExample.tsx",
+      "path": "src/ui-kit/AssignmentClarificationExample.tsx",
+      "kind": "artifact",
+      "purpose": "Настоящий блок уточнения и решения родителя с локальным транспортом",
+      "consumer": "Ребёнок; родитель; UI Kit"
     },
     {
       "id": "file:src/ui-kit/DecisionScenarioCatalog.css",
@@ -16122,7 +16226,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-11-01",
-      "updated": "2026-11-01",
+      "updated": "2026-11-17",
       "parent": "shared.design.compact-review",
       "uses": [
         "shared.access-and-privacy",
@@ -16143,7 +16247,9 @@
         "модель-и-действие",
         "граница-доступа",
         "миграция-и-проверка",
-        "отправка-и-ответ"
+        "отправка-и-ответ",
+        "adaptive-support",
+        "assignment-clarification"
       ],
       "path": "docs/shared/design/student-review-step.md"
     },
@@ -16523,6 +16629,26 @@
     {
       "from": "decision.accepted-help-closure-2026-10-25",
       "to": "module.synchronization.education-pipeline",
+      "type": "uses"
+    },
+    {
+      "from": "decision.adaptive-review-modes-2026-11-17",
+      "to": "module.assignments.deadline-control",
+      "type": "uses"
+    },
+    {
+      "from": "decision.adaptive-review-modes-2026-11-17",
+      "to": "module.reviews.criteria-and-knowledge",
+      "type": "uses"
+    },
+    {
+      "from": "decision.adaptive-review-modes-2026-11-17",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "decision.adaptive-review-modes-2026-11-17",
+      "to": "shared.design.ui-kit",
       "type": "uses"
     },
     {
@@ -18137,6 +18263,11 @@
     },
     {
       "from": "file:day/decision-registry.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/decision-registry.mjs",
       "to": "module.reviews.criteria-and-knowledge",
       "type": "implements"
     },
@@ -18463,6 +18594,21 @@
     {
       "from": "file:day/subject-identity.mjs",
       "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/task-requirement.d.mts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/task-requirement.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/task-requirement.mjs",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -19137,6 +19283,11 @@
     },
     {
       "from": "file:packages/education-presentation/review-activity.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-activity.mjs",
       "to": "shared.design.student-review-step",
       "type": "implements"
     },
@@ -19167,6 +19318,11 @@
     },
     {
       "from": "file:packages/education-presentation/review-reply.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/review-reply.mjs",
       "to": "shared.design.student-review-step",
       "type": "implements"
     },
@@ -19183,6 +19339,11 @@
     {
       "from": "file:packages/education-presentation/task-presentation.d.mts",
       "to": "shared.design.task-presentation",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -19847,6 +20008,11 @@
     },
     {
       "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
@@ -19863,6 +20029,11 @@
     {
       "from": "file:scripts/check-review-brief-viewport.mjs",
       "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-schedule-viewport.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -20822,6 +20993,11 @@
     },
     {
       "from": "file:src/App.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/App.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -21617,7 +21793,17 @@
     },
     {
       "from": "file:src/components/PhotoHelpPanel.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PhotoHelpPanel.tsx",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PhotoHelpRequest.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -21737,6 +21923,11 @@
     },
     {
       "from": "file:src/components/ProblemStatement.css",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ProblemStatement.css",
       "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
     },
@@ -21778,6 +21969,11 @@
     {
       "from": "file:src/components/PwaControls.tsx",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizAttemptReview.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -21872,6 +22068,11 @@
     },
     {
       "from": "file:src/components/QuizResultCard.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/QuizResultCard.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -21902,6 +22103,11 @@
     },
     {
       "from": "file:src/components/RequirementSwitch.css",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/RequirementSwitch.css",
       "to": "shared.design",
       "type": "implements"
     },
@@ -21912,7 +22118,17 @@
     },
     {
       "from": "file:src/components/ReviewActivity.css",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewActivity.css",
       "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewActivity.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -21938,6 +22154,11 @@
     {
       "from": "file:src/components/ReviewBrief.css",
       "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -21983,6 +22204,11 @@
     {
       "from": "file:src/components/ReviewBriefShowcase.tsx",
       "to": "shared.design.compact-review",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewConversation.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -22068,6 +22294,16 @@
     {
       "from": "file:src/components/StatusIcon.tsx",
       "to": "shared.design.statuses",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SubjectRequirementSwitch.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/SubjectRequirementSwitch.tsx",
+      "to": "shared.design.student-review-step",
       "type": "implements"
     },
     {
@@ -22522,6 +22758,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -22722,6 +22963,11 @@
     },
     {
       "from": "file:src/lib/dayGuidance.ts",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayGuidance.ts",
       "to": "decision.released-stage-parity-2026-10-20",
       "type": "implements"
     },
@@ -22738,6 +22984,11 @@
     {
       "from": "file:src/lib/dayMaterialRefs.ts",
       "to": "module.materials.materials",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -22922,6 +23173,11 @@
     },
     {
       "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
       "to": "decision.collapsed-variant-status-2026-10-21",
       "type": "implements"
     },
@@ -23073,6 +23329,11 @@
     {
       "from": "file:src/lib/olympiadPracticeTheory.ts",
       "to": "module.olympiad-preparation",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/parentCompletion.ts",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -23501,6 +23762,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/useSubjectRequirementCommand.ts",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useSubjectRequirementCommand.ts",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/useTaskGuidance.ts",
       "to": "decisions.weekend-parent-actions-2026-10-18",
       "type": "implements"
@@ -23571,8 +23842,23 @@
       "type": "implements"
     },
     {
+      "from": "file:src/ui-kit/AssignmentClarificationExample.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/AssignmentClarificationExample.tsx",
+      "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
       "from": "file:src/ui-kit/DecisionScenarioCatalog.css",
       "to": "module.reviews.criteria-and-knowledge",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/DecisionScenarioCatalog.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -23612,6 +23898,11 @@
     },
     {
       "from": "file:src/ui-kit/ReviewConversationExample.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ReviewConversationExample.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -23633,6 +23924,11 @@
     {
       "from": "file:src/UiKit.css",
       "to": "shared.design.ui-kit",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/UiKit.tsx",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -24097,7 +24393,17 @@
     },
     {
       "from": "file:sync/deadline-control.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/deadline-control.mjs",
       "to": "module.assignments.deadline-control",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/deadline-evidence.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -24118,6 +24424,11 @@
     {
       "from": "file:sync/dispatch-workspace.mjs",
       "to": "service.telegram-bot.education-sync-dispatch",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/event-task-artifact.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -24188,6 +24499,11 @@
     {
       "from": "file:sync/help-request-resolution.mjs",
       "to": "module.synchronization.education-pipeline",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/help-response.mjs",
+      "to": "decision.adaptive-review-modes-2026-11-17",
       "type": "implements"
     },
     {
@@ -28932,6 +29248,11 @@
     },
     {
       "from": "shared.design.student-review-step",
+      "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "contains"
+    },
+    {
+      "from": "shared.design.student-review-step",
       "to": "decision.student-review-reply-2026-11-01",
       "type": "contains"
     },
@@ -28958,6 +29279,11 @@
     {
       "from": "shared.design.student-review-step",
       "to": "file:src/components/ReviewConversation.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "shared.design.student-review-step",
+      "to": "file:src/components/SubjectRequirementSwitch.test.tsx",
       "type": "verified-by"
     },
     {

@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /* @see ../../docs/modules/reviews/adaptive-problem-card.md#слои
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md#flat-numbered-sheet
  * @see ../../docs/modules/reviews/problem-card-design-decisions.md */
@@ -46,3 +47,6 @@
 .problem-statement-help-result{margin-top:13px;padding:12px;border-left:3px solid var(--edu-problem-help-accent);border-radius:9px;background:var(--edu-surface)}
 .problem-statement-help-result strong{font-size:.83rem}.problem-statement-help-result p{margin:7px 0!important;font-size:.93rem;font-weight:700}.problem-statement-help-result small{color:var(--edu-problem-help-muted);font-size:.72rem}
 @media(max-width:480px){.problem-statement-original,.problem-statement-education{padding:12px}.problem-statement-text{font-size:.94rem}}
+
+/* @see ../../docs/shared/design/student-review-step.md#assignment-clarification */
+.problem-statement-help-modes{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.problem-statement-help-modes .problem-statement-help-button[aria-pressed=true]{border-color:var(--edu-brand);box-shadow:inset 0 -3px var(--edu-brand)}

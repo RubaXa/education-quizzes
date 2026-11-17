@@ -176,3 +176,13 @@ Up-миграция узкая: снимок затрагиваемых связ
 Ранний режим: canonical `families/{familyId}/children/{childId}.learningMode=early-development`, parent membership `earlyChildIds`. `earlyDevelopment/current` хранит подтверждённую дату рождения, timezone и полную версию программы; `earlyObservations/{id}` и immutable `history/{revisionId}` хранят родительские записи с Timestamp и revision. Доступ ограничен active parent + exact early child scope; browser не меняет план. [Контракт](../../modules/families/early-development.md).
 
 Подтверждённая семейная дата: документ `families/{familyId}/children/{childId}` может содержать `birthday: MM-DD`, `birthdaySource: parent-confirmed`, `birthdayConfirmedAt` и прежний `timezone`. Это календарное оформление, не критерий оценки и не год рождения. Запись и readback — [семейный контракт](../../modules/families/README.md#birthday).
+
+
+17.11: `dayParentDecisions/{studentToken}/events/{uuid}` поддерживает task-required/
+task-optional для известного page.taskIds ID, только от родителя с прежним owner.
+reviewCheckedAt=null: выбор семейного плана не привязан к ревизии проверки и не
+переписывает МЭШ, оценку или работу. Один taskRequired используется клиентом и
+серверным контролем срока. dayHelp condition без фото хранит planRevision,
+неизменяемый requests/{eventId} и атомарный help.requested. Ответ оператора в
+существующем dayGuidance может содержать только clarification:
+clarified/ask-child/ask-parent; закрытое обоснование остаётся в operator job.

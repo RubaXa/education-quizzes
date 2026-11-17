@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/shared/design/student-review-step.md */
 import {useEffect,useEffectEvent,useRef,useState,type ReactNode} from 'react'
 import ReviewBrief from './ReviewBrief'
@@ -52,7 +53,8 @@ export default function ReviewConversation({data,review,binding,parent,children}
  const waiting=Boolean(busy),responseId=last?.id
  useEffect(()=>{if(wasWaiting.current&&!waiting&&responseId)article.current?.querySelector<HTMLElement>('.edu-review-question,.edu-step-feedback')?.focus();wasWaiting.current=waiting},[waiting,responseId])
  const action=!parent&&active&&binding?.canReply&&binding.ready&&loaded&&!readError&&!busy&&!last?.reviewResponse?.complete?{sending,send,error}:undefined
- return <ReviewBrief articleRef={article} data={busy?{...current,activity:undefined,question:undefined,focus:undefined,bridge:undefined,visual:undefined,details:undefined}:current} reply={action} context={feedback?<div tabIndex={-1} className="edu-step-feedback" role="status"><strong>{labels[feedback.outcome]}</strong><p>{feedback.message}</p></div>:undefined}>
+ return <ReviewBrief readOnly={parent} articleRef={article} data={busy?{...current,activity:undefined,question:undefined,focus:undefined,bridge:undefined,visual:undefined,details:undefined}:current} reply={action} context={feedback?<div tabIndex={-1} className="edu-step-feedback" role="status"><strong>{labels[feedback.outcome]}</strong><p>{feedback.message}</p></div>:undefined}>
+  {parent&&!busy&&requests.at(-1)&&<div className="edu-step-child-reply"><strong>Ответ ребёнка</strong><p>{describeValue(requests.at(-1)!.reviewReply!)}</p>{requests.at(-1)!.requestText&&<p>{requests.at(-1)!.requestText}</p>}</div>}
   {busy&&pending&&<div className="edu-step-wait" role="status"><strong>{pending.reviewReply?.intent==='stuck'?'Вопрос отправлен':'Ответ отправлен'}</strong><p>{pending.reviewReply?.intent==='stuck'?'Помогу разобраться с этим шагом. Ответ появится здесь после проверки.':'Проверю твою мысль. Следующий шаг появится здесь после проверки.'}</p>
     <details><summary>Что отправлено</summary><p>{pending.reviewReply?.step.question}</p><p>{describeValue(pending.reviewReply!)}</p>{pending.requestText&&<p>{pending.requestText}</p>}</details>
     {!parent&&binding?.canReply&&<details><summary>Дополнить вопрос</summary><label>Что именно непонятно?<textarea maxLength={800} value={note} onChange={e=>setNote(e.target.value)}/></label><button type="button" disabled={sending||!note.trim()} onClick={()=>void send('stuck',JSON.parse(pending.reviewReply!.value),note)}>{sending?'Отправляем…':'Отправить пояснение'}</button>{error&&<p role="alert">{error}</p>}</details>}

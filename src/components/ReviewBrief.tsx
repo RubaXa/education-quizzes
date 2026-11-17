@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/shared/design/compact-review.md */
@@ -61,7 +62,7 @@ export function ReviewVisual({ visual }: { visual: ReviewVisualData }) {
 }
 
 /** Shared presentation: policy and authorized data are supplied by the owning adapter. */
-export default function ReviewBrief({ data,children,context,reply,articleRef }: { data: ReviewBriefData;children?:ReactNode;context?:ReactNode;reply?:Omit<ReviewReplyAction,'canAnswer'>;articleRef?:import('react').Ref<HTMLElement> }) {
+export default function ReviewBrief({ data,children,context,reply,articleRef,readOnly=false }: { data: ReviewBriefData;readOnly?:boolean;children?:ReactNode;context?:ReactNode;reply?:Omit<ReviewReplyAction,'canAnswer'>;articleRef?:import('react').Ref<HTMLElement> }) {
   const complete = data.status === 'verified'
   const overflow:string[]=[]
   const readable=(value:string|undefined,limit:number)=>{
@@ -86,7 +87,7 @@ export default function ReviewBrief({ data,children,context,reply,articleRef }: 
       {data.visual && !data.activity && <ReviewVisual visual={data.visual} />}
       {bridge && <p className="edu-review-copy edu-review-bridge">{bridge}</p>}
       {data.question && <p tabIndex={-1} className="edu-review-copy edu-review-question">{data.question}</p>}
-      {data.activity && <ReviewActivity key={data.id} activity={data.activity} reply={reply}/>}
+      {data.activity && <ReviewActivity key={data.id} activity={data.activity} reply={reply} readOnly={readOnly} question={data.question}/>}
     </>}
     {details.map((detail, index) => <details className="edu-review-detail" key={`${data.id}-${index}`}>
       <summary><span>{detail.label}</span><ChevronDown size={15} aria-hidden="true" /></summary>

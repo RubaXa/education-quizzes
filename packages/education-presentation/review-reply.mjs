@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Public reply protocol. It validates evidence, never decides correctness.
  * @see ../../docs/shared/design/student-review-step.md */
 import {reviewActivityValid} from './review-activity.mjs'
@@ -19,6 +20,7 @@ export function reviewValueValid(a,v,{allowEmpty=false}={}){
  const ids=a.tokens.map(t=>t.id),groupIds=a.groups?.map(g=>g.id)??[]
  if(v.selected.length>(a.maxItems??40)||v.selected.some(id=>!ids.includes(id))||(!a.repeat&&new Set(v.selected).size!==v.selected.length)
   ||Object.values(v.groups).some(g=>g!==''&&!groupIds.includes(g))||Object.values(v.written).some(t=>typeof t!=='string'||t.length>160))return false
+ if(a.kind==='choice'&&v.selected.length>1)return false
  if(a.kind==='write')return !v.selected.length&&!Object.keys(v.groups).length&&(allowEmpty||a.tokens.every(t=>text(v.written[t.id],160)))
  if(a.kind==='sort')return !v.selected.length&&!Object.keys(v.written).length&&(allowEmpty||a.tokens.every(t=>groupIds.includes(v.groups[t.id])))
  return !Object.keys(v.groups).length&&!Object.keys(v.written).length&&(allowEmpty||v.selected.length>0)
@@ -48,4 +50,16 @@ export function resolveReviewReplyStep(reply,review,guidance){
  const step={question:f?.question,activity:f?.presentation?.activity}
  if(!sameReviewValue(reply.step,step))throw new Error('review_reply_stale')
  return step
+}
+
+/** Select a support transition from a checked response, never from time or silence.
+ * The semantic choice remains with the reviewer; the gate prevents empty loops.
+ * @see ../../docs/shared/design/student-review-step.md#adaptive-support */
+export function reviewSupportTransition(reply,response){
+ if(reviewReplyErrors(reply).length||reviewResponseErrors(response).length)throw Error('review_support_invalid')
+ const previous=reply.step.activity,next=response.next?.presentation.activity
+ if(response.outcome==='stuck'&&next&&(sameReviewValue(previous,next)&&reply.step.question===response.next.question||previous.kind==='write'&&next.kind==='write'))throw Error('review_support_not_reduced')
+ if(response.outcome==='clarify'&&response.next.question===reply.step.question&&sameReviewValue(previous,next))throw Error('review_support_not_clarified')
+ return {nodeId:'review.support',edgeId:'review:support',trigger:reply.intent,outcome:response.outcome,
+  from:previous.kind,to:next?.kind??'complete',transition:response.complete?'complete':response.outcome==='stuck'?'reduce':response.outcome==='clarify'?'clarify':response.outcome==='correct'?'advance':'repair'}
 }

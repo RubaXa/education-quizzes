@@ -22,7 +22,7 @@ it('keeps the accepted part and one action visible without opening explanatory c
   expect(host.querySelectorAll('.edu-review-question')).toHaveLength(1)
   expect(host.querySelector('details')?.open).toBe(false)
   expect(host.querySelectorAll('.edu-step-tokens button')).toHaveLength(2)
-  expect(host.querySelector('.edu-step-result output')?.textContent).toBe('…')
+  expect(host.querySelector('.edu-step-result output')).toBeNull()
 })
 
 it('protects every consumer from an old long paragraph without trimming its content or hiding the question', async () => {

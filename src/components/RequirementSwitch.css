@@ -1,3 +1,4 @@
+/* @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /* @see ../../docs/shared/design/README.md#cards-and-status */
 .edu-requirement-switch{display:inline-grid;place-items:center;width:var(--edu-touch-target);height:var(--edu-touch-target);min-width:var(--edu-touch-target);padding:0;border:0;border-radius:var(--edu-radius-control);background:transparent;color:var(--edu-ink);cursor:pointer}
 .edu-requirement-switch-track{width:34px;height:20px;flex:none;border-radius:99px;background:var(--edu-control-border);position:relative;transition:background .15s}
@@ -6,3 +7,6 @@
 .edu-requirement-switch[aria-checked="true"] .edu-requirement-switch-track::after{transform:translateX(14px)}
 .edu-requirement-switch:focus-visible{outline:3px solid var(--edu-focus);outline-offset:2px}
 .edu-requirement-switch:disabled{opacity:.55;cursor:default}
+
+/* @see ../../docs/shared/design/student-review-step.md#assignment-clarification */
+.edu-subject-requirement{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}

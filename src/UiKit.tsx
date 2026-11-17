@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/modules/families/README.md#birthday */
 import { BirthdayGreeting } from './components/BirthdayTheme'
 /** @see ../docs/decisions/quiz-runner-kit-audit-2026-11-01.md */
@@ -167,7 +168,9 @@ function tokenMeaning(name: string) {
 /** Small living documentation page. Examples import the shipped components and never access family data.
  * @see ../docs/shared/design/ui-kit.md */
 export default function UiKit() {
-  const [section,setSection] = useState<UiKitSection>(window.location.hash.includes('decision=')?'decision-cards':'results')
+  const [section,setSection] = useState<UiKitSection>(window.location.hash.includes('section=compact-review')?'compact-review':window.location.hash.includes('decision=')?'decision-cards':'results')
+  useEffect(()=>{const navigate=()=>{const query=new URLSearchParams(window.location.hash.split('?')[1]);if(query.get('section')==='compact-review')setSection('compact-review');else if(query.has('decision'))setSection('decision-cards')};window.addEventListener('hashchange',navigate);return()=>window.removeEventListener('hashchange',navigate)},[])
+  useEffect(()=>{if(section==='compact-review'&&new URLSearchParams(window.location.hash.split('?')[1]).get('focus')==='review.support')document.getElementById('review-adaptive')?.scrollIntoView({block:'start'})},[section])
   const [points,setPoints] = useState(34)
   const [max,setMax] = useState(39)
   const [fileExample,setFileExample] = useState(fileExamples.find(file => file.contentType === 'application/pdf')!)
