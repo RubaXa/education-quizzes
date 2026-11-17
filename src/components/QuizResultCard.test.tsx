@@ -2,7 +2,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import ResultCard from './QuizResultCard'
-import { grade, type AnswerKey, type Assignment } from '@/lib/quiz'
+import { grade, type AnswerKey, type Assignment,type QuestionResult } from '@/lib/quiz'
 
 const assignment: Assignment = { schemaVersion: 1, testId: 'source-check', title: 'Реки', subject: 'География',
   questions: [{ id: 'unit', kind: 'short', prompt: 'Назови единицу солёности.', points: 1 }],
@@ -26,7 +26,8 @@ describe('specific quiz feedback', () => {
   })
   it('shows the checked observation, diagnostic question and exact source without the closed key', () => {
     const html = render({ entries: { unit: { correct: 'CLOSED-ANSWER', explanation: 'CLOSED-EXPLANATION', guidance } } })
-    for (const text of [guidance.observation, guidance.question, guidance.source.title, guidance.source.pages, guidance.source.locator]) expect(html).toContain(text)
+    for (const text of [guidance.observation, guidance.question, guidance.source.title, guidance.source.edition, guidance.source.pages]) expect(html).toContain(text)
+    expect(html).not.toContain(guidance.source.locator)
     expect(html).not.toContain('CLOSED-')
     expect(html).not.toContain('Вернись к материалу, указанному')
   })
@@ -75,4 +76,13 @@ it('keeps a parent result read-only while retaining the same child question and 
  const parent=renderToStaticMarkup(createElement(ResultCard,{result,index:0,parent:true}))
  expect(parent).not.toContain('<input');expect(parent).toContain(guidance.question);expect(parent).not.toContain('CLOSED-ANSWER')
  expect(renderToStaticMarkup(createElement(ResultCard,{result,index:0}))).toContain('<input')
+})
+
+it('keeps a narrative source locator out of every learner disclosure while a micro-question is active, preserving the adult citation',()=>{
+ const result:QuestionResult={question:{id:'door',kind:'single',prompt:'Сопоставь два действия.',points:1},answer:'a',points:0,guidance:{observation:'В ответе перепутаны приказ и поступок.',question:'Какое действие поручено сделать?',source:{title:'Литература 6',edition:'2024, часть 1',pages:'156',section:'Глава VI: приказ открыть дверь',locator:'Владимир велел открыть дверь'},presentation:{version:1,activity:{kind:'choice',label:'Поручение',instruction:'Найди реплику и выбери действие.',tokens:[{id:'open',text:'Открыть'},{id:'lock',text:'Запереть'}]}}}}
+ const child=renderToStaticMarkup(createElement(ResultCard,{result,index:0}))
+ expect(child).toContain('Литература 6');expect(child).toContain('156')
+ expect(child).not.toContain('приказ открыть дверь');expect(child).not.toContain('Владимир велел открыть дверь')
+ const adult=renderToStaticMarkup(createElement(ResultCard,{result,index:0,parent:true}))
+ expect(adult).toContain('Глава VI: приказ открыть дверь');expect(adult).toContain('Владимир велел открыть дверь')
 })

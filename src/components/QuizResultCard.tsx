@@ -36,9 +36,10 @@ export default function ResultCard({ result, index,parent=false,submittedAt,conv
   const guidance = result.guidance
   const presentation=projectReviewSupplement(guidance?.presentation)
   const execution=Boolean(result.question.code && guidance?.mode==='program-explanation' && presentation?.visual?.kind==='comparison')
+  const hasActiveQuestion=needsReflection&&!spelling&&!execution&&Boolean(guidance?.question)
   const details:ReviewBriefDetail[]=[]
   if(spelling) details.push({label:'Как пишется',text:`Правильно: ${spelling.correct}. ${spelling.detail}`},{label:'Что повторить',text:spelling.practice})
-  if(guidance) details.push({label:'Источник вопроса',text:[guidance.source.title,guidance.source.edition,guidance.source.section,guidance.source.pages,guidance.source.locator].join('. ')})
+  if(guidance) details.push({label:'Источник вопроса',text:[guidance.source.title,guidance.source.edition,guidance.source.pages,...(parent||!hasActiveQuestion?[guidance.source.section,guidance.source.locator]:[])].filter(Boolean).join('. ')})
   else if(result.source) details.push({label:'Источник вопроса',text:result.source})
   const state=skipped?'skipped':pending?'waiting':wrong?'incorrect':partial?'revise':'verified'
   const stateLabel=excluded?'Не входит в зачёт этого задания':skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
