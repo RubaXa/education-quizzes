@@ -3,7 +3,7 @@ id: shared.server-runtime
 status: accepted
 implementation: partial
 created: 2026-10-17
-updated: 2026-10-19
+updated: 2026-11-17
 parent: shared.data
 uses:
   - module.families
@@ -41,6 +41,14 @@ sections:
 Family graph проходит все страницы без списка/лимита семей. Сбой одной семьи сохраняется как partial failure, а независимые здоровые семьи продолжают инвентаризацию; частичный граф не считается полным. Consumer projections создают sync targets и notification scopes, используя общие строгие predicates. Общий `event-queue.mjs` владеет ingress claim/lease/retry/fanout; Telegram сохраняет транспортный outbox, а `operatorSyncJobs` — исполнение педагогических задач. Это один вход событий с отдельными состояниями потребителей, без параллельных бизнес-очередей. [Контракт очереди](../modules/synchronization/event-queue.md) задаёт единственную subscription, атомарные producers и ограниченную переходную сверку старых PWA. Mesh HTTP retry существует в connector; повтор source observation не создаёт второго HTTP retry.
 
 ## Авторизация и совместимость
+
+Проверка роли МЭШ читает profile_info через тот же MeshAPI, что и остальные
+чтения: общий набор заголовков и обновление токена при401. Прямой отдельный fetch
+не должен обходить восстановление сессии и превращать истечение токена в постоянный
+auth-required. На403 именно этой проверки допускается одно штатное восстановление
+сессии и один повтор; повторный отказ не обходится. После восстановления обязательны ParentProfile,
+семейный profile.type=parent и точная связь выбранного ребёнка. Сетевая ошибка и
+настоящий отказ авторизации сохраняют свои причины; роль не предполагается.
 
 Проверяется точная family/child/sourceAccount/sourceIdentity пара, активная семья/ребёнок, действующее родительское членство, actor hash и профиль ребёнка в МЭШ; проверка повторяется после внешних calls. Отдельный child adapter и account-scoped сериализация не допускают смешивания siblings. Legacy credentials допустимы только через явно выбранный codec, который доказывает прежнюю family-access `legacyDayOwner`, actor hash и точную пару в текущем source registry. Отсутствующий или неверный registry match блокирует legacy путь; нет неявного fallback к несвязанному `secret.json`. Новые source accounts используют канонический connection store.
 

@@ -17,6 +17,16 @@ it('fetches the full guide only as parent and discards late private snapshots on
   await act(async()=>root.render(<QuizResultConversation token="quiz" result={parentPilotResult} index={0} parent submittedAt={submittedAt}/>))
   expect(state.watch).toHaveBeenCalledWith('quiz',parentPilotResult.question.id)
   await act(async()=>state.deliver!(record));expect(host.textContent).toContain(parentPilotAnalysis.answer)
+  const route=host.querySelector('.day-parent-learning-route')!
+  expect(route).not.toBeNull()
+  await act(async()=>route.querySelector<HTMLElement>('summary')!.click())
+  const stage=route.querySelector('.day-learning-route-stage')!
+  await act(async()=>stage.querySelector<HTMLElement>('summary')!.click())
+  const choice=[...stage.querySelectorAll<HTMLButtonElement>('.edu-solution-case-choices button')].find(b=>b.textContent==='Поступок Архипа')!
+  await act(async()=>choice.click())
+  expect(choice.getAttribute('aria-pressed')).toBe('true')
+  expect(stage.querySelector('.edu-solution-selected-case')?.textContent).toContain('Архип запер их на ключ')
+  expect(host.querySelector('[role="switch"]')).toBeNull()
   const late=state.deliver
   await act(async()=>root.render(<QuizResultConversation token="quiz" result={parentPilotResult} index={0} parent={false} submittedAt={submittedAt}/>))
   await act(async()=>late!(record))

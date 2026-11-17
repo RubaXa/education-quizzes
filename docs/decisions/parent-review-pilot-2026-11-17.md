@@ -16,7 +16,6 @@ code:
   - packages/education-presentation/parent-review.mjs
   - packages/education-presentation/parent-review.d.mts
   - src/components/ParentReviewContent.tsx
-  - src/components/ParentReviewContent.css
   - src/components/QuizResultCard.tsx
   - src/components/QuizResultConversation.tsx
   - src/components/ReviewConversation.tsx
@@ -78,3 +77,8 @@ UI Kit показывает обе роли одной условной зада
 
 Прямой запрос17.11: правильный ответ и разбор у родителя, подсказки у ребёнка;
 сначала одна задача, каждое решение закрепить в спецификации и графе.
+
+Первоначальный отдельный вид «Ход разбора» отклонён родителем в тот же день.
+[Коррекция](restore-parent-route-2026-11-17.md) сохраняет этот ролевой доступ и
+данные, но возвращает канонический ParentTaskGuide; прежний renderer не является
+основанием для дальнейшего нового дизайна.

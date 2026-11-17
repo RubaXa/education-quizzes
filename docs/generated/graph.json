@@ -2606,7 +2606,6 @@
         "packages/education-presentation/parent-review.mjs",
         "packages/education-presentation/parent-review.d.mts",
         "src/components/ParentReviewContent.tsx",
-        "src/components/ParentReviewContent.css",
         "src/components/QuizResultCard.tsx",
         "src/components/QuizResultConversation.tsx",
         "src/components/ReviewConversation.tsx",
@@ -3154,6 +3153,36 @@
         "scripts/day.mjs"
       ],
       "path": "docs/decisions/released-stage-parity-2026-10-20.md"
+    },
+    {
+      "id": "decision.restore-parent-route-2026-11-17",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-17",
+      "updated": "2026-11-17",
+      "parent": "module.reviews.parent-review",
+      "uses": [
+        "product.ui-change-control",
+        "shared.server-runtime"
+      ],
+      "consumers": [
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "src/components/ParentReviewContent.tsx",
+        "src/ui-kit/ParentReviewPilotExample.tsx",
+        "packages/education-presentation/task-presentation.mjs",
+        "packages/education-connect/lib/mesh.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/restore-parent-route-2026-11-17.md"
     },
     {
       "id": "decision.review-coverage-revision-2026-11-09",
@@ -9583,13 +9612,6 @@
       "consumer": "`PersonalEntry.tsx`; взрослый"
     },
     {
-      "id": "file:src/components/ParentReviewContent.css",
-      "path": "src/components/ParentReviewContent.css",
-      "kind": "artifact",
-      "purpose": "Раздельные продукты родителя и ученика; адресная публикация и проверка",
-      "consumer": "Родитель; ученик; оператор; UI Kit"
-    },
-    {
       "id": "file:src/components/ParentReviewContent.tsx",
       "path": "src/components/ParentReviewContent.tsx",
       "kind": "artifact",
@@ -15054,7 +15076,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-14",
-      "updated": "2026-10-16",
+      "updated": "2026-11-17",
       "consumers": [
         "parent",
         "student",
@@ -16718,7 +16740,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-17",
-      "updated": "2026-10-19",
+      "updated": "2026-11-17",
       "parent": "shared.data",
       "uses": [
         "module.families",
@@ -17778,6 +17800,16 @@
     {
       "from": "decision.released-stage-parity-2026-10-20",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.restore-parent-route-2026-11-17",
+      "to": "product.ui-change-control",
+      "type": "uses"
+    },
+    {
+      "from": "decision.restore-parent-route-2026-11-17",
+      "to": "shared.server-runtime",
       "type": "uses"
     },
     {
@@ -19562,6 +19594,11 @@
     },
     {
       "from": "file:packages/education-connect/lib/mesh.mjs",
+      "to": "decision.restore-parent-route-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-connect/lib/mesh.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -19758,6 +19795,11 @@
     {
       "from": "file:packages/education-presentation/task-presentation.mjs",
       "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/task-presentation.mjs",
+      "to": "decision.restore-parent-route-2026-11-17",
       "type": "implements"
     },
     {
@@ -22116,18 +22158,13 @@
       "type": "implements"
     },
     {
-      "from": "file:src/components/ParentReviewContent.css",
+      "from": "file:src/components/ParentReviewContent.tsx",
       "to": "decision.parent-review-pilot-2026-11-17",
-      "type": "implements"
-    },
-    {
-      "from": "file:src/components/ParentReviewContent.css",
-      "to": "module.reviews.parent-review",
       "type": "implements"
     },
     {
       "from": "file:src/components/ParentReviewContent.tsx",
-      "to": "decision.parent-review-pilot-2026-11-17",
+      "to": "decision.restore-parent-route-2026-11-17",
       "type": "implements"
     },
     {
@@ -24433,6 +24470,11 @@
     {
       "from": "file:src/ui-kit/ParentReviewPilotExample.tsx",
       "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/ParentReviewPilotExample.tsx",
+      "to": "decision.restore-parent-route-2026-11-17",
       "type": "implements"
     },
     {
@@ -26843,6 +26885,11 @@
     {
       "from": "module.reviews.parent-review",
       "to": "decision.parent-review-pilot-2026-11-17",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews.parent-review",
+      "to": "decision.restore-parent-route-2026-11-17",
       "type": "contains"
     },
     {

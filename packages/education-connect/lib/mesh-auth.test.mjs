@@ -2,6 +2,29 @@
 import {afterEach,expect,it,vi} from 'vitest'
 import {MeshDiaryAdapter,meshAuthDiagnostic,meshAuthFailure} from './mesh.mjs'
 afterEach(()=>vi.unstubAllGlobals())
+it.each([401,403])('renews once at role HTTP %s and still verifies parent and child membership',async(status)=>{
+ const fetch=vi.fn().mockResolvedValueOnce(Response.json([{id:'child',person_id:'child-person'}]))
+  .mockResolvedValueOnce(new Response('',{status}))
+  .mockResolvedValueOnce(Response.json({access_token:'mos'}))
+  .mockResolvedValueOnce(Response.json({user_authentication_for_mobile_response:{mesh_access_token:'new'}}))
+  .mockResolvedValueOnce(Response.json([]))
+  .mockResolvedValueOnce(Response.json([{type:'ParentProfile'}]))
+  .mockResolvedValueOnce(Response.json({profile:{type:'parent',id:'parent'},children:[{id:'child'}]}))
+ vi.stubGlobal('fetch',fetch)
+ const save=vi.fn(),adapter=new MeshDiaryAdapter({token:'old',actorPersonId:'actor',profileId:'child',clientId:'fixture',clientSecret:'fixture'},save)
+ await expect(adapter.verifyAccess()).resolves.toMatchObject({accountRole:'parent',studentLinked:true})
+ expect(fetch.mock.calls[1][1].headers.Authorization).toBe('Bearer old')
+ expect(fetch.mock.calls[5][1].headers['Auth-Token']).toBe('new')
+ expect(save).toHaveBeenLastCalledWith(expect.objectContaining({accountRole:'parent',studentId:'child',token:'new'}))
+})
+it('never substitutes session renewal for parent authorization',async()=>{
+ const fetch=vi.fn().mockResolvedValueOnce(Response.json([{id:'child',person_id:'child-person'}]))
+  .mockResolvedValueOnce(Response.json([{type:'StudentProfile'}]))
+ vi.stubGlobal('fetch',fetch)
+ const save=vi.fn(),adapter=new MeshDiaryAdapter({token:'fixture',actorPersonId:'actor',profileId:'child'},save)
+ await expect(adapter.verifyAccess()).rejects.toThrow('нужен родительский профиль')
+ expect(save).not.toHaveBeenCalled();expect(fetch).toHaveBeenCalledTimes(2)
+})
 it('reports invalid client safely and stops instead of disguising it as a source outage',async()=>{
  const fetch=vi.fn().mockResolvedValueOnce(new Response('',{status:401})).mockResolvedValueOnce(Response.json({error:'invalid_client',error_description:'private token and identifier'},{status:401}))
  vi.stubGlobal('fetch',fetch)

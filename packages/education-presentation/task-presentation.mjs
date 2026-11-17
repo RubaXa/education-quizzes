@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/restore-parent-route-2026-11-17.md */
 /** @see ../../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Shared presentation contracts, used by native publication and the real UI Kit.
@@ -9,7 +10,7 @@
 import {solutionBlocksErrors,solutionMethodErrors} from './solution-blocks.mjs'
 const contract=(id,title,components,specRef,requiredFields,checks)=>({id,title,components,specRef,requiredFields,checks})
 export const presentationContracts={
- 'parent-review':contract('parent-review','Полный разбор родителю',['ReviewBrief','ParentReviewContent','MethodOverview','SolutionBlocks'],'docs/modules/reviews/parent-review.md',['Правильный ответ','Фактическая попытка','Точное различие','Полный метод и доказательства','Источник'],['Нет ученического задания вместо ответа','Ключ загружается только родителю','Баллы и история сохранены']),
+ 'parent-review':contract('parent-review','Полный разбор родителю',['ReviewBrief','ParentTaskGuide','GuidanceStageContent','SolutionBlocks'],'docs/modules/reviews/parent-review.md',['Правильный ответ','Фактическая попытка','Точное различие','Полный метод и доказательства','Источник'],['Нет ученического задания вместо ответа','Ключ загружается только родителю','Баллы и история сохранены']),
  'assignment-clarification':contract('assignment-clarification','Уточнение назначения и выбор семьи',['PhotoHelpPanel','SubjectRequirementSwitch'],'docs/shared/design/student-review-step.md#assignment-clarification',['Что уточнил ребёнок','Проверенное объяснение','Ожидание либо решение родителя'],['Фото не требуется для текстового вопроса','Ребёнок не отменяет назначение','Решение семьи не меняет оценку']),
  'source-context':contract('source-context','Источник и точное назначение',['AssignmentBrief','SourceFragment'],'docs/modules/school-diary/day-page.md',['Точная запись','Назначенный оригинал','Граница известного'],['Источник не подменяется пересказом','Получение материала не означает выполнение']),
  'numbered-problem':contract('numbered-problem','Нумерованная задача',['ProblemTaskCard','ProblemStatement','ParentTaskGuide'],'docs/modules/reviews/adaptive-problem-card.md#presentation-gate',['Условие один раз','Отдельные данные и искомое каждого подпункта','Метод и переходы','Проверка'],['Нет полного условия в плитке Дано','Нет шаблонного Найти','Родительский ответ закрыт для ученика']),
