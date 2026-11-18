@@ -1,4 +1,5 @@
 /** @see ../docs/decisions/worker-release-retention-2026-11-18.md */
+/** @see ../docs/decisions/legacy-upload-cleanup-2026-11-18.md */
 import { pathToFileURL } from 'node:url'
 import { createHash, randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
@@ -52,11 +53,12 @@ export async function main(args = process.argv.slice(2), dependencies = {}) {
     env: dependencies.env ?? process.env, home: dependencies.home, uid: dependencies.uid,
     fs: dependencies.launchFs, exec: dependencies.exec, nodePath: dependencies.nodePath, platform: dependencies.platform })
   if (command === 'install') return launchCommand(rest, () => operations.install({ apply: hasApply(rest) }), write)
+  if (command === 'cleanup-legacy-upload') return launchCommand(rest, () => operations.cleanupLegacyUpload({ apply: hasApply(rest) }), write)
   if (command === 'cleanup-releases') return launchCommand(rest, () => operations.cleanup({ apply: hasApply(rest) }), write)
   if (command === 'status' && !rest.length) return launchCommand(rest, () => operations.status(), write)
   if (command === 'stop' && !rest.length) return launchCommand(rest, () => operations.stop(), write)
   if (command === 'uninstall') return launchCommand(rest, () => operations.uninstall({ apply: hasApply(rest) }), write)
-  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check [--diagnose-schedule-dates [--date YYYY-MM-DD ...]] | upload-check [--since ISO] | review-check [--since ISO] | mesh-delivery-check [--since ISO] [--limit N] | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | cleanup-releases [--apply] | status | stop | uninstall [--apply]' }, write)
+  emit({ code: 'usage', usage: 'node scripts/telegram-runtime.mjs readiness | source-check [--diagnose-schedule-dates [--date YYYY-MM-DD ...]] | upload-check [--since ISO] | review-check [--since ISO] | mesh-delivery-check [--since ISO] [--limit N] | probe --source firestore|mesh --target-digest HASH [--apply] | install [--apply] | cleanup-legacy-upload [--apply] | cleanup-releases [--apply] | status | stop | uninstall [--apply]' }, write)
   return 2
 }
 
@@ -330,7 +332,9 @@ function launchCommand(args, work, write) {
       'education_event_queue_readiness_timeout', 'legacy_upload_worker_stop_failed',
       'legacy_upload_worker_stop_timeout', 'legacy_upload_worker_disable_failed', 'python_runtime_unavailable',
       'npm_runtime_unavailable', 'mesh_credentials_path_unavailable', 'release_maintenance_busy',
-      'release_identity_invalid', 'release_backup_unverified', 'release_health_unverified', 'release_unsafe_tree', 'release_process_inventory_failed'])
+      'release_identity_invalid', 'release_backup_unverified', 'release_health_unverified', 'release_unsafe_tree', 'release_process_inventory_failed', 'legacy_upload_in_use', 'legacy_upload_referenced',
+      'legacy_upload_replacement_unverified', 'legacy_upload_inventory_failed', 'legacy_upload_unsafe_tree',
+      'legacy_upload_archive_mismatch', 'legacy_upload_changed'])
     emit({ schemaVersion: 1, error: safe.has(error?.safeCode) ? error.safeCode : 'launchagent_operation_failed' }, write)
     return 1
   }

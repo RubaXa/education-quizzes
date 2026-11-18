@@ -3,6 +3,15 @@ import { createHash } from 'node:crypto'
 import { main, parseMeshDeliveryCheckArgs } from './telegram-runtime.mjs'
 
 describe('telegram runtime operator commands', () => {
+  it('routes explicit legacy upload cleanup through the safe operator operation', async () => {
+    const calls = [], output = []
+    expect(await main(['cleanup-legacy-upload'], { launchAgent: { cleanupLegacyUpload(options) {
+      calls.push(options); return { applied: false, unused: true }
+    } }, write: value => output.push(value) })).toBe(0)
+    expect(calls).toEqual([{ apply: false }])
+    expect(JSON.parse(output[0])).toMatchObject({ applied: false, unused: true })
+  })
+
   it('plans release cleanup by default, requires apply, and exposes an unverified reserve', async () => {
     for (const apply of [false, true]) {
       const output = [], calls = []

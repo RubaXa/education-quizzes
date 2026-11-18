@@ -1733,6 +1733,36 @@
       "path": "docs/decisions/ldd-copy-button-2026-10-19.md"
     },
     {
+      "id": "decision.legacy-upload-cleanup-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "service.upload-worker",
+      "uses": [
+        "service.upload-worker",
+        "service.telegram-bot.operations",
+        "operations.deployment"
+      ],
+      "consumers": [
+        "operator",
+        "repository maintainer"
+      ],
+      "code": [
+        "packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
+        "packages/telegram-notifications/operations/launch-agent.mjs",
+        "scripts/telegram-runtime.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/legacy-upload-cleanup-2026-11-18.md"
+    },
+    {
       "id": "decision.lesson-repetition-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -7885,6 +7915,20 @@
       "kind": "verification",
       "purpose": "Production preflight ordering, rollback прежнего plist/загруженного бота при readiness false/throw и retirement только после ACK",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
+      "path": "packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
+      "kind": "artifact",
+      "purpose": "Проверка неиспользования, частный архив с hash readback и удаление старой установки",
+      "consumer": "Telegram runtime CLI"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs",
+      "path": "packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs",
+      "kind": "verification",
+      "purpose": "Процессы, ссылки и symlink, архив keys/work, active/backup и повтор",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/operations/mesh-delivery-check.mjs",
@@ -14852,7 +14896,7 @@
         "координация-параллельных-сессий"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-18",
+      "updated": "2026-11-18",
       "consumers": [
         "release operator",
         "upload worker operator",
@@ -16313,16 +16357,18 @@
         "shared.data.firestore"
       ],
       "sections": [
-        "photo-recovery"
+        "photo-recovery",
+        "очистка-старой-установки"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-19",
+      "updated": "2026-11-18",
       "consumers": [
         "shared educationEvents runtime",
         "Education operator",
         "photo/book upload request producer"
       ],
       "code": [
+        "packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
         "scripts/direct-upload-worker.mjs",
         "scripts/install-upload-worker.mjs",
         "packages/education-runtime/upload-broker.mjs",
@@ -17603,6 +17649,21 @@
     {
       "from": "decision.ldd-copy-button-2026-10-19",
       "to": "shared.design",
+      "type": "uses"
+    },
+    {
+      "from": "decision.legacy-upload-cleanup-2026-11-18",
+      "to": "operations.deployment",
+      "type": "uses"
+    },
+    {
+      "from": "decision.legacy-upload-cleanup-2026-11-18",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.legacy-upload-cleanup-2026-11-18",
+      "to": "service.upload-worker",
       "type": "uses"
     },
     {
@@ -20462,12 +20523,27 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "to": "decision.legacy-upload-cleanup-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "to": "decision.worker-release-retention-2026-11-18",
       "type": "implements"
     },
     {
       "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
+      "to": "decision.legacy-upload-cleanup-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/legacy-upload-cleanup.mjs",
+      "to": "service.upload-worker",
       "type": "implements"
     },
     {
@@ -21778,6 +21854,11 @@
     {
       "from": "file:scripts/telegram-pair.mjs",
       "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-runtime.mjs",
+      "to": "decision.legacy-upload-cleanup-2026-11-18",
       "type": "implements"
     },
     {
@@ -30017,6 +30098,11 @@
     },
     {
       "from": "service.upload-worker",
+      "to": "decision.legacy-upload-cleanup-2026-11-18",
+      "type": "contains"
+    },
+    {
+      "from": "service.upload-worker",
       "to": "decision.photo-auth-resume-2026-11-08",
       "type": "contains"
     },
@@ -30028,6 +30114,11 @@
     {
       "from": "service.upload-worker",
       "to": "file:packages/education-runtime/upload-broker.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.upload-worker",
+      "to": "file:packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs",
       "type": "verified-by"
     },
     {

@@ -1,5 +1,6 @@
 /** @see ../../../docs/services/telegram-bot/operations.md */
 /** @see ../../../docs/decisions/worker-release-retention-2026-11-18.md */
+/** @see ../../../docs/decisions/legacy-upload-cleanup-2026-11-18.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { accessSync, chmodSync, constants, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -7,6 +8,7 @@ import { homedir } from 'node:os'
 import { dirname, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { resolvePythonExecutable } from './process-lock.mjs'
+import { cleanupLegacyUpload as cleanLegacyUpload } from './legacy-upload-cleanup.mjs'
 import { withReleaseLock, pruneReleases, readRollback, processReleasePaths } from './release-retention.mjs'
 
 export const SERVICE_LABEL = 'com.petr.education.telegram-worker'
@@ -267,6 +269,10 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       educationSyncConfigured: Boolean(values.educationSync), retention }
   }
 
+  function cleanupLegacyUpload({ apply = false } = {}) {
+    return cleanLegacyUpload({ home, uid, platform, apply, exec, verifyReplacement: () => status().running })
+  }
+
   function cleanup({ apply = false } = {}) {
     assertHost()
     return withReleaseLock(support, () => cleanupUnlocked({ apply }))
@@ -324,7 +330,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     return { applied: true, uninstalled: true, releaseRetained: true, secretRetained: true }
   }
 
-  return Object.freeze({ plan, install, cleanup, status, stop, uninstall,
+  return Object.freeze({ plan, install, cleanup, cleanupLegacyUpload, status, stop, uninstall,
     paths: Object.freeze({ plistPath, support, tokenDirectory, educationSyncConfigPath }) })
 
   function waitUntilUnloaded() {

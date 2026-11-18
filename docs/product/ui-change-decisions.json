@@ -1472,18 +1472,19 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "e9a3413b8417dd8ba7e0bebcea3974902927327bebf7a2c03a816c0216ab2782",
-      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
+      "sha256": "301be9e0bb8d33415675fe91415678335bc2e41969271b6e4ca8c5dfb5ff7f37",
+      "record": "docs/decisions/legacy-upload-cleanup-2026-11-18.md",
       "specs": [
+        "docs/services/upload-worker/README.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "packages/telegram-notifications/operations/launch-agent.test.mjs",
-        "packages/telegram-notifications/operations/runtime-package.test.mjs"
+        "packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
+        "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
       }
     },
     "packages/telegram-notifications/operations/mesh-delivery-check.mjs": {
@@ -2556,9 +2557,10 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "1ee644c8b3de6e645bebed2f1c1cef9adcbec571633a57e57ab71020a5f1eea6",
-      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
+      "sha256": "f03f44615d4c03d01c0467d0ab1b5abca39e9bade93ca42d9980f687a78851a7",
+      "record": "docs/decisions/legacy-upload-cleanup-2026-11-18.md",
       "specs": [
+        "docs/services/upload-worker/README.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
@@ -2566,7 +2568,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
+        "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
       }
     },
     "scripts/verify-upload-flow.mjs": {
@@ -9019,6 +9021,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
+      }
+    },
+    "packages/telegram-notifications/operations/legacy-upload-cleanup.mjs": {
+      "sha256": "67e277f511562aa669961272c969576e99a8ec3a2133036806c6c7f137eaaa2d",
+      "record": "docs/decisions/legacy-upload-cleanup-2026-11-18.md",
+      "specs": [
+        "docs/services/upload-worker/README.md",
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
       }
     }
   }

@@ -9,13 +9,15 @@ uses:
   - shared.data.firestore
 sections:
   - photo-recovery
+  - очистка-старой-установки
 created: 2026-10-16
-updated: 2026-10-19
+updated: 2026-11-18
 consumers:
   - "shared educationEvents runtime"
   - "Education operator"
   - "photo/book upload request producer"
 code:
+  - packages/telegram-notifications/operations/legacy-upload-cleanup.mjs
   - "scripts/direct-upload-worker.mjs"
   - "scripts/install-upload-worker.mjs"
   - "packages/education-runtime/upload-broker.mjs"
@@ -74,3 +76,24 @@ Outbox pump просыпается по onAuthStateChanged, а не только
 awaiting-upload со ссылкой означает ожидание байтов, не активный PUT. Inspect
 разделяет serverStage и clientObservedAfterLink; старый waiting-link не скрывает
 готовую ссылку и не доказывает потерю Blob. Доставка подтверждается отдельно.
+
+
+## Очистка старой установки
+
+`telegram-runtime cleanup-legacy-upload` показывает план удаления старой установки;
+`--apply` выполняет его под общей блокировкой обслуживания. Это отдельная явная
+операция после миграции, а не автоматическое удаление ключей установщиком.
+Она требует работающий заменяющий worker, отсутствие старого процесса, открытых
+файлов, загруженного старого LaunchAgent и ссылок действующих plist, включая
+разрешение symlink путей credentials. Ошибка inventory запрещает удаление.
+
+Перед удалением кодовой копии и node_modules оригинальные `.local` файлы, manifest,
+lock и отключённые plist копируются в приватный `telegram-worker/retired-upload-worker`.
+Хэши перечитываются; ключи и журналы сохраняются с mode0600. Неизвестные файлы вне
+`.local` и ожидаемых кодовых каталогов, symlink или изменения после плана запрещают
+очистку. Учебные оригиналы в `.local` архивируются побайтно; другие семейные
+каталоги, Firestore и Диск не меняются. Прежние live/rollback worker релизы остаются
+вне области удаления. Результат сообщает удалённые allocated bytes, стоимость
+сохранённого архива и чистую разницу; это не обещание совпадения с изменением df.
+
+[Основание и проверки](../../decisions/legacy-upload-cleanup-2026-11-18.md).
