@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
+import {problemRequired} from '../day/task-requirement.mjs'
 /** @see ../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../docs/decisions/weekend-self-check-2026-11-14.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
@@ -123,7 +125,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
         && latest.points != null && latest.maxPoints != null && quizPassed({ points: latest.points, maxPoints: latest.maxPoints })
     }
     const all = task.problems ?? []
-    const required = all.filter(problem => !problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events))
+    const required = all.filter(problem => problemRequired(problem) && (!problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events)))
     return summarizeProblemGroup(all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).activeCount === 0 && summarizeProblemGroup(required.length ? required : all, uploads, reviews, local.length, evidenceReady && parentDecisions.ready, parentDecisions.events).complete
   })
   if (preparationThrough && selectedDate && selectedDate > preparationThrough && completed) return null
@@ -144,7 +146,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
       const problems = task.problems ?? []
       // @see ../docs/modules/school-diary/dashboard.md#weekend-work-contract
       // The weekend is a projection of the same task and family choices.
-      const requiredProblems = problems.filter((problem) => !problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events))
+      const requiredProblems = problems.filter((problem) => problemRequired(problem) && (!problem.variantId || practiceRequired(task, problem.variantId, parentDecisions.events)))
       const teacherChoice = task.practiceVariants?.some((variant) => variant.optionalByTeacher)
       const problemIds = new Set(problems.map((problem) => problem.id))
       const localPendingCount = local.filter((photo) => problemIds.has(photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length

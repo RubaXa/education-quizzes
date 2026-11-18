@@ -2188,6 +2188,7 @@
       "code": [
         "day/task-requirement.mjs",
         "src/DayPage.tsx",
+        "src/WeekendMathSlot.tsx",
         "src/lib/dayStore.ts",
         "src/lib/homeworkStatus.ts",
         "sync/deadline-control.mjs",
@@ -25252,6 +25253,11 @@
     {
       "from": "file:src/WeekendMathSlot.tsx",
       "to": "decision.continuous-course-preparation-2026-11-07",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/WeekendMathSlot.tsx",
+      "to": "decision.numbered-source-gap-2026-11-18",
       "type": "implements"
     },
     {

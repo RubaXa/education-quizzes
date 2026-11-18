@@ -2754,21 +2754,18 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "df22818f6c34c9b1f5a0de882fa015c4de2788e52c21cb25cb80af7918f42d79",
-      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
+      "sha256": "66033487e2cf78e58816a87acc75c334829e5044e3263c468f8d6a0d54c266d7",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "storage/review-readback.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "src/components/ProblemCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
+        "evidence": "Прямое правило семьи: неполное условие не становится обязательным результатом; проверка обеих ролей18.11 выявила возврат №11без рисунка в обязательный счётчик подготовки календаря."
       }
     },
     "src/components/ArtifactAvatar.css": {

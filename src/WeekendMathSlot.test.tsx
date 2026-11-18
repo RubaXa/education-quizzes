@@ -54,6 +54,20 @@ async function renderSlot(parent = true, options: { preparationThrough?: string;
 }
 
 describe('weekend source-selected practice', () => {
+  it.each([false,true])('keeps a missing-figure number outside the preparation obligation in both roles, parent=%s',async parent=>{
+    scene.role=parent?'parent':'student'
+    const task=scene.page!.subjects[0].tasks[0]
+    task.kind='written';delete task.practiceVariants
+    task.problems=task.problems!.slice(0,5).map(({variantId:_,...p})=>p)
+    task.problems[1].original={text:'See the absent figure.',attachmentRef:'teacher#1'}
+    task.problems[1].sourceGap={kind:'missing-figure',sourceRef:'teacher#1',reason:'The complete teacher PDF has no figure or dimensions.'}
+    const {host,close}=await renderSlot(parent)
+    try{
+      expect(host.querySelector('.problem-group-toggle')?.getAttribute('aria-label')).toContain('обязательная часть 0 из 4')
+      await act(async()=>host.querySelector<HTMLButtonElement>('.problem-group-toggle')!.click())
+      expect(host.querySelectorAll('[data-problem]')).toHaveLength(5)
+    }finally{close()}
+  })
   it.each([false, true])('renders the same self-check without a photo demand and keeps pending written answers visible, parent=%s', async parent => {
     scene.role = parent ? 'parent' : 'student'
     scene.page = { targetDate: '2026-11-16', subjects: [{ id: 'russian', name: 'Русский язык', tasks: [{ id: 'control', kind: 'check', title: 'Лексикология', detail: 'Выполни на выходных', testToken: 'quiz-token' }] }] } as DayPageData
