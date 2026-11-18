@@ -406,8 +406,8 @@
       }
     },
     "day/grade-snapshot.mjs": {
-      "sha256": "95e46c253dddaa4798f1093228a3694434655ec73dd67ee0462c1d68530cb622",
-      "record": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "sha256": "d35bb3f9aaab33b4ed789a9b3b1525588f41d1205377fe64b2e615cc006eb617",
+      "record": "docs/decisions/ungraded-subject-ledger-2026-11-18.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
       ],
@@ -417,11 +417,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "411c56357084b964d084d9de64c8119c1ee9c6ae2db2adac7698b49952e29e14"
+        "evidence": "Полный dispatch18.11.2026 требует сверки всех оценок МЭШ штатными CLI; новая зачётная строка без числовых отметок не должна превращаться в0или блокировать прежние числовые предметы."
       }
     },
     "day/homework-kind.mjs": {

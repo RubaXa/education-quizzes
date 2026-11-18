@@ -4272,6 +4272,30 @@
       "path": "docs/decisions/ui-kit-written-practice-2026-10-27.md"
     },
     {
+      "id": "decision.ungraded-subject-ledger",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "module.school-diary.grades",
+      "uses": [],
+      "consumers": [
+        "grade snapshot CLI",
+        "Education sync operator"
+      ],
+      "code": [
+        "day/grade-snapshot.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/ungraded-subject-ledger-2026-11-18.md"
+    },
+    {
       "id": "decision.unified-education-events-2026-10-19",
       "status": "accepted",
       "implementation": "partial",
@@ -14243,7 +14267,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-22",
+      "updated": "2026-11-18",
       "consumers": [
         "parent",
         "student",
@@ -18912,6 +18936,11 @@
     {
       "from": "file:day/grade-reconciliation.mjs",
       "to": "module.school-diary.grades",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/grade-snapshot.mjs",
+      "to": "decision.ungraded-subject-ledger",
       "type": "implements"
     },
     {
@@ -27692,6 +27721,11 @@
     {
       "from": "module.school-diary.grades",
       "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.grades",
+      "to": "decision.ungraded-subject-ledger",
       "type": "contains"
     },
     {
