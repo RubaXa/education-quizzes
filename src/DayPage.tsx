@@ -1,3 +1,5 @@
+import {problemRequired} from '../day/task-requirement.mjs'
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 import SubjectRequirementSwitch from './components/SubjectRequirementSwitch'
@@ -516,7 +518,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
         const doneCount = subjectItems.filter((item) => item.state === 'done').length
         const assignments = assignmentProgress(subject.tasks, (task) => workItems([task]))
         const numberedSheet = subject.tasks.length === 1 && Boolean(subject.tasks[0].problems?.length)
-        const numberedProblemIds = new Set(numberedSheet && taskRequired(subject.tasks[0],parentDecisions.events) ? subject.tasks[0].problems!.filter((problem) => !problem.variantId || practiceRequired(subject.tasks[0], problem.variantId, parentDecisions.events)).map((problem) => problem.id) : [])
+        const numberedProblemIds = new Set(numberedSheet && taskRequired(subject.tasks[0],parentDecisions.events) ? subject.tasks[0].problems!.filter((problem) => problemRequired(problem) && (!problem.variantId || practiceRequired(subject.tasks[0], problem.variantId, parentDecisions.events))).map((problem) => problem.id) : [])
         const subjectVariantView = numberedSheet ? practiceVariantView(subject.tasks[0].problems!, reviews, uploads, parentDecisions.events,
           localPhotos.filter(photo => subject.tasks[0].problems!.some(problem => problem.id === photo.taskId) && !uploads.some(upload => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed')).length,
           evidenceReady && parentDecisions.ready) : null
@@ -687,7 +689,7 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               if (!task.problems?.length) return <TaskDisclosure subjectId={subject.id} task={task} key={task.id} id={`day-task-${task.id}`} className={`day-task ${verified || workCovered ? 'done' : submitted ? 'submitted' : ''}`} title={task.title} status={taskStatusBadge} meta={taskMeta} assignmentLabel={assignments.multiple ? `Задание ${assignmentIndex + 1} из ${assignments.total}` : undefined}>{taskCard}</TaskDisclosure>
               /** @see ../docs/modules/school-diary/day-page.md#completed-problem-group */
               const requiredProblems = task.practiceVariants?.length ? task.problems.filter((problem) =>
-                problem.variantId && practiceRequired(task, problem.variantId, parentDecisions.events)) : task.problems
+                problemRequired(problem) && problem.variantId && practiceRequired(task, problem.variantId, parentDecisions.events)) : task.problems.filter(problemRequired)
               const problemIds = new Set(requiredProblems.map((problem) => problem.id))
               const localPending = localPhotos.filter((photo) => task.problems!.some(problem => problem.id === photo.taskId) && !uploads.some((upload) => upload.id === `${studentToken}:${photo.id}` && upload.status === 'reviewed'))
               const localPendingCount = localPending.length

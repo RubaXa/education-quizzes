@@ -1,6 +1,12 @@
 import { expect, it } from 'vitest'
 import { deadlineDecision, periodRiskChecks } from './deadline-control.mjs'
 const task = { id: 'mesh-1', kind: 'written', problems: [{ id: 'a' }, { id: 'b' }] }
+it('uses the same source-gap boundary before a deadline and restores it when the figure arrives',()=>{
+ const sheet={...task,problems:[{id:'a'},{id:'b',original:{attachmentRef:'teacher#1'},sourceGap:{kind:'missing-figure',sourceRef:'teacher#1',reason:'No figure on the complete PDF page.'}}]}
+ const input={task:sheet,today:'2026-11-16',dueDate:'2026-11-17',reviews:[{taskId:'a',status:'verified'}]}
+ expect(deadlineDecision(input)).toMatchObject({work:'verified',missingIds:[],issues:['confirm-packing-with-child']})
+ expect(deadlineDecision({...input,task:{...sheet,problems:sheet.problems.map(p=>({...p,sourceGap:undefined}))}})).toMatchObject({missingIds:['b'],issues:['audit-homework-and-archive']})
+})
 it('preserves both verified numbers but still checks packing on the preceding day', () => {
  const d = deadlineDecision({ task, today: '2026-11-16', dueDate: '2026-11-17', reviews: ['a','b'].map(taskId => ({taskId,status:'verified'})) })
  expect(d).toMatchObject({ stage: 'before', work: 'verified', missingIds: [], issues: ['confirm-packing-with-child'] })

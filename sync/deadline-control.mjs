@@ -1,5 +1,6 @@
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
-import {taskRequired} from '../day/task-requirement.mjs'
+import {taskRequired,problemRequired} from '../day/task-requirement.mjs'
 /** @see ../docs/modules/assignments/deadline-control.md */
 import { learningGate } from '../day/learning-gate.mjs'
 import { isControlAssignment } from '../assessment/decision-graph.mjs'
@@ -15,7 +16,7 @@ export function deadlineDecision({ task, today, dueDate, reviews = [], pendingUp
   const control = isControlAssignment(task)
   const packing = /(?:взять|сдать|принести)[^.]{0,80}(?:тетрад|лист|альбом)/iu.test(task.meshText ?? '')
   if (!control && days > 1 || !control && !packing && !['written','read','check','cdz'].includes(task.kind)) return null
-  const gate = learningGate({ requiredIds: task.problems?.length ? task.problems.map(p => p.id) : [task.id], reviews,
+  const gate = learningGate({ requiredIds: task.problems?.length ? task.problems.filter(problemRequired).map(p => p.id) : [task.id], reviews,
     pendingUploadIds, readinessRequired: control, independentCheck })
   const issues = []
   if(control&&days>=0&&!preparationAvailable)issues.push('publish-control-preparation')

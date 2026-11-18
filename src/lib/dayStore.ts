@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/informatics-assessment-2026-11-01.md */
@@ -28,6 +29,7 @@ export type DaySourceCrop = { x: number; y: number; width: number; height: numbe
 export type DaySourceResearch = { status: 'candidate' | 'verified' | 'not-found' | 'conflict'; title: string; url?: string; match: string; keyStatus: 'not-checked' | 'candidate' | 'verified' | 'unavailable'; note?: string }
 /** @see ../../docs/modules/reviews/adaptive-problem-card.md#слои */
 export type DayProblem = {
+  sourceGap?: { kind: 'missing-figure'; sourceRef: string; reason: string };
   id: string; number: number; title: string; detail: string; source: string; variantId?: string;
   original?: { text: string; attachmentRef: string; crop?: DaySourceCrop };
   support?: { skill: string; state: 'unknown' | 'provisional' | 'practicing' | 'demonstrated'; evidence: string; evidenceRefs: string[]; facts: { label: string; value: string }[]; find: string; parts?: {id:string;title:string;facts:{label:string;value:string}[];find:string}[]; firstQuestion: string; revision: number };

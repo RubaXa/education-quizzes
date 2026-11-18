@@ -1,3 +1,5 @@
+import {problemRequired} from '../../day/task-requirement.mjs'
+/** @see ../../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/lesson-repetition-2026-11-01.md */
@@ -64,7 +66,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     // @see ../../docs/modules/school-diary/dashboard.md#reference-only-homework
     if (task.referenceDate && !previousLessonReference(task)) return []
     if (task.problems?.length) return [
-      ...task.problems.filter((problem) => !problem.variantId || practiceRequired(task, problem.variantId, decisions)).map((problem) => {
+      ...task.problems.filter((problem) => problemRequired(problem) && (!problem.variantId || practiceRequired(task, problem.variantId, decisions))).map((problem) => {
       const review = reviews.find((item) => item.taskId === problem.id)
       const pending = uploads.some((upload) => uploadMatchesTask(upload, problem.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))
       const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'

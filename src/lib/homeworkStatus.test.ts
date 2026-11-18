@@ -2,6 +2,19 @@ import { describe, expect, it } from 'vitest'
 import { lessonWorkItems, quizRequirement, requiredQuizRequirement } from './homeworkStatus'
 import type { DayTask, DayWorkReview } from './dayStore'
 
+it('keeps a numbered source gap visible without making its missing figure a required learner result',()=>{
+ const sheet={id:'sheet',kind:'written',problems:[
+  {id:'p7'}, {id:'p11',original:{attachmentRef:'teacher#1'},sourceGap:{kind:'missing-figure',sourceRef:'teacher#1',reason:'The full teacher PDF contains no stadium figure.'}},
+  {id:'p12'},{id:'p13'},{id:'p14'},
+ ].map((p,index)=>({...p,number:index+1,title:p.id,detail:'Source condition',source:'Teacher PDF'}))} as unknown as DayTask
+ const reviews=['p7','p12','p13','p14'].map(taskId=>({taskId,status:'verified'})) as DayWorkReview[]
+ expect(lessonWorkItems([sheet],[],reviews,[],{},{}).map(x=>[x.id,x.state])).toEqual([
+  ['p7','done'],['p12','done'],['p13','done'],['p14','done'],
+ ])
+ expect(sheet.problems).toHaveLength(5)
+ expect(lessonWorkItems([{...sheet,problems:sheet.problems!.map(p=>({...p,sourceGap:undefined}))}],[],reviews,[],{},{})).toContainEqual(expect.objectContaining({id:'p11',state:'todo'}))
+})
+
 it('does not complete a new previous-lesson repetition from an old pass or a source receipt',()=>{
  const task={id:'repeat',title:'Повторить прошлый урок',kind:'check',status:'verified',meshText:'задание прошлого урока',referenceDate:'2026-10-23'} as DayTask
  const receipt={id:'repeat',taskId:'repeat',purpose:'source-material'} as DayWorkReview

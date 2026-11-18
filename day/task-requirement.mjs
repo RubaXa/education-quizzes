@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** Shared family-plan selection for the UI and the existing synchronization pass.
  * This choice never changes a teacher source, verdict or mastery.
@@ -13,3 +14,9 @@ export function taskRequirementChoice(taskId,events=[]){
  return latest?latest.action==='task-required':undefined
 }
 export function taskRequired(task,events=[]){return taskRequirementChoice(task.id,events)??task.optional!==true}
+
+/** A proven missing figure is a source wait, never an unperformed learner result. */
+export function problemRequired(problem){
+ const gap=problem?.sourceGap
+ return !(gap?.kind==='missing-figure'&&gap.sourceRef===problem.original?.attachmentRef&&typeof gap.reason==='string'&&gap.reason.trim().length>=20)
+}

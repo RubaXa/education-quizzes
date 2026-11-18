@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/stale-guidance-safety-correction-2026-11-17.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
@@ -489,6 +490,10 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
           if (!problem.original?.text?.trim() || !problem.original?.attachmentRef?.trim() || !sourceLink) {
             fail(`У ${problem.id} нужен дословно сверенный текст и исходный лист учителя.`)
           }
+          if (problem.sourceGap && (problem.sourceGap.kind !== 'missing-figure'
+            || problem.sourceGap.sourceRef !== problem.original.attachmentRef
+            || typeof problem.sourceGap.reason !== 'string' || problem.sourceGap.reason.trim().length < 20
+            || task.materialRequest?.state !== 'open')) fail(`У ${problem.id} ожидание рисунка требует точный источник, причину и открытый запрос.`)
           if (problem.original.crop && !validSourceCrop(problem.original.crop, sourceLink)) {
             fail(`У ${problem.id} неверные координаты фрагмента или хэш оригинального листа.`)
           }

@@ -1,3 +1,5 @@
+import {problemRequired} from '../day/task-requirement.mjs'
+/** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/personal-tutoring-2026-10-30.md */
@@ -40,7 +42,7 @@ export function competitionHold() { return false }
 export function taskRoute(task = {}, subject = 'generic', { placement = false, learningEvidence = {}, decisionContext = {} } = {}) {
   const key = adapters[subject] ? subject : lessonSubjectKey(subject) ?? subject
   const route = { taskId: task.id ?? null, subject: key, adapter: programmingAssignment(task) ? adapters.informatics : adapters[key] ?? 'subject-aware-guidance:generic',
-    learningGate: learningGate({ ...learningEvidence, prepared: learningEvidence.prepared === true, requiredIds: task.problems?.length ? task.problems.map(problem => problem.id) : task.id ? [task.id] : [],
+    learningGate: learningGate({ ...learningEvidence, prepared: learningEvidence.prepared === true, requiredIds: task.problems?.length ? task.problems.filter(problemRequired).map(problem => problem.id) : task.id ? [task.id] : [],
       readinessRequired: isControlAssignment(task) }),
     subjectPlan: subjectDecisionPlan(task, key, decisionContext),
     known: [], unknown: [], next: null, steps: [], complete: false,

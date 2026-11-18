@@ -2007,23 +2007,19 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "6edb407b660111bd968629673d4b860ae73e8799a470046035640a45de115bba",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "dfa8d3f16590f7ef9d6a64ebc71d6dc76908a319637878be87ef85ef24785215",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2683,21 +2679,19 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "540f05b4cc6451e007a05535f0f5715f7603d1b279c10cb14ed453b56dfdf17a",
-      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
+      "sha256": "4ad9376b586c0c4728238047a9ed3ff73f3732f54dbadc747ee988a730207521",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "storage/review-readback.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "src/components/ProblemCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "src/UiKit.css": {
@@ -4201,23 +4195,19 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "4ac055b1b6ad45efcb58849d4e7590b37a5e86686402ef04831e22fa3578cc6c",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "33bfe6ab581be2fd18b44e735220846658fbed6a19e2718209812ebc2b56e345",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4321,18 +4311,19 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "4320e168ef8fcefd4ee2ff100dafcc743c3fd72f79eaa8f6df6a489cc48b3a1f",
-      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
+      "sha256": "78fc18eb16b85df9d2c98e67b9c489a3055d20caddc4a10181a5a4dc7cc58fc6",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -6133,19 +6124,19 @@
       }
     },
     "sync/task-route.mjs": {
-      "sha256": "ac8f640017ea101028afdf11733a98a29f662cc32938d0ae67a0d3d5c635f9e3",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "981b23fca26142f432726985d938beaadb0bf5a16322db0d3d797171f2468db9",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "src/lib/materialRequest.test.ts",
-        "sync/task-route.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня даже без точного варианта. Прежний запрос сохраняется как заменённый подготовкой по курсу; получение отсутствующего файла не выдумывается."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "operator/route-plan.mjs": {
@@ -8254,23 +8245,19 @@
       }
     },
     "sync/deadline-control.mjs": {
-      "sha256": "68b389ceb40011e70ae10189325778d3513ee686f467decc5f6f2eaab55d6298",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "aa45636b4a4935b4d8f5ac1b3ad8165a5e46239ba499b6a82651d3d672dd38a1",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "sync/deadline-evidence.mjs": {
@@ -8732,30 +8719,19 @@
       }
     },
     "day/task-requirement.mjs": {
-      "sha256": "e1a3b06b5a7c561e10ff83ea055cab464071cd453a79cf2899d9096a82b227d6",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "947601d165faa1ff393a8b4175f2b5ef146025ca8d6f5d2f37b6245b1643a4f3",
+      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assignments/deadline-control.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/lib/homeworkStatus.test.ts",
+        "sync/deadline-control.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
       }
     },
     "scripts/review-presentation.mjs": {

@@ -2170,6 +2170,40 @@
       "path": "docs/decisions/moving-preparation-window-2026-11-05.md"
     },
     {
+      "id": "decision.numbered-source-gap-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "module.reviews.adaptive-problem-card",
+      "uses": [
+        "module.reviews.card-generation-policy",
+        "module.assignments.deadline-control"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [
+        "day/task-requirement.mjs",
+        "src/DayPage.tsx",
+        "src/lib/dayStore.ts",
+        "src/lib/homeworkStatus.ts",
+        "sync/deadline-control.mjs",
+        "sync/task-route.mjs",
+        "scripts/day.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/numbered-source-gap-2026-11-18.md"
+    },
+    {
       "id": "decision.olympiad-calendar-2026-10-31",
       "status": "accepted",
       "implementation": "implemented",
@@ -17831,6 +17865,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.numbered-source-gap-2026-11-18",
+      "to": "module.assignments.deadline-control",
+      "type": "uses"
+    },
+    {
+      "from": "decision.numbered-source-gap-2026-11-18",
+      "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
       "from": "decision.olympiad-calendar-2026-10-31",
       "to": "file:day/family-practice-calendar.test.mjs",
       "type": "verified-by"
@@ -19418,6 +19462,11 @@
     {
       "from": "file:day/task-requirement.mjs",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/task-requirement.mjs",
+      "to": "decision.numbered-source-gap-2026-11-18",
       "type": "implements"
     },
     {
@@ -21078,6 +21127,11 @@
     {
       "from": "file:scripts/day.mjs",
       "to": "decision.mesh-informational-entry-2026-10-21",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/day.mjs",
+      "to": "decision.numbered-source-gap-2026-11-18",
       "type": "implements"
     },
     {
@@ -23867,6 +23921,11 @@
     },
     {
       "from": "file:src/DayPage.tsx",
+      "to": "decision.numbered-source-gap-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
       "to": "decision.photo-upload-authorization-and-freshness-2026-10-20",
       "type": "implements"
     },
@@ -24097,6 +24156,11 @@
     },
     {
       "from": "file:src/lib/dayStore.ts",
+      "to": "decision.numbered-source-gap-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/dayStore.ts",
       "to": "decision.personal-tutoring-2026-10-30",
       "type": "implements"
     },
@@ -24268,6 +24332,11 @@
     {
       "from": "file:src/lib/homeworkStatus.ts",
       "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/homeworkStatus.ts",
+      "to": "decision.numbered-source-gap-2026-11-18",
       "type": "implements"
     },
     {
@@ -25587,6 +25656,11 @@
     },
     {
       "from": "file:sync/deadline-control.mjs",
+      "to": "decision.numbered-source-gap-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/deadline-control.mjs",
       "to": "module.assignments.deadline-control",
       "type": "implements"
     },
@@ -25853,6 +25927,11 @@
     {
       "from": "file:sync/task-route.mjs",
       "to": "decision.lesson-repetition-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/task-route.mjs",
+      "to": "decision.numbered-source-gap-2026-11-18",
       "type": "implements"
     },
     {
@@ -27244,6 +27323,11 @@
       "from": "module.olympiad-preparation",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "module.reviews.adaptive-problem-card",
+      "to": "decision.numbered-source-gap-2026-11-18",
+      "type": "contains"
     },
     {
       "from": "module.reviews.adaptive-problem-card",

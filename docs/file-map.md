@@ -1481,3 +1481,5 @@
 | [docs/decisions/worker-ipv4-option-2026-11-18.md](decisions/worker-ipv4-option-2026-11-18.md) | [Операции](services/telegram-bot/operations.md) | Ограниченная host-настройка IPv4 и восстановление same-hash с сохранением резерва | Operator |
 
 | [docs/decisions/teacher-control-source-refresh-2026-11-18.md](decisions/teacher-control-source-refresh-2026-11-18.md) | [Тесты](modules/assessments/quizzes.md) | Переход от общего курса к точному teacher material без смены ссылки или попытки | Education operator |
+
+| [docs/decisions/numbered-source-gap-2026-11-18.md](decisions/numbered-source-gap-2026-11-18.md) | [Выбор карточки](modules/reviews/card-generation-policy.md) | Неполный номер листа сохраняется без выдуманного обязательного ответа | Семья; синхронизация |
