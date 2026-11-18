@@ -151,20 +151,18 @@
       }
     },
     "assessment/followup-contract.mjs": {
-      "sha256": "3090d25db75e555f82150753dcb0d1f0c321f91e077ebe2fb20ea5758ccf5f31",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "9f5914759073825bc1cd6f9d3fd01cec24f83b5b458b585c9a8f3952c3d8e825",
+      "record": "docs/decisions/teacher-control-source-refresh-2026-11-18.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/assessments/assessment-decision-graph.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
         "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Прямое поручение18.11: после получения реальных файлов учителя перестроить подготовку по ним, сохранив выполненную работу и единую систему карточек."
       }
     },
     "assessment/question-copy.mjs": {
@@ -1472,19 +1470,18 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "301be9e0bb8d33415675fe91415678335bc2e41969271b6e4ca8c5dfb5ff7f37",
-      "record": "docs/decisions/legacy-upload-cleanup-2026-11-18.md",
+      "sha256": "35820e37c2e49ce58ffa377ee030fadece51960c9a0f0ee4ccf10ebf9b4f05de",
+      "record": "docs/decisions/worker-ipv4-option-2026-11-18.md",
       "specs": [
-        "docs/services/upload-worker/README.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
         "packages/telegram-notifications/operations/launch-agent.test.mjs",
-        "packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs"
+        "scripts/telegram-runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
+        "evidence": "Продолжение прямых поручений18.11: безопасно убрать неиспользуемый worker и синхронизировать реальные файлы учителя. Подтверждённый transport-сбой требует восстановления заменяющего runtime без ослабления TLS."
       }
     },
     "packages/telegram-notifications/operations/mesh-delivery-check.mjs": {
@@ -2336,20 +2333,18 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "7e542ec4780cd2391447f9baf9485267706118c9fc6b542960a6a36733dd6b9c",
-      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
+      "sha256": "75adfd65490ee2c8adc25254db823df8edb9566512372965274ceb0fcd384079",
+      "record": "docs/decisions/teacher-control-source-refresh-2026-11-18.md",
       "specs": [
-        "docs/modules/assessments/format-plan.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/assessments/assessment-decision-graph.md"
       ],
       "tests": [
-        "assessment/format-plan.test.mjs",
-        "assessment/canonical-short-key.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "assessment/followup-contract.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
+        "evidence": "Прямое поручение18.11: после получения реальных файлов учителя перестроить подготовку по ним, сохранив выполненную работу и единую систему карточек."
       }
     },
     "scripts/release-note.mjs": {
@@ -2557,18 +2552,18 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "f03f44615d4c03d01c0467d0ab1b5abca39e9bade93ca42d9980f687a78851a7",
-      "record": "docs/decisions/legacy-upload-cleanup-2026-11-18.md",
+      "sha256": "d5dc7bdd66eb33c725e591ecceb68ae289d778f2dd7bc96d19aaeddaa3ab3639",
+      "record": "docs/decisions/worker-ipv4-option-2026-11-18.md",
       "specs": [
-        "docs/services/upload-worker/README.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
+        "packages/telegram-notifications/operations/launch-agent.test.mjs",
         "scripts/telegram-runtime.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
+        "evidence": "Продолжение прямых поручений18.11: безопасно убрать неиспользуемый worker и синхронизировать реальные файлы учителя. Подтверждённый transport-сбой требует восстановления заменяющего runtime без ослабления TLS."
       }
     },
     "scripts/verify-upload-flow.mjs": {

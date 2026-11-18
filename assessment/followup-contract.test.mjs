@@ -102,3 +102,22 @@ it('revises ordinary author scope in place only before any start, response or su
  expect(()=>authorSourceQuizRevision({...args,plan:{mode:'targeted-followup'}})).toThrow(/ordinary/)
  expect(()=>authorSourceQuizRevision({...args,current:{...current,linkedToTestId:'other'}})).toThrow(/ordinary/)
 })
+
+it('refreshes an unstarted control preparation only for verified teacher material on the same homework', () => {
+ const owner={familyId:'synthetic-family',childId:'synthetic-child'}
+ const context={kind:'homework',id:'synthetic-homework'}
+ const current={...owner,status:'open',testId:'same-control',slug:'same-link',subject:'Математика',answers:{},learningContext:context,assessment:{mode:'control-diagnostic',subjectAdapter:'math'}}
+ const teacher={...spec,linkedToTestId:null,subject:'Математика',learningContext:context,authorScopeCorrection:{kind:'teacher-material-arrived',reason:'Получен точный файл учителя вместо прежнего курса подготовки.',evidenceRefs:['synthetic-teacher-file-sha']}}
+ const sourcePlan={mode:'control-diagnostic',subjectAdapter:'math',controlPreparation:{basis:'teacher-material',sourceIds:['teacher'],researchSourceIds:['sample'],scopeChecked:true},sources:[{id:'teacher',role:'family-material',ref:'synthetic-teacher-file',verified:true},{id:'sample',role:'format-example',ref:'synthetic-format-source',verified:true}]}
+ const args={current,spec:teacher,owner,revisedAt:'now',plan:sourcePlan}
+ const patch=authorSourceQuizRevision(args)
+ expect(patch.assignment.questions).toHaveLength(3)
+ expect(patch.assignment).not.toHaveProperty('testId')
+ expect(patch.assignment).not.toHaveProperty('answers')
+ for(const field of ['startedAt','updatedAt','submittedAt'])expect(()=>authorSourceQuizRevision({...args,current:{...current,[field]:'already'}})).toThrow(/без сохранённых ответов/)
+ expect(()=>authorSourceQuizRevision({...args,current:{...current,answers:{old:'saved'}}})).toThrow(/без сохранённых ответов/)
+ expect(()=>authorSourceQuizRevision({...args,plan:{...sourcePlan,controlPreparation:{...sourcePlan.controlPreparation,basis:'course'}}})).toThrow(/Авторская/)
+ expect(()=>authorSourceQuizRevision({...args,plan:{...sourcePlan,sources:sourcePlan.sources.map(x=>({...x,verified:false}))}})).toThrow(/Авторская/)
+ expect(()=>authorSourceQuizRevision({...args,spec:{...teacher,learningContext:{...context,id:'foreign'}}})).toThrow(/Авторская/)
+ expect(()=>authorSourceQuizRevision({...args,owner:{...owner,childId:'foreign'}})).toThrow(/владельца/)
+})

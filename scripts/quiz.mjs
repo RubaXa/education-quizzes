@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/teacher-control-source-refresh-2026-11-18.md */
 /** @see ../docs/decisions/assessment-format-gates-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/concept-short-omission-2026-11-09.md */
@@ -372,8 +373,8 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
   const plan = validateSpec(spec, specPath, {metadataOnly:titleOnly||topicsOnly})
   const authorScope = process.argv.includes('--author-scope')
   const correction=spec.authorScopeCorrection
-  if(authorScope&&(titleOnly||topicsOnly||plan.mode!=='ordinary'||spec.linkedToTestId
-    ||typeof correction?.reason!=='string'||correction.reason.trim().length<20||!Array.isArray(correction.evidenceRefs)||!correction.evidenceRefs.length||correction.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim())))fail('Авторская ревизия требует ordinary без цепочки, причину и точные источники в закрытом authorScopeCorrection.')
+  if(authorScope&&(titleOnly||topicsOnly||!(plan.mode==='ordinary'||plan.mode==='control-diagnostic'&&correction?.kind==='teacher-material-arrived')||spec.linkedToTestId
+    ||typeof correction?.reason!=='string'||correction.reason.trim().length<20||!Array.isArray(correction.evidenceRefs)||!correction.evidenceRefs.length||correction.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim())))fail('Авторская ревизия требует ordinary либо material-arrived для control-diagnostic без цепочки, причину и точные источники в authorScopeCorrection.')
   if (titleOnly && topicsOnly) fail('Выберите только один вид правки метаданных.')
   if (!titleOnly && !topicsOnly && !authorScope && (plan.mode !== 'targeted-followup' || !spec.linkedToTestId)) fail('Ревизия разрешена только для адресного продолжения или явной авторской коррекции ordinary.')
   const owner = assignmentOwner(studentPersonId)
@@ -390,7 +391,7 @@ async function reviseOpenQuiz(learnerToken, specPath, studentPersonId) {
       transaction.get(assignmentRef), transaction.get(keyRef), transaction.get(ownerIndexRef),
     ])
     if (!assignmentDoc.exists || !keyDoc.exists || !ownerIndexDoc.exists) fail('Для ревизии нужны назначение, ключ и родительский индекс.')
-    if(authorScope&&(assignmentDoc.data().assessment?.mode!=='ordinary'||assignmentDoc.data().linkedToTestId||assignmentDoc.data().authorScopeExclusions))fail('Авторская ревизия допускает только исходный ordinary без прежних исключений.')
+    if(authorScope&&(assignmentDoc.data().linkedToTestId||assignmentDoc.data().authorScopeExclusions))fail('Авторская ревизия допускает только исходный тест без цепочки и прежних исключений.')
     const previewToken = ownerIndexDoc.data().previewToken
     if (!previewToken) fail('У теста нет связанного предпросмотра.')
     const previewRef = db.doc(`previews/${previewToken}`)

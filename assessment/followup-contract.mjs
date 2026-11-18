@@ -1,9 +1,11 @@
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
+/** @see ../docs/decisions/teacher-control-source-refresh-2026-11-18.md */
 /** Content-independent safeguards for a linked quiz and an unopened revision.
  * @see ../docs/modules/assessments/assessment-decision-graph.md#followup-threshold
  * @see ../docs/modules/assessments/quiz-chain-proposal.md#связь-с-кодом-и-проверками */
 import { isDeepStrictEqual } from 'node:util'
 import { publishedAnswer } from './question-guidance.mjs'
+import { validateControlPreparation } from './decision-graph.mjs'
 export function assertFollowupCoverage(plan, spec, sourceTestId, errorQuestionIds) {
   const coverage = plan?.followupCoverage
   if (coverage?.sourceTestId !== sourceTestId || !Array.isArray(coverage.errors)) {
@@ -56,9 +58,15 @@ export function openQuizRevision({ current, spec, owner, revisedAt }) {
  * @see ../docs/modules/assessments/quizzes.md#author-scope-correction */
 export function authorSourceQuizRevision(input){
  const {current,spec,plan}=input,proof=spec.authorScopeCorrection
- if(plan?.mode!=='ordinary'||current?.assessment?.mode!=='ordinary'||plan.subjectAdapter!==current.assessment.subjectAdapter
+ const ordinary=plan?.mode==='ordinary'&&current?.assessment?.mode==='ordinary'
+ const teacher=plan?.mode==='control-diagnostic'&&current?.assessment?.mode==='control-diagnostic'
+  &&proof?.kind==='teacher-material-arrived'&&plan.controlPreparation?.basis==='teacher-material'
+  &&validateControlPreparation(plan).length===0&&spec.learningContext?.kind==='homework'
+  &&typeof spec.learningContext.id==='string'&&spec.learningContext.id.trim()
+  &&isDeepStrictEqual(current.learningContext,spec.learningContext)
+ if((!ordinary&&!teacher)||plan.subjectAdapter!==current.assessment.subjectAdapter
   ||current.linkedToTestId||spec.linkedToTestId||current.authorScopeExclusions
-  ||typeof proof?.reason!=='string'||proof.reason.trim().length<20||!Array.isArray(proof.evidenceRefs)||!proof.evidenceRefs.length||proof.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim()))throw Error('Авторская ревизия требует ordinary, неизменный предметный адаптер, причину и точные источники.')
+  ||typeof proof?.reason!=='string'||proof.reason.trim().length<20||!Array.isArray(proof.evidenceRefs)||!proof.evidenceRefs.length||proof.evidenceRefs.some(ref=>typeof ref!=='string'||!ref.trim()))throw Error('Авторская ревизия требует ordinary либо точный материал учителя для прежнего control-diagnostic, неизменный предметный адаптер, причину и источники.')
  return openQuizRevision(input)
 }
 

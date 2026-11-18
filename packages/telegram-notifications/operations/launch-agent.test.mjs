@@ -36,6 +36,22 @@ function fixture() {
 }
 
 describe('launch agent release operations', () => {
+  it('persists only the bounded opt-in IPv4 setting and rejects unknown values', () => {
+    const f = fixture()
+    const base = { root: f.root, home: f.home, uid: statSync(f.adcPath).uid, platform: 'darwin',
+      nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
+      waitForQueueReady: () => true, exec: (_binary, args) => { if (args[0] === 'print') throw Error('not loaded') } }
+    const env = { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath,
+      TELEGRAM_IPV4_FIRST: '1', NODE_OPTIONS: '--trace-warnings' }
+    const ops = createLaunchAgentOperations({ ...base, env })
+    ops.install({ apply: true })
+    const plist = readFileSync(ops.paths.plistPath, 'utf8')
+    expect(plist).toContain('<key>TELEGRAM_IPV4_FIRST</key><string>1</string>')
+    expect(plist).toContain('--no-network-family-autoselection --dns-result-order=ipv4first')
+    expect(plist).not.toContain('--trace-warnings')
+    expect(() => createLaunchAgentOperations({ ...base, env: { ...env, TELEGRAM_IPV4_FIRST: 'anything' } }).plan()).toThrow('network_family_config_invalid')
+  })
+
   it('does not certify a merely loaded, non-running prior release or clean it on a later sync', () => {
     const f = fixture(); let loaded = false, running = false, ops
     ops = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
@@ -118,7 +134,7 @@ describe('launch agent release operations', () => {
   })
 
   it('rotates only after readiness, retains the previous healthy version and preserves all trees on rollback', () => {
-    const f = fixture(); let loaded = false, ready = true, blockedPreflightPath = null
+    const f = fixture(); let loaded = false, ready = true, blockedPreflightPath = null, waiting = false
     let operations
     operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
       platform: 'darwin', nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
@@ -129,10 +145,10 @@ describe('launch agent release operations', () => {
         if (binary === '/bin/ps') return readFileSync(operations.paths.plistPath, 'utf8')
         if (args[0] === 'print') {
           if (!loaded || args[1].includes('upload-worker')) throw Error('not loaded')
-          return 'state = running\npid = 42'
+          return waiting ? 'state = waiting' : 'state = running\npid = 42'
         }
         if (args[0] === 'bootout') loaded = false
-        if (args[0] === 'bootstrap') loaded = true
+        if (args[0] === 'bootstrap') { loaded = true; waiting = false }
       } })
     const first = operations.install({ apply: true })
     writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 2\n')
@@ -142,6 +158,10 @@ describe('launch agent release operations', () => {
     const third = operations.install({ apply: true })
     expect(third.retention.removed.map(row => row.hash)).toEqual([first.releaseHash])
     expect(third.retention.backup).toBe(second.releaseHash)
+    waiting = true
+    const recovered = operations.install({ apply: true })
+    expect(recovered.releaseHash).toBe(third.releaseHash)
+    expect(recovered.retention).toMatchObject({ applied: true, backup: second.releaseHash, removed: [] })
     ready = false
     writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 4\n')
     const failedPath = operations.plan().releasePath

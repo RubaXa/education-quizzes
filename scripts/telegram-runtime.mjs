@@ -1,5 +1,6 @@
 /** @see ../docs/decisions/worker-release-retention-2026-11-18.md */
 /** @see ../docs/decisions/legacy-upload-cleanup-2026-11-18.md */
+/** @see ../docs/decisions/worker-ipv4-option-2026-11-18.md */
 import { pathToFileURL } from 'node:url'
 import { createHash, randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
@@ -331,7 +332,7 @@ function launchCommand(args, work, write) {
       'launchagent_bootstrap_failed', 'launchagent_rollback_failed', 'runtime_preflight_failed',
       'education_event_queue_readiness_timeout', 'legacy_upload_worker_stop_failed',
       'legacy_upload_worker_stop_timeout', 'legacy_upload_worker_disable_failed', 'python_runtime_unavailable',
-      'npm_runtime_unavailable', 'mesh_credentials_path_unavailable', 'release_maintenance_busy',
+      'npm_runtime_unavailable', 'network_family_config_invalid', 'mesh_credentials_path_unavailable', 'release_maintenance_busy',
       'release_identity_invalid', 'release_backup_unverified', 'release_health_unverified', 'release_unsafe_tree', 'release_process_inventory_failed', 'legacy_upload_in_use', 'legacy_upload_referenced',
       'legacy_upload_replacement_unverified', 'legacy_upload_inventory_failed', 'legacy_upload_unsafe_tree',
       'legacy_upload_archive_mismatch', 'legacy_upload_changed'])

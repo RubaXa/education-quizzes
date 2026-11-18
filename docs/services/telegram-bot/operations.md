@@ -103,6 +103,14 @@ npm run telegram:worker -- --enable-mesh-source --enable-delivery
 
 Технические параметры описаны в config adapter: страницы inventory, bounded concurrency, reconciliation interval и poll interval. Pagination проходит все страницы; очередь продолжает обработку остальных семей после ошибки одной. Горизонт расписания/ДЗ автоматически движется по `dateWindow`: текущая неделя и ещё пять, с отдельными дневными scope. Это горизонт учебных данных, а не ограничение количества семей. Оценки делятся по подтверждённым source period/subject IDs, полученным из полного getMarks; прошлые периоды не накапливаются в одном checkpoint. Новая календарная/периодная область МЭШ всегда начинает с тихого baseline: сам вход даты в горизонт не доказывает создание урока или ДЗ. При нескольких взрослых source accounts выбирается один источник ребёнка, чтобы не дублировать сообщения. Реальные API limits и расходы требуют эксплуатационного замера.
 
+Опциональная host-настройка `TELEGRAM_IPV4_FIRST=1` сохраняет в LaunchAgent только
+фиксированные Node-флаги `--no-network-family-autoselection --dns-result-order=ipv4first`.
+Она нужна при подтверждённом сетевом сбое автоматического выбора адреса; TLS,
+credentials, таймауты и API не ослабляются. По умолчанию настройка выключена;
+разрешены только0/1, произвольные NODE_OPTIONS в plist не копируются. Повторная
+установка того же hash сохраняет уже проверенный резерв даже при waiting текущего
+процесса; неработавшая другая версия новым резервом не сертифицируется.
+
 ## IAM и данные
 
 Queue event state хранится в `educationEvents`; Mesh source checkpoints and temporary legacy action cursors remain separate. События содержат stable identity, typed `sourceRef` и ограниченный normalized payload. Исходные ответы, файлы, URL и credentials исключены; handler перечитывает только точный проверенный source path. Compatibility scans page-bounded and checkpointed.

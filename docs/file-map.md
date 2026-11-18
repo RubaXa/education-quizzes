@@ -1477,3 +1477,7 @@
 | [docs/decisions/legacy-upload-cleanup-2026-11-18.md](decisions/legacy-upload-cleanup-2026-11-18.md) | [Upload worker](services/upload-worker/README.md) | Явная очистка неиспользуемого runtime с архивом ключей и новый прямой порядок main | Operator; maintainer |
 | [packages/telegram-notifications/operations/legacy-upload-cleanup.mjs](../packages/telegram-notifications/operations/legacy-upload-cleanup.mjs) | [Upload worker](services/upload-worker/README.md) | Проверка неиспользования, частный архив с hash readback и удаление старой установки | Telegram runtime CLI |
 | [packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs](../packages/telegram-notifications/operations/legacy-upload-cleanup.test.mjs) | [Upload worker](services/upload-worker/README.md) | Процессы, ссылки и symlink, архив keys/work, active/backup и повтор | Vitest |
+
+| [docs/decisions/worker-ipv4-option-2026-11-18.md](decisions/worker-ipv4-option-2026-11-18.md) | [Операции](services/telegram-bot/operations.md) | Ограниченная host-настройка IPv4 и восстановление same-hash с сохранением резерва | Operator |
+
+| [docs/decisions/teacher-control-source-refresh-2026-11-18.md](decisions/teacher-control-source-refresh-2026-11-18.md) | [Тесты](modules/assessments/quizzes.md) | Переход от общего курса к точному teacher material без смены ссылки или попытки | Education operator |

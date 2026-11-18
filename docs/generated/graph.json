@@ -3984,6 +3984,34 @@
       "path": "docs/decisions/teacher-choice-practice-2026-10-17.md"
     },
     {
+      "id": "decision.teacher-control-source-refresh-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "module.assessments.assessment-decision-graph",
+      "uses": [
+        "module.assessments.quizzes",
+        "module.synchronization.subject-decision-graph"
+      ],
+      "consumers": [
+        "preparation author",
+        "Education operator"
+      ],
+      "code": [
+        "assessment/followup-contract.mjs",
+        "scripts/quiz.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/teacher-control-source-refresh-2026-11-18.md"
+    },
+    {
       "id": "decision.telegram-compact-digest-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -4548,6 +4576,32 @@
         "согласование"
       ],
       "path": "docs/decisions/work-photo-thumbnail-decomposition-2026-10-27.md"
+    },
+    {
+      "id": "decision.worker-ipv4-option-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "service.telegram-bot.operations",
+      "uses": [
+        "service.telegram-bot.operations"
+      ],
+      "consumers": [
+        "operator"
+      ],
+      "code": [
+        "packages/telegram-notifications/operations/launch-agent.mjs",
+        "scripts/telegram-runtime.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/worker-ipv4-option-2026-11-18.md"
     },
     {
       "id": "decision.worker-release-retention-2026-11-18",
@@ -18287,6 +18341,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.teacher-control-source-refresh-2026-11-18",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.teacher-control-source-refresh-2026-11-18",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "decision.telegram-compact-digest-2026-10-18",
       "to": "service.telegram-bot.delivery",
       "type": "uses"
@@ -18517,6 +18581,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.worker-ipv4-option-2026-11-18",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
       "from": "decision.worker-release-retention-2026-11-18",
       "to": "service.telegram-bot.operations",
       "type": "uses"
@@ -18704,6 +18773,11 @@
     {
       "from": "file:assessment/followup-contract.mjs",
       "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/followup-contract.mjs",
+      "to": "decision.teacher-control-source-refresh-2026-11-18",
       "type": "implements"
     },
     {
@@ -20528,6 +20602,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "to": "decision.worker-ipv4-option-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "to": "decision.worker-release-retention-2026-11-18",
       "type": "implements"
     },
@@ -21518,6 +21597,11 @@
     },
     {
       "from": "file:scripts/quiz.mjs",
+      "to": "decision.teacher-control-source-refresh-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
       "to": "module.assessments.assessment-decision-graph",
       "type": "implements"
     },
@@ -21859,6 +21943,11 @@
     {
       "from": "file:scripts/telegram-runtime.mjs",
       "to": "decision.legacy-upload-cleanup-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-runtime.mjs",
+      "to": "decision.worker-ipv4-option-2026-11-18",
       "type": "implements"
     },
     {
@@ -25820,6 +25909,11 @@
       "from": "file:vite.e2e.config.ts",
       "to": "module.school-diary.school-calendar",
       "type": "implements"
+    },
+    {
+      "from": "module.assessments.assessment-decision-graph",
+      "to": "decision.teacher-control-source-refresh-2026-11-18",
+      "type": "contains"
     },
     {
       "from": "module.assessments.assessment-decision-graph",
@@ -29785,6 +29879,11 @@
       "from": "service.telegram-bot.mesh",
       "to": "shared.server-runtime",
       "type": "uses"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "decision.worker-ipv4-option-2026-11-18",
+      "type": "contains"
     },
     {
       "from": "service.telegram-bot.operations",

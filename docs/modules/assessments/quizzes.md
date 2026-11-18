@@ -249,3 +249,12 @@ semanticChecked=true, spellingNotAssessed=true, reason и evidenceRefs. Аген
 После коррекции нужен свежий export и полный review с обновлением наблюдений.
 Клиентский grader и PWA остаются прежними. Это дополнение к узкому
 однобуквенному ремонту, не отмена его ограничений.
+
+
+Перед началом первой попытки авторская ревизия control-diagnostic допустима также
+при получении точного материала учителя: authorScopeCorrection.kind равен
+teacher-material-arrived, plan.controlPreparation.basis равен teacher-material,
+все источники и исследование проверены, learningContext указывает на то же домашнее
+задание. Ссылка, testId и владелец сохраняются; старый полный пакет сохраняется в
+закрытой scopeHistory. StartedAt, updatedAt, submittedAt или хотя бы один ответ
+запрещают замену. Это источник подготовки, не новая оценка или готовность ребёнка.

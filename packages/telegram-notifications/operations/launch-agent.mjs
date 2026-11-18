@@ -1,6 +1,7 @@
 /** @see ../../../docs/services/telegram-bot/operations.md */
 /** @see ../../../docs/decisions/worker-release-retention-2026-11-18.md */
 /** @see ../../../docs/decisions/legacy-upload-cleanup-2026-11-18.md */
+/** @see ../../../docs/decisions/worker-ipv4-option-2026-11-18.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { accessSync, chmodSync, constants, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -67,6 +68,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
 
   function config() {
     if (platform !== 'darwin' || !domain) throw safeError('launchagent_macos_required')
+    if (env.TELEGRAM_IPV4_FIRST !== undefined && !['0', '1'].includes(env.TELEGRAM_IPV4_FIRST)) throw safeError('network_family_config_invalid')
     const projectId = env.TELEGRAM_FIRESTORE_PROJECT_ID || readFirebaseProject(absoluteRoot, fs)
     if (!validProject(projectId)) throw safeError('firebase_project_unavailable')
     const token = env.AGI_EDU_BOT
@@ -107,7 +109,8 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       if (!canonicalAvailable) fs.accessSync(legacyCredentialsPath, fs.constants?.R_OK ?? constants.R_OK)
     } catch { throw safeError('mesh_credentials_path_unavailable') }
     return { projectId, token, adcPath: resolve(adcPath), yandexDiskTokenPath, meshDirectory, familyAccessPath, legacyCredentialsPath,
-      pythonPath: fs.realpathSync ? fs.realpathSync(python) : realpathSync(python), npmCliPath: resolve(npm), educationSync }
+      pythonPath: fs.realpathSync ? fs.realpathSync(python) : realpathSync(python), npmCliPath: resolve(npm), educationSync,
+      preferIpv4: env.TELEGRAM_IPV4_FIRST === '1' }
   }
 
   function plan() {
@@ -174,6 +177,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       TELEGRAM_LEGACY_CREDENTIALS_PATH: values.legacyCredentialsPath,
       TELEGRAM_LOG_DIRECTORY: logDirectory,
       TELEGRAM_LOCK_PYTHON: values.pythonPath,
+      ...(values.preferIpv4 ? { TELEGRAM_IPV4_FIRST: '1', NODE_OPTIONS: '--no-network-family-autoselection --dns-result-order=ipv4first' } : {}),
     }
     if (values.educationSync) {
       environment.EDUCATION_SYNC_CODEX_PATH = values.educationSync.codexPath
@@ -240,10 +244,10 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     }
     const legacyUploadWorker = retireLegacyUploadWorker({ home, uid, platform, fs, exec, sleep, clock })
     // Only a release observed running before replacement qualifies for rollback.
-    const oldPath = previousRunning ? String(previousPlist).match(/<key>WorkingDirectory<\/key>\s*<string>([^<]+)<\/string>/)?.[1] : null
+    const oldPath = previousLoaded ? String(previousPlist).match(/<key>WorkingDirectory<\/key>\s*<string>([^<]+)<\/string>/)?.[1] : null
     let backup = readRollback(support)?.active === release.releaseHash ? readRollback(support).backup : null
-    let backupVerificationFailed = Boolean(previousLoaded && !oldPath)
-    if (oldPath && dirname(oldPath) === resolve(support, 'releases') && oldPath !== release.releasePath) {
+    let backupVerificationFailed = Boolean(previousLoaded && (!oldPath || oldPath !== release.releasePath && !previousRunning))
+    if (previousRunning && oldPath && dirname(oldPath) === resolve(support, 'releases') && oldPath !== release.releasePath) {
       try {
         dependencyClosure(oldPath, ENTRY, fs)
         exec(nodePath, ['--input-type=module', '-e', runtimeAssemblyPreflight(oldPath)], { cwd: oldPath, stdio: 'pipe',
