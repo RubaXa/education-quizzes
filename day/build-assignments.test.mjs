@@ -54,6 +54,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     const { local, assignment, source } = fixture()
     buildDaySource(local, '2026-10-13')
     const old = read(source)
+    old.subjects[0].tasks[0].stageAssessments = [{stageId:'oral',token:'synthetic-stage-test'}]
     old.subjects[0].tasks[0].sourceOnly = true
     old.subjects[0].tasks[0].practiceVariants = [{ id: 'mesh-one-v1', title: 'Вариант 1' }, { id: 'mesh-one-v2', title: 'Вариант 2' }]
     old.subjects[0].tasks[0].problems = [{ id: 'mesh-one-p-v1-1', variantId: 'mesh-one-v1', number: 1 }]
@@ -68,6 +69,7 @@ describe('сборка двух МЭШ-заданий с файлами уров
     const revised = read(source).subjects[0].tasks[0]
     expect(revised.instructionStatus.state).toBe('needs-review')
     expect(revised.sourceOnly).toBe(true)
+    expect(revised.stageAssessments).toBeUndefined()
     expect(revised.problems).toBeUndefined()
     expect(revised.practiceVariants).toBeUndefined()
     expect(revised.materialRequest).toBeUndefined()

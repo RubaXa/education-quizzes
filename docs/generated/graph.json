@@ -3752,6 +3752,36 @@
       "path": "docs/decisions/specification-lifecycle-2026-10-16.md"
     },
     {
+      "id": "decision.stage-assessment-evidence-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "consumers": [
+        "parent",
+        "student",
+        "sync operator"
+      ],
+      "code": [
+        "src/lib/stageAssessment.ts",
+        "src/components/StageAssessment.tsx",
+        "day/stage-assessment.mjs",
+        "storage/task-presentation-edit.mjs"
+      ],
+      "uses": [
+        "module.school-diary.day-page"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "module.school-diary.day-page",
+      "path": "docs/decisions/stage-assessment-evidence-2026-11-18.md"
+    },
+    {
       "id": "decision.stale-guidance-safety-correction-2026-11-17",
       "status": "accepted",
       "implementation": "implemented",
@@ -6485,6 +6515,13 @@
       "kind": "verification",
       "purpose": "Проверка raw-only границы, ожидания материала и независимости готовых заданий",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:day/stage-assessment.mjs",
+      "path": "day/stage-assessment.mjs",
+      "kind": "artifact",
+      "purpose": "Валидатор адресной связи этапа и назначенного теста",
+      "consumer": "day; task-presentation"
     },
     {
       "id": "file:day/subject-identity.d.mts",
@@ -10407,6 +10444,13 @@
       "consumer": "Карточка номера"
     },
     {
+      "id": "file:src/components/StageAssessment.tsx",
+      "path": "src/components/StageAssessment.tsx",
+      "kind": "artifact",
+      "purpose": "Общий статус и переход для двух ролей",
+      "consumer": "ParentTaskGuide; DayPage; UI Kit"
+    },
+    {
       "id": "file:src/components/StatusIcon.css",
       "path": "src/components/StatusIcon.css",
       "kind": "artifact",
@@ -11583,6 +11627,20 @@
       "consumer": "`ResultCard`"
     },
     {
+      "id": "file:src/lib/stageAssessment.test.ts",
+      "path": "src/lib/stageAssessment.test.ts",
+      "kind": "verification",
+      "purpose": "Регрессии актуального результата, ожидания и изоляции этапов",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:src/lib/stageAssessment.ts",
+      "path": "src/lib/stageAssessment.ts",
+      "kind": "artifact",
+      "purpose": "Чистая проекция актуальной цепочки в этап",
+      "consumer": "DayPage; homeworkStatus"
+    },
+    {
       "id": "file:src/lib/store.optionalQuiz.test.ts",
       "path": "src/lib/store.optionalQuiz.test.ts",
       "kind": "verification",
@@ -11861,6 +11919,13 @@
       "kind": "artifact",
       "purpose": "Общий протокол ответа, отклика и перехода текущего шага",
       "consumer": "Ученик; автор; UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/StageAssessmentExample.tsx",
+      "path": "src/ui-kit/StageAssessmentExample.tsx",
+      "kind": "artifact",
+      "purpose": "Обе роли и ожидание/проверенный тест на ребре assessment:stage",
+      "consumer": "UI Kit"
     },
     {
       "id": "file:src/ui-kit/TaskAttachmentsExample.tsx",
@@ -14456,7 +14521,8 @@
         "разбор-загруженной-работы",
         "уточнение-материала-ученика",
         "информационные-записи-мэш",
-        "task-disclosure"
+        "task-disclosure",
+        "stage-assessments"
       ],
       "path": "docs/modules/school-diary/day-page.md"
     },
@@ -18316,6 +18382,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.stage-assessment-evidence-2026-11-18",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
       "from": "decision.stale-guidance-safety-correction-2026-11-17",
       "to": "module.reviews.subject-aware-guidance",
       "type": "uses"
@@ -19438,6 +19509,16 @@
     {
       "from": "file:day/source-only.mjs",
       "to": "module.synchronization.plan-generation",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/stage-assessment.mjs",
+      "to": "decision.stage-assessment-evidence-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/stage-assessment.mjs",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -23406,6 +23487,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/StageAssessment.tsx",
+      "to": "decision.stage-assessment-evidence-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/StageAssessment.tsx",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/StatusIcon.css",
       "to": "shared.design.statuses",
       "type": "implements"
@@ -24841,6 +24932,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/stageAssessment.ts",
+      "to": "decision.stage-assessment-evidence-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/stageAssessment.ts",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/store.ts",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
@@ -25128,6 +25229,11 @@
     {
       "from": "file:src/ui-kit/ReviewConversationExample.tsx",
       "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/StageAssessmentExample.tsx",
+      "to": "module.school-diary.day-page",
       "type": "implements"
     },
     {
@@ -25583,6 +25689,11 @@
     {
       "from": "file:storage/submission-storage.mjs",
       "to": "module.materials.storage-privacy",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/task-presentation-edit.mjs",
+      "to": "decision.stage-assessment-evidence-2026-11-18",
       "type": "implements"
     },
     {
@@ -28012,6 +28123,11 @@
     },
     {
       "from": "module.school-diary.day-page",
+      "to": "decision.stage-assessment-evidence-2026-11-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.day-page",
       "to": "decision.upload-photo-timestamp",
       "type": "contains"
     },
@@ -28078,6 +28194,11 @@
     {
       "from": "module.school-diary.day-page",
       "to": "file:src/lib/reviewPresentation.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.day-page",
+      "to": "file:src/lib/stageAssessment.test.ts",
       "type": "verified-by"
     },
     {

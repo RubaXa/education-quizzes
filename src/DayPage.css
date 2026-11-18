@@ -297,3 +297,11 @@
 }
 
 .day-work-review-step q{font-weight:600}.day-work-review-next{font-weight:600}.day-work-review-evidence>summary{font-size:.8rem;min-height:44px;cursor:pointer}
+
+/* @see ../docs/modules/school-diary/day-page.md#stage-assessments */
+@media(max-width:640px){
+ .day-subject.has-numbered-sheet .day-subject-head{grid-template-columns:minmax(0,1fr) 36px}
+ .day-subject.has-numbered-sheet .day-subject-toggle{grid-column:2}
+ .day-subject.has-numbered-sheet .day-subject-status{grid-column:1/-1;grid-row:2;flex-wrap:wrap;min-width:0}
+ .day-subject.has-numbered-sheet .day-subject-status .day-subject-assignment-count{max-width:100%;white-space:normal}
+}

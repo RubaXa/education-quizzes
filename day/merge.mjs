@@ -8,7 +8,7 @@ import { previousLessonReference } from '../assessment/lesson-repetition.mjs'
  * @see ../docs/decisions/source-only-mesh-publication-2026-10-20.md */
 
 function stripSourceOnlyEnrichment(task) {
-  for (const key of ['steps', 'submission', 'parentGuide', 'problems', 'practiceVariants', 'cardPattern',
+  for (const key of ['steps', 'submission', 'parentGuide', 'stageAssessments', 'problems', 'practiceVariants', 'cardPattern',
     'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'sourceInventory']) delete task[key]
   // A validated open source request needs its incomplete intent after every merge.
   // @see ../docs/modules/materials/material-clarification.md

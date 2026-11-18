@@ -37,6 +37,7 @@ export const decisionNodes=[
 ]
 const edge=(id,from,to,label,specRef,ref=decisionRef)=>({id,from,to,label,specRef,decisionRef:ref})
 export const decisionEdges=[
+ edge('assessment:stage','review','view.component','Результат назначенного теста подтверждает связанный этап','docs/modules/school-diary/day-page.md#stage-assessments','docs/decisions/stage-assessment-evidence-2026-11-18.md'),
  ...['mesh','upload','parent'].map(source=>edge(`input:${source}`,`source.${source}`,'source.identity','Сопоставить назначение','docs/modules/synchronization/subject-decision-graph.md#inputs')),
  edge('identity:criteria','source.identity','source.criteria','Разобрать полный источник','docs/modules/reviews/criteria-and-knowledge.md#criteria'),
  edge('criteria:choose','source.criteria','source.obligation','Отделить назначение от служебных сведений','docs/modules/synchronization/subject-decision-graph.md#subjects'),
@@ -92,6 +93,7 @@ const commonNodeScopes={
  'learner.context':'clarification','family.requirement':'clarification','review.support':'result',publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
+ 'assessment:stage':'context',
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
  'obligation:preparation':'context','preparation:teacher':'context','preparation:course':'context',
  'evidence:recurrence':'result','recurrence:prepare':'context','criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',

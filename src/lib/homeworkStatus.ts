@@ -1,3 +1,4 @@
+import {stageAssessmentResults,stageAssessmentReview} from './stageAssessment'
 import {problemRequired} from '../../day/task-requirement.mjs'
 /** @see ../../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../../docs/decisions/canonical-evidence-and-learning-2026-11-17.md */
@@ -20,7 +21,7 @@ import { previousLessonReference } from '../../assessment/lesson-repetition.mjs'
  *  @see ../../docs/modules/families/README.md#parent-home */
 export type QuizScore = { points: number; maxPoints: number }
 export type LessonWorkItem = { id: string; title: string; state: 'done' | 'todo' | 'checking' | 'unclear'; detail: string; qualityOpen?: boolean; clarification?: boolean; unresolvedReason?: 'missing-evidence' | 'criterion-unclear' }
-export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean }
+export type QuizWorkState = { status: string; testId?: string; linkedToTestId?: string | null; title?: string; followupRequested?: boolean; followupRequestedAt?: unknown; familyOptional?: boolean; slug?:string; previewToken?:string; answered?:number }
 
 export type QuizRequirement = Pick<LessonWorkItem, 'state' | 'detail'> | { state: 'optional'; detail: string }
 
@@ -91,7 +92,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
     }
     if (previousLessonReference(task)) return [{id:task.id,title:task.title,state:'todo' as const,
       detail:'Повторение нужно проверить новым тестом; прежняя работа сохранена.'}]
-    const review = reviews.find((item) => item.taskId === task.id)
+    const review = stageAssessmentReview(reviews.find((item) => item.taskId === task.id), stageAssessmentResults(task, tests, scores))
     const materialView = materialRequestView(task, uploads.filter(upload => uploadMatchesTask(upload, task.id)), review)
     if (materialView) return [{ id: task.id, title: task.title, clarification: true, state: materialView.phase === 'waiting' ? 'todo' : 'checking', detail: materialView.detail }]
     const pending = uploads.some((upload) => uploadMatchesTask(upload, task.id) && ['requested', 'awaiting-upload', 'uploaded', 'pending'].includes(upload.status))

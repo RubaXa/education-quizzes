@@ -920,3 +920,34 @@ it.each([false,true])('keeps original submission requirements historical after a
   expect(historical!.querySelectorAll('li')).toHaveLength(3)
  }finally{await view.cleanup()}
 })
+
+// @see ../docs/modules/school-diary/day-page.md#stage-assessments
+it.each([true, false])('keeps canonical written evidence beside a quiz-owned teacher task parent=%s', async (parent) => {
+  scene.page!.subjects[0].tasks = [{ ...scene.page!.subjects[0].tasks[0], problems: undefined, practiceVariants: undefined, outputKind: 'structured-notes' }]
+  const view = await renderPage(parent)
+  try {
+    const card = view.host.querySelector(`#day-task-${taskId}`)!
+    expect(card).not.toBeNull()
+    expect(Boolean(card.querySelector('input[type="file"]'))).toBe(!parent)
+  } finally { await view.cleanup() }
+})
+
+it.each([true,false])('shows the linked stage result and opens its existing quiz in role parent=%s',async parent=>{
+ const source=scene.page!.subjects[0].tasks[0]
+ const task={...source,kind:'written' as const,problems:undefined,practiceVariants:undefined,stageAssessments:[{stageId:'evidence',title:'Готовность к ответу',scope:'Проверка по тексту; не запись устной речи.',token:'diagrams-test'}]}
+ scene.page!.subjects[0].tasks=[task]
+ scene.quizSubmitted=true
+ scene.quizOptional=true
+ const review={id:'student-token:review',taskId,checkedAt:{seconds:1,nanoseconds:0},status:'cannot-assess' as const,checkableStageIds:['assignment','evidence'],items:[{stageId:'assignment',label:'Письменно',status:'correct' as const},{stageId:'evidence',label:'Готовность',status:'cannot-assess' as const}]}
+ scene.reviews=[review]
+ scene.guides={[taskId]:{guide:{kind:'structured-notes',presentation:'learning-route',overview:'Закрытый разбор',stages:[{id:'evidence',title:'Готовность к ответу',expected:'PRIVATE_PARENT_EXPECTED',source:{kind:'textbook',label:'Оригинал',ref:'book:1',excerpt:'Read.'}}]}}}
+ const view=await renderPage(parent)
+ try{
+  const link=view.host.querySelector('[data-stage-assessment="evidence"]')!
+  expect(link?.textContent).toContain('Подтверждено тестом · 8 из 8')
+  expect(link.querySelector('a')?.getAttribute('href')).toBe('#/t/diagrams~diagrams-test')
+  expect(view.host.querySelector(`#day-task-${taskId}`)?.textContent).toContain('Готово · проверено')
+  if(!parent)expect(view.host.textContent).not.toContain('PRIVATE_PARENT_EXPECTED')
+  expect(scene.reviews[0]).toEqual(review)
+ }finally{await view.cleanup()}
+})

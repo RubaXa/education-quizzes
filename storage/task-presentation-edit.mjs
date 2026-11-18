@@ -1,3 +1,5 @@
+/** @see ../docs/decisions/stage-assessment-evidence-2026-11-18.md */
+import {stageAssessmentErrors} from '../day/stage-assessment.mjs'
 /** Addressed, owner-fenced presentation correction; never a new assignment or review.
  * @see ../docs/modules/reviews/adaptive-problem-card.md#presentation-gate
  */
@@ -36,7 +38,7 @@ function validateInput(input){
   ||typeof input.reason!=='string'||input.reason.trim().length<20||input.reason.length>1000
   ||!Array.isArray(input.changes)||!input.changes.length||input.changes.length>100
   ||new Set(input.changes.map(c=>c?.taskId)).size!==input.changes.length)fail('Нужны адресный пакет, причина и уникальные изменения.')
- for(const c of input.changes)if(!keys(c,['taskId','expectedSupportRevision','support','expectedGuideRevision','sourceRevision','guide','materialRequest'])||!taskId(c.taskId)||!['support','guide','materialRequest'].some(k=>Object.hasOwn(c,k)))fail('Разрешены только support, guide и materialRequest представления.')
+ for(const c of input.changes)if(!keys(c,['taskId','expectedSupportRevision','support','expectedGuideRevision','sourceRevision','guide','materialRequest','stageAssessments','expectedStageAssessments','learnerFlowBoundary','expectedLearnerFlowBoundary'])||!taskId(c.taskId)||!['support','guide','materialRequest','stageAssessments','learnerFlowBoundary'].some(k=>Object.hasOwn(c,k)))fail('Разрешены только support, guide и materialRequest представления.')
 }
 function continuationTargets(input){
  const targets=new Map()
@@ -59,10 +61,24 @@ function prepare(input,snaps,now){
  if(snaps.some(s=>!s.exists))fail('Одна из адресных страниц или закрытых guides отсутствует.')
  const owner=ownerSnap.data(),student=studentSnap.data(),parent=parentSnap.data()
  assertOwner(input,owner,student,parent)
- let studentSubjects=student.subjects,parentSubjects=parent.subjects,guideIndex=0
+ let studentSubjects=student.subjects,parentSubjects=parent.subjects
  const guideWrites=[]
  for(const c of input.changes){
   const a=locate(student,c.taskId),b=locate(parent,c.taskId),patch={}
+  if(Object.hasOwn(c,'learnerFlowBoundary')){
+   if(typeof c.learnerFlowBoundary!=='string'||!c.learnerFlowBoundary.trim()||c.learnerFlowBoundary.length>500||!a.learnerFlow
+    ||!same(a.learnerFlow,b.learnerFlow)||a.learnerFlow.boundary!==c.expectedLearnerFlowBoundary)fail('LearnerFlow boundary: CAS или текст не совпал.')
+   patch.learnerFlow={...a.learnerFlow,boundary:c.learnerFlowBoundary}
+  }
+  if(Object.hasOwn(c,'stageAssessments')){
+   const g=guides.find(s=>s.ref.path===`dayTaskGuides/${input.pageId}/items/${c.taskId}`)?.data()
+   if(!g||g.familyId!==input.familyId||g.childId!==input.childId||g.taskId!==c.taskId||g.guide?.revision!==c.expectedGuideRevision
+    ||!same(a.stageAssessments??[],c.expectedStageAssessments)||!same(a.stageAssessments,b.stageAssessments))fail('Stage assessment: CAS, guide или владелец не совпал.')
+   const subject=student.subjects.find(s=>s.tasks.some(t=>t.id===c.taskId))
+   const errors=stageAssessmentErrors({...a,stageAssessments:c.stageAssessments},subject?.id,student.testPlacements,g.guide)
+   if(errors.length)fail(errors.join('\n'))
+   patch.stageAssessments=c.stageAssessments
+  }
   if(Object.hasOwn(c,'support')){
    if(!a.support||!same(a.support,b.support)||!object(c.support)
     ||!Number.isInteger(c.expectedSupportRevision)||a.support.revision!==c.expectedSupportRevision
@@ -81,7 +97,7 @@ function prepare(input,snaps,now){
   }
   studentSubjects=updateTarget(studentSubjects,c.taskId,patch);parentSubjects=updateTarget(parentSubjects,c.taskId,patch)
   if(Object.hasOwn(c,'guide')){
-   const snap=guides[guideIndex++],old=snap.data(),next=c.guide
+   const snap=guides.find(s=>s.ref.path===`dayTaskGuides/${input.pageId}/items/${c.taskId}`),old=snap.data(),next=c.guide
    if(old.familyId!==input.familyId||old.childId!==input.childId||old.taskId!==c.taskId)fail('Закрытый guide принадлежит другому владельцу или заданию.')
    const errors=parentGuideEditErrors(old,{version:1,reason:input.reason,...c})
    if(!object(next)||!unchanged(old.guide,next,['revision','overview','method','stages']))errors.push('Guide: границы, профиль и семантические правила должны сохраниться.')
@@ -103,7 +119,7 @@ export async function editTaskPresentation(db,input,{apply=false,now=new Date().
  const initial=await db.getAll(...refs)
  if(initial.some(s=>!s.exists))fail('Страница владельца или одна из двух ролей отсутствует.')
  assertOwner(input,...initial.map(s=>s.data()))
- const guideRefs=input.changes.filter(c=>Object.hasOwn(c,'guide')).map(c=>db.doc(`dayTaskGuides/${input.pageId}/items/${c.taskId}`))
+ const guideRefs=input.changes.filter(c=>Object.hasOwn(c,'guide')||Object.hasOwn(c,'stageAssessments')).map(c=>db.doc(`dayTaskGuides/${input.pageId}/items/${c.taskId}`))
  const targets=continuationTargets(input),continuationRefs=targets.flatMap(t=>[db.doc(`dayOwners/${t.dayToken}`),db.doc(`dayPages/${t.dayToken}`)])
  const extras=[...guideRefs,...continuationRefs],extraSnaps=extras.length?await db.getAll(...extras):[]
  const guideEnd=3+guideRefs.length,allRefs=[...refs,...extras],before=[...initial,...extraSnaps]
@@ -119,7 +135,7 @@ export async function editTaskPresentation(db,input,{apply=false,now=new Date().
   tx.update(refs[2],{subjects:next.parent.subjects,presentationRevision:next.parent.presentationRevision,presentationEdits:next.parent.presentationEdits})
   for(const g of next.guideWrites)tx.update(g.ref,{guide:g.after.guide,updatedAt:g.after.updatedAt,guideEdits:g.after.guideEdits})
  })
- const after=await db.getAll(refs[1],refs[2],...guideRefs),expected=[prepared.student,prepared.parent,...prepared.guideWrites.map(g=>g.after)]
+ const after=await db.getAll(refs[1],refs[2],...guideRefs),expected=[prepared.student,prepared.parent,...guideRefs.map((ref,i)=>prepared.guideWrites.find(g=>g.ref.path===ref.path)?.after??extraSnaps[i].data())]
  if(after.some((s,i)=>!s.exists||!same(s.data(),expected[i])))fail('Readback: представление или сохранённые поля не совпали после записи.')
  return {applied:true,verified:true,changes:input.changes.length,guides:guideRefs.length,presentationRevision:prepared.student.presentationRevision}
 }

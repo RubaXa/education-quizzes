@@ -1,3 +1,5 @@
+import StageAssessment from './StageAssessment'
+import type {StageAssessmentResult} from '@/lib/stageAssessment'
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 import { useEffect, useState } from 'react'
@@ -41,8 +43,8 @@ function timeOf(value: unknown): number {
  * @see ../../docs/decisions/guidance-hint-then-reveal-2026-10-19.md
  * @see ../../docs/modules/school-diary/day-page.md#review-stage-switch
  * @see ../../docs/shared/design/statuses.md#components */
-export default function ParentTaskGuide({ guide, review, decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
-  guide: Guide; review?: DayWorkReview; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
+export default function ParentTaskGuide({ guide, review, stageAssessments = [], decisions = [], guidance = [], guidanceReady = true, onSend, onStageChoice }: {
+  guide: Guide; review?: DayWorkReview; stageAssessments?:StageAssessmentResult[]; decisions?: ParentCompletionEvent[]; guidance?: DayGuidance[]; guidanceReady?: boolean;
   onSend?: (stage: Stage, level: Level) => Promise<void>;
   onStageChoice?: (stage: Stage, required: boolean) => Promise<void>
 }) {
@@ -149,8 +151,8 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     <div className="day-parent-learning-route-body">
     {guide.method&&<MethodOverview method={guide.method}/>}
     {!guide.method && !mathematics && review?.status && <div className="day-learning-route-review-summary">
-      <strong>{review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' && review.assessmentBasis?.unresolvedReason === 'missing-evidence' ? 'Разбор завершён · часть работы не видна' : review.status === 'cannot-assess' ? 'Итог пока не установлен' : 'Что осталось сделать'}</strong>
-      <p>{formatReviewProse(review.nextStep ?? review.summary ?? '')}</p>
+      <strong>{completion?.complete && stageAssessments.length ? 'Обязательные этапы подтверждены' : review.status === 'verified' ? 'Работа подтверждена' : review.status === 'cannot-assess' && review.assessmentBasis?.unresolvedReason === 'missing-evidence' ? 'Разбор завершён · часть работы не видна' : review.status === 'cannot-assess' ? 'Итог пока не установлен' : 'Что осталось сделать'}</strong>
+      <p>{formatReviewProse(completion?.complete && stageAssessments.length ? 'Результаты обязательных этапов учтены. Фото и прежние проверки сохранены.' : review.nextStep ?? review.summary ?? '')}</p>
     </div>}
     {review && !guide.method && <div className="day-learning-route-progress" aria-label="Состояние проверки фото">
       {mathematics && <><span>Ответ: <b>{review?.mathReasoning?.answer === 'correct' ? 'верен' : review?.mathReasoning?.answer === 'incorrect' ? 'неверен' : 'не подтверждён'}</b></span>
@@ -162,6 +164,7 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
     </div>}
     <div className="day-learning-route-stages">{guide.stages.map((stage, index) => {
       const result = observed.get(stage.id)
+      const assessment = stageAssessments.find(result => result.stageId === stage.id)
       const hintSent = alreadySent(stage, 'hint')
       const revealSent = alreadySent(stage, 'reveal')
       const active = preview?.id === stage.id && !alreadySent(stage, preview.level) ? preview : null
@@ -170,11 +173,12 @@ export default function ParentTaskGuide({ guide, review, decisions = [], guidanc
       const required = isRequired(stage)
       const choicePending = checkable && (stageSaving === stage.id || stage.id in unresolvedChoices)
       return <div className="day-learning-route-stage-shell" key={stage.id}><details className={`day-learning-route-stage ${result?.status ? `day-learning-route-${result.status}` : ''}${checkable && !required ? ' day-learning-route-optional' : ''}`} open={stageError?.id === stage.id && stageError.reviewVersion === reviewVersion}>
-        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
+        <summary><span className="day-learning-route-number">{result ? <StatusIcon size={17} status={choicePending ? 'waiting' : result.status === 'correct' ? 'complete' : result.status === 'incorrect' ? 'needs-fix' : result.status === 'partial' ? 'partial' : 'unknown'} /> : review ? <StatusIcon size={17} status="unknown" /> : index + 1}</span><span className="day-learning-route-stage-title"><b>{formatReviewProse(stage.title)}</b>{assessment ? <small>{assessment.detail}</small> : choicePending ? <small role="status">{stageSaving === stage.id ? 'Сохраняем выбор…' : 'Ждём подтверждения…'}</small> : result ? <small>{disputedCriterion && result.status === 'cannot-assess' ? 'Критерий формы спорен' : !mathematics && result.status === 'cannot-assess' ? 'Пока не подтверждено' : statusText[result.status]}</small> : review && <small>Этап пока не сопоставлен с проверкой</small>}</span>
         </summary>
         <div className="day-learning-route-body">
           {stageError?.id === stage.id && stageError.reviewVersion === reviewVersion && <p className="day-learning-route-error" role="alert">{stageError.message}</p>}
           {result?.observed && (stage.blocks?.length?<details className="edu-method-observation"><summary>Запись ученика</summary><p className="day-learning-route-observed">{formatReviewObservation(result.observed)}{result.note&&<small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p></details>:<p className="day-learning-route-observed"><b>В работе:</b> {formatReviewObservation(result.observed)}{result.note && <small className="day-guide-review-note">{formatReviewProse(result.note)}</small>}</p>)}
+          {assessment && <StageAssessment result={assessment} parent />}
           <GuidanceStageContent content={{ ...stage, sourceLabel: stage.source.label }} />
           {guidanceReady && !revealSent && <div className="day-learning-route-actions">
             {stage.hintPreview && !hintSent && <button type="button" aria-label={`Выбрать подсказку для этапа «${stage.title}»`} onClick={() => { setPreview({ id: stage.id, level: 'hint' }); setError('') }}>Подсказка</button>}

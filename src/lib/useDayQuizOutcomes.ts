@@ -20,7 +20,7 @@ export function useDayQuizOutcomes(page: DayPageData | null | undefined, date: s
 
   const roots = useMemo(() => [...new Set([
     ...(page?.subjects.flatMap((subject) => subject.tasks
-      .filter((task) => (task.originDate ?? date) === date).map((task) => task.testToken)) ?? []),
+      .filter((task) => (task.originDate ?? date) === date).flatMap((task) => [task.testToken, ...(task.stageAssessments ?? []).map(link => link.token)])) ?? []),
     ...(page?.testPlacements?.filter((placement) => (placement.originDate ?? date) === date).map((placement) => placement.token) ?? []),
   ].filter((token): token is string => Boolean(token)))], [page, date])
   const boardReady = !boardToken || boardState?.token === boardToken

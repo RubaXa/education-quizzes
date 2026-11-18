@@ -86,3 +86,35 @@ describe('addressed task presentation edit',()=>{
   p.continuation.url='https://example.invalid/foreign';await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/внутренний/);expect(f.writes).toBe(0)
  })
 })
+
+it('links an existing stage to an assigned same-subject quiz, preserving guides, attempts and decisions',async()=>{
+ const f=setup(),token='synthetic-stage-quiz-token-123'
+ const guidePath='dayTaskGuides/student/items/mesh-1'
+ const guide={familyId:f.packet.familyId,childId:f.packet.childId,taskId:'mesh-1',guide:{revision:3,stages:[{id:'oral'}]}}
+ f.rows.set(guidePath,copy(guide));f.versions.set(guidePath,1)
+ for(const role of ['student','parent'])f.rows.get('dayPages/'+role).testPlacements=[{subjectId:'math',token}]
+ f.packet.changes=[{taskId:'mesh-1',expectedGuideRevision:3,expectedStageAssessments:[],stageAssessments:[{stageId:'oral',title:'Готовность',scope:'Самопроверка, не запись речи.',token}]}]
+ expect(await editTaskPresentation(f.db,f.packet,{apply:true})).toMatchObject({verified:true})
+ expect(f.rows.get(guidePath)).toEqual(guide)
+ expect(f.writes).toBe(2)
+ for(const role of ['student','parent'])expect(f.rows.get('dayPages/'+role).subjects[0].tasks[0].stageAssessments).toEqual(f.packet.changes[0].stageAssessments)
+ await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/CAS/)
+})
+it.each(['other-subject','missing-stage','private-answer','wrong-guide-revision'])('blocks invalid stage assessment %s before writes',async kind=>{
+ const f=setup(),token='synthetic-stage-quiz-token-123',path='dayTaskGuides/student/items/mesh-1'
+ f.rows.set(path,{familyId:f.packet.familyId,childId:f.packet.childId,taskId:'mesh-1',guide:{revision:1,stages:[{id:'oral'}]}});f.versions.set(path,1)
+ for(const role of ['student','parent'])f.rows.get('dayPages/'+role).testPlacements=[{subjectId:kind==='other-subject'?'english':'math',token}]
+ const link={stageId:kind==='missing-stage'?'absent':'oral',title:'Готовность',scope:'Самопроверка по тексту.',token}
+ if(kind==='private-answer')link.answer='PRIVATE'
+ f.packet.changes=[{taskId:'mesh-1',expectedGuideRevision:kind==='wrong-guide-revision'?2:1,expectedStageAssessments:[],stageAssessments:[link]}]
+ await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow();expect(f.writes).toBe(0)
+})
+
+it('corrects a stale learner boundary with CAS while preserving scope, source and all stages',async()=>{
+ const f=setup(),flow={version:1,scope:'Только назначенное упражнение.',boundary:'Запись ещё не видна.',source:{pageId:'book:1'},goal:'Выполнить упражнение.',stages:[{id:'work'}]}
+ for(const role of ['student','parent'])f.rows.get('dayPages/'+role).subjects[0].tasks[0].learnerFlow=copy(flow)
+ f.packet.changes=[{taskId:'mesh-1',expectedLearnerFlowBoundary:flow.boundary,learnerFlowBoundary:'Запись принята. Другие упражнения не назначены.'}]
+ expect(await editTaskPresentation(f.db,f.packet,{apply:true})).toMatchObject({verified:true})
+ expect(f.rows.get('dayPages/student').subjects[0].tasks[0].learnerFlow).toEqual({...flow,boundary:f.packet.changes[0].learnerFlowBoundary})
+ await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/CAS/)
+})

@@ -1483,3 +1483,11 @@
 | [docs/decisions/teacher-control-source-refresh-2026-11-18.md](decisions/teacher-control-source-refresh-2026-11-18.md) | [Тесты](modules/assessments/quizzes.md) | Переход от общего курса к точному teacher material без смены ссылки или попытки | Education operator |
 
 | [docs/decisions/numbered-source-gap-2026-11-18.md](decisions/numbered-source-gap-2026-11-18.md) | [Выбор карточки](modules/reviews/card-generation-policy.md) | Неполный номер листа сохраняется без выдуманного обязательного ответа | Семья; синхронизация |
+
+| [day/stage-assessment.mjs](../day/stage-assessment.mjs) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Валидатор адресной связи этапа и назначенного теста | day; task-presentation |
+| [src/lib/stageAssessment.ts](../src/lib/stageAssessment.ts) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Чистая проекция актуальной цепочки в этап | DayPage; homeworkStatus |
+| [src/components/StageAssessment.tsx](../src/components/StageAssessment.tsx) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Общий статус и переход для двух ролей | ParentTaskGuide; DayPage; UI Kit |
+| [src/ui-kit/StageAssessmentExample.tsx](../src/ui-kit/StageAssessmentExample.tsx) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Обе роли и ожидание/проверенный тест на ребре assessment:stage | UI Kit |
+
+| [src/lib/stageAssessment.test.ts](../src/lib/stageAssessment.test.ts) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Регрессии актуального результата, ожидания и изоляции этапов | Vitest |
+| [docs/decisions/stage-assessment-evidence-2026-11-18.md](decisions/stage-assessment-evidence-2026-11-18.md) | [Страница дня](modules/school-diary/day-page.md) | Решение о связанной проверке этапа и сохранении письменной сдачи | DayPage; UI Kit; CLI |

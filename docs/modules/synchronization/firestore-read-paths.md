@@ -346,3 +346,5 @@ quizReviewPrivate/token, точный quizParentReviews и служебный qu
 перебора истории. После записи адресно перечитываются родительский документ,
 служебный указатель и ровно одна опубликованная версия истории по historyId.
 [Основание](../../modules/reviews/parent-review.md#publication).
+
+18.11, task-presentation/stageAssessments: существующие адресные getAll двух dayPages, dayOwner и закрытого dayTaskGuide той же задачи. Guide читается для проверки ID этапа и CAS ревизии; при одной связи не записывается. Назначение проверяется по testPlacements того же предмета уже прочитанной страницы. Результат берётся из существующих клиентских подписок useDayQuizOutcomes, без дополнительного запроса. Никакого collectionGroup или обхода семьи. Обе страницы и guide перечитываются после транзакции.

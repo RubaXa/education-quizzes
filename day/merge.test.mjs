@@ -174,3 +174,12 @@ describe('повторный выпуск страницы дня', () => {
     expect(merged.subjects[0].tasks[0].testToken).toBe(newToken)
   })
 })
+
+it('preserves an explicit stage assessment through the same source and discards it for a changed assignment',()=>{
+ const link=[{stageId:'oral',token:'synthetic-stage-test'}]
+ const old=page([{...task('english'),meshText:'Read section 1.',stageAssessments:link}])
+ const same=mergeDayPage(old,page([{...task('english'),meshText:'Read section 1.'}]))
+ expect(same.subjects[0].tasks[0].stageAssessments).toEqual(link)
+ const changed=mergeDayPage(same,page([{...task('english'),meshText:'Read section 2.'}]))
+ expect(changed.subjects[0].tasks[0].stageAssessments).toBeUndefined()
+})

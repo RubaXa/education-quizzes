@@ -255,20 +255,22 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "a85559703241b2f42735f3960ef8ef512d7b8244fa8a54b61b43eb47a435fd22",
-      "record": "docs/decisions/informatics-assessment-2026-11-01.md",
+      "sha256": "eb3aafe401a1f16781630751619457632847f569282e185a5bba91781f7822b7",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/assessments/assessment-decision-graph.md",
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "sync/task-route.test.mjs",
-        "assessment/decision-graph.test.mjs",
-        "day/placement-integrity.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель потребовал исправить маршрут информатики/труда и выпустить тематический тест с кодом для ребёнка."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "day/card-policy.mjs": {
@@ -492,23 +494,22 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "3f60ffa30885c7563fb1989b384ad9a8849453d1a2ffbd2a8324bf1ccc5c8b41",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "d28ac914a7a5b276bec6e93b7d428def9a7d736fe02d65998c4a6a0891548af3",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "day/owner-repair.mjs": {
@@ -1860,29 +1861,22 @@
       }
     },
     "scripts/check-problem-variant-viewport.mjs": {
-      "sha256": "a62a6808e0bf6a8c9dd64c6b8c5622b76bf81b1a8f9bf8a3885e7a85d2bd3cf2",
-      "record": "docs/decisions/released-stage-parity-2026-10-20.md",
+      "sha256": "c2074ad9e193801255e2446afb507d27a3849d1f0d05402147c0c45c79637379",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/subject-aware-guidance.md",
-        "docs/modules/reviews/problem-card-design-decisions.md",
-        "docs/shared/design/ui-kit.md",
-        "docs/shared/design/README.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/dayGuidance.writer.test.ts",
-        "day/guidance-release.test.mjs",
-        "day/guidance-repair.test.mjs",
-        "src/components/ParentTaskGuide.test.tsx",
-        "src/components/TaskGuidance.test.tsx",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя 20.10.2026: в ученическом раскрытии должен появляться полный выбранный этап с переходами, строкой симметрии, причиной и источником; родительский предпросмотр должен совпадать с фактическим раскрытием."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "a2ba9d8a01f8089e1167e31e17a94200e217c9ba858bf746b8004048121f9b38"
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "scripts/check-quiz-switch-viewport.mjs": {
@@ -2007,19 +2001,22 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "dfa8d3f16590f7ef9d6a64ebc71d6dc76908a319637878be87ef85ef24785215",
-      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
+      "sha256": "f74d049a9392a296986d69bb5dd88bc6cef2c5a3c40b3462c2d2933538e7cfb5",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "sync/deadline-control.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2659,39 +2656,41 @@
       }
     },
     "src/DayPage.css": {
-      "sha256": "ba2d33c7684e99632e6c33d60bbca8cbbd12a3af63a491969a3536e4a4be494c",
-      "record": "docs/decisions/canonical-attachment-controls-2026-10-31.md",
+      "sha256": "ee8a5f49a9cca87634903a25da207f436f4d4971f958b42e500f81e1b7cf2c29",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/shared/design/components.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/TaskWorkEvidence.test.tsx",
-        "src/components/WorkPhotoGallery.test.tsx",
-        "src/components/SolutionFiles.test.tsx",
-        "src/UiKit.test.tsx",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/components/LearningRoute.weekend.integration.test.tsx"
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель31.10.2026 указал,что скриншот отличается от реальных контролов,поручил перечитать спецификации/элементы,улучшить декомпозицию и обновить UI Kit без изобретения нового вида."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "4ad9376b586c0c4728238047a9ed3ff73f3732f54dbadc747ee988a730207521",
-      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
+      "sha256": "cfdb099a1b06b64eccc6c4808343a2a3c1efdfbe190a0a458444e3e6e0cfcbe9",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "sync/deadline-control.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/UiKit.css": {
@@ -3322,20 +3321,22 @@
       }
     },
     "src/components/ParentTaskGuide.tsx": {
-      "sha256": "eea8dcbad729fe44489c9fe63465e192a7c861e5a838d614fea5437106d29352",
-      "record": "docs/decisions/method-guided-reviews-2026-10-31.md",
+      "sha256": "9485fc12aa8c8fbf9cc4730ed50b506affa7e816234e5fa34fbbe451993eaa43",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/method-guided-solutions.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/SolutionBlocks.test.tsx",
-        "packages/education-presentation/solution-blocks.test.mjs",
-        "storage/parent-guide-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "31.10.2026 родитель отверг прежний экран и прямо потребовал восстановить плашку, убрать повтор номера и показывать метод, формулы, связи и переходы визуально."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/components/PersonalEntry.tsx": {
@@ -4192,19 +4193,22 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "33bfe6ab581be2fd18b44e735220846658fbed6a19e2718209812ebc2b56e345",
-      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
+      "sha256": "c699aafbd246199877dad6be68a56966211d05f0f0f43933d75b226be4359140",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "sync/deadline-control.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -4308,19 +4312,22 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "78fc18eb16b85df9d2c98e67b9c489a3055d20caddc4a10181a5a4dc7cc58fc6",
-      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
+      "sha256": "489d64cfbc64da9e441ede469716f72734410ff53ba47910fde1f47b4379de6c",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/lib/homeworkStatus.test.ts",
-        "sync/deadline-control.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Требование родителя следовать реальным файлам преподавателя и не включать неподтверждённый пункт в обязательный объём; 18.11 проверка нашла отсутствие рисунка в № 11 и ошибочный подсчёт пяти обязательных результатов."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/lib/homeworkUpdateReceipt.ts": {
@@ -4923,26 +4930,22 @@
       }
     },
     "src/lib/useDayQuizOutcomes.ts": {
-      "sha256": "0ec8d962dc472c7da022db84b9ec5355e1c21db798ed1a108ebc1a2436f98589",
-      "record": "docs/decisions/compact-results-ui-kit-2026-10-16.md",
+      "sha256": "b56e4a55a04fb948604dcffa02b8d9658d4ff288624442c06e474f67ef5776a3",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/assessments/result-presentation-proposal.md",
-        "docs/modules/assessments/quiz-chain-proposal.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/QuizCard.history.test.tsx",
-        "src/components/ui/result.test.tsx",
-        "src/lib/watchQuizOutcome.test.ts",
-        "src/UiKit.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель 16.10.2026 утвердил уплотнённую таблицу и цветовую шкалу словами «стало намного лучше, закрепляй вариант» и прямо запросил интерактивный UI Kit."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "cb6314fa98cfa8fc4cc8b5f1b2e4396b6ba77c2485266f677f4833eca731cbf8"
+        "status": "direct-request",
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/lib/useDelayedRefresh.ts": {
@@ -5650,18 +5653,22 @@
       }
     },
     "day/source-only.mjs": {
-      "sha256": "25e1c4c3e1bc8c92b51aeb31ef493b8755732e48adc794185488bc11fe826164",
-      "record": "docs/decisions/mixed-assignment-actions-2026-10-22.md",
+      "sha256": "e4cefe41dda857f78fd80d18b8ab9d60113875ad8ac495e2263a0548576eadf5",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/synchronization/plan-generation.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "day/mixed-assignment.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 22.10.2026 прямо потребовал две независимые задачи для письменного упражнения и повторения правила, отдельное уточнение неизвестного материала и тест после подтверждения правила."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/components/PracticeVariantStatus.tsx": {
@@ -8335,23 +8342,22 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "fcc0854b2eb99061567052c206d44ac04103707102d98f04df60b85a274143f5",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "13b8b8b9e18208ba8ae59183d608ed4ec0c770364aaa7fec1ac4226c4783533f",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md",
-        "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/subject-decisions.test.mjs",
-        "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
@@ -8393,21 +8399,22 @@
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.tsx": {
-      "sha256": "a6b7ad893206c4fa57e4a8e267305c37830f169b8d746508f17d8c90e6af782e",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "bfe2adec547b35b77b0b3783c8f3b70c62f783ce757f3672ec4d856836b24375",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "src/ui-kit/decisionScenarioFixtures.ts": {
@@ -8552,20 +8559,22 @@
       }
     },
     "storage/task-presentation-edit.mjs": {
-      "sha256": "7ce7ad65cb12bdd73456ad12743ecd411beeff6b12a02f23f2805a6996491976",
-      "record": "docs/decisions/task-presentation-contracts-2026-11-16.md",
+      "sha256": "e3c36d507f580de26b67b00e2e15d4dbc6361ddf6ec7bd2180706da0ef272fdb",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
       "specs": [
-        "docs/shared/design/task-presentation.md",
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/materials/material-clarification.md"
+        "docs/modules/school-diary/day-page.md"
       ],
       "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "storage/parent-guide-edit.test.mjs"
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель16.11 требует устойчивое рабочее исправление общей системы и запроса материалов, без повторных просьб и утраты уже проверенного. Сохраняем коррекции при следующей публикации."
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     },
     "assessment/quiz-author-scope.mjs": {
@@ -9004,6 +9013,82 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос18.11 проверить и удалить неиспользуемый старый upload-worker с сохранением ключей и учебных данных, после локальных проверок отправить прямо в main без PR."
+      }
+    },
+    "day/stage-assessment.mjs": {
+      "sha256": "916fff785fb5ba69c6dfe8e7224da7290c9b2fb9a228aa53a11163e2140d2fe9",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+      }
+    },
+    "src/components/StageAssessment.tsx": {
+      "sha256": "686ff93ce860c37e0c7adb7dcc0642cf3da48b169e0b6540ce40fcab70718e9c",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+      }
+    },
+    "src/lib/stageAssessment.ts": {
+      "sha256": "c15ae67a97ade0a45826075c73b5a66264a0678e66a44cda5742823841ee504c",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+      }
+    },
+    "src/ui-kit/StageAssessmentExample.tsx": {
+      "sha256": "3014987e1d64ac260cdf7dc6ed5df83cf20d12bef7d44e562108418eca3eccdf",
+      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "specs": [
+        "docs/modules/school-diary/day-page.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/lib/stageAssessment.test.ts",
+        "storage/task-presentation-edit.test.mjs",
+        "day/build-assignments.test.mjs",
+        "day/merge.test.mjs",
+        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
       }
     }
   }

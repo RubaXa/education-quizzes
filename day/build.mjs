@@ -197,6 +197,7 @@ export function buildDaySource(local, date) {
           old.submission = null
           delete old.platformResult
           delete old.parentGuide
+          delete old.stageAssessments // Changed teacher scope invalidates stage evidence links.
           delete old.cardPattern
           delete old.outputKind
           delete old.materialRequest // A changed teacher instruction invalidates the old source question.

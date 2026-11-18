@@ -1,3 +1,4 @@
+import {stageAssessmentErrors} from '../day/stage-assessment.mjs'
 /** @see ../docs/decisions/numbered-source-gap-2026-11-18.md */
 /** @see ../docs/decisions/stale-guidance-safety-correction-2026-11-17.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
@@ -421,6 +422,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
+      const stageErrors=stageAssessmentErrors(task,subject.id,source.testPlacements,task.parentGuide)
+      if(stageErrors.length)fail(stageErrors.join('\n'))
       const flowErrors = learnerFlowErrors(task, materialPlan.taskPages[task.id] ?? [])
       if (flowErrors.length) fail(flowErrors.join(' '))
       const requestErrors = [...materialRequestErrors(task), ...taskSupportProseErrors(task), ...platformAssignmentErrors(task), ...(task.materialRequest?.state==='open'?materialRequestPresentationErrors(task.materialRequest):[])]
