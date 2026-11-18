@@ -1466,3 +1466,10 @@
 | [docs/decisions/assessment-format-gates-2026-11-17.md](decisions/assessment-format-gates-2026-11-17.md) | [Решение](decisions/assessment-format-gates-2026-11-17.md) | Основание и сохранённые действия | Operator; release |
 
 | [docs/decisions/ungraded-subject-ledger-2026-11-18.md](decisions/ungraded-subject-ledger-2026-11-18.md) | [Решение](decisions/ungraded-subject-ledger-2026-11-18.md) | Граница пустого зачётного предмета и числового реестра | Grade CLI |
+
+| [docs/decisions/worker-release-retention-2026-11-18.md](../docs/decisions/worker-release-retention-2026-11-18.md) | [Операции](services/telegram-bot/operations.md) | Сохранение retention в main, отдельный runtime manifest и защита учебных данных | Release maintainer |
+| [packages/telegram-notifications/operations/release-retention.mjs](../packages/telegram-notifications/operations/release-retention.mjs) | [Операции](services/telegram-bot/operations.md) | Lock, защита active/rollback/live и журнал удаления только допустимых release | Installer; EducationSync |
+| [packages/telegram-notifications/operations/release-retention.test.mjs](../packages/telegram-notifications/operations/release-retention.test.mjs) | [Операции](services/telegram-bot/operations.md) | Dry-run, гонки процессов, rollback и неприкосновенность учебных sentinel-файлов | Vitest |
+| [packages/telegram-notifications/operations/runtime-package.test.mjs](../packages/telegram-notifications/operations/runtime-package.test.mjs) | [Операции](services/telegram-bot/operations.md) | Реальные bare imports совпадают с отдельным manifest/lock; зависимости интерфейса отсутствуют | Vitest |
+| [packages/telegram-notifications/runtime/package.json](../packages/telegram-notifications/runtime/package.json) | [Операции](services/telegram-bot/operations.md) | Только шесть прямых production-зависимостей Telegram/МЭШ worker | Installer; npm |
+| [packages/telegram-notifications/runtime/package-lock.json](../packages/telegram-notifications/runtime/package-lock.json) | [Операции](services/telegram-bot/operations.md) | Воспроизводимое дерево зависимостей worker без PWA | Installer; npm |

@@ -8,6 +8,39 @@ import { buildRunReport, finishDispatchReport, saveRunReport, RUN_PHASES } from 
 const phase = (id, status = 'succeeded') => ({ id, status,
   started: status === 'not-run' ? false : true, reason: 'Проверено по квитанции.', evidence: ['private-receipt'] })
 describe('finished run and independent phase outcomes', () => {
+  it('runs the same retention only after a verified full completion, never partial/action/failed reports', () => {
+    const root = mkdtempSync(resolve(tmpdir(), 'sync-retention-')); let calls = 0
+    const maintenance = { cleanupReleases: () => { calls++; return { applied: true, removed: [] } } }
+    const full = { runId: 'sync-retention', scope: 'full', phases: RUN_PHASES.map(id => phase(id)) }
+    try {
+      expect(saveRunReport(root, full, maintenance).retention.applied).toBe(true)
+      for (const status of ['partial','failed','blocked','unknown','not-run']) {
+        const phases = full.phases.map(p => p.id === 'mesh' ? { ...p, status,
+          started: status === 'unknown' ? null : status !== 'not-run' } : p)
+        saveRunReport(root, { ...full, phases }, maintenance)
+      }
+      saveRunReport(root, { ...full, scope: 'action' }, maintenance)
+      expect(calls).toBe(1)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
+  it('hooks dispatch completion after the terminal report, not the preliminary report, and exposes cleanup failures', () => {
+    const root = mkdtempSync(resolve(tmpdir(), 'sync-complete-retention-'))
+    const dir = resolve(root, '.local/education-sync-dispatch/claims'), id = 'sync-retention'; let calls = 0
+    mkdirSync(dir, { recursive: true }); writeFileSync(resolve(dir, id + '.json'), JSON.stringify({ requestId: id, token: 'private' }))
+    const maintenance = { cleanupReleases: () => { calls++; throw Object.assign(Error(), { safeCode: 'release_maintenance_busy' }) } }
+    try {
+      const input = { runId: id, scope: 'full', phases: RUN_PHASES.filter(id => id !== 'dispatch').map(id => phase(id)) }
+      saveRunReport(root, { ...input, phases: RUN_PHASES.map(id => phase(id)) }, maintenance)
+      expect(calls).toBe(0) // An active claim cannot be completed by an input assertion.
+      saveRunReport(root, input, maintenance)
+      expect(calls).toBe(0)
+      finishDispatchReport(root, id, { status: 'pending' }, maintenance)
+      expect(calls).toBe(0)
+      const result = finishDispatchReport(root, id, { status: 'completed' }, maintenance)
+      expect(calls).toBe(1)
+      expect(result.retention).toEqual({ applied: false, error: 'release_maintenance_busy' })
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  })
   it('finishes with a partial outcome when Mesh fails while work and both roles succeed', () => {
     const report = buildRunReport({ runId: 'run-1', scope: 'full', phases: RUN_PHASES.map(id =>
       id === 'mesh' ? { ...phase(id, 'blocked'), reason: 'HTTP 500, 7 / 42 дат.' } : phase(id)) })

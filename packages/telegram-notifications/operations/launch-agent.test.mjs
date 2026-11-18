@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, statSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { createHash } from 'node:crypto'
 import { createLaunchAgentOperations, dependencyClosure, makePlist, PERMANENT_WORKER_ARGUMENTS,
   LEGACY_UPLOAD_SERVICE_LABEL, retireLegacyUploadWorker } from './launch-agent.mjs'
 import { parseBotArguments } from '../../../scripts/telegram-bot.mjs'
@@ -20,6 +21,10 @@ function fixture() {
   writeFileSync(join(root, 'scripts/lib.mjs'), 'export const ready = true\n')
   writeFileSync(join(root, 'package.json'), '{"type":"module"}')
   writeFileSync(join(root, 'package-lock.json'), '{}')
+  const runtime = join(root, 'packages/telegram-notifications/runtime')
+  mkdirSync(runtime, { recursive: true })
+  writeFileSync(join(runtime, 'package.json'), '{"type":"module"}')
+  writeFileSync(join(runtime, 'package-lock.json'), '{}')
   writeFileSync(join(root, '.firebaserc'), JSON.stringify({ projects: { default: 'education-9d7c6' } }))
   const adcPath = join(root, '.local/adc.json')
   const diskTokenPath = join(root, '.local/yandex-disk-token')
@@ -31,6 +36,127 @@ function fixture() {
 }
 
 describe('launch agent release operations', () => {
+  it('does not certify a merely loaded, non-running prior release or clean it on a later sync', () => {
+    const f = fixture(); let loaded = false, running = false, ops
+    ops = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      waitForQueueReady: () => true,
+      exec: (binary, args) => {
+        if (binary === '/bin/ps') return readFileSync(ops.paths.plistPath, 'utf8')
+        if (args[0] === 'print') {
+          if (!loaded || args[1].includes('upload-worker')) throw Error('not loaded')
+          return running ? 'state = running\npid = 42' : 'state = waiting'
+        }
+        if (args[0] === 'bootout') loaded = false
+        if (args[0] === 'bootstrap') { loaded = true; running = true }
+      } })
+    const first = ops.install({ apply: true })
+    running = false
+    writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 2\n')
+    const second = ops.install({ apply: true })
+    expect(second.retention).toEqual({ applied: false, error: 'release_backup_preflight_failed' })
+    expect(() => ops.cleanup({ apply: true })).toThrow('release_backup_unverified')
+    expect([first.releasePath, second.releasePath].every(existsSync)).toBe(true)
+  })
+  it('retains a live legacy release with the old web manifest as rollback during migration', () => {
+    const f = fixture()
+    writeFileSync(join(f.root, 'package.json'), '{"type":"module","dependencies":{"react":"19.2.8"}}')
+    const files = [...dependencyClosure(f.root), 'package.json', 'package-lock.json'].sort()
+    const digest = createHash('sha256')
+    for (const file of files) digest.update(file).update('\0').update(readFileSync(join(f.root, file))).update('\0')
+    const legacyHash = digest.digest('hex').slice(0, 24)
+    const support = join(f.home, 'Library/Application Support/PETR/telegram-worker')
+    const legacyPath = join(support, 'releases', legacyHash)
+    for (const file of files) {
+      const target = join(legacyPath, file)
+      mkdirSync(resolve(target, '..'), { recursive: true })
+      writeFileSync(target, readFileSync(join(f.root, file)))
+    }
+    let loaded = true, ops
+    ops = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      waitForQueueReady: () => true,
+      exec: (binary, args) => {
+        if (binary === '/bin/ps') return readFileSync(ops.paths.plistPath, 'utf8')
+        if (args[0] === 'print') {
+          if (!loaded || args[1].includes('upload-worker')) throw Error('not loaded')
+          return 'state = running\npid = 42'
+        }
+        if (args[0] === 'bootout') loaded = false
+        if (args[0] === 'bootstrap') loaded = true
+      } })
+    mkdirSync(resolve(ops.paths.plistPath, '..'), { recursive: true })
+    writeFileSync(ops.paths.plistPath, makePlist({ label: 'legacy', nodePath: process.execPath,
+      scriptPath: join(legacyPath, 'scripts/telegram-bot.mjs'), args: [], workingDirectory: legacyPath, environment: {}, logPath: '/dev/null' }))
+    const installed = ops.install({ apply: true })
+    expect(installed.releaseHash).not.toBe(legacyHash)
+    expect(installed.retention).toMatchObject({ applied: true, active: installed.releaseHash, backup: legacyHash, removed: [] })
+    expect(existsSync(legacyPath)).toBe(true)
+    expect(ops.cleanup()).toMatchObject({ applied: false, backup: legacyHash, removed: [] })
+  })
+  it('installs only its runtime manifest and ignores unrelated web dependency changes in the hash', () => {
+    const f = fixture()
+    const runtime = join(f.root, 'packages/telegram-notifications/runtime')
+    mkdirSync(runtime, { recursive: true })
+    const manifest = JSON.stringify({ name: 'education-worker-runtime', private: true, type: 'module', dependencies: { grammy: '1.46.0' } })
+    writeFileSync(join(runtime, 'package.json'), manifest)
+    writeFileSync(join(runtime, 'package-lock.json'), '{"lockfileVersion":3}')
+    const ops = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      waitForQueueReady: () => true, exec: (_binary, args) => { if (args[0] === 'print') throw Error('not loaded') } })
+    const initial = ops.plan()
+    writeFileSync(join(f.root, 'package.json'), '{"dependencies":{"react":"99.0.0"},"scripts":{"prepare":"unexpected"}}')
+    expect(ops.plan().releaseHash).toBe(initial.releaseHash)
+    const installed = ops.install({ apply: true })
+    expect(readFileSync(join(installed.releasePath, 'package.json'), 'utf8')).toBe(manifest)
+    expect(readFileSync(join(installed.releasePath, 'package-lock.json'), 'utf8')).toBe('{"lockfileVersion":3}')
+    writeFileSync(join(runtime, 'package-lock.json'), '{"lockfileVersion":3,"packages":{}}')
+    expect(ops.plan().releaseHash).not.toBe(initial.releaseHash)
+  })
+
+  it('rotates only after readiness, retains the previous healthy version and preserves all trees on rollback', () => {
+    const f = fixture(); let loaded = false, ready = true, blockedPreflightPath = null
+    let operations
+    operations = createLaunchAgentOperations({ root: f.root, home: f.home, uid: statSync(f.adcPath).uid,
+      platform: 'darwin', nodePath: process.execPath, pythonPath: process.execPath, npmCliPath: process.execPath,
+      env: { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', GOOGLE_APPLICATION_CREDENTIALS: f.adcPath },
+      waitForQueueReady: () => ready,
+      exec: (binary, args, options) => {
+        if (args[0] === '--input-type=module' && options.cwd === blockedPreflightPath) throw Error('backup preflight failed')
+        if (binary === '/bin/ps') return readFileSync(operations.paths.plistPath, 'utf8')
+        if (args[0] === 'print') {
+          if (!loaded || args[1].includes('upload-worker')) throw Error('not loaded')
+          return 'state = running\npid = 42'
+        }
+        if (args[0] === 'bootout') loaded = false
+        if (args[0] === 'bootstrap') loaded = true
+      } })
+    const first = operations.install({ apply: true })
+    writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 2\n')
+    const second = operations.install({ apply: true })
+    expect(second.retention).toMatchObject({ applied: true, backup: first.releaseHash, removed: [] })
+    writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 3\n')
+    const third = operations.install({ apply: true })
+    expect(third.retention.removed.map(row => row.hash)).toEqual([first.releaseHash])
+    expect(third.retention.backup).toBe(second.releaseHash)
+    ready = false
+    writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 4\n')
+    const failedPath = operations.plan().releasePath
+    expect(() => operations.install({ apply: true })).toThrow('education_event_queue_readiness_timeout')
+    expect([second.releasePath, third.releasePath, failedPath].every(existsSync)).toBe(true)
+    expect(readFileSync(operations.paths.plistPath, 'utf8')).toContain(third.releasePath)
+    ready = true
+    blockedPreflightPath = third.releasePath
+    writeFileSync(join(f.root, 'scripts/lib.mjs'), 'export const revision = 5\n')
+    const unverified = operations.install({ apply: true })
+    expect(unverified.retention).toEqual({ applied: false, error: 'release_backup_preflight_failed' })
+    expect([second.releasePath, third.releasePath, failedPath, unverified.releasePath].every(existsSync)).toBe(true)
+    expect(() => operations.cleanup({ apply: true })).toThrow('release_backup_unverified')
+    expect([second.releasePath, third.releasePath, failedPath, unverified.releasePath].every(existsSync)).toBe(true)
+  })
   it('computes only a safe dry-run plan and keeps secrets out of plist text', () => {
     const f = fixture()
     const secret = '123456:abcdefghijklmnopqrstuvwx'

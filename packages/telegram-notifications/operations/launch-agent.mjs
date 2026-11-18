@@ -1,4 +1,5 @@
 /** @see ../../../docs/services/telegram-bot/operations.md */
+/** @see ../../../docs/decisions/worker-release-retention-2026-11-18.md */
 import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { accessSync, chmodSync, constants, copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -6,10 +7,12 @@ import { homedir } from 'node:os'
 import { dirname, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { resolvePythonExecutable } from './process-lock.mjs'
+import { withReleaseLock, pruneReleases, readRollback, processReleasePaths } from './release-retention.mjs'
 
 export const SERVICE_LABEL = 'com.petr.education.telegram-worker'
 export const LEGACY_UPLOAD_SERVICE_LABEL = 'com.petr.education.upload-worker'
 const ENTRY = 'scripts/telegram-bot.mjs'
+const RUNTIME_PACKAGE = 'packages/telegram-notifications/runtime'
 export const PERMANENT_WORKER_ARGUMENTS = Object.freeze(['worker', '--enable-firestore-source', '--enable-mesh-source', '--enable-delivery'])
 
 /** Stop the retired source-watching agent and disable its plist without deleting its assets or secrets. */
@@ -109,8 +112,8 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     const values = config()
     const closure = dependencyClosure(absoluteRoot, ENTRY, fs)
     const fingerprint = createHash('sha256')
-    for (const file of [...closure, 'package.json', 'package-lock.json'].sort()) {
-      fingerprint.update(file).update('\0').update(fs.readFileSync(resolve(absoluteRoot, file)).toString()).update('\0')
+    for (const [file, source] of releaseInputs(closure)) {
+      fingerprint.update(file).update('\0').update(fs.readFileSync(resolve(absoluteRoot, source)).toString()).update('\0')
     }
     const releaseHash = fingerprint.digest('hex').slice(0, 24)
     const tokenPath = resolve(tokenDirectory, `bot-token-${randomUUID()}`)
@@ -120,22 +123,27 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
   }
 
   function install({ apply = false } = {}) {
+    if (!apply) return installUnlocked({ apply })
+    return withReleaseLock(support, () => installUnlocked({ apply }))
+  }
+
+  function installUnlocked({ apply = false } = {}) {
     const values = config()
     const release = plan()
     if (!apply) return { applied: false, ...release }
-    const closure = [...dependencyClosure(absoluteRoot, ENTRY, fs), 'package.json', 'package-lock.json']
+    const inputs = releaseInputs(dependencyClosure(absoluteRoot, ENTRY, fs))
     const releaseExists = fs.existsSync(release.releasePath)
     if (releaseExists) {
-      for (const source of closure) {
-        const target = resolve(release.releasePath, source)
+      for (const [file, source] of inputs) {
+        const target = resolve(release.releasePath, file)
         if (!fs.existsSync(target) || !fs.readFileSync(target).equals(fs.readFileSync(resolve(absoluteRoot, source)))) {
           throw safeError('release_integrity_failed')
         }
       }
     } else {
       fs.mkdirSync(release.releasePath, { recursive: true, mode: 0o700 })
-      for (const source of closure) {
-        const target = resolve(release.releasePath, source)
+      for (const [file, source] of inputs) {
+        const target = resolve(release.releasePath, file)
         fs.mkdirSync(dirname(target), { recursive: true, mode: 0o700 })
         fs.copyFileSync(resolve(absoluteRoot, source), target)
         fs.chmodSync(target, fs.statSync(target).mode & 0o111 ? 0o700 : 0o600)
@@ -181,7 +189,9 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     fs.mkdirSync(agentDirectory, { recursive: true, mode: 0o700 })
     const nextPlist = `${plistPath}.next`
     const previousPlist = fs.existsSync(plistPath) ? fs.readFileSync(plistPath) : null
-    const previousLoaded = Boolean(previousPlist && status().loaded)
+    const previousStatus = previousPlist ? status() : null
+    const previousLoaded = Boolean(previousStatus?.loaded)
+    const previousRunning = Boolean(previousStatus?.running)
     fs.writeFileSync(nextPlist, plist, { mode: 0o600 })
     fs.renameSync(nextPlist, plistPath)
     const readinessStartedAt = clock()
@@ -227,8 +237,59 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
       throw safeError('education_event_queue_readiness_timeout')
     }
     const legacyUploadWorker = retireLegacyUploadWorker({ home, uid, platform, fs, exec, sleep, clock })
+    // Only a release observed running before replacement qualifies for rollback.
+    const oldPath = previousRunning ? String(previousPlist).match(/<key>WorkingDirectory<\/key>\s*<string>([^<]+)<\/string>/)?.[1] : null
+    let backup = readRollback(support)?.active === release.releaseHash ? readRollback(support).backup : null
+    let backupVerificationFailed = Boolean(previousLoaded && !oldPath)
+    if (oldPath && dirname(oldPath) === resolve(support, 'releases') && oldPath !== release.releasePath) {
+      try {
+        dependencyClosure(oldPath, ENTRY, fs)
+        exec(nodePath, ['--input-type=module', '-e', runtimeAssemblyPreflight(oldPath)], { cwd: oldPath, stdio: 'pipe',
+          env: { PATH: env.PATH ?? '', GOOGLE_APPLICATION_CREDENTIALS: values.adcPath,
+            TELEGRAM_PREFLIGHT_PROJECT_ID: values.projectId, TELEGRAM_PREFLIGHT_MESH_DIRECTORY: values.meshDirectory } })
+        backup = oldPath.split('/').at(-1)
+      } catch { backupVerificationFailed = true }
+    }
+    if (backupVerificationFailed) {
+      // A later sync must not interpret an unverified migration as "no reserve".
+      writePrivate(resolve(support, 'release-rollback.json'), JSON.stringify({ active: release.releaseHash,
+        backup: readRollback(support)?.backup ?? null, verifiedAt: null, verificationFailed: true }), fs)
+    } else if (backup) {
+      writePrivate(resolve(support, 'release-rollback.json'), JSON.stringify({ active: release.releaseHash, backup, verifiedAt: new Date().toISOString() }), fs)
+    }
+    let retention
+    try {
+      if (backupVerificationFailed) throw safeError('release_backup_preflight_failed')
+      retention = cleanupUnlocked({ apply: true, backup })
+    }
+    catch (error) { retention = { applied: false, error: error.safeCode ?? 'release_cleanup_failed' } }
     return { applied: true, ...release, state: 'bootstrapped', legacyUploadWorker,
-      educationSyncConfigured: Boolean(values.educationSync) }
+      educationSyncConfigured: Boolean(values.educationSync), retention }
+  }
+
+  function cleanup({ apply = false } = {}) {
+    assertHost()
+    return withReleaseLock(support, () => cleanupUnlocked({ apply }))
+  }
+
+  function cleanupUnlocked({ apply = false, backup: suppliedBackup } = {}) {
+    const activePath = String(fs.readFileSync(plistPath)).match(/<key>WorkingDirectory<\/key>\s*<string>([^<]+)<\/string>/)?.[1]
+    if (!activePath || dirname(activePath) !== resolve(support, 'releases')) throw safeError('release_identity_invalid')
+    const active = activePath.split('/').at(-1)
+    const rollback = readRollback(support)
+    if (rollback && (rollback.active !== active || rollback.verificationFailed)) throw safeError('release_backup_unverified')
+    const backup = suppliedBackup !== undefined ? suppliedBackup : rollback?.active === active ? rollback.backup : null
+    if (backup) {
+      const backupPath = resolve(support, 'releases', backup)
+      const closure = [...dependencyClosure(backupPath, ENTRY, fs), 'package.json', 'package-lock.json'].sort()
+      const fingerprint = createHash('sha256')
+      for (const file of closure) fingerprint.update(file).update('\0').update(fs.readFileSync(resolve(backupPath, file)).toString()).update('\0')
+      if (fingerprint.digest('hex').slice(0, 24) !== backup) throw safeError('release_integrity_failed')
+    }
+    return pruneReleases({ support, active, backup, apply,
+      livePaths: () => processReleasePaths(resolve(support, 'releases'), exec),
+      verifyActive: () => status().running && String(fs.readFileSync(plistPath)).includes(`<string>${activePath}</string>`)
+        && processReleasePaths(resolve(support, 'releases'), exec).has(activePath) })
   }
 
   function status() {
@@ -263,7 +324,7 @@ export function createLaunchAgentOperations({ root = process.cwd(), home = homed
     return { applied: true, uninstalled: true, releaseRetained: true, secretRetained: true }
   }
 
-  return Object.freeze({ plan, install, status, stop, uninstall,
+  return Object.freeze({ plan, install, cleanup, status, stop, uninstall,
     paths: Object.freeze({ plistPath, support, tokenDirectory, educationSyncConfigPath }) })
 
   function waitUntilUnloaded() {
@@ -368,6 +429,12 @@ export function dependencyClosure(root, entry = ENTRY, fs = defaultFs) {
     }
   }
   return [...found].sort()
+}
+
+function releaseInputs(closure) {
+  return [...closure.map(file => [file, file]),
+    ...['package.json', 'package-lock.json'].map(file => [file, `${RUNTIME_PACKAGE}/${file}`])]
+    .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
 }
 
 function runtimeAssemblyPreflight(releasePath) {

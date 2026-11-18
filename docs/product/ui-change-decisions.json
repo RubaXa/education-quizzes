@@ -1472,18 +1472,18 @@
       }
     },
     "packages/telegram-notifications/operations/launch-agent.mjs": {
-      "sha256": "4e41456d9e8b75be3036178f285f00cdd799435440dc173d2a0b74240c262249",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "e9a3413b8417dd8ba7e0bebcea3974902927327bebf7a2c03a816c0216ab2782",
+      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "packages/telegram-notifications/operations/launch-agent.test.mjs"
+        "packages/telegram-notifications/operations/launch-agent.test.mjs",
+        "packages/telegram-notifications/operations/runtime-package.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
       }
     },
     "packages/telegram-notifications/operations/mesh-delivery-check.mjs": {
@@ -2556,10 +2556,9 @@
       }
     },
     "scripts/telegram-runtime.mjs": {
-      "sha256": "48f8b14b4f79ba4f3ff70a16141a11427f8cfbd7db756781b0f96dcb3f020444",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "1ee644c8b3de6e645bebed2f1c1cef9adcbec571633a57e57ab71020a5f1eea6",
+      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md",
         "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
@@ -2567,7 +2566,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
       }
     },
     "scripts/verify-upload-flow.mjs": {
@@ -7908,18 +7907,17 @@
       }
     },
     "operator/run-report.mjs": {
-      "sha256": "9bdd17d7a773333d4c49f7133738544262c78a46e69509a8cb0453a9d5e9465d",
-      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
+      "sha256": "b1c28aecccdd8b83d5cfa8534aef8604468b00bc4d2459db4df93141c5272c96",
+      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
       "specs": [
-        "docs/modules/synchronization/execution-artifact.md"
+        "docs/services/telegram-bot/operations.md"
       ],
       "tests": [
-        "operator/run-report.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "operator/run-report.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
+        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
       }
     },
     "assessment/lesson-repetition.mjs": {
@@ -9007,6 +9005,20 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
+      }
+    },
+    "packages/telegram-notifications/operations/release-retention.mjs": {
+      "sha256": "3af5865bc12e6bb15270c06ad86c981c891fb4480e9ca10b60c28bdc28e112b4",
+      "record": "docs/decisions/worker-release-retention-2026-11-18.md",
+      "specs": [
+        "docs/services/telegram-bot/operations.md"
+      ],
+      "tests": [
+        "packages/telegram-notifications/operations/release-retention.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение18.11 закрепить автоочистку релизов в main, убрать лишние зависимости worker, сохранить активный/резервный релизы и учебные данные."
       }
     }
   }
