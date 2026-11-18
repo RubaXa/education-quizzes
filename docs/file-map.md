@@ -1464,3 +1464,5 @@
 | [scripts/quiz-format-plan.mjs](../scripts/quiz-format-plan.mjs) | [План форматов](modules/assessments/format-plan.md) | Закрытый офлайн план и проверка | Operator |
 | [docs/modules/assessments/format-plan.md](modules/assessments/format-plan.md) | [План форматов](modules/assessments/format-plan.md) | Правило состава и пределы механической проверки | Автор; CLI |
 | [docs/decisions/assessment-format-gates-2026-11-17.md](decisions/assessment-format-gates-2026-11-17.md) | [Решение](decisions/assessment-format-gates-2026-11-17.md) | Основание и сохранённые действия | Operator; release |
+
+| [docs/decisions/ungraded-subject-ledger-2026-11-18.md](decisions/ungraded-subject-ledger-2026-11-18.md) | [Решение](decisions/ungraded-subject-ledger-2026-11-18.md) | Граница пустого зачётного предмета и числового реестра | Grade CLI |

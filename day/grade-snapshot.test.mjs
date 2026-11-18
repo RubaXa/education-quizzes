@@ -10,6 +10,23 @@ const mesh = { complete: true, fetchedAt: '2026-10-16T06:30:00.000Z',
     marks: [{ value: 5, weight: 1 }, { value: 4, weight: 1 }, { value: 5, weight: 1 }] }] }
 
 describe('штатное обновление среза оценок', () => {
+  it('keeps a new pass/fail subject with zero marks outside the numeric ledger', () => {
+    const source={...mesh,marks:[{...mesh.marks[0],fixed_value:'5'},
+      {subject_name:'Практикум',average:'0.00',count:0,marks:[],fixed_value:'Зч'}]}
+    const saved=structuredClone(source),result=proposeGradeSnapshot(previous,source,report)
+    expect(result.proposal.subjects).toHaveLength(1)
+    expect(result.proposal.subjects[0].grades).toEqual([[5,1],[4,1],[5,1]])
+    expect(result.proposal.subjects[0].displayed_average).toBe(4.67)
+    expect(source).toEqual(saved)
+    expect(proposeGradeSnapshot(result.proposal,source,report).changes).toEqual([])
+  })
+  it('still rejects an unregistered graded subject, a fake empty row, duplicates or a missing old subject',()=>{
+    const empty={subject_name:'Практикум',average:'0.00',count:0,marks:[],fixed_value:'Зч'}
+    for(const patch of [{count:1},{marks:[{value:5,weight:1}]},{average:'4.00'},{average:null},{average:''}])
+      expect(()=>proposeGradeSnapshot(previous,{...mesh,marks:[...mesh.marks,{...empty,...patch}]},report)).toThrow(/Набор предметов/)
+    expect(()=>proposeGradeSnapshot(previous,{...mesh,marks:[...mesh.marks,...mesh.marks]},report)).toThrow(/Набор предметов/)
+    expect(()=>proposeGradeSnapshot(previous,{...mesh,marks:[empty]},report)).toThrow(/Набор предметов/)
+  })
   it('добавляет только подтверждённую оценку и повторно ничего не меняет', () => {
     const first = proposeGradeSnapshot(previous, mesh, report)
     expect(first.changes).toEqual([{ subject: 'Математика', previous: 4.5, current: 4.67, added: [[5, 1]],

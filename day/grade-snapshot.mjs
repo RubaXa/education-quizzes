@@ -1,5 +1,6 @@
 /** Deterministic additive reconciliation of the confirmed numeric grade ledger.
  * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation */
+/** @see ../docs/decisions/ungraded-subject-ledger-2026-11-18.md */
 import { assertGradeSnapshotAligned } from './grade-reconciliation.mjs'
 
 const aliases = new Map([
@@ -38,7 +39,13 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
     throw new Error('Нужен постоянный отчёт reports/YYYY-MM-DD-education-sync/baseline.md.')
   }
   const byName = new Map(mesh.marks.map((entry) => [aliases.get(entry.subject_name) ?? entry.subject_name, entry]))
-  if (byName.size !== previous.subjects?.length || previous.subjects.some((entry) => !byName.has(entry.name))) {
+  const known = new Set((previous.subjects ?? []).map(entry=>entry.name))
+  const unexpected = [...byName].filter(([name])=>!known.has(name))
+  if (!known.size || byName.size !== mesh.marks.length
+    || previous.subjects.some((entry) => !byName.has(entry.name))
+    || unexpected.some(([name,entry])=>typeof name!=='string'||!name.trim()
+      ||entry.count!==0||!Array.isArray(entry.marks)||entry.marks.length!==0
+      ||!['number','string'].includes(typeof entry.average)||String(entry.average).trim()===''||Number(entry.average)!==0)) {
     throw new Error('Набор предметов отличается от подтверждённого среза; нужна предметная сверка.')
   }
   const changes = []
