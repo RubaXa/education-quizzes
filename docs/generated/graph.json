@@ -4520,6 +4520,36 @@
       "path": "docs/decisions/work-photo-thumbnail-decomposition-2026-10-27.md"
     },
     {
+      "id": "decision.worker-release-retention-2026-11-18",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-18",
+      "updated": "2026-11-18",
+      "parent": "service.telegram-bot.operations",
+      "uses": [
+        "service.telegram-bot.operations",
+        "shared.toolchain"
+      ],
+      "consumers": [
+        "operator",
+        "release maintainer"
+      ],
+      "code": [
+        "packages/telegram-notifications/operations/release-retention.mjs",
+        "packages/telegram-notifications/operations/launch-agent.mjs",
+        "scripts/telegram-runtime.mjs",
+        "operator/run-report.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/worker-release-retention-2026-11-18.md"
+    },
+    {
       "id": "decisions.compact-homework-copy-2026-10-16",
       "status": "reference",
       "implementation": "not-applicable",
@@ -7962,6 +7992,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:packages/telegram-notifications/operations/release-retention.mjs",
+      "path": "packages/telegram-notifications/operations/release-retention.mjs",
+      "kind": "artifact",
+      "purpose": "Lock, защита active/rollback/live и журнал удаления только допустимых release",
+      "consumer": "Installer; EducationSync"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/release-retention.test.mjs",
+      "path": "packages/telegram-notifications/operations/release-retention.test.mjs",
+      "kind": "verification",
+      "purpose": "Dry-run, гонки процессов, rollback и неприкосновенность учебных sentinel-файлов",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:packages/telegram-notifications/operations/review-check.mjs",
       "path": "packages/telegram-notifications/operations/review-check.mjs",
       "kind": "artifact",
@@ -7974,6 +8018,13 @@
       "kind": "verification",
       "purpose": "Окна диагностики, неизвестная причина повторов и приватность",
       "consumer": "Vitest; техлид"
+    },
+    {
+      "id": "file:packages/telegram-notifications/operations/runtime-package.test.mjs",
+      "path": "packages/telegram-notifications/operations/runtime-package.test.mjs",
+      "kind": "verification",
+      "purpose": "Реальные bare imports совпадают с отдельным manifest/lock; зависимости интерфейса отсутствуют",
+      "consumer": "Vitest"
     },
     {
       "id": "file:packages/telegram-notifications/operations/source-check.mjs",
@@ -8016,6 +8067,20 @@
       "kind": "verification",
       "purpose": "Rich schema и транспортные регрессии",
       "consumer": "Renderer; UI Kit; оператор; Vitest"
+    },
+    {
+      "id": "file:packages/telegram-notifications/runtime/package-lock.json",
+      "path": "packages/telegram-notifications/runtime/package-lock.json",
+      "kind": "artifact",
+      "purpose": "Воспроизводимое дерево зависимостей worker без PWA",
+      "consumer": "Installer; npm"
+    },
+    {
+      "id": "file:packages/telegram-notifications/runtime/package.json",
+      "path": "packages/telegram-notifications/runtime/package.json",
+      "kind": "artifact",
+      "purpose": "Только шесть прямых production-зависимостей Telegram/МЭШ worker",
+      "consumer": "Installer; npm"
     },
     {
       "id": "file:packages/telegram-notifications/source-mesh-integration.test.mjs",
@@ -16119,7 +16184,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-10-19",
+      "updated": "2026-11-18",
       "consumers": [
         "Telegram service implementer",
         "bot operator",
@@ -16137,6 +16202,7 @@
         "packages/telegram-notifications/operations/operation-deadline.mjs",
         "scripts/telegram-indexes.mjs",
         "packages/telegram-notifications/operations/launch-agent.mjs",
+        "packages/telegram-notifications/operations/release-retention.mjs",
         "packages/telegram-notifications/operations/process-lock.mjs",
         "packages/telegram-notifications/operations/readiness.mjs",
         "packages/telegram-notifications/operations/source-check.mjs",
@@ -16161,7 +16227,8 @@
         "подмодули",
         "восстановление-зависших-операций",
         "проверка-реальных-изменений-мэш",
-        "education-sync-dispatch"
+        "education-sync-dispatch",
+        "release-retention"
       ],
       "path": "docs/services/telegram-bot/operations.md"
     },
@@ -16965,7 +17032,7 @@
         "ограничения"
       ],
       "created": "2026-10-16",
-      "updated": "2026-10-22",
+      "updated": "2026-11-18",
       "consumers": [
         "frontend developer",
         "repository maintainer",
@@ -18389,6 +18456,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.worker-release-retention-2026-11-18",
+      "to": "service.telegram-bot.operations",
+      "type": "uses"
+    },
+    {
+      "from": "decision.worker-release-retention-2026-11-18",
+      "to": "shared.toolchain",
+      "type": "uses"
+    },
+    {
       "from": "decisions.flat-numbered-sheet-2026-10-14",
       "to": "decisions.restore-numbered-original-2026-10-14",
       "type": "uses"
@@ -19700,6 +19777,11 @@
     },
     {
       "from": "file:operator/run-report.mjs",
+      "to": "decision.worker-release-retention-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:operator/run-report.mjs",
       "to": "module.synchronization.execution-artifact",
       "type": "implements"
     },
@@ -20380,6 +20462,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
+      "to": "decision.worker-release-retention-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/launch-agent.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -20424,6 +20511,16 @@
       "type": "implements"
     },
     {
+      "from": "file:packages/telegram-notifications/operations/release-retention.mjs",
+      "to": "decision.worker-release-retention-2026-11-18",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/operations/release-retention.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
       "from": "file:packages/telegram-notifications/operations/review-check.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
@@ -20440,6 +20537,16 @@
     },
     {
       "from": "file:packages/telegram-notifications/operations/upload-check.mjs",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/runtime/package-lock.json",
+      "to": "service.telegram-bot.operations",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/runtime/package.json",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -21671,6 +21778,11 @@
     {
       "from": "file:scripts/telegram-pair.mjs",
       "to": "service.telegram-bot.identity-and-linking",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/telegram-runtime.mjs",
+      "to": "decision.worker-release-retention-2026-11-18",
       "type": "implements"
     },
     {
@@ -29595,6 +29707,11 @@
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "decision.worker-release-retention-2026-11-18",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/adapters/config.test.mjs",
       "type": "verified-by"
     },
@@ -29650,7 +29767,17 @@
     },
     {
       "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/release-retention.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
       "to": "file:packages/telegram-notifications/operations/review-check.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "service.telegram-bot.operations",
+      "to": "file:packages/telegram-notifications/operations/runtime-package.test.mjs",
       "type": "verified-by"
     },
     {

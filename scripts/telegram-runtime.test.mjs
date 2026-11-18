@@ -3,6 +3,24 @@ import { createHash } from 'node:crypto'
 import { main, parseMeshDeliveryCheckArgs } from './telegram-runtime.mjs'
 
 describe('telegram runtime operator commands', () => {
+  it('plans release cleanup by default, requires apply, and exposes an unverified reserve', async () => {
+    for (const apply of [false, true]) {
+      const output = [], calls = []
+      const code = await main(['cleanup-releases', ...(apply ? ['--apply'] : [])], {
+        launchAgent: { cleanup(options) { calls.push(options); return { applied: options.apply, removed: [] } } },
+        write: value => output.push(value),
+      })
+      expect(code).toBe(0)
+      expect(calls).toEqual([{ apply }])
+      expect(JSON.parse(output[0])).toMatchObject({ applied: apply, removed: [] })
+    }
+    const output = []
+    expect(await main(['cleanup-releases', '--apply'], { launchAgent: { cleanup() {
+      throw Object.assign(Error('private detail'), { safeCode: 'release_backup_unverified' })
+    } }, write: value => output.push(value) })).toBe(1)
+    expect(JSON.parse(output[0]).error).toBe('release_backup_unverified')
+    expect(output.join('')).not.toContain('private detail')
+  })
   it('surfaces queue readiness and legacy retirement failures with safe actionable codes', async () => {
     const output = []
     const code = await main(['install', '--apply'], { launchAgent: { install() {

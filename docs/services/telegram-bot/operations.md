@@ -3,7 +3,7 @@ id: service.telegram-bot.operations
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-10-19
+updated: 2026-11-18
 consumers:
   - "Telegram service implementer"
   - "bot operator"
@@ -20,6 +20,7 @@ code:
   - packages/telegram-notifications/operations/operation-deadline.mjs
   - scripts/telegram-indexes.mjs
   - packages/telegram-notifications/operations/launch-agent.mjs
+  - packages/telegram-notifications/operations/release-retention.mjs
   - packages/telegram-notifications/operations/process-lock.mjs
   - packages/telegram-notifications/operations/readiness.mjs
   - packages/telegram-notifications/operations/source-check.mjs
@@ -43,6 +44,7 @@ sections:
   - восстановление-зависших-операций
   - проверка-реальных-изменений-мэш
   - education-sync-dispatch
+  - release-retention
 ---
 # Runtime и эксплуатация Telegram notification service
 
@@ -200,3 +202,31 @@ Deadline относится к **активной операции**, а не о
 
 
 Приёмка19.10 после main75b425c: постоянный LaunchAgent использует release34b3a4c68e7bf9b4556e1429,39файлов совпали с исходниками. Все93Mesh scopes успешно прочитаны со свежими baseline;5реальных событий доставлены1уникальной сводкой с receipt, pending/retry0. Запрос44320156-3b17-47e7-8498-846d469d282d автоматически запущен этим worker и завершён существующим EducationSync как completed в11:33:53UTC после полного42-дневного цикла и readback; очереди0/0/0. Постоянное разрешение на стандартные материалы отражено в [общем workflow](../../operations/education-sync.md).
+
+
+## Release retention
+
+Установка создаёт release по хэшу runtime import closure и отдельных
+`packages/telegram-notifications/runtime/package.json` и `package-lock.json`.
+В release эти два файла становятся корневыми manifest/lock; зависимости PWA и
+корневой prepare hook не устанавливаются. Полнота runtime проверяется по импортам,
+lock-файлу и существующим production constructor preflight до переключения.
+Обычный выпуск интерфейса не меняет worker hash только из-за корневого manifest.
+
+После readiness новая установка сохраняет активный релиз и один проверенный
+предыдущий работающий релиз для отката. Та же очистка вызывается после успешного
+полного EducationSync; partial/action/blocked/failed и продолжение пакета её не
+запускают. `cleanup-releases` без `--apply` показывает план; с `--apply` использует
+общую блокировку установки и проверку живого процесса перед каждым удалением.
+Неизвестное здоровье, невалидный резерв, ошибка inventory или посторонние данные
+останавливают удаление. Неудачная проверка резерва сохраняется как запрет очистки
+и для следующих sync; loaded без running не сертифицирует резерв. Ошибка обслуживания видна в результате, а не скрывается.
+
+Удаляются только распознанные неиспользуемые release-каталоги. Активный,
+сертифицированный резерв и остальные живые версии сохраняются. `.local`, учебные
+оригиналы, архивы, логи, secrets и sibling upload-worker не являются объектами
+очистки; symlink и неожиданный состав дерева запрещают удаление. Журнал intent и
+завершённого удаления хранит hash, путь и логические байты; это не измерение
+фактически освобождённых APFS-блоков. Stop/uninstall сохраняют данные.
+
+Основание и проверки: [решение](../../decisions/worker-release-retention-2026-11-18.md).

@@ -1,7 +1,9 @@
 /** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/modules/synchronization/execution-artifact.md#run-report */
+/** @see ../docs/decisions/worker-release-retention-2026-11-18.md */
 import { readFileSync, existsSync, writeFileSync, renameSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createLaunchAgentOperations } from '../packages/telegram-notifications/operations/launch-agent.mjs'
 
 export const RUN_PHASES = Object.freeze(['inventory', 'inbox', 'mesh', 'actions', 'sources',
   'review', 'publication', 'student-readback', 'parent-readback', 'final-inbox', 'dispatch'])
@@ -35,11 +37,18 @@ export function buildRunReport(input, { finishedAt = new Date().toISOString() } 
       && phases.every(p => ['succeeded', 'not-run'].includes(p.status)), phases }
 }
 
-export function saveRunReport(root, input) {
+export function saveRunReport(root, input, { allowRetention = true, terminal = false,
+  cleanupReleases = () => createLaunchAgentOperations({ root }).cleanup({ apply: true }) } = {}) {
   const report = buildRunReport(input)
+  const claimPath = resolve(root, '.local/education-sync-dispatch/claims', `${report.runId}.json`)
+  // finalize only scans inbox; the completed phase report is the full-cycle gate.
+  // Partial/action/unknown runs and continued batches never invoke maintenance.
+  if (allowRetention && (!existsSync(claimPath) || terminal) && report.sourceCycleComplete && report.outcome === 'succeeded') {
+    try { report.retention = cleanupReleases() }
+    catch (error) { report.retention = { applied: false, error: error.safeCode ?? 'release_cleanup_failed' } }
+  }
   // Reuse an active claim's control state; never create a separate report file.
   // Manual runs return the validated report on stdout only.
-  const claimPath = resolve(root, '.local/education-sync-dispatch/claims', `${report.runId}.json`)
   if (existsSync(claimPath)) {
     const claim = JSON.parse(readFileSync(claimPath, 'utf8'))
     if (claim.requestId !== report.runId || typeof claim.token !== 'string' || !claim.token) throw new Error('run_report_invalid_claim')
@@ -50,14 +59,16 @@ export function saveRunReport(root, input) {
   return report
 }
 
-export function finishDispatchReport(root, requestId, result) {
+export function finishDispatchReport(root, requestId, result, maintenance) {
   const path = resolve(root, '.local/education-sync-dispatch/claims', `${requestId}.json`)
   const prior = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')).runReport : null
   const phases = (prior?.phases ?? []).filter(p => p.id !== 'dispatch')
   phases.push({ id: 'dispatch', started: true, status: 'succeeded',
     reason: `Запрос закрыт со статусом ${result.status}${result.reasonCode ? ` (${result.reasonCode})` : ''}; это не подтверждает учебные фазы.`,
     evidence: [`dispatch:${requestId}:${result.status}`] })
-  const report = saveRunReport(root, { runId: requestId, scope: prior?.scope ?? (result.scope === 'action' ? 'action' : 'full'), phases })
+  const report = saveRunReport(root, { runId: requestId, scope: prior?.scope ?? (result.scope === 'action' ? 'action' : 'full'), phases },
+    { ...maintenance, terminal: true, allowRetention: result.status === 'completed' })
   return { lifecycle: report.lifecycle, outcome: report.outcome, sourceCycleComplete: report.sourceCycleComplete,
+    ...(report.retention ? { retention: report.retention } : {}),
     phases: report.phases.map(({ id, started, status }) => ({ id, started, status })) }
 }
