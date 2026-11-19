@@ -18,3 +18,10 @@
 @media(prefers-reduced-motion:reduce){.edu-task-chevron{transition:none}}
 
 .edu-task-summary-status .edu-status-icon{flex-shrink:0}
+.edu-task-status-value{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+.edu-task-status-help{display:inline-flex;align-items:center;max-width:100%;min-height:44px;margin:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:help;border-radius:var(--edu-radius-control)}
+.edu-task-status-help:focus-visible{outline:2px solid var(--edu-focus);outline-offset:2px}
+.edu-task-status-popup{z-index:1000;max-width:min(340px,calc(100vw - 24px));padding:14px;border:1px solid var(--edu-card-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-text-primary);font:inherit;line-height:1.5;box-shadow:0 8px 28px #0002;overflow-wrap:anywhere}
+.edu-task-status-popup p{margin:0 0 10px}
+.edu-task-status-popup button{min-height:44px;padding:6px 12px;border:1px solid var(--edu-control-border);border-radius:var(--edu-radius-control);background:var(--edu-surface);color:var(--edu-accent-ink);font:inherit;cursor:pointer}
+.edu-task-status-popup button:focus-visible{outline:2px solid var(--edu-focus);outline-offset:2px}

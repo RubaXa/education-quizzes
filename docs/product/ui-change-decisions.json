@@ -2665,19 +2665,20 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "02397b18d5ae9fa179fcf9449ba0bed50e886f6877e03491887d5895860427f6",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "cb5785e3eb20f57396e1302d8c8dfecabe3fbf8896173051285e9205769c1752",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/UiKit.css": {
@@ -4728,21 +4729,20 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "f874673f2b736d017b8dcbf5a815125cb3256cb03177cd25df0e2983ef3298a0",
-      "record": "docs/decisions/canonical-evidence-and-learning-2026-11-17.md",
+      "sha256": "dac86b1699d77918419948d87b6548b346081ee4a606ce4d12903202992da4e8",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
-        "docs/modules/reviews/adaptive-problem-card.md",
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "storage/review-readback.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "src/components/ProblemCard.test.tsx",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: сопоставлять повторные ошибки, делать адресную тренировку и явно вести работу через узлы существующего графа и UI Kit."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/lib/reviewProse.ts": {
@@ -7819,53 +7819,54 @@
       }
     },
     "src/components/TaskDisclosure.css": {
-      "sha256": "2012b0753275ee0a2c80ef2b01b6e8353b8c8bcb3c8b11788fb0151cbca9b7fa",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "778a51c7ca5413f1a9b0493ec215d1e55725d8a2d1891f271a4a78f333458dbb",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/components/TaskDisclosure.tsx": {
-      "sha256": "b4702605803bc9d286558eb5fb77b40cc0974d9915e6bb6494a4039147298dd3",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "a4ac286b612419019c9c068e402cb8f0cef313f9089f244a15633ae79046a3ed",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/ui-kit/TaskDisclosureExample.tsx": {
-      "sha256": "e32bf9e6339826e797c16d1c093479105174812fa000d6468c440c932e07a698",
-      "record": "docs/decisions/collapsed-task-cards-2026-11-01.md",
+      "sha256": "625a4ab3dd65c85ec31cf94cc0c379572d30d06b5f8f3c4d331cb3a23f27ac87",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/components.md"
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/components/TaskDisclosure.test.tsx",
-        "src/components/QuizCard.test.tsx"
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал сворачивать все задания по умолчанию: читать название, статус и общую информацию без огромного раскрытого тела."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "operator/run-report.mjs": {
@@ -9062,35 +9063,37 @@
       }
     },
     "src/components/AssignmentUnits.tsx": {
-      "sha256": "0ca60feac41773ce00e499a035a6af33df8021b2e1834644769d531f1bbd6f4f",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "9999ae0cebec6a752c61c88e4315cb28b72144b0f0b7e937b28a72a59d0c9206",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/lib/assignmentUnitView.ts": {
-      "sha256": "4a54a55832b17746de1d270da71eac194c4223ea7160bd29abd21cc2892eb73b",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "ef6b0b8ce5a57a014864858c84fdc463e376e68c52b2cf37e6c8ccf925965714",
+      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/school-diary/day-page.md",
+        "docs/shared/design/statuses.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "src/components/TaskDisclosure.test.tsx",
+        "src/lib/assignmentUnitView.test.ts",
+        "src/lib/reviewPresentation.test.ts"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
       }
     },
     "src/ui-kit/AssignmentUnitsExample.tsx": {

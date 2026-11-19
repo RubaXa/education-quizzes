@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import type { DayWorkReview } from './dayStore'
 import { artifactAvatarLabel, compactProblemCardLabel, firstPendingUploadReceivedAt, localArtifactAvatarState,
-  problemCardState, reviewHeadline, reviewTone, showSeparateWorkReview } from './reviewPresentation'
+  problemCardState, reviewHeadline, reviewTone, reviewStatusExplanation, showSeparateWorkReview } from './reviewPresentation'
 
 function review(status: DayWorkReview['status'], items: Array<'correct' | 'partial' | 'incorrect' | 'cannot-assess'>): DayWorkReview {
   return { id: 'test', taskId: 'test', status, items: items.map((item, index) => ({ label: `${index + 1}`, status: item, observed: 'ответ', note: 'пояснение' })) }
 }
 
 describe('collapsed homework review', () => {
+  it('explains uncertainty from the published reason without reading a private key',()=>{
+    const item={...review('cannot-assess',['cannot-assess']),assessmentBasis:{outcome:'unresolved',limitation:'Не виден последний пункт.'},answer:'PRIVATE_KEY'} as DayWorkReview
+    expect(reviewStatusExplanation(item)).toBe('Не виден последний пункт.')
+    expect(reviewStatusExplanation({...item,assessmentBasis:undefined})).not.toContain('PRIVATE_KEY')
+    expect(reviewStatusExplanation()).toContain('Подтверждённые части сохраняются')
+  })
   it('does not treat locally saved bytes as received by the server', () => {
     expect(artifactAvatarLabel(localArtifactAvatarState('saved'))).toBe('Передаём фото')
     expect(artifactAvatarLabel(localArtifactAvatarState('uploading'))).toBe('Передаём фото')
@@ -63,6 +69,7 @@ describe('collapsed homework review', () => {
     expect(reviewHeadline(missing)).toBe('Часть работы не видна на фото')
     expect(problemCardState([], missing).label).toBe('Часть работы не видна на фото')
     const criterion = { ...missing, assessmentBasis: { outcome: 'unresolved', unresolvedReason: 'criterion-unclear' } } as DayWorkReview
-    expect(reviewHeadline(criterion)).toBe('Работа разобрана · критерий неясен')
+    expect(reviewHeadline(criterion)).toBe('Нужно уточнить требование')
+    expect(reviewHeadline({...criterion,nextStep:'Уточнить назначение',items:[{status:'cannot-assess'}]} as DayWorkReview)).toBe('Нужно уточнить требование')
   })
 })

@@ -1,0 +1,22 @@
+import {expect,test} from '@playwright/test'
+/** @see ../docs/modules/school-diary/day-page.md#task-disclosure */
+for(const width of [320,390,540])test(`status explanation preserves disclosure, draft and geometry at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:1000})
+ await page.goto('#/ui-kit')
+ await page.getByRole('button',{name:'Карточки заданий',exact:true}).click()
+ const card=page.locator('#demo-fett'),trigger=card.getByRole('button',{name:'Почему такой статус'})
+ await expect(card).not.toHaveAttribute('open','')
+ await trigger.click()
+ const dialog=page.getByRole('dialog',{name:'Статус задания'})
+ await expect(dialog).toContainText('Это не означает, что задание не выполнено.')
+ await expect(card).not.toHaveAttribute('open','')
+ const box=await dialog.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width)
+ await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused()
+ await card.locator(':scope > summary > h3').click()
+ const draft=card.getByRole('textbox',{name:'Моя заметка'});await draft.fill('Сохранённая запись')
+ await trigger.focus();await page.keyboard.press('Enter');await expect(dialog).toBeVisible();await expect(card).toHaveAttribute('open','')
+ await dialog.getByRole('button',{name:'Понятно',exact:true}).click();await expect(draft).toHaveValue('Сохранённая запись')
+ const geometry=await trigger.evaluate(el=>{const icon=el.querySelector('svg')!.getBoundingClientRect(),label=el.getBoundingClientRect();return {height:label.height,iconInside:icon.left>=label.left&&icon.right<=label.right,overflow:document.documentElement.scrollWidth>innerWidth}})
+ expect(geometry.height).toBeGreaterThanOrEqual(44);expect(geometry.iconInside).toBe(true);expect(geometry.overflow).toBe(false)
+ await card.screenshot({path:`.local/task-status-${width}.png`})
+})

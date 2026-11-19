@@ -4078,6 +4078,31 @@
       "path": "docs/decisions/task-presentation-contracts-2026-11-16.md"
     },
     {
+      "id": "decision.task-status-explanation-2026-11-19",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-19",
+      "updated": "2026-11-19",
+      "parent": "shared.design.statuses",
+      "uses": [
+        "module.school-diary.day-page",
+        "module.assignments.source-units"
+      ],
+      "consumers": [
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/task-status-explanation-2026-11-19.md"
+    },
+    {
       "id": "decision.teacher-choice-practice-2026-10-17",
       "status": "accepted",
       "implementation": "not-applicable",
@@ -7010,6 +7035,13 @@
       "kind": "artifact",
       "purpose": "Регрессии закрытого входа, ручного раскрытия и сохранения состояния",
       "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
+      "id": "file:e2e/task-status.e2e.ts",
+      "path": "e2e/task-status.e2e.ts",
+      "kind": "artifact",
+      "purpose": "Настоящий React/CSS: нажатие, клавиатура, черновик и мобильная геометрия статуса",
+      "consumer": "Playwright; выпуск"
     },
     {
       "id": "file:early-development/program.d.mts",
@@ -18598,6 +18630,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.task-status-explanation-2026-11-19",
+      "to": "module.assignments.source-units",
+      "type": "uses"
+    },
+    {
+      "from": "decision.task-status-explanation-2026-11-19",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
       "from": "decision.teacher-choice-practice-2026-10-17",
       "to": "module.school-diary.day-page",
       "type": "uses"
@@ -19979,6 +20021,11 @@
     },
     {
       "from": "file:e2e/task-disclosure.e2e.ts",
+      "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:e2e/task-status.e2e.ts",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
@@ -30991,6 +31038,11 @@
       "from": "shared.design.information-hierarchy",
       "to": "shared.design.ui-kit",
       "type": "uses"
+    },
+    {
+      "from": "shared.design.statuses",
+      "to": "decision.task-status-explanation-2026-11-19",
+      "type": "contains"
     },
     {
       "from": "shared.design.statuses",

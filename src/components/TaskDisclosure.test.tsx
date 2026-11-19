@@ -19,3 +19,20 @@ it('starts closed, preserves the visible status and its body draft across toggle
   await act(async()=>summary.click());expect(card.open).toBe(true);expect(input.value).toBe('Моя мысль')
  }finally{await act(async()=>root.unmount());host.remove()}
 })
+
+it('explains an uncertain status without toggling the assignment and restores trigger focus',async()=>{
+ const host=document.createElement('div');document.body.append(host);const root=createRoot(host)
+ try{
+  await act(async()=>root.render(<TaskDisclosure title="Упражнение" status="Нужно уточнение" statusExplanation="На фото не виден последний пункт."><input aria-label="Сохранённая запись" defaultValue="Моя запись"/></TaskDisclosure>))
+  const card=host.querySelector('details')!,summary=host.querySelector('summary')!
+  const trigger=host.querySelector<HTMLButtonElement>('button[aria-label="Почему такой статус"]')
+  expect(trigger).not.toBeNull()
+  await act(async()=>trigger!.click());expect(card.open).toBe(false)
+  expect(document.querySelector('[role="dialog"]')?.textContent).toContain('На фото не виден последний пункт.')
+  await act(async()=>document.querySelector('[role="dialog"]')!.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true})))
+  expect(document.querySelector('[role="dialog"]')).toBeNull()
+  await act(async()=>summary.click());expect(card.open).toBe(true)
+  await act(async()=>trigger!.click());expect(card.open).toBe(true)
+  expect(host.querySelector('input')?.value).toBe('Моя запись')
+ }finally{await act(async()=>root.unmount());host.remove()}
+})

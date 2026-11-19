@@ -7,7 +7,7 @@ import type {DayTask,DayMaterialLink,DayWorkReview,ParentTaskGuide as Guide} fro
 import type {DayGuidance} from '@/lib/dayGuidance'
 import type {ParentCompletionEvent} from '@/lib/parentCompletion'
 import {stageCompletion} from '@/lib/parentCompletion'
-import {assignmentUnitGuide,assignmentUnitReview,assignmentUnitSourceRef} from '@/lib/assignmentUnitView'
+import {assignmentUnitGuide,assignmentUnitReview,assignmentUnitSourceRef,assignmentUnitStatus} from '@/lib/assignmentUnitView'
 import {groupAdjacentMaterialPages} from '@/lib/dayMaterialRefs'
 import type {StageAssessmentResult} from '@/lib/stageAssessment'
 import DecisionTaskDisclosure from './DecisionTaskDisclosure'
@@ -29,9 +29,9 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
   const unitReview=assignmentUnitReview(review,unit),unitGuide=assignmentUnitGuide(guide,unit)
   const completion=stageCompletion(unitReview,decisions)
   const confirmed=completion?completion.actualConfirmed===completion.total:unitReview?.status==='verified'
-  const status=confirmed?(unit.kind==='mixed'?'Есть проверенный результат':'Подтверждено проверкой'):unitReview?.status==='needs-fix'?'Есть правка':unitReview?.status==='partial'?'Часть подтверждена':unitReview?'Есть общий разбор':unit.kind==='reading'?'Прочитать':unit.kind==='oral'?'Устно':'В тетради'
+  const status=assignmentUnitStatus(unit,unitReview,confirmed)
   const flow=task.learnerFlow&&unit.learnerStageIds?.length?{...task.learnerFlow,scope:unit.title,stages:task.learnerFlow.stages.filter(stage=>unit.learnerStageIds!.includes(stage.id))}:undefined
-  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={confirmed?'complete':unitReview?.status==='needs-fix'?'needs-fix':'ready'}/>{status}</>} meta={groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`).join(', ')}>
+  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={status.status}/><span>{status.label}</span></>} statusExplanation={status.explanation} meta={groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`).join(', ')}>
    <div>
     {groupAdjacentMaterialPages(unitLinks.filter(link=>canReadInside(link)||link.url.startsWith('data:image/'))).map(group=><MaterialReader key={group[0].url} links={group} parent={parent} imageResolver={imageResolver}/>)}
     {unitLinks.filter(link=>link.sourceType==='audio').map(link=><AudioPlayer key={link.url} link={link}/>)}

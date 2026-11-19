@@ -1,8 +1,16 @@
 import {it,expect} from 'vitest'
-import {assignmentUnitReview,assignmentUnitGuide,assignmentUnitSourceRef} from './assignmentUnitView'
+import {assignmentUnitReview,assignmentUnitGuide,assignmentUnitSourceRef,assignmentUnitStatus} from './assignmentUnitView'
 import type {AssignmentUnit} from '../../day/assignment-units.mjs'
 import type {DayWorkReview,ParentTaskGuide} from './dayStore'
 const unit={id:'ex1',guideStageIds:['assignment']} as AssignmentUnit
+it('names unknown evidence without calling it unfinished and keeps partial distinct from ready',()=>{
+ const unseen={id:'read',kind:'reading'} as AssignmentUnit
+ expect(assignmentUnitStatus(unseen,undefined,false)).toMatchObject({status:'unknown',label:'Чтение ещё не проверено'})
+ expect(assignmentUnitStatus(unit,{status:'partial'} as DayWorkReview,false)).toMatchObject({status:'partial',label:'Часть подтверждена'})
+ const review={status:'cannot-assess',items:[{status:'cannot-assess',observed:'Последний пункт за краем кадра.',note:'Невыполнение не установлено.'}]} as DayWorkReview
+ expect(assignmentUnitStatus(unit,review,false)).toMatchObject({status:'unknown',label:'Нужно уточнение',explanation:expect.stringContaining('Последний пункт за краем кадра.')})
+ expect(assignmentUnitStatus(unit,review,true)).toMatchObject({status:'complete'})
+})
 it('scopes only addressed review evidence and keeps the other exercise unknown without copying a whole-task verdict',()=>{
  const review={id:'day:r',taskId:'mesh-1',status:'cannot-assess',checkedAt:{seconds:2},checkableStageIds:['assignment','evidence'],items:[{stageId:'assignment',label:'Запись1',status:'correct'},{stageId:'evidence',label:'Ответ2',status:'cannot-assess'}]} as DayWorkReview
  expect(assignmentUnitReview(review,unit)).toMatchObject({id:'day:r',taskId:'mesh-1',status:'verified',checkableStageIds:['assignment'],items:[{stageId:'assignment',status:'correct'}]})

@@ -98,8 +98,7 @@ export function reviewHeadline(review: DayWorkReview): string {
   if (review.assessmentBasis?.outcome === 'unresolved' && !review.assessmentBasis.unresolvedReason)
     return 'Итог пока не установлен'
   if (review.assessmentBasis?.outcome === 'unresolved') return workCoverageComplete(review) ? 'Работа сдана · критерий оценки неясен'
-    : review.nextStep && review.items?.some((item) => item.status === 'cannot-assess') ? 'Часть задания не подтверждена'
-      : 'Работа разобрана · критерий неясен'
+    : 'Нужно уточнить требование'
   if (review.studentFeedback?.title) return formatReviewProse(review.studentFeedback.title)
   if (review.mathReasoning) {
     const { answer, argument } = review.mathReasoning
@@ -119,6 +118,13 @@ export function reviewHeadline(review: DayWorkReview): string {
   const partial = items.filter((item) => item.status === 'partial').length
   if (review.status === 'partial' && correct === items.length) return `${correct} из ${items.length} верно · работа не завершена`
   return `${correct} из ${items.length} верно${partial ? ` · ${partial} частично` : ''}`
+}
+
+/** Safe published reasons only; never return the closed answer or rubric. */
+export function reviewStatusExplanation(review?:DayWorkReview):string{
+ return review?.assessmentBasis?.limitation?.trim()
+  ||review?.items?.filter(item=>item.status==='cannot-assess').map(item=>[item.observed,item.note].filter(Boolean).join(' ')).join(' ')
+  ||'Пока нет достаточных данных для общего зачёта. Подтверждённые части сохраняются; причина и следующий шаг указаны в разборе.'
 }
 
 export function timestampMillis(value: unknown): number | null {
