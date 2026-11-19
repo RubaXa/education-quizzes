@@ -1003,3 +1003,27 @@ it.each([true,false])('keeps the existing quiz in its unit context and preserves
   expect(view.host.querySelector('#day-quiz-diagrams-test')?.textContent).toContain('100%')
  }finally{await view.cleanup()}
 })
+
+it.each([true,false])('keeps a whole-reading quiz once after chapter units without duplicate test actions or a reading-photo demand parent=%s',async parent=>{
+ const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'read',testSlug:'diagrams',problems:undefined,practiceVariants:undefined,meshText:'Прочитать главы1–2.',assignmentUnits:{version:1,sourceText:'Прочитать главы1–2.',items:[{id:'chapter-one',title:'Глава1',kind:'reading',sourceRefs:['source-page'],original:'Глава1',instructions:['Прочитай главу1.']},{id:'chapter-two',title:'Глава2',kind:'reading',sourceRefs:['source-page'],original:'Глава2',instructions:['Прочитай главу2.']}]}}
+ scene.page!.subjects[0].tasks=[task]
+ const view=await renderPage(parent)
+ try{
+  const card=view.host.querySelector(`#day-task-${taskId}`)!
+  expect(card.querySelectorAll('#day-quiz-diagrams-test')).toHaveLength(1)
+  expect(card.querySelector('.day-task-actions .day-quiz-link')).toBeNull()
+  expect(card.querySelector('input[type=file]')).toBeNull()
+ }finally{await view.cleanup()}
+})
+
+it('keeps a non-reader teacher original linked before decoding instead of dropping it when grouped into a unit',async()=>{
+ const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'written',problems:undefined,practiceVariants:undefined,testToken:undefined,meshText:'Упражнение1.',assignmentUnits:{version:1,sourceText:'Упражнение1.',items:[{id:'one',title:'Упражнение1',kind:'written',sourceRefs:['teacher-file'],original:'Write.',instructions:['Выполни упражнение.']}]}}
+ scene.page!.subjects[0].tasks=[task];scene.page!.testPlacements=[]
+ scene.page!.materialLinks={[taskId]:[{title:'Оригинал учителя.pdf',sourceType:'teacher-attachment',sourceRef:'teacher-file',url:'https://example.org/teacher.pdf'}]}
+ const view=await renderPage(false)
+ try{
+  const card=view.host.querySelector('.assignment-unit')!,link=card.querySelector('a[href="https://example.org/teacher.pdf"]')!
+  expect(link).not.toBeNull()
+  expect(link.compareDocumentPosition(card.querySelector('.assignment-unit-instructions')!)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+ }finally{await view.cleanup()}
+})

@@ -1,6 +1,7 @@
 /** @see ../../docs/modules/assignments/source-units.md
  * @see ../../docs/decisions/source-bound-assignment-units-2026-11-19.md */
 import type {ReactNode} from 'react'
+import {ExternalLink} from 'lucide-react'
 import type {AssignmentUnit} from '../../day/assignment-units.mjs'
 import type {DayTask,DayMaterialLink,DayWorkReview,ParentTaskGuide as Guide} from '@/lib/dayStore'
 import type {DayGuidance} from '@/lib/dayGuidance'
@@ -30,10 +31,11 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
   const confirmed=completion?completion.actualConfirmed===completion.total:unitReview?.status==='verified'
   const status=confirmed?(unit.kind==='mixed'?'Есть проверенный результат':'Подтверждено проверкой'):unitReview?.status==='needs-fix'?'Есть правка':unitReview?.status==='partial'?'Часть подтверждена':unitReview?'Есть общий разбор':unit.kind==='reading'?'Прочитать':unit.kind==='oral'?'Устно':'В тетради'
   const flow=task.learnerFlow&&unit.learnerStageIds?.length?{...task.learnerFlow,scope:unit.title,stages:task.learnerFlow.stages.filter(stage=>unit.learnerStageIds!.includes(stage.id))}:undefined
-  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={confirmed?'complete':unitReview?.status==='needs-fix'?'needs-fix':'ready'}/>{status}</>} meta={unitLinks.filter(link=>link.printedPage).map(link=>`с. ${link.printedPage}`).join(', ')}>
+  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={confirmed?'complete':unitReview?.status==='needs-fix'?'needs-fix':'ready'}/>{status}</>} meta={groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`).join(', ')}>
    <div>
     {groupAdjacentMaterialPages(unitLinks.filter(link=>canReadInside(link)||link.url.startsWith('data:image/'))).map(group=><MaterialReader key={group[0].url} links={group} parent={parent} imageResolver={imageResolver}/>)}
     {unitLinks.filter(link=>link.sourceType==='audio').map(link=><AudioPlayer key={link.url} link={link}/>)}
+    {unitLinks.filter(link=>link.sourceType!=='audio'&&!canReadInside(link)&&!link.url.startsWith('data:image/')).map(link=><a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true"/></a>)}
     {!unitLinks.length&&<p className="day-loading">Открываем связанный оригинал…</p>}
     <details className="day-assignment-brief-compact"><summary>Как написано в оригинале</summary><p>{unit.original}</p></details>
     <div className="assignment-unit-instructions day-submission-instructions"><strong>Что сделать</strong><ol>{unit.instructions.map((line,index)=><li key={index}>{line}</li>)}</ol></div>

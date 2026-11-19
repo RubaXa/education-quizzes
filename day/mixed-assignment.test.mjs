@@ -94,7 +94,8 @@ it('rejects moving both actions and their alias into a different subject',()=>{
   const source=read(); source.subjects[0].id='history'; source.subjects[0].name='История'; source.sourceOnlyEntries[0].subjectId='history'
   expect(()=>assertSourceAligned(source,target)).toThrow(/предмете/)
 })
-it('passes the actual publication CLI with both split actions and rejects an omitted action',()=>{
+// Multiple real Node CLI startups share one integration scenario; 5s unit timeout fails under host load.
+it('passes the actual publication CLI with both split actions and rejects an omitted action',{timeout:20_000},()=>{
   const {dir,read}=fixture(); buildDaySource(dir,'2026-10-22')
   const run=()=>spawnSync(process.execPath,['scripts/day.mjs','validate','2026-10-22'],{encoding:'utf8',env:{...process.env,EDUCATION_CHILD_WORKSPACE:dir}})
   // Source discovery alone has not searched the library: publication must wait

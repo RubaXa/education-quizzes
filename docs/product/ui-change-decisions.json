@@ -2665,7 +2665,7 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "3622e5933c9b78ad3852b40ed15388d6eb8302e44cae7c215838e404385941e6",
+      "sha256": "02397b18d5ae9fa179fcf9449ba0bed50e886f6877e03491887d5895860427f6",
       "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
         "docs/modules/assignments/source-units.md"
@@ -9062,7 +9062,7 @@
       }
     },
     "src/components/AssignmentUnits.tsx": {
-      "sha256": "9d923614be9d5a389d5c05719972f30795bb13b0c11477944b317c396c44da83",
+      "sha256": "0ca60feac41773ce00e499a035a6af33df8021b2e1834644769d531f1bbd6f4f",
       "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
         "docs/modules/assignments/source-units.md"
