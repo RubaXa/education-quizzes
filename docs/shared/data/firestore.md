@@ -32,6 +32,8 @@ sections:
 ---
 # Модель данных Firestore: действующий граф v1
 
+Безопасное поле `subjects[].tasks[].assignmentUnits` хранит только [структуру назначенных упражнений](../../modules/assignments/source-units.md#model), ссылки и ID прежних этапов/тестов. Ответы остаются закрытыми. Поле записывают publisher и адресный task-presentation с owner/CAS/readback; новых документов и клиентских подписок нет.
+
 Это контракт **существующих** документов, по которым работают `DayPage`, `DayDashboard`, тесты и синхронизация. Источник истины, проекция и личный результат различаются. Изменение схемы требует проверки совместимости и миграции; добавление произвольного поля в документ не создаёт нового правила продукта. Ролевая интерпретация описана в [ViewModel](../../modules/reviews/subject-card-viewmodel.md#projections), причины разделения React-модулей — в [системе компонентов](../design/components.md#data-flow). Код проверки: [`day/data-contract.mjs`](../../../day/data-contract.mjs), [`day/placement-integrity.mjs`](../../../day/placement-integrity.mjs), [`scripts/day.mjs`](../../../scripts/day.mjs). Новая семейная модель описана отдельно в [архитектуре](../../modules/families/README.md); перенос v1 в неё ещё не завершён.
 
 <a id="entities"></a>

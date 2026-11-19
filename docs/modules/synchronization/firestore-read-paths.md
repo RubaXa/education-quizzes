@@ -348,3 +348,5 @@ quizReviewPrivate/token, точный quizParentReviews и служебный qu
 [Основание](../../modules/reviews/parent-review.md#publication).
 
 18.11, task-presentation/stageAssessments: существующие адресные getAll двух dayPages, dayOwner и закрытого dayTaskGuide той же задачи. Guide читается для проверки ID этапа и CAS ревизии; при одной связи не записывается. Назначение проверяется по testPlacements того же предмета уже прочитанной страницы. Результат берётся из существующих клиентских подписок useDayQuizOutcomes, без дополнительного запроса. Никакого collectionGroup или обхода семьи. Обе страницы и guide перечитываются после транзакции.
+
+19.11, assignmentUnits: task-presentation использует тот же адресный набор getAll и CAS закрытого guide. При отсутствии гида подтверждается его отсутствие; новая клиентская подписка и чтение каталога не добавлены. Уже встроенные ссылки #pdf-0044 сопоставляются с каноническим #44 локально, без повторного чтения materialBooks.

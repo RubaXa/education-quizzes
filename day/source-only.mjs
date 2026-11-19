@@ -23,7 +23,7 @@ export function sourceOnlyPublicationErrors(task) {
     || (task.mathRoutePolicyVersion != null && task.mathRoutePolicyVersion !== 2)) {
     return ['В source-only разрешены только штатные версии политики без созданного адаптера.']
   }
-  const enriched = ['steps', 'submission', 'parentGuide', 'stageAssessments', 'problems', 'practiceVariants', 'cardPattern',
+  const enriched = ['steps', 'submission', 'parentGuide', 'assignmentUnits', 'stageAssessments', 'problems', 'practiceVariants', 'cardPattern',
     'outputKind', 'testToken', 'testSlug', 'requiredPoints', 'sourceInventory']
     .some((key) => task[key] != null && (!Array.isArray(task[key]) || task[key].length > 0))
   if (enriched) return ['Режим точной записи не допускает добавленных шагов, решений или тестов.']

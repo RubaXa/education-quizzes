@@ -118,3 +118,37 @@ it('corrects a stale learner boundary with CAS while preserving scope, source an
  expect(f.rows.get('dayPages/student').subjects[0].tasks[0].learnerFlow).toEqual({...flow,boundary:f.packet.changes[0].learnerFlowBoundary})
  await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/CAS/)
 })
+
+function unitPacket(f,{guide=false}={}){
+ for(const role of ['student','parent']){
+  const page=f.rows.get('dayPages/'+role);delete page.subjects[0].tasks[0].problems
+  page.taskPageRefs={'mesh-1':['book#44','book#45']}
+ }
+ if(guide){
+  const path='dayTaskGuides/student/items/mesh-1';f.rows.set(path,{familyId:f.packet.familyId,childId:f.packet.childId,taskId:'mesh-1',guide:{revision:3,stages:[{id:'first'},{id:'second'}]}});f.versions.set(path,1)
+ }
+ f.packet.changes=[{taskId:'mesh-1',expectedAssignmentUnits:null,...(guide?{expectedGuideRevision:3}:{}),assignmentUnits:{version:1,sourceText:'Из файла.',items:[
+  {id:'one',title:'Упражнение1',kind:'written',sourceRefs:['book#44'],original:'Write one.',instructions:['Выполни первое упражнение.'],...(guide?{guideStageIds:['first']}: {})},
+  {id:'two',title:'Упражнение2',kind:'oral',sourceRefs:['book#45'],original:'Read two.',instructions:['Ответь на вопрос второго упражнения.'],...(guide?{guideStageIds:['second']}: {})}
+ ]}}]
+}
+it.each([false,true])('publishes units with guide=%s using owner/CAS and both-role readback while preserving other data',async guide=>{
+ const f=setup();unitPacket(f,{guide});const before=copy(f.rows.get('dayPages/student')),privateBefore=copy(f.rows.get('dayTaskGuides/student/items/mesh-1'))
+ expect(await editTaskPresentation(f.db,f.packet,{apply:true})).toMatchObject({verified:true,changes:1})
+ expect(f.writes).toBe(2)
+ for(const role of ['student','parent']){
+  const page=f.rows.get('dayPages/'+role);expect(page.subjects[0].tasks[0].assignmentUnits).toEqual(f.packet.changes[0].assignmentUnits)
+  expect(page.planRevision).toBe(before.planRevision);expect(page.unrelated).toEqual(before.unrelated)
+ }
+ expect(f.rows.get('dayTaskGuides/student/items/mesh-1')).toEqual(privateBefore)
+ await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow(/CAS/)
+})
+it.each(['foreign-page','missing-guide-stage','private-key','changed-mesh','stale-guide'])('blocks units %s before writing',async kind=>{
+ const f=setup();unitPacket(f,{guide:true});const c=f.packet.changes[0],unit=c.assignmentUnits.items[1]
+ if(kind==='foreign-page')unit.sourceRefs=['other-child#44']
+ if(kind==='missing-guide-stage')unit.guideStageIds=[]
+ if(kind==='private-key')unit.answer='PRIVATE'
+ if(kind==='changed-mesh')c.assignmentUnits.sourceText='Уже другое условие.'
+ if(kind==='stale-guide')c.expectedGuideRevision=2
+ await expect(editTaskPresentation(f.db,f.packet,{apply:true})).rejects.toThrow();expect(f.writes).toBe(0)
+})

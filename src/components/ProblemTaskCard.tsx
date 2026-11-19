@@ -27,7 +27,7 @@ export default function ProblemTaskCard({ studentToken, problem, state, links, p
   const familyId = owner?.familyId, childId = owner?.childId
   useEffect(() => { reportRoleProjection({ familyId, childId }, parent, hasGuide) }, [familyId, childId, parent, hasGuide])
   const actions=subjectDecisionPlan({kind:'written',meshText:problem.original?.text??problem.detail},subjectId).actions
-  return <ProblemCard problem={problem} state={state} parent={parent} sourceResearch={sourceResearch} decision={{nodes:actions.map(a=>a.nodeId).filter((id):id is string=>Boolean(id)),edges:actions.flatMap(a=>a.edgeIds??[])}}>
+  return <ProblemCard problem={problem} state={state} parent={parent} sourceResearch={sourceResearch} decision={{nodes:['artifact.units',...actions.map(a=>a.nodeId).filter((id):id is string=>Boolean(id))],edges:['prepare:units','units:role',...actions.flatMap(a=>a.edgeIds??[])]}}>
     <ProblemStatement problem={problem} links={links} parent={parent} help={help} review={review} finished={accepted} helpAccess={helpAccess} onRequestHelp={onRequestHelp} />
     {!parent && <TaskGuidance items={guidance ?? []} />}
     {parent && guide && <ParentTaskGuide guide={guide} review={review} decisions={decisions} guidance={guidance} guidanceReady={guidanceReady} onSend={onSendGuidance} onStageChoice={onStageChoice} />}

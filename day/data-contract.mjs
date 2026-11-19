@@ -1,3 +1,4 @@
+import {assignmentUnitShapeErrors} from './assignment-units.mjs'
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/scoped-learner-flow-2026-10-21.md */
@@ -40,6 +41,7 @@ export function dayPageShapeErrors(page) {
       errors.push(...materialRequestErrors(task))
       errors.push(...repetitionErrors(task.repetition))
       errors.push(...learnerFlowErrors(task))
+      errors.push(...assignmentUnitShapeErrors(task,{subjectId:subject.id,placements:Array.isArray(page.testPlacements)?page.testPlacements:[],sourceRefs:[...(Array.isArray(page.taskPageRefs?.[task.id])?page.taskPageRefs[task.id]:[]),...(Array.isArray(page.materialLinks?.[task.id])?page.materialLinks[task.id]:[]).map(link=>link.sourceRef).filter(Boolean)]}))
       if (!['written', 'read', 'check'].includes(task.kind)) errors.push(`Неизвестный вид задания ${task.id}.`)
       if (!['verified', 'needs-fix', 'partial', 'unknown'].includes(task.status)) errors.push(`Неизвестный статус задания ${task.id}.`)
     }

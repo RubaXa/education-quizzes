@@ -20,7 +20,7 @@ export function canReadInside(link: DayMaterialLink) {
  * @see ../../docs/modules/materials/family-library.md#full-book-reader
  * @see ../../docs/shared/design/README.md#images
  */
-export default function MaterialReader({ links, parent, statement = false, book = false }: { links: DayMaterialLink[]; parent: boolean; statement?: boolean; book?: boolean }) {
+export default function MaterialReader({ links, parent, statement = false, book = false, imageResolver }: { links: DayMaterialLink[]; parent: boolean; statement?: boolean; book?: boolean; imageResolver?:(source:string,size:string,refresh:boolean)=>Promise<string> }) {
   const [active, setActive] = useState<number | null>(null)
   const [preview, setPreview] = useState(0)
   const [zoomed, setZoomed] = useState(false)
@@ -57,7 +57,7 @@ export default function MaterialReader({ links, parent, statement = false, book 
     <div className="day-reader-heading"><strong>{first.sourceType === 'textbook-page' ? 'Страницы учебника' : 'Лист учителя'} · {range}</strong><span>{title}</span></div>
     {book ? <div className="day-reader-book">
       <button type="button" className="day-reader-book-page" onClick={() => setActive(preview)} aria-label={`Открыть крупно: ${pageName(links[preview], preview)}`}>
-        <EducationImage key={links[preview].url} source={links[preview].url} mode="public" alt={`${title}, ${pageName(links[preview], preview)}`} retryControl={false} />
+        <EducationImage key={links[preview].url} source={links[preview].url} mode="public" resolver={imageResolver} alt={`${title}, ${pageName(links[preview], preview)}`} retryControl={false} />
       </button>
       <div className="day-reader-book-controls"><button type="button" disabled={preview === 0} onClick={() => setPreview((value) => value - 1)} aria-label="Предыдущая страница"><ChevronLeft size={20} /></button>
         <span>{pageName(links[preview], preview)} · {preview + 1} из {links.length}</span>
@@ -66,7 +66,7 @@ export default function MaterialReader({ links, parent, statement = false, book 
       <small>Нажмите на страницу, чтобы открыть её крупно.</small>
     </div> : <div className="day-reader-thumbs" aria-label={`Открыть страницы: ${range}`}>
       {links.map((link, index) => <button type="button" className="day-reader-thumb" key={link.url} onClick={() => setActive(index)} aria-label={`Открыть ${pageName(link, index)}`}>
-        <EducationImage source={link.url} mode="public" alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} compact={!statement} retryControl={false} />
+        <EducationImage source={link.url} mode="public" resolver={imageResolver} alt="" size={statement ? 'XXXL' : 'S'} fit={statement ? 'contain' : 'cover'} compact={!statement} retryControl={false} />
         <small>{statement ? 'Открыть лист крупно' : pageName(link, index)}</small>
       </button>)}
     </div>}
@@ -80,7 +80,7 @@ export default function MaterialReader({ links, parent, statement = false, book 
           if (!zoomed && Math.abs(delta) > 55) setActive((value) => value === null ? null : Math.max(0, Math.min(links.length - 1, value + (delta < 0 ? 1 : -1))))
           touchStart.current = null
         }}>
-          <EducationImage source={links[active].url} mode="public" alt={`${title}, ${pageName(links[active], active)}`} className="day-reader-full-image" loading="eager" />
+          <EducationImage source={links[active].url} mode="public" resolver={imageResolver} alt={`${title}, ${pageName(links[active], active)}`} className="day-reader-full-image" loading="eager" />
         </div>
         <footer><button type="button" onClick={() => setActive((value) => Math.max(0, (value ?? 0) - 1))} disabled={active === 0}><ChevronLeft size={20} /> Назад</button><span>{pageName(links[active], active)}{parent && links[active].sourceRef ? ` · ${links[active].sourceRef}` : ''}</span><button type="button" onClick={() => setActive((value) => Math.min(links.length - 1, (value ?? 0) + 1))} disabled={active === links.length - 1}>Дальше <ChevronRight size={20} /></button></footer>
         <a className="day-reader-external" href={links[active].url} target="_blank" rel="noopener noreferrer">Открыть оригинал на Яндекс.Диске <ExternalLink size={14} /></a>

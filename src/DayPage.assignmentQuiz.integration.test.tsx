@@ -3,7 +3,7 @@
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DayPageData, DayUpload, DayWorkReview } from './lib/dayStore'
+import type { DayPageData, DayTask, DayUpload, DayWorkReview } from './lib/dayStore'
 import type { ParentCompletionEvent } from './lib/parentCompletion'
 import DayPage from './DayPage'
 
@@ -823,7 +823,7 @@ it.each([false,true])('collapses every ordinary assignment on entry while keepin
  const view=await renderPage(parent)
  try{
   const cards=view.host.querySelectorAll<HTMLDetailsElement>('.edu-task-disclosure.day-task')
-  expect(cards).toHaveLength(2)
+  expect(cards,view.host.innerHTML.slice(-7500)).toHaveLength(2)
   for(const card of cards){expect(card.tagName).toBe('DETAILS');expect(card.open).toBe(false);expect(card.querySelector(':scope > summary')?.textContent).toContain('Задание');expect(card.querySelector(':scope > summary .edu-task-title')?.textContent).toBeTruthy();expect(card.querySelector(':scope > summary .edu-task-summary-status')?.textContent).toBeTruthy()}
   expect(cards[0].id).toBe('day-task-fett')
   await act(async()=>cards[0].querySelector('summary')!.click());expect(cards[0].open).toBe(true)
@@ -949,5 +949,57 @@ it.each([true,false])('shows the linked stage result and opens its existing quiz
   expect(view.host.querySelector(`#day-task-${taskId}`)?.textContent).toContain('Готово · проверено')
   if(!parent)expect(view.host.textContent).not.toContain('PRIVATE_PARENT_EXPECTED')
   expect(scene.reviews[0]).toEqual(review)
+ }finally{await view.cleanup()}
+})
+
+// @see ../docs/modules/assignments/source-units.md
+it.each(['english','russian','literature'])('renders source-bound exercise units before explanations for %s in both roles',async subjectId=>{
+ for(const parent of [true,false]){
+  const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'written' as const,problems:undefined,practiceVariants:undefined,testToken:undefined,
+   assignmentUnits:{version:1,sourceText:'Упражнения 1 и 2.',items:[
+    {id:'exercise-1',title:'Упражнение 1',kind:'written',sourceRefs:['starlight-6-2022#44'],original:'Write the phrases.',instructions:['Выпиши пять словосочетаний.']},
+    {id:'exercise-2',title:'Упражнение 2',kind:'oral',sourceRefs:['starlight-6-2022#44'],original:'Read and answer.',instructions:['Ответь на вопросы по прочитанному тексту.']}
+   ]},meshText:'Упражнения 1 и 2.'}
+  scene.page!.subjects=[{...scene.page!.subjects[0],id:subjectId,tasks:[task]}]
+  scene.page!.testPlacements=[]
+  scene.page!.materialLinks={[taskId]:[{title:'Книга',sourceType:'textbook-page',sourceRef:'starlight-6-2022#pdf-0044',pdfPage:44,printedPage:44,url:'https://disk.yandex.ru/d/synthetic'}]}
+  sessionStorage.setItem('education-day-initial-tab','homework')
+  const view=await renderPage(parent)
+  try{
+   const cards=view.host.querySelectorAll('[data-assignment-unit]')
+   expect(cards).toHaveLength(2)
+   for(const card of cards){
+    expect(card.hasAttribute('open')).toBe(false)
+    expect(card.querySelector('.day-reader')).not.toBeNull()
+    expect(card.querySelector('.day-reader')!.compareDocumentPosition(card.querySelector('.assignment-unit-instructions')!)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(card.getAttribute('data-decision-nodes')).toContain('artifact.units')
+   }
+   expect(Boolean(cards[0].querySelector('input[type=file]'))).toBe(!parent)
+   expect(view.host.querySelectorAll(`#day-task-${taskId}`)).toHaveLength(1)
+  }finally{await view.cleanup()}
+ }
+})
+
+it.each([true,false])('keeps the existing quiz in its unit context and preserves open state and role boundaries parent=%s',async parent=>{
+ const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'written',problems:undefined,practiceVariants:undefined,testToken:undefined,meshText:'Упр.1 и2.',assignmentUnits:{version:1,sourceText:'Упр.1 и2.',items:[
+  {id:'one',title:'Упр.1',kind:'written',sourceRefs:['starlight-6-2022#44'],original:'Write.',instructions:['Выпиши слова.'],guideStageIds:['assignment']},
+  {id:'two',title:'Упр.2',kind:'oral',sourceRefs:['starlight-6-2022#44'],original:'Read.',instructions:['Прочитай и ответь.'],guideStageIds:['evidence'],quizToken:'diagrams-test'}
+ ]}}
+ scene.page!.subjects[0].tasks=[task]
+ scene.page!.testPlacements=[{subjectId:'math',token:'diagrams-test',optional:true}]
+ scene.page!.materialLinks={[taskId]:[{title:'Книга',sourceType:'textbook-page',sourceRef:'starlight-6-2022#pdf-0044',pdfPage:44,printedPage:44,url:'https://disk.yandex.ru/d/synthetic'}]}
+ scene.guides={[taskId]:{guide:{kind:'structured-notes',presentation:'learning-route',revision:2,overview:'Разбор',stages:[{id:'assignment',title:'Запись',expected:'PRIVATE_FIRST',source:{label:'Книга'}},{id:'evidence',title:'Вопрос',expected:'PRIVATE_SECOND',source:{label:'Книга'}}]}}}
+ const view=await renderPage(parent)
+ try{
+  expect(view.host.querySelectorAll('#day-quiz-diagrams-test')).toHaveLength(1)
+  expect(view.host.querySelector('#day-unit-mesh-diagrams-two #day-quiz-diagrams-test')).not.toBeNull()
+  expect(view.host.querySelector('#day-unit-mesh-diagrams-one')?.textContent).not.toContain('PRIVATE_SECOND')
+  if(!parent)expect(view.host.textContent).not.toContain('PRIVATE_')
+  const first=view.host.querySelector<HTMLDetailsElement>('#day-unit-mesh-diagrams-one')!
+  await act(async()=>{first.open=true})
+  scene.quizSubmitted=true
+  await act(async()=>view.root.render(<DayPage token="student-token" parent={parent} headerReturnTarget={null}/>))
+  expect(first.open).toBe(true)
+  expect(view.host.querySelector('#day-quiz-diagrams-test')?.textContent).toContain('100%')
  }finally{await view.cleanup()}
 })

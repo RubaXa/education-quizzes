@@ -183,3 +183,12 @@ it('preserves an explicit stage assessment through the same source and discards 
  const changed=mergeDayPage(same,page([{...task('english'),meshText:'Read section 2.'}]))
  expect(changed.subjects[0].tasks[0].stageAssessments).toBeUndefined()
 })
+
+it('keeps verified exercise structure on the same teacher text and discards it after a changed condition or source-only reset',()=>{
+ const units={version:1,sourceText:'Упр.1,2',items:[{id:'one'}]}
+ const old=page([{...task('english'),meshText:'Упр.1,2',assignmentUnits:units}])
+ expect(mergeDayPage(old,page([{...task('english'),meshText:'Упр.1,2'}])).subjects[0].tasks[0].assignmentUnits).toEqual(units)
+ expect(mergeDayPage(old,page([{...task('english'),meshText:'Упр.3'}])).subjects[0].tasks[0].assignmentUnits).toBeUndefined()
+ const raw={...task('mesh-english'),kind:'check',meshText:'Упр.1,2',detail:'Упр.1,2',sourceOnly:true,instructionStatus:{state:'needs-review'},materialStatus:{state:'textbook-page-needed',message:'Источник ожидает сверки.'}}
+ expect(mergeDayPage(page([{...old.subjects[0].tasks[0],id:'mesh-english',kind:'check'}]),page([raw])).subjects[0].tasks[0].assignmentUnits).toBeUndefined()
+})

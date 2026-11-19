@@ -151,3 +151,18 @@ it('preserves missing-source in a copied layout address and avoids inventing sou
  expect([...host.querySelectorAll('button')].some(button=>button.textContent==='Не хватает источника')).toBe(false)
  expect(host.querySelector('.material-request')).toBeNull()
 })
+
+it('binds the exercise node and both edges to real source-first units for English, Russian and literature',async()=>{
+ document.body.append(host);root=createRoot(host)
+ for(const decision of ['english.exercise','russian.exercise','literature.reading'])for(const focus of ['artifact.units','prepare:units','units:role']){
+  window.location.hash=`#/ui-kit/?decision=${decision}&focus=${focus}`
+  await act(async()=>root!.render(<DecisionScenarioCatalog key={`${decision}:${focus}`}/>))
+  expect(host.querySelectorAll('.assignment-unit')).toHaveLength(4)
+  expect(host.querySelectorAll('.assignment-unit[open]')).toHaveLength(0)
+  for(const unit of host.querySelectorAll('.assignment-unit')){
+   expect(unit.getAttribute('data-decision-nodes')).toContain('artifact.units')
+   expect(unit.querySelector('.day-reader')!.compareDocumentPosition(unit.querySelector('.assignment-unit-instructions')!)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  }
+  expect(host.querySelector('[aria-label="Карточка: Ученик"] .day-parent-guide')).toBeNull()
+ }
+})

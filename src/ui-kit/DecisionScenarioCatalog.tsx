@@ -1,3 +1,4 @@
+import AssignmentUnitsExample from './AssignmentUnitsExample'
 import StageAssessmentExample from './StageAssessmentExample'
 /** @see ../../docs/decisions/parent-review-pilot-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
@@ -92,7 +93,7 @@ export default function DecisionScenarioCatalog(){
    <p>Код выбирает ветвь и проверяет структуру. Агент сверяет источник, метод и содержание. Зачёт проходит обязательный барьер критериев; наблюдение знаний сохраняется отдельно.</p>
    <details><summary>Каждый узел и переход этого пути</summary><ol>{graphNodes.map(n=><li key={n.id}><code>{n.id}</code> — {n.label} · {n.actor} · <a href={layoutHref(n.id,n.uiScenarioId??selected)} onClick={e=>{e.preventDefault();selectLayout(n.id,n.uiScenarioId??selected)}} aria-label={`Макет узла ${n.id}`}>Макет</a> · <a href={link(n.specRef)}>Контракт</a> · <a href={link(n.decisionRef)}>Решение</a></li>)}</ol><ul>{graphEdges.map(e=><li key={e.id}><code>{e.id}</code>: {e.from} → {e.to} · <a href={layoutHref(e.id,e.uiScenarioId??selected)} onClick={event=>{event.preventDefault();selectLayout(e.id,e.uiScenarioId??selected)}} aria-label={`Макет перехода ${e.id}`}>Макет</a> · <a href={link(e.specRef)}>Контракт перехода</a> · <a href={link(e.decisionRef)}>Основание</a></li>)}</ul></details>
   </details>
-  {focus==='assessment:stage'?<StageAssessmentExample/>:['view.parent-review','view.student-support','role:parent','role:student','parent:component','student:component'].includes(focus)?<ParentReviewPilotExample/>:<div className="edu-decision-roles">{role!=='student'&&card(true)}{role!=='parent'&&card(false)}</div>}
+  {['artifact.units','prepare:units','units:role'].includes(focus)&&!data.problem?<AssignmentUnitsExample subjectId={rule.subject}/>:focus==='assessment:stage'?<StageAssessmentExample/>:['view.parent-review','view.student-support','role:parent','role:student','parent:component','student:component'].includes(focus)?<ParentReviewPilotExample/>:<div className="edu-decision-roles">{role!=='student'&&card(true)}{role!=='parent'&&card(false)}</div>}
   {['learner.context','family.requirement','context:clarification','clarification:family'].includes(focus)&&<AssignmentClarificationExample key={selected} task={data.task} subjectName={rule.subjectName}/>}
   {['view.parent-review','view.student-support','role:parent','role:student','parent:component','student:component'].includes(focus)&&<p>Одна задача в двух ролях: <a href="#/ui-kit/?section=compact-review&focus=review.roles">полный ответ родителю и шаг ребёнку</a>.</p>}
   {focus==='review.support'&&<p>Режим текущего вопроса: <a href="#/ui-kit/?section=compact-review&focus=review.support">проверить общий блок и переходы</a>.</p>}

@@ -255,22 +255,19 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "eb3aafe401a1f16781630751619457632847f569282e185a5bba91781f7822b7",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "0ab7dcafa1adae1c8c3acd20aa48d46e1a636f7e0d1b1fb7b91427201773eac6",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "day/card-policy.mjs": {
@@ -314,20 +311,19 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "784223b730b3bec38747528effc3375860369f716a7a9822e00921b8b26af3fc",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "8874def77dc3939f1b7f3de4563207c88ad641310f32d9fbdf56c5ce8af187f9",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "day/family-source-graph.mjs": {
@@ -494,22 +490,19 @@
       }
     },
     "day/merge.mjs": {
-      "sha256": "d28ac914a7a5b276bec6e93b7d428def9a7d736fe02d65998c4a6a0891548af3",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "342f31edd35e30e0fbe0a734416c076493500ba6f517eec70f3ec8052c5ffd11",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "day/owner-repair.mjs": {
@@ -2001,22 +1994,19 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "f74d049a9392a296986d69bb5dd88bc6cef2c5a3c40b3462c2d2933538e7cfb5",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "110f5b87011aa22c503ecf9ccacdcb654bbc150ce6ee5721ba1a1821cff9ac96",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -2675,22 +2665,19 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "cfdb099a1b06b64eccc6c4808343a2a3c1efdfbe190a0a458444e3e6e0cfcbe9",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "3622e5933c9b78ad3852b40ed15388d6eb8302e44cae7c215838e404385941e6",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/UiKit.css": {
@@ -3181,22 +3168,19 @@
       }
     },
     "src/components/MaterialReader.tsx": {
-      "sha256": "2d415377d17cc2ae62b4eb3ae0d9bdfa6ebd89b40081e58bdb334a286de2f494",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "8a823048e319770a470de9f099b90d30777933c7c94459463132a9fccdcc6c16",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "dab9afd28c0d9e356dd983e42ff3a4ca0a005b075e31a0095fa4235676e50cf1"
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/components/MaterialRequest.tsx": {
@@ -3499,23 +3483,19 @@
       }
     },
     "src/components/ProblemTaskCard.tsx": {
-      "sha256": "349ba7ae03ec62dd7376389ec9419029abd5e7c8c01dd237b249e9bb655db57f",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "42a7b4704ac5790e0b38a3fb3ed914dc9336abd9e894404bbfaa98d52acb0d3d",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/components/QuizAttemptReview.tsx": {
@@ -4193,22 +4173,19 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "c699aafbd246199877dad6be68a56966211d05f0f0f43933d75b226be4359140",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "4617307742e473544289849b3cd5089f95b9c9c21c2edad4c9e034c89a5edf03",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/lib/educationEventProducer.ts": {
@@ -5653,22 +5630,19 @@
       }
     },
     "day/source-only.mjs": {
-      "sha256": "e4cefe41dda857f78fd80d18b8ab9d60113875ad8ac495e2263a0548576eadf5",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "b12ccee8f8a2ffccb9b317de3ab274266e90f5d3405bde975ebf47cd0d068770",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/components/PracticeVariantStatus.tsx": {
@@ -7862,23 +7836,19 @@
       }
     },
     "src/components/TaskDisclosure.tsx": {
-      "sha256": "8f9b18310ee402bf008f1a327ec0c5e181054fd451c3e5ef67b2b95d9240cb3d",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "b4702605803bc9d286558eb5fb77b40cc0974d9915e6bb6494a4039147298dd3",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/ui-kit/TaskDisclosureExample.tsx": {
@@ -8342,42 +8312,35 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "13b8b8b9e18208ba8ae59183d608ed4ec0c770364aaa7fec1ac4226c4783533f",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "78c0f191f738a4625fc9c62101a1d4b7fff46722df554840c73c78ce6d878167",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
-      "sha256": "7a9963c40c2a2176419219b49353514fe4ba5137fcdd72e0da3ef5b65f96ac2b",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "39b683870e54edac815abd142115babe0dbb52bc6b411853b5ee67074847b161",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.css": {
@@ -8399,22 +8362,19 @@
       }
     },
     "src/ui-kit/DecisionScenarioCatalog.tsx": {
-      "sha256": "bfe2adec547b35b77b0b3783c8f3b70c62f783ce757f3672ec4d856836b24375",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "11d6ce87f74d0e1e873e527b94047984dcc6e4812dd6366aec563c60a57fefa3",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "src/ui-kit/decisionScenarioFixtures.ts": {
@@ -8504,22 +8464,19 @@
       }
     },
     "packages/education-presentation/task-presentation.mjs": {
-      "sha256": "497bd9020cb26270ad7069c7ac24a6dd58c9ac326e602e9a24110c75502c4e0c",
-      "record": "docs/decisions/restore-parent-route-2026-11-17.md",
+      "sha256": "942c532c38aced03774f19ca0f4cf238145aac889b17e3e03e72a53fd8332e9e",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md",
-        "docs/product/ui-change-control.md",
-        "docs/shared/server-runtime.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "src/components/ParentTaskGuide.test.tsx",
-        "packages/education-connect/lib/mesh-auth.test.mjs"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое требование17.11: использовать прежний Ход решения, сохранить преемственность компонентов и восстановить зависшую синхронизацию без нового расписания."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "scripts/task-presentation.mjs": {
@@ -8559,22 +8516,19 @@
       }
     },
     "storage/task-presentation-edit.mjs": {
-      "sha256": "e3c36d507f580de26b67b00e2e15d4dbc6361ddf6ec7bd2180706da0ef272fdb",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "86f822a02b80578dbefdffc6d97056da40b7fb4006906656fcae45d42339c64d",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md"
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/lib/stageAssessment.test.ts",
         "storage/task-presentation-edit.test.mjs",
-        "day/build-assignments.test.mjs",
-        "day/merge.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "day/assignment-units.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     },
     "assessment/quiz-author-scope.mjs": {
@@ -9089,6 +9043,70 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель18.11.2026 поручил связать этап английского с уже пройденным тестом, вернуть загрузку во все письменные задания и показал сломанный заголовок спецкурса."
+      }
+    },
+    "day/assignment-units.mjs": {
+      "sha256": "64a16a4c0f5707f7834e379da73f4bcee9b45e8a54bbfab66b029432201eb094",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "specs": [
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+      }
+    },
+    "src/components/AssignmentUnits.tsx": {
+      "sha256": "9d923614be9d5a389d5c05719972f30795bb13b0c11477944b317c396c44da83",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "specs": [
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+      }
+    },
+    "src/lib/assignmentUnitView.ts": {
+      "sha256": "4a54a55832b17746de1d270da71eac194c4223ea7160bd29abd21cc2892eb73b",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "specs": [
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+      }
+    },
+    "src/ui-kit/AssignmentUnitsExample.tsx": {
+      "sha256": "058d61834a6c7e813d0eb2418cb40944bc2ca6cf1a03510c02c23dbbd8995d22",
+      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "specs": [
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "storage/task-presentation-edit.test.mjs",
+        "day/assignment-units.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
       }
     }
   }

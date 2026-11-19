@@ -3649,6 +3649,31 @@
       "path": "docs/decisions/solution-file-uploads-2026-10-31.md"
     },
     {
+      "id": "decision.source-bound-assignment-units-2026-11-19",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-19",
+      "updated": "2026-11-19",
+      "parent": "module.assignments.source-units",
+      "uses": [
+        "shared.design.task-presentation"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/source-bound-assignment-units-2026-11-19.md"
+    },
+    {
       "id": "decision.source-completion-consistency-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -6018,6 +6043,27 @@
       "kind": "verification",
       "purpose": "Регрессия двух листов и явного общего вложения",
       "consumer": "Vitest; разработчик"
+    },
+    {
+      "id": "file:day/assignment-units.d.mts",
+      "path": "day/assignment-units.d.mts",
+      "kind": "artifact",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
+    },
+    {
+      "id": "file:day/assignment-units.mjs",
+      "path": "day/assignment-units.mjs",
+      "kind": "artifact",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
+    },
+    {
+      "id": "file:day/assignment-units.test.mjs",
+      "path": "day/assignment-units.test.mjs",
+      "kind": "verification",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
     },
     {
       "id": "file:day/audio-selection-plan.mjs",
@@ -9387,6 +9433,13 @@
       "consumer": "`src/DayPage.tsx`"
     },
     {
+      "id": "file:src/components/AssignmentUnits.tsx",
+      "path": "src/components/AssignmentUnits.tsx",
+      "kind": "artifact",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
+    },
+    {
       "id": "file:src/components/AudioLibrary.tsx",
       "path": "src/components/AudioLibrary.tsx",
       "kind": "artifact",
@@ -10829,6 +10882,20 @@
       "consumer": "`DayPage.tsx`"
     },
     {
+      "id": "file:src/lib/assignmentUnitView.test.ts",
+      "path": "src/lib/assignmentUnitView.test.ts",
+      "kind": "verification",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
+    },
+    {
+      "id": "file:src/lib/assignmentUnitView.ts",
+      "path": "src/lib/assignmentUnitView.ts",
+      "kind": "artifact",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
+    },
+    {
       "id": "file:src/lib/bookPageSource.test.ts",
       "path": "src/lib/bookPageSource.test.ts",
       "kind": "verification",
@@ -11856,6 +11923,13 @@
       "kind": "artifact",
       "purpose": "Настоящий блок уточнения и решения родителя с локальным транспортом",
       "consumer": "Ребёнок; родитель; UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/AssignmentUnitsExample.tsx",
+      "path": "src/ui-kit/AssignmentUnitsExample.tsx",
+      "kind": "artifact",
+      "purpose": "Общая структура упражнения, её контракт и проверка",
+      "consumer": "DayPage; оператор; UI Kit; Vitest"
     },
     {
       "id": "file:src/ui-kit/DecisionScenarioCatalog.css",
@@ -13211,6 +13285,38 @@
         "limits"
       ],
       "path": "docs/modules/assignments/deadline-control.md"
+    },
+    {
+      "id": "module.assignments.source-units",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-19",
+      "updated": "2026-11-19",
+      "parent": "module.assignments",
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "module.reviews.card-generation-policy",
+        "module.reviews.subject-card-viewmodel",
+        "shared.design.components"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator",
+        "UI Kit"
+      ],
+      "code": [
+        "day/assignment-units.mjs"
+      ],
+      "sections": [
+        "source",
+        "model",
+        "presentation",
+        "evidence",
+        "publication",
+        "scenarios"
+      ],
+      "path": "docs/modules/assignments/source-units.md"
     },
     {
       "id": "module.families",
@@ -18367,6 +18473,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.source-bound-assignment-units-2026-11-19",
+      "to": "shared.design.task-presentation",
+      "type": "uses"
+    },
+    {
       "from": "decision.source-completion-consistency-2026-11-01",
       "to": "module.assessments.assessment-decision-graph",
       "type": "uses"
@@ -19014,6 +19125,16 @@
     {
       "from": "file:day/assignment-structure.mjs",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/assignment-units.d.mts",
+      "to": "module.assignments.source-units",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/assignment-units.mjs",
+      "to": "module.assignments.source-units",
       "type": "implements"
     },
     {
@@ -22267,6 +22388,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/AssignmentUnits.tsx",
+      "to": "module.assignments.source-units",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/AudioLibrary.tsx",
       "to": "module.materials.audio-library",
       "type": "implements"
@@ -24137,6 +24263,11 @@
       "type": "implements"
     },
     {
+      "from": "file:src/lib/assignmentUnitView.ts",
+      "to": "module.assignments.source-units",
+      "type": "implements"
+    },
+    {
       "from": "file:src/lib/bookPageSource.ts",
       "to": "module.materials.family-library",
       "type": "implements"
@@ -25139,6 +25270,11 @@
     {
       "from": "file:src/ui-kit/AssignmentClarificationExample.tsx",
       "to": "shared.design.student-review-step",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/AssignmentUnitsExample.tsx",
+      "to": "module.assignments.source-units",
       "type": "implements"
     },
     {
@@ -26442,6 +26578,41 @@
       "type": "uses"
     },
     {
+      "from": "module.assignments.source-units",
+      "to": "decision.source-bound-assignment-units-2026-11-19",
+      "type": "contains"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "file:day/assignment-units.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "file:src/lib/assignmentUnitView.test.ts",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "module.reviews.card-generation-policy",
+      "type": "uses"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "module.reviews.subject-card-viewmodel",
+      "type": "uses"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "shared.design.components",
+      "type": "uses"
+    },
+    {
       "from": "module.assignments",
       "to": "decision.deadline-in-sync-2026-11-16",
       "type": "contains"
@@ -26469,6 +26640,11 @@
     {
       "from": "module.assignments",
       "to": "module.assignments.deadline-control",
+      "type": "contains"
+    },
+    {
+      "from": "module.assignments",
+      "to": "module.assignments.source-units",
       "type": "contains"
     },
     {

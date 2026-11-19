@@ -5,7 +5,7 @@ import {ChevronDown} from 'lucide-react'
 import './TaskDisclosure.css'
 /** @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 export default function TaskDisclosure({id,title,status,meta,assignmentLabel,className='',children,decision}:{id?:string;title:string;status:ReactNode;meta?:string;assignmentLabel?:string;className?:string;children:ReactNode;decision?:{nodes:string[];edges:string[]}}){
- return <details id={id} className={`edu-task-disclosure ${className}`} data-decision-nodes={decision?.nodes.join(' ')} data-decision-edges={decision?.edges.join(' ')}>
+ return <details id={id} className={`edu-task-disclosure ${className}`} data-assignment-unit={id?.startsWith('day-unit-')?id:undefined} data-decision-nodes={decision?.nodes.join(' ')} data-decision-edges={decision?.edges.join(' ')}>
   <summary className="edu-task-heading">
    <h3 className="edu-task-title">{title}</h3><ChevronDown className="edu-task-chevron" size={18} aria-hidden="true"/>
    <span className="edu-task-summary-status">{status}</span>

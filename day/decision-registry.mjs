@@ -21,6 +21,7 @@ export const decisionNodes=[
  node('source.obligation','Какое действие прямо назначено?','agent+gate','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  node('source.context','Служебные сведения без учебной обязанности','code','docs/modules/synchronization/subject-decision-graph.md#teacher-obligation'),
  node('subject.choose','Выбор предметного действия','agent+code','docs/modules/synchronization/subject-decision-graph.md#subjects'),
+ node('artifact.units','Единицы задания по оригиналу','agent+gate','docs/modules/assignments/source-units.md','docs/decisions/source-bound-assignment-units-2026-11-19.md'),
  node('artifact.prepare','Нужный учебный продукт','agent+gate','docs/modules/reviews/card-generation-policy.md'),
  node('assessment.preparation','За три дня: материал учителя или курс и исследование','code+agent','docs/modules/assignments/deadline-control.md#control-preparation',preparationRef),
  node('view.role','Проекции ученика и родителя','code','docs/modules/reviews/subject-card-viewmodel.md'),
@@ -37,6 +38,8 @@ export const decisionNodes=[
 ]
 const edge=(id,from,to,label,specRef,ref=decisionRef)=>({id,from,to,label,specRef,decisionRef:ref})
 export const decisionEdges=[
+ edge('prepare:units','artifact.prepare','artifact.units','Выделить упражнения, главы или вопросы оригинала','docs/modules/assignments/source-units.md','docs/decisions/source-bound-assignment-units-2026-11-19.md'),
+ edge('units:role','artifact.units','view.role','Показать один источник и ролевой путь каждой единицы','docs/modules/assignments/source-units.md','docs/decisions/source-bound-assignment-units-2026-11-19.md'),
  edge('assessment:stage','review','view.component','Результат назначенного теста подтверждает связанный этап','docs/modules/school-diary/day-page.md#stage-assessments','docs/decisions/stage-assessment-evidence-2026-11-18.md'),
  ...['mesh','upload','parent'].map(source=>edge(`input:${source}`,`source.${source}`,'source.identity','Сопоставить назначение','docs/modules/synchronization/subject-decision-graph.md#inputs')),
  edge('identity:criteria','source.identity','source.criteria','Разобрать полный источник','docs/modules/reviews/criteria-and-knowledge.md#criteria'),
@@ -60,7 +63,7 @@ export const decisionEdges=[
  edge('role:student','view.role','view.student-support','Ученик: безопасная опора и один шаг','docs/modules/reviews/parent-review.md#graph',parentRef),
  edge('parent:component','view.parent-review','view.component','Полная родительская композиция','docs/modules/reviews/parent-review.md#graph',parentRef),
  edge('student:component','view.student-support','view.component','Ученическая композиция без ключа','docs/modules/reviews/parent-review.md#graph',parentRef),
- ...[['artifact.prepare','view.role'],['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
+ ...[['view.component','publish'],['publish','review'],['review','knowledge'],['knowledge','learner.evidence']].map(([from,to])=>edge(`${from}:${to}`,from,to,'Проверенный переход',decisionNodes.find(n=>n.id===to).specRef))
 ]
 
 /** Bind every graph element to real compositions; shared steps retain the selected subject.
@@ -81,22 +84,23 @@ function bind(item,rule,scope,technicalNote){
  item.uiScenarioIds=rule?[rule.id]:[...ruleIds]
  if(rule)item.uiScenarioId=rule.id
  item.presentationScope=scope
- item.presentationContractIds=scope==='parent-review'?['parent-review']:scope==='student-support'?['review-result']:scope==='source'?['source-context']:scope==='result'?['review-result']:scope==='clarification'?['assignment-clarification']:rule?[presentationContractForRule(rule).id]:[...productContractIds]
+ item.presentationContractIds=scope==='units'?['assignment-units']:scope==='parent-review'?['parent-review']:scope==='student-support'?['review-result']:scope==='source'?['source-context']:scope==='result'?['review-result']:scope==='clarification'?['assignment-clarification']:rule?[presentationContractForRule(rule).id]:[...productContractIds]
  if(['parent-review','student-support'].includes(scope))item.uiScenarioId='literature.reading'
  item.technical=Boolean(technicalNote)
  if(technicalNote)item.presentationNote=technicalNote
 }
 const commonNodeScopes={
  'source.mesh':'source','source.upload':'source','source.parent':'source','source.identity':'source','source.criteria':'source','source.obligation':'source','source.context':'source',
- 'learner.recurrence':'context','learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','assessment.preparation':'context','view.role':'context','view.component':'context',
+ 'learner.recurrence':'context','learner.evidence':'result','subject.choose':'context','artifact.prepare':'context','artifact.units':'units','assessment.preparation':'context','view.role':'context','view.component':'context',
  'view.parent-review':'parent-review','view.student-support':'student-support',
  'learner.context':'clarification','family.requirement':'clarification','review.support':'result',publish:'context',review:'result',knowledge:'result',
 }
 const commonEdgeScopes={
+ 'prepare:units':'units','units:role':'units',
  'assessment:stage':'context',
  'input:mesh':'source','input:upload':'source','input:parent':'source','identity:criteria':'source',
  'obligation:preparation':'context','preparation:teacher':'context','preparation:course':'context',
- 'evidence:recurrence':'result','recurrence:prepare':'context','criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','artifact.prepare:view.role':'context','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
+ 'evidence:recurrence':'result','recurrence:prepare':'context','criteria:choose':'source','obligation:choose':'context','obligation:context':'source','evidence:choose':'result','role:parent':'parent-review','role:student':'student-support','parent:component':'parent-review','student:component':'student-support',
  'component:context':'clarification','family:component':'clarification','context:clarification':'clarification','clarification:family':'clarification','review:support':'result','support:component':'result','view.component:publish':'context','publish:review':'context','review:knowledge':'result','knowledge:learner.evidence':'result',
 }
 /** New common graph elements require an explicit binding, never an inferred generic card. */
@@ -118,6 +122,6 @@ export function decisionPresentationBinding(itemId,scenarioId){
  if(!item)return undefined
  const rule=rules.find(rule=>rule.id===scenarioId)
  if(!rule||!item.uiScenarioIds.includes(rule.id))return undefined
- const contractIds=item.presentationScope==='parent-review'?['parent-review']:item.presentationScope==='student-support'?['review-result']:item.presentationScope==='source'?['source-context']:item.presentationScope==='result'?['review-result']:item.presentationScope==='clarification'?['assignment-clarification']:[presentationContractForRule(rule).id]
+ const contractIds=item.presentationScope==='units'?['assignment-units']:item.presentationScope==='parent-review'?['parent-review']:item.presentationScope==='student-support'?['review-result']:item.presentationScope==='source'?['source-context']:item.presentationScope==='result'?['review-result']:item.presentationScope==='clarification'?['assignment-clarification']:[presentationContractForRule(rule).id]
  return {item,uiScenarioId:rule.id,contractIds,technical:item.technical,note:item.presentationNote}
 }

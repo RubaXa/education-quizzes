@@ -6,5 +6,5 @@ import type {DayTask} from '@/lib/dayStore'
  * @see ../../docs/modules/reviews/criteria-and-knowledge.md#scenarios */
 export default function DecisionTaskDisclosure({subjectId='generic',task,...props}:ComponentProps<typeof TaskDisclosure>&{subjectId?:string;task?:DayTask}){
  const actions=subjectDecisionPlan(task,subjectId).actions
- return <TaskDisclosure {...props} decision={{nodes:['source.criteria','subject.choose',...actions.map(a=>a.nodeId).filter((id):id is string=>Boolean(id)),'view.component'],edges:actions.flatMap(a=>a.edgeIds??[])}}/>
+ return <TaskDisclosure {...props} decision={{nodes:['source.criteria','artifact.units','subject.choose',...actions.map(a=>a.nodeId).filter((id):id is string=>Boolean(id)),'view.component'],edges:['prepare:units','units:role',...actions.flatMap(a=>a.edgeIds??[])]}}/>
 }

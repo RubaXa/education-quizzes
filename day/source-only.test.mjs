@@ -27,6 +27,7 @@ describe('точная запись МЭШ с неразобранным ист�
       { steps: [{ text: 'Реши по образцу' }] },
       { submission: { items: [{ text: 'Пришли фото' }] } },
       { parentGuide: { stages: [] } },
+      { assignmentUnits: {version:1,sourceText:'raw',items:[]} },
       { testToken: 'test-token-1234567890123456' },
     ]) expect(sourceOnlyPublicationErrors(sourceOnlyTask(field)).length).toBeGreaterThan(0)
     expect(sourceOnlyPublicationErrors(sourceOnlyTask({ detail: 'Пересказ задания' })).length).toBeGreaterThan(0)

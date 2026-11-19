@@ -1,3 +1,4 @@
+import {assignmentUnitErrors} from '../day/assignment-units.mjs'
 /** @see ../docs/decisions/stage-assessment-evidence-2026-11-18.md */
 import {stageAssessmentErrors} from '../day/stage-assessment.mjs'
 /** Addressed, owner-fenced presentation correction; never a new assignment or review.
@@ -38,7 +39,7 @@ function validateInput(input){
   ||typeof input.reason!=='string'||input.reason.trim().length<20||input.reason.length>1000
   ||!Array.isArray(input.changes)||!input.changes.length||input.changes.length>100
   ||new Set(input.changes.map(c=>c?.taskId)).size!==input.changes.length)fail('Нужны адресный пакет, причина и уникальные изменения.')
- for(const c of input.changes)if(!keys(c,['taskId','expectedSupportRevision','support','expectedGuideRevision','sourceRevision','guide','materialRequest','stageAssessments','expectedStageAssessments','learnerFlowBoundary','expectedLearnerFlowBoundary'])||!taskId(c.taskId)||!['support','guide','materialRequest','stageAssessments','learnerFlowBoundary'].some(k=>Object.hasOwn(c,k)))fail('Разрешены только support, guide и materialRequest представления.')
+ for(const c of input.changes)if(!keys(c,['taskId','expectedSupportRevision','support','expectedGuideRevision','sourceRevision','guide','materialRequest','stageAssessments','expectedStageAssessments','learnerFlowBoundary','expectedLearnerFlowBoundary','assignmentUnits','expectedAssignmentUnits'])||!taskId(c.taskId)||!['support','guide','materialRequest','stageAssessments','learnerFlowBoundary','assignmentUnits'].some(k=>Object.hasOwn(c,k)))fail('Разрешены только support, guide и materialRequest представления.')
 }
 function continuationTargets(input){
  const targets=new Map()
@@ -58,13 +59,21 @@ function assertContinuation(input,targets,snaps){
 }
 function prepare(input,snaps,now){
  const [ownerSnap,studentSnap,parentSnap,...guides]=snaps
- if(snaps.some(s=>!s.exists))fail('Одна из адресных страниц или закрытых guides отсутствует.')
+ if(snaps.slice(0,3).some(s=>!s.exists)||guides.some(s=>!s.exists&&input.changes.some(c=>s.ref.path.endsWith('/'+c.taskId)&&(Object.hasOwn(c,'guide')||Object.hasOwn(c,'stageAssessments')||c.assignmentUnits?.items?.some(unit=>unit.guideStageIds?.length)))))fail('Одна из адресных страниц или закрытых guides отсутствует.')
  const owner=ownerSnap.data(),student=studentSnap.data(),parent=parentSnap.data()
  assertOwner(input,owner,student,parent)
  let studentSubjects=student.subjects,parentSubjects=parent.subjects
  const guideWrites=[]
  for(const c of input.changes){
   const a=locate(student,c.taskId),b=locate(parent,c.taskId),patch={}
+  if(Object.hasOwn(c,'assignmentUnits')){
+   if(!same(a.assignmentUnits??null,c.expectedAssignmentUnits)||!same(a.assignmentUnits,b.assignmentUnits))fail('assignmentUnits: исходное разбиение или CAS не совпали.')
+   const subject=student.subjects.find(s=>s.tasks.some(t=>t.id===c.taskId)),g=guides.find(s=>s.ref.path===`dayTaskGuides/${input.pageId}/items/${c.taskId}`)?.data()
+   if(!subject||g&&(g.familyId!==input.familyId||g.childId!==input.childId||g.taskId!==c.taskId||g.guide?.revision!==c.expectedGuideRevision))fail('assignmentUnits: владелец или ревизия закрытого гида не совпали.')
+   const errors=assignmentUnitErrors({...a,assignmentUnits:c.assignmentUnits},{sourceRefs:[...(student.taskPageRefs?.[c.taskId]??[]),...(student.materialLinks?.[c.taskId]??[]).map(link=>link.sourceRef).filter(Boolean)],guide:g?.guide,subjectId:subject.id,placements:student.testPlacements})
+   if(errors.length)fail(errors.join('\n'))
+   patch.assignmentUnits=c.assignmentUnits
+  }
   if(Object.hasOwn(c,'learnerFlowBoundary')){
    if(typeof c.learnerFlowBoundary!=='string'||!c.learnerFlowBoundary.trim()||c.learnerFlowBoundary.length>500||!a.learnerFlow
     ||!same(a.learnerFlow,b.learnerFlow)||a.learnerFlow.boundary!==c.expectedLearnerFlowBoundary)fail('LearnerFlow boundary: CAS или текст не совпал.')
@@ -119,7 +128,7 @@ export async function editTaskPresentation(db,input,{apply=false,now=new Date().
  const initial=await db.getAll(...refs)
  if(initial.some(s=>!s.exists))fail('Страница владельца или одна из двух ролей отсутствует.')
  assertOwner(input,...initial.map(s=>s.data()))
- const guideRefs=input.changes.filter(c=>Object.hasOwn(c,'guide')||Object.hasOwn(c,'stageAssessments')).map(c=>db.doc(`dayTaskGuides/${input.pageId}/items/${c.taskId}`))
+ const guideRefs=input.changes.filter(c=>Object.hasOwn(c,'guide')||Object.hasOwn(c,'stageAssessments')||Object.hasOwn(c,'assignmentUnits')).map(c=>db.doc(`dayTaskGuides/${input.pageId}/items/${c.taskId}`))
  const targets=continuationTargets(input),continuationRefs=targets.flatMap(t=>[db.doc(`dayOwners/${t.dayToken}`),db.doc(`dayPages/${t.dayToken}`)])
  const extras=[...guideRefs,...continuationRefs],extraSnaps=extras.length?await db.getAll(...extras):[]
  const guideEnd=3+guideRefs.length,allRefs=[...refs,...extras],before=[...initial,...extraSnaps]
@@ -128,7 +137,7 @@ export async function editTaskPresentation(db,input,{apply=false,now=new Date().
  if(!apply)return {valid:true,applied:false,changes:input.changes.length,guides:guideRefs.length}
  await db.runTransaction(async tx=>{
   const fresh=await tx.getAll(...allRefs)
-  if(fresh.some((s,i)=>!s.exists||!sameVersion(s.updateTime,before[i].updateTime)||!same(s.data(),before[i].data())))fail('CAS: данные изменились после проверки; перечитайте пакет.')
+  if(fresh.some((s,i)=>s.exists!==before[i].exists||s.exists&&(!sameVersion(s.updateTime,before[i].updateTime)||!same(s.data(),before[i].data()))))fail('CAS: данные изменились после проверки; перечитайте пакет.')
   assertContinuation(input,targets,fresh.slice(guideEnd))
   const next=prepare(input,fresh.slice(0,guideEnd),now)
   tx.update(refs[1],{subjects:next.student.subjects,presentationRevision:next.student.presentationRevision,presentationEdits:next.student.presentationEdits})
@@ -136,6 +145,6 @@ export async function editTaskPresentation(db,input,{apply=false,now=new Date().
   for(const g of next.guideWrites)tx.update(g.ref,{guide:g.after.guide,updatedAt:g.after.updatedAt,guideEdits:g.after.guideEdits})
  })
  const after=await db.getAll(refs[1],refs[2],...guideRefs),expected=[prepared.student,prepared.parent,...guideRefs.map((ref,i)=>prepared.guideWrites.find(g=>g.ref.path===ref.path)?.after??extraSnaps[i].data())]
- if(after.some((s,i)=>!s.exists||!same(s.data(),expected[i])))fail('Readback: представление или сохранённые поля не совпали после записи.')
+ if(after.some((s,i)=>expected[i]===undefined?s.exists:!s.exists||!same(s.data(),expected[i])))fail('Readback: представление или сохранённые поля не совпали после записи.')
  return {applied:true,verified:true,changes:input.changes.length,guides:guideRefs.length,presentationRevision:prepared.student.presentationRevision}
 }

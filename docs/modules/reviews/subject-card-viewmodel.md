@@ -24,6 +24,8 @@ sections:
 ---
 # Единая модель карточки задания {#viewmodel}
 
+`task.assignmentUnits` и `AssignmentUnits` выделяют существующие упражнения/главы по [общему контракту](../assignments/source-units.md). `assignmentUnitView` выбирает только явно связанные этапы; результат общего задания не копируется каждому пункту. Общая галерея и прежняя проверка сохраняют исходный taskId. Новых Firestore-подписок нет.
+
 Статус: действующий контракт v1. Интерфейс читает данные Firestore через подписки; он не генерирует предметные требования и не хранит готовые ответы в React. Владелец и кратность узлов заданы в [модели Firestore](../../shared/data/firestore.md#ownership), границы повторного использования — в [системе компонентов](../../shared/design/components.md#registry). [Граф выбора](card-generation-policy.md#decision-graph), [границы МЭШ](../synchronization/plan-generation.md#raw-mesh-stage), [дизайн-система](../../shared/design/README.md#cards-and-status).
 
 ## Проекции и компоненты {#projections}

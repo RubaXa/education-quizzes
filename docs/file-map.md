@@ -1491,3 +1491,12 @@
 
 | [src/lib/stageAssessment.test.ts](../src/lib/stageAssessment.test.ts) | [Связь этапа с тестом](modules/school-diary/day-page.md) | Регрессии актуального результата, ожидания и изоляции этапов | Vitest |
 | [docs/decisions/stage-assessment-evidence-2026-11-18.md](decisions/stage-assessment-evidence-2026-11-18.md) | [Страница дня](modules/school-diary/day-page.md) | Решение о связанной проверке этапа и сохранении письменной сдачи | DayPage; UI Kit; CLI |
+| [day/assignment-units.d.mts](../day/assignment-units.d.mts) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [day/assignment-units.mjs](../day/assignment-units.mjs) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [day/assignment-units.test.mjs](../day/assignment-units.test.mjs) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [docs/decisions/source-bound-assignment-units-2026-11-19.md](decisions/source-bound-assignment-units-2026-11-19.md) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [docs/modules/assignments/source-units.md](modules/assignments/source-units.md) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [src/components/AssignmentUnits.tsx](../src/components/AssignmentUnits.tsx) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [src/lib/assignmentUnitView.test.ts](../src/lib/assignmentUnitView.test.ts) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [src/lib/assignmentUnitView.ts](../src/lib/assignmentUnitView.ts) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
+| [src/ui-kit/AssignmentUnitsExample.tsx](../src/ui-kit/AssignmentUnitsExample.tsx) | [Единицы назначения](modules/assignments/source-units.md) | Общая структура упражнения, её контракт и проверка | DayPage; оператор; UI Kit; Vitest |
