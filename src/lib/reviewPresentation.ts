@@ -123,7 +123,9 @@ export function reviewHeadline(review: DayWorkReview): string {
 /** Safe published reasons only; never return the closed answer or rubric. */
 export function reviewStatusExplanation(review?:DayWorkReview):string{
  return review?.assessmentBasis?.limitation?.trim()
-  ||review?.items?.filter(item=>item.status==='cannot-assess').map(item=>[item.observed,item.note].filter(Boolean).join(' ')).join(' ')
+  ||review?.assessmentBasis?.disputedRequirements?.map(item=>item.uncertainty?.trim()||item.action?.trim()).filter(Boolean).join(' ').trim()
+  ||review?.items?.filter(item=>item.status==='cannot-assess').flatMap(item=>[item.observed?.trim(),item.note?.trim()]).filter(Boolean).join(' ').trim()
+  ||review?.studentFeedback?.steps?.filter(step=>step.status==='cannot-assess'&&review.items?.some(item=>item.stageId===step.stageId)).flatMap(step=>[step.observation?.trim(),step.explanation?.trim()]).filter(Boolean).join(' ').trim()
   ||'Пока нет достаточных данных для общего зачёта. Подтверждённые части сохраняются; причина и следующий шаг указаны в разборе.'
 }
 

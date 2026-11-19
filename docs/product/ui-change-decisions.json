@@ -4723,7 +4723,7 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "dac86b1699d77918419948d87b6548b346081ee4a606ce4d12903202992da4e8",
+      "sha256": "8ab2367c15185cd4c247c1ec38dafc0d4d8c5374438d68e05e2fb43a276d2c82",
       "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
@@ -9061,7 +9061,7 @@
       }
     },
     "src/lib/assignmentUnitView.ts": {
-      "sha256": "ef6b0b8ce5a57a014864858c84fdc463e376e68c52b2cf37e6c8ccf925965714",
+      "sha256": "41c3ffc27a5ec1ab7a5c7941a67fdb9cebd49758a6206d08870dc8fc2293a74b",
       "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",

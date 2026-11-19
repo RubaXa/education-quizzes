@@ -10,6 +10,8 @@ it('names unknown evidence without calling it unfinished and keeps partial disti
  const review={status:'cannot-assess',items:[{status:'cannot-assess',observed:'Последний пункт за краем кадра.',note:'Невыполнение не установлено.'}]} as DayWorkReview
  expect(assignmentUnitStatus(unit,review,false)).toMatchObject({status:'unknown',label:'Нужно уточнение',explanation:expect.stringContaining('Последний пункт за краем кадра.')})
  expect(assignmentUnitStatus(unit,review,true)).toMatchObject({status:'complete'})
+ const projected={status:'cannot-assess',items:[{label:'Один',status:'cannot-assess'},{label:'Два',status:'cannot-assess'}]} as DayWorkReview
+ expect(assignmentUnitStatus(unit,projected,false).explanation.trim().length).toBeGreaterThan(20)
 })
 it('scopes only addressed review evidence and keeps the other exercise unknown without copying a whole-task verdict',()=>{
  const review={id:'day:r',taskId:'mesh-1',status:'cannot-assess',checkedAt:{seconds:2},checkableStageIds:['assignment','evidence'],items:[{stageId:'assignment',label:'Запись1',status:'correct'},{stageId:'evidence',label:'Ответ2',status:'cannot-assess'}]} as DayWorkReview
