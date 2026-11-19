@@ -3,7 +3,7 @@ id: service.operator-cli
 status: accepted
 implementation: partial
 created: 2026-10-16
-updated: 2026-11-17
+updated: 2026-11-19
 consumers:
   - "Education operator"
   - "operator CLI"
@@ -144,7 +144,9 @@ flowchart TD
 priorReviewFingerprint с закрытой рубрикой. `quiz rubric TOKEN .local/rubric.json`
 сохраняет полные критерии открытых вопросов в quizReviewPrivate с историей; затем
 экспорт перечитывается. `quiz review TOKEN .local/review.json` сверяет каждый критерий,
-баллы, прежний разбор и свежесть попытки. Коррекция требует correctionReason.
+баллы, прежний разбор и свежесть попытки. Перед подготовкой объяснения оператор
+выбирает [ветку разбора открытого ответа](../../modules/assessments/assessment-decision-graph.md#open-answer-feedback).
+Коррекция требует correctionReason.
 Результат и learningEvidence сохраняются атомарно, обе проекции и знания перечитываются.
 
 Операторский runtime состоит из типизированных CLI-команд, а не одного фонового сервиса. Каждая команда возвращает проверяемый результат; смысловую интерпретацию и педагогические решения принимает оператор/агент.

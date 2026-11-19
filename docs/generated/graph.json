@@ -13021,7 +13021,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-11-17",
+      "updated": "2026-11-19",
       "consumers": [
         "student",
         "parent",
@@ -13043,6 +13043,7 @@
         "assignment",
         "зачёт-и-работа-над-ошибками",
         "contract",
+        "open-answer-feedback",
         "sources",
         "implementation",
         "informatics"
@@ -13167,7 +13168,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-11-17",
+      "updated": "2026-11-19",
       "consumers": [
         "student",
         "parent",
@@ -16245,7 +16246,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-11-17",
+      "updated": "2026-11-19",
       "consumers": [
         "Education operator",
         "operator CLI",
