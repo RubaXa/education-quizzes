@@ -4723,7 +4723,7 @@
       }
     },
     "src/lib/reviewPresentation.ts": {
-      "sha256": "37f88a1f775dc8182d1046a2e0b245ea9748018a16b46049ac08d72a07cd4c3a",
+      "sha256": "6bb4e7ece8f974761b0d2a3b018865971acbf366b2666daebcd1fbe62e3dcdad",
       "record": "docs/decisions/task-status-explanation-2026-11-19.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
