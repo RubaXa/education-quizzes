@@ -3,12 +3,55 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { enqueueExistingEvent, listEvents, main } from './education-sync-dispatch.mjs'
+import { observeDispatchProgress } from '../sync/dispatch-workspace.mjs'
 
 const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 
 function output() { let value = ''; return { write: (part) => { value += part }, value: () => value } }
 
 describe('education sync dispatch CLI', () => {
+  it('reuses only this chat’s server-verified claim after a lost claimed response', async () => {
+    const root = mkdtempSync(resolve(tmpdir(), 'education-own-claim-'))
+    const store = { claimRequest: vi.fn(async ({tokenHash}) => { store.hash=tokenHash; return {status:'claimed'} }),
+      read: async()=>({status:'running',requestId:REQUEST,claimTokenHash:store.hash,workflowLeaseUntil:'2999-01-01T00:00:00Z'}),
+      heartbeatClaim: vi.fn(async()=>({status:'running'})) }
+    const deps = {env:{TELEGRAM_FIRESTORE_PROJECT_ID:'petr-education',EDUCATION_SYNC_PROJECT_ROOT:root,CODEX_THREAD_ID:REQUEST},out:output(),err:output(),createDb:()=>({terminate:async()=>{}}),createStore:()=>store}
+    try {
+      await main(['claim','--request',REQUEST],deps)
+      const first=JSON.parse(deps.out.value()), original=readFileSync(first.claimPath,'utf8'), next=output()
+      await main(['claim','--request',REQUEST],{...deps,out:next})
+      expect(JSON.parse(next.value())).toMatchObject({status:'claimed',reused:true,claimPath:first.claimPath})
+      expect(store.claimRequest).toHaveBeenCalledTimes(1)
+      expect(store.heartbeatClaim).toHaveBeenCalledOnce()
+      expect(readFileSync(first.claimPath,'utf8')).toBe(original)
+      store.claimRequest.mockResolvedValue({status:'running'})
+      store.hash='another-token'
+      const stale=output()
+      await main(['claim','--request',REQUEST],{...deps,out:stale})
+      expect(JSON.parse(stale.value())).toEqual({status:'running'})
+      expect(readFileSync(first.claimPath,'utf8')).toBe(original)
+      expect(store.heartbeatClaim).toHaveBeenCalledOnce()
+      store.claimRequest.mockResolvedValue({status:'running'})
+      const other=output()
+      await main(['claim','--request',REQUEST],{...deps,env:{...deps.env,CODEX_THREAD_ID:'another-chat'},out:other})
+      expect(JSON.parse(other.value())).toEqual({status:'running'})
+      expect(readFileSync(first.claimPath,'utf8')).toBe(original)
+    } finally {rmSync(root,{recursive:true,force:true})}
+  })
+  it('ticks the worker observation without pretending the agent reacted and flags five minutes of silence',()=>{
+    const root=mkdtempSync(resolve(tmpdir(),'education-health-'))
+    const state={status:'running',requestId:REQUEST,claimedAt:'2026-11-19T15:00:00Z',heartbeatAt:'2026-11-19T15:01:00Z'}
+    try {
+      expect(observeDispatchProgress(root,state,{now:'2026-11-19T15:05:59Z',pid:123})).toMatchObject({state:'active',lastReactionAt:state.heartbeatAt,workerPid:123})
+      const stalled=observeDispatchProgress(root,state,{now:'2026-11-19T15:06:00Z',pid:123})
+      expect(stalled).toMatchObject({state:'stalled',silentForMs:300000,lastReactionAt:state.heartbeatAt})
+      expect(observeDispatchProgress(root,state,{now:'2026-11-19T15:07:00Z',pid:123})).toMatchObject({state:'stalled',lastReactionAt:state.heartbeatAt})
+      const path=resolve(root,'.local/education-sync-dispatch/work',REQUEST,'health.json')
+      expect(statSync(path).mode&0o077).toBe(0)
+      expect(readFileSync(path,'utf8')).not.toContain('token')
+      expect(observeDispatchProgress(root,{...state,status:'completed'},{now:'2026-11-19T15:08:00Z'})).toMatchObject({state:'closed'})
+    } finally {rmSync(root,{recursive:true,force:true})}
+  })
   it('resumes here atomically and writes a private claim without queueing a chat message', async () => {
     const root = mkdtempSync(resolve(tmpdir(), 'education-resume-here-')), out = output()
     const store = { resumeBlocked: vi.fn(async () => ({ status: 'claimed' })) }

@@ -56,6 +56,16 @@ const iso = (offsetMs = 0) => new Date(base + offsetMs).toISOString()
 const digest = (n) => n.toString(16).padStart(64, '0')
 
 describe('Firestore EducationSync dispatch store state machine', () => {
+  it('observes a busy drainer from the existing read without changing its claim or creating work',async()=>{
+    const db=new TransactionalFirestoreFake(),onObservation=vi.fn()
+    const state={status:'running',requestId:'owner',claimedAt:iso(),workflowLeaseUntil:iso(6*60*60_000),claimTokenHash:'private'}
+    db.documents.set('educationSyncDispatch/current',state)
+    const store=createFirestoreEducationSyncStore(db,{onObservation})
+    expect(await store.claim({now:iso(5*60_000),workerId:'observer'})).toBeNull()
+    expect(onObservation).toHaveBeenCalledWith(state,{now:iso(5*60_000)})
+    expect(db.documents.size).toBe(1)
+    expect(db.documents.get('educationSyncDispatch/current')).toEqual(state)
+  })
   it('keeps arrivals in the common pool and emits no wake while either drainer is active', async () => {
     for (const execution of ['running', 'queued', 'sending']) {
       const { db, store } = setup()

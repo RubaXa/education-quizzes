@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/sync-claim-liveness-2026-11-19.md */
 import { createEducationFirestore } from '../../education-runtime/firestore.mjs'
 import { createFirestoreAdapters } from './firestore.mjs'
 import { createTelegramAdapter, createTelegramDelivery } from './telegram.mjs'
@@ -19,6 +20,7 @@ import { createEducationEventHandlers } from '../application/education-event-rou
 import { createPreparationEventHandler } from '../../../olympiad/preparation-store.mjs'
 import { createUploadBroker } from '../../education-runtime/upload-broker.mjs'
 import { createLegacyEducationEventReconciler } from '../../education-runtime/legacy-event-reconciliation.mjs'
+import { observeDispatchProgress } from '../../../sync/dispatch-workspace.mjs'
 
 /** @see ../../../docs/shared/server-runtime.md @see ../../../docs/services/telegram-bot/README.md @see ../../../docs/services/telegram-bot/operations.md#runtime-boundary */
 export function createRuntime(config, { logger = console, linkAuthorizer = null, firestore = null,
@@ -56,7 +58,12 @@ export function createRuntime(config, { logger = console, linkAuthorizer = null,
   wrapMethod(notificationService, 'runOne', telemetry, 'telegram.notification.run-one', undefined, 'trace')
   wrapMethod(notificationService.delivery, 'send', telemetry, 'telegram.delivery.send')
   const educationSyncDispatcher = config.educationSync && (enableMeshSource || enableFirestoreSource) && enableDelivery
-    ? educationSyncDispatcherFactory({ db, store: createFirestoreEducationSyncStore(db), threadId: config.educationSync.threadId,
+    ? educationSyncDispatcherFactory({ db, store: createFirestoreEducationSyncStore(db,{onObservation:(state,options)=>{
+      for(const execution of [state,state.actionLane]) if(execution?.requestId) {
+        const health=observeDispatchProgress(config.educationSync.projectRoot,execution,options)
+        if(health?.state==='stalled'&&health.stateChanged) logger.error({code:'education_sync_stalled',requestId:execution.requestId,lastReactionAt:health.lastReactionAt,silentForMs:health.silentForMs})
+      }
+    }}), threadId: config.educationSync.threadId,
       codexPath: config.educationSync.codexPath, projectRoot: config.educationSync.projectRoot, remote: config.educationSync.remote }) : null
   if (educationSyncDispatcher) wrapMethod(educationSyncDispatcher, 'runOne', telemetry, 'telegram.education-sync.dispatch')
   const uploadBroker = uploadDisk ? createUploadBroker({ db, disk: uploadDisk, logger: (event) => logger.error(event),

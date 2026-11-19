@@ -3,7 +3,7 @@ id: service.telegram-bot.education-sync-dispatch
 status: accepted
 implementation: partial
 created: 2026-10-19
-updated: 2026-10-22
+updated: 2026-11-19
 parent: service.telegram-bot
 uses:
   - shared.server-runtime
@@ -45,10 +45,28 @@ sections:
 После claim агент вызывает tasks. Ответ содержит generation, manifestPath,
 progressPath. Пакет находится в `.local/education-sync-dispatch/tasks/REQUEST/batch-GENERATION/`;
 прогресс — в `.local/education-sync-dispatch/work/REQUEST/progress.json`, права0600.
+Повтор `claim` из того же `CODEX_THREAD_ID` с сохранённым приватным claim сначала
+сверяет хеш токена, request и действующий серверный lease. Только совпадение
+возвращает `claimed, reused:true` с прежним файлом и продлевает владение; это
+восстановление потерянного ответа, а не второй исполнитель. Другой чат, отсутствие
+метаданных владельца или несовпадение токена сохраняют прежний ответ `running`
+и не меняют файл. Старый claim можно продолжить явно через `heartbeat --claim-file`.
 Фаза обновляется командой `progress --request ID --claim-file PATH --phase PHASE`,
 которая сперва проверяет и продлевает серверное владение. Payload источников,
 пароли и токен владения не входят в progress. Существующий claim-файл остаётся
 локальным полномочием; отдельный независимый файловый mutex не вводится.
+
+Каждый успешный heartbeat также фиксирует реальную реакцию в progress, сохраняя
+фазу и поколение. Действующий worker на своём существующем проходе диспетчера
+обновляет закрытый `health.json`: `checkedAt`, `workerPid`, `lastReactionAt`,
+`silentForMs`, `state`. После пяти минут без реакции состояние — `stalled`.
+Часы наблюдателя не продлевают серверный lease и не обновляют время реакции:
+живой Telegram-worker не доказывает работу учебного агента. Наблюдение использует
+уже прочитанное состояние dispatcher, без дополнительного Firestore polling,
+нового расписания, сообщения в чат, второго claim или автоматического зачёта.
+`status` показывает время claim/heartbeat, срок lease и такое же вычисляемое
+состояние. Зависание явно видно, но оно не разрешает параллельный запуск: безопасное
+продолжение использует тот же проверенный claim; истёкший токен по-прежнему fenced.
 
 После публикации, проверки обеих ролей и конечного inbox агент вызывает
 `next --request ID --claim-file PATH --generation N`. Команда проверяет завершение

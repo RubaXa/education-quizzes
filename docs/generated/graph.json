@@ -3911,6 +3911,35 @@
       "path": "docs/decisions/subject-graph-restoration-2026-11-16.md"
     },
     {
+      "id": "decision.sync-claim-liveness",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-19",
+      "updated": "2026-11-19",
+      "parent": "service.telegram-bot.education-sync-dispatch",
+      "uses": [
+        "module.synchronization.firestore-read-paths"
+      ],
+      "consumers": [
+        "Education operator",
+        "Telegram worker"
+      ],
+      "code": [
+        "scripts/education-sync-dispatch.mjs",
+        "sync/dispatch-workspace.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+        "packages/telegram-notifications/adapters/runtime.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/sync-claim-liveness-2026-11-19.md"
+    },
+    {
       "id": "decision.sync-permission-scope-2026-11-08",
       "status": "accepted",
       "implementation": "implemented",
@@ -12621,8 +12650,8 @@
       "id": "file:sync/dispatch-workspace.mjs",
       "path": "sync/dispatch-workspace.mjs",
       "kind": "artifact",
-      "purpose": "Закрытый прогресс и очистка только подтверждённых пакетов",
-      "consumer": "Dispatch CLI"
+      "purpose": "Реальная реакция, отдельные часы наблюдателя, зависание после пяти минут и очистка только подтверждённых пакетов",
+      "consumer": "Dispatch CLI; существующий Telegram worker"
     },
     {
       "id": "file:sync/event-task-artifact.mjs",
@@ -14906,7 +14935,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-11-16",
+      "updated": "2026-11-19",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -16331,7 +16360,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-19",
-      "updated": "2026-10-22",
+      "updated": "2026-11-19",
       "parent": "service.telegram-bot",
       "uses": [
         "shared.server-runtime",
@@ -18533,6 +18562,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.sync-claim-liveness",
+      "to": "module.synchronization.firestore-read-paths",
+      "type": "uses"
+    },
+    {
       "from": "decision.sync-permission-scope-2026-11-08",
       "to": "service.telegram-bot.education-sync-dispatch",
       "type": "uses"
@@ -20639,6 +20673,11 @@
     },
     {
       "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
+      "to": "decision.sync-claim-liveness",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/adapters/runtime.mjs",
       "to": "service.telegram-bot.operations",
       "type": "implements"
     },
@@ -20740,6 +20779,11 @@
     {
       "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
       "to": "decision.source-wait-generations-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/telegram-notifications/application/education-sync-dispatcher.mjs",
+      "to": "decision.sync-claim-liveness",
       "type": "implements"
     },
     {
@@ -21500,6 +21544,11 @@
     {
       "from": "file:scripts/education-sync-dispatch.mjs",
       "to": "decision.source-wait-generations-2026-10-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/education-sync-dispatch.mjs",
+      "to": "decision.sync-claim-liveness",
       "type": "implements"
     },
     {
@@ -25934,6 +25983,11 @@
     },
     {
       "from": "file:sync/dispatch-workspace.mjs",
+      "to": "decision.sync-claim-liveness",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/dispatch-workspace.mjs",
       "to": "decision.sync-single-drainer-2026-11-05",
       "type": "implements"
     },
@@ -30120,6 +30174,11 @@
     {
       "from": "service.telegram-bot.education-sync-dispatch",
       "to": "decision.source-wait-generations-2026-10-22",
+      "type": "contains"
+    },
+    {
+      "from": "service.telegram-bot.education-sync-dispatch",
+      "to": "decision.sync-claim-liveness",
       "type": "contains"
     },
     {

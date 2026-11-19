@@ -55,8 +55,8 @@
       }
     },
     "sync/dispatch-workspace.mjs": {
-      "sha256": "5343e5f977d83617b4a0d4ee41b6d3497dc197013044948e14965f705bdc5efc",
-      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
+      "sha256": "6b46940634eab44d4b3243d867ba32a2b22ce883a01ee1b61bc05cb9a8e5385f",
+      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
@@ -1119,8 +1119,8 @@
       }
     },
     "packages/telegram-notifications/adapters/runtime.mjs": {
-      "sha256": "f4961d69b33c54e56593776955937935156506991606c5155aa6f3c38a9d1d53",
-      "record": "docs/decisions/olympiad-preparation-updates-2026-11-01.md",
+      "sha256": "abb8d38938ceb33e940ef67e63519edac20b85cc203016cb461937d9202462d3",
+      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
       "specs": [
         "docs/modules/assessments/olympiad-history.md"
       ],
@@ -1307,8 +1307,8 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "e2667c0cebc33c33a13377e329c127426d3abb90b48b623a5e2db8effb5c551e",
-      "record": "docs/decisions/sync-permission-scope-2026-11-08.md",
+      "sha256": "687bf1fb347634e663228864940bda2a6b7fcefbfe55f16809f00f3be6312c1c",
+      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/modules/synchronization/global-sync.md"
@@ -2039,8 +2039,8 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "7fa7c7ad884bca22fca2c5f7912d1759d3dc01c8aaeda5d5427806b4a788844e",
-      "record": "docs/decisions/sync-permission-scope-2026-11-08.md",
+      "sha256": "8f28761ab5fae843ed022978ff883086edca9568455cfaeae48560e19c808965",
+      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/modules/synchronization/global-sync.md"

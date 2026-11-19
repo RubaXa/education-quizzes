@@ -2,6 +2,7 @@
 
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
+| [docs/decisions/sync-claim-liveness-2026-11-19.md](decisions/sync-claim-liveness-2026-11-19.md) | [Владение и прогресс](services/telegram-bot/education-sync-dispatch.md) | Собственный claim, отдельное наблюдение worker и обнаружение пяти минут молчания | Оператор; worker |
 | [docs/decisions/weekend-self-check-2026-11-14.md](decisions/weekend-self-check-2026-11-14.md) | [Dashboard](modules/school-diary/dashboard.md) | Решение о выходной самопроверке любого предмета в той же карточке и цепочке | Автор; оператор; разработчик |
 | [docs/decisions/photo-auth-resume-2026-11-08.md](decisions/photo-auth-resume-2026-11-08.md) | [Восстановление фото](services/upload-worker/README.md) | Холодный вход, прежний Blob и честное ожидание устройства | App; оператор |
 | [sync/reconciliation-ack.mjs](../sync/reconciliation-ack.mjs) | [Глобальная синхронизация](modules/synchronization/global-sync.md) | Адресное подтверждение проверенной ревизии reconcile-day после аудита обеих ролей | sync-project CLI |
@@ -26,7 +27,7 @@
 | Файл | Спецификация | Назначение | Потребитель |
 |---|---|---|---|
 | [docs/decisions/sync-single-drainer-2026-11-05.md](decisions/sync-single-drainer-2026-11-05.md) | [Одна сессия синхронизации](services/telegram-bot/education-sync-dispatch.md) | Основание отказа от повторных сообщений и последовательного подтверждения пакетов | Оператор; worker |
-| [sync/dispatch-workspace.mjs](../sync/dispatch-workspace.mjs) | [Один разбор очереди](services/telegram-bot/education-sync-dispatch.md) | Закрытый прогресс и очистка только подтверждённых пакетов | Dispatch CLI |
+| [sync/dispatch-workspace.mjs](../sync/dispatch-workspace.mjs) | [Один разбор очереди](services/telegram-bot/education-sync-dispatch.md) | Реальная реакция, отдельные часы наблюдателя, зависание после пяти минут и очистка только подтверждённых пакетов | Dispatch CLI; существующий Telegram worker |
 | [docs/decisions/mesh-web-login-2026-11-02.md](decisions/mesh-web-login-2026-11-02.md) | [School diary](modules/school-diary/README.md) | Прямой парольный веб-вход с CookieJar, SMS и проверкой владельца | Родитель; оператор; runtime |
 | [packages/education-connect/lib/web-login.mjs](../packages/education-connect/lib/web-login.mjs) | [Веб-вход МЭШ](decisions/mesh-web-login-2026-11-02.md) | HTTP-вход, локальная диагностика trust-страницы, возобновление и продление собственной SSO | Diary CLI; Mesh adapter |
 | [packages/education-connect/lib/web-login.test.mjs](../packages/education-connect/lib/web-login.test.mjs) | [Веб-вход МЭШ](decisions/mesh-web-login-2026-11-02.md) | Password/SMS/state/cookie boundaries и истечение SSO | Vitest |

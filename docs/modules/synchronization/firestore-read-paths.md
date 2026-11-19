@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-11-16
+updated: 2026-11-19
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -23,6 +23,14 @@ sections:
   - аудиобиблиотека--22-октября
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
+
+19.11, повтор собственного `dispatch claim`: при приватном claim того же
+`CODEX_THREAD_ID` один адресный read `educationSyncDispatch/current` сверяет
+request, hash и lease перед heartbeat. Другой чат не получает токен и не продолжает
+чужую работу. `status` использует прежний один read, добавляет безопасные времена
+и вычисляемый порог молчания пять минут. Worker пишет локальный `health.json`
+после уже существующего transaction read в `store.claim`; дополнительных запросов,
+подписок или таймеров Firestore для контроля зависания нет.
 
 17.11, guidance-export/correct: только явно названные studentToken/taskId. По одному
 get owner/page/закрытый guide/privateReview/publicReview, плюс where(taskId) limit100

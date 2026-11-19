@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/sync-claim-liveness-2026-11-19.md */
 /** @see ../docs/decisions/sync-permission-scope-2026-11-08.md */
 /** @see ../docs/decisions/sync-phase-report-2026-10-29.md */
 /** @see ../docs/decisions/source-wait-generations-2026-10-22.md */
@@ -15,7 +16,7 @@ import { exportEventTaskManifest } from '../sync/event-task-export.mjs'
 
 /** @see ../docs/services/telegram-bot/education-sync-dispatch.md */
 import { finishDispatchReport } from '../operator/run-report.mjs'
-import { WORK_PHASES, writeDispatchProgress, clearDispatchBatch } from '../sync/dispatch-workspace.mjs'
+import { WORK_PHASES, writeDispatchProgress, readDispatchProgress, dispatchLiveness, clearDispatchBatch } from '../sync/dispatch-workspace.mjs'
 
 export async function main(args = process.argv.slice(2), { env = process.env, out = process.stdout,
   err = process.stderr, scriptRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..'),
@@ -36,9 +37,9 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
       const state = await store.read()
       result = state ? summarize(state) : { status: 'idle', generation: 0 }
     } else if (command === 'claim' && validRequest(values.request) && Object.keys(values).length === 1) {
-      result = await claimRequest(store, root, values.request)
+      result = await claimRequest(store, root, values.request, false, env.CODEX_THREAD_ID)
     } else if (command === 'resume-here' && validRequest(values.request) && Object.keys(values).length === 1) {
-      result = await claimRequest(store, root, values.request, true)
+      result = await claimRequest(store, root, values.request, true, env.CODEX_THREAD_ID)
     } else if (command === 'enqueue-event' && /^[a-f0-9]{64}$/.test(values['event-id'] ?? '') && Object.keys(values).length === 1) {
       result = await enqueueExistingEvent(db, store, values['event-id'])
     } else if (command === 'events' && Object.keys(values).length === 1 && Number.isFinite(Date.parse(values.since ?? ''))) {
@@ -81,6 +82,9 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
         writeDispatchProgress(root, values.request, { phase: command === 'fail' ? 'failed' : 'completed' })
         result = { ...result, runReport: finishDispatchReport(root, values.request, result) }
         rmSync(resolve(root, '.local/education-sync-dispatch/claims', `${values.request}.json`), { force: true })
+      } else if (command === 'heartbeat' && result.status === 'running') {
+        const progress=readDispatchProgress(root,values.request)
+        result.progressPath=writeDispatchProgress(root,values.request,{phase:progress?.phase??'claimed'})
       }
     } else if (command === 'block' && validRequest(values.request) && typeof values['claim-file'] === 'string'
       && ['permission_required', 'source_unavailable', 'manual_review_required'].includes(values.reason)
@@ -106,17 +110,31 @@ export async function main(args = process.argv.slice(2), { env = process.env, ou
   }
 }
 
-async function claimRequest(store, projectRoot, requestId, resumeHere = false) {
+async function claimRequest(store, projectRoot, requestId, resumeHere = false, ownerThreadId) {
+  const claimPath = resolve(projectRoot, '.local/education-sync-dispatch/claims', `${requestId}.json`)
+  if (!resumeHere && validRequest(ownerThreadId) && existsSync(claimPath)) {
+    const saved=readClaimFile(projectRoot,claimPath,requestId)
+    if (saved.ownerThreadId===ownerThreadId) {
+      const state=await store.read(), execution=state?.requestId===requestId?state:state?.actionLane
+      const tokenHash=createHash('sha256').update(saved.token).digest('hex'),now=new Date().toISOString()
+      if (execution?.requestId===requestId && execution.status==='running' && execution.workflowLeaseUntil>now && execution.claimTokenHash===tokenHash) {
+        const heartbeat=await store.heartbeatClaim({requestId,tokenHash,now})
+        if (heartbeat.status!=='running') return heartbeat
+        const progress=readDispatchProgress(projectRoot,requestId)
+        const progressPath=writeDispatchProgress(projectRoot,requestId,{phase:progress?.phase??'claimed'})
+        return {status:'claimed',reused:true,claimPath,progressPath}
+      }
+    }
+  }
   const token = randomUUID()
   const tokenHash = createHash('sha256').update(token).digest('hex')
   const input = { requestId, tokenHash, now: new Date().toISOString() }
   const result = resumeHere ? await store.resumeBlocked(input) : await store.claimRequest(input)
   if (result.status !== 'claimed') return result
-  const claimPath = resolve(projectRoot, '.local/education-sync-dispatch/claims', `${requestId}.json`)
   const temporary = `${claimPath}.${randomUUID()}.tmp`
   try {
     mkdirSync(dirname(claimPath), { recursive: true, mode: 0o700 })
-    writeFileSync(temporary, JSON.stringify({ requestId, token }), { mode: 0o600, flag: 'wx' })
+    writeFileSync(temporary, JSON.stringify({ requestId, token, ...(validRequest(ownerThreadId)?{ownerThreadId}:{}) }), { mode: 0o600, flag: 'wx' })
     chmodSync(temporary, 0o600)
     renameSync(temporary, claimPath)
     chmodSync(claimPath, 0o600)
@@ -199,6 +217,8 @@ function readClaimFile(projectRoot, suppliedPath, requestId) {
 
 function summarize(state) {
   return { status: state.status, generation: state.generation ?? 0,
+    claimedAt:state.claimedAt??null,heartbeatAt:state.heartbeatAt??null,workflowLeaseUntil:state.workflowLeaseUntil??null,
+    liveness:dispatchLiveness(state),
     ...(Number.isInteger(state.sendingGeneration) ? { sendingGeneration: state.sendingGeneration } : {}),
     ...(Array.isArray(state.pendingKinds) ? { pendingKinds: safeKinds(state.pendingKinds) } : {}),
     ...(Array.isArray(state.sendingKinds) ? { sendingKinds: safeKinds(state.sendingKinds) } : {}),

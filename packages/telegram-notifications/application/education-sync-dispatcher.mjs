@@ -1,3 +1,4 @@
+/** @see ../../../docs/decisions/sync-claim-liveness-2026-11-19.md */
 /** @see ../../../docs/decisions/sync-permission-scope-2026-11-08.md */
 /** @see ../../../docs/decisions/sync-single-drainer-2026-11-05.md */
 /** @see ../../../docs/decisions/upload-lifecycle-continuation-2026-10-30.md */
@@ -190,7 +191,7 @@ export function resolveEducationSyncExecution(state, { requestId, tokenHash, now
   return execution
 }
 
-export function createFirestoreEducationSyncStore(db, { collection = 'educationSyncDispatch' } = {}) {
+export function createFirestoreEducationSyncStore(db, { collection = 'educationSyncDispatch', onObservation } = {}) {
   const ref = db.collection(collection).doc('current')
   const eventCollection = db.collection(`${collection}Events`)
   return Object.freeze({
@@ -329,10 +330,12 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
         generation: last.data().generation, id: last.id }) : null, complete: true }
     },
     async claim({ now, workerId }) {
-      return db.runTransaction(async (tx) => {
+      let observed
+      const result=await db.runTransaction(async (tx) => {
         const snap = await tx.get(ref)
         if (!snap.exists) return null
         const state = snap.data()
+        observed=state
         // Every recovery lane shares the one chat-drainer exclusion gate.
         const active = execution => execution?.status === 'queued'
           || execution?.status === 'running' && execution.workflowLeaseUntil > now
@@ -386,6 +389,10 @@ export function createFirestoreEducationSyncStore(db, { collection = 'educationS
           actionThroughGeneration: continuingBatch ? state.sendingActionThroughGeneration ?? null : state.pendingActionThroughGeneration ?? null,
           workerId }
       })
+      // Local health is a projection of this existing read, outside the transaction.
+      // It cannot renew a lease, mutate the queue or create a second executor.
+      if(observed) onObservation?.(observed,{now})
+      return result
     },
     async markQueued({ requestId, workerId, now, queueReceiptId = null }) {
       await db.runTransaction(async (tx) => {
