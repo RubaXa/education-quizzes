@@ -185,23 +185,19 @@
       }
     },
     "assessment/question-guidance.mjs": {
-      "sha256": "9de066ee6a377a2d792c268c821e0fff93f175dbadb2c32a0a209882fd3caded",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "e0aca65ec0d9bdc73e2f52ee1dee8bb184acaba9b5cc3e049cda0d91f3d663c7",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/criteria-and-knowledge.md",
-        "docs/shared/design/ui-kit.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "storage/criteria-contract.test.mjs",
-        "sync/learning-observations.test.mjs",
-        "assessment/manual-review-contract.test.mjs",
-        "scripts/submissions.criteria-workflow.test.mjs",
-        "day/decision-registry.test.mjs",
-        "src/ui-kit/DecisionScenarioCatalog.test.tsx"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 поручил закрыть барьер критериев, обновление знаний и связать предметные карточки обеих ролей с графом через UI Kit."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "assessment/quiz-lineage.mjs": {
@@ -2316,18 +2312,19 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "75adfd65490ee2c8adc25254db823df8edb9566512372965274ceb0fcd384079",
-      "record": "docs/decisions/teacher-control-source-refresh-2026-11-18.md",
+      "sha256": "ee9a12eca3ac96008e4af641f9d37555c35624e6c85f11a6d4c7e9929324887a",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/modules/assessments/assessment-decision-graph.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "assessment/followup-contract.test.mjs"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение18.11: после получения реальных файлов учителя перестроить подготовку по ним, сохранив выполненную работу и единую систему карточек."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "scripts/release-note.mjs": {
@@ -3555,21 +3552,19 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "5e7cd55d1c5650769cbad2de65358ad1583c2c79025dbab0a506996d71451870",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "2912037c0bf22ea90e4edfe4339e05331f92018e6758f8a702a2325d5bbcd1d5",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -4592,20 +4587,19 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "be3e2b6ccf245d9d0e6114b8c6a086b7f3de87bbf4e3fdec087f12b56a7b74ea",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "51a682b818e83c0e09af2e71cadc86beabf15c4d3d526bf70071812af40d3d63",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "src/lib/quizCardViewModel.ts": {
@@ -7098,30 +7092,19 @@
       }
     },
     "src/components/ReviewBrief.tsx": {
-      "sha256": "3fae1c611b45d5a216f50bbdc002f7f4255c2cad17012d59052eafd07d4e3121",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "c4b8811eb7ec1fe063f9a8e4ac66a3b83cafc04b338efa72f36e3f460e0f03f6",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
@@ -7738,21 +7721,19 @@
       }
     },
     "src/components/ReviewConversation.tsx": {
-      "sha256": "191b04ebdaf3cfa6009d8a6e45ae3afd2d5f2dc2625bfb96630fc4e80e5d4e6a",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "365346d11080ef4a0270e8967e9127ce6d393d3c0eb2d259a160a7c2f73f227d",
+      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/shared/design/compact-review.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "assessment/question-guidance.test.mjs",
+        "src/components/QuizResultCard.dialogue.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
       }
     },
     "src/components/ReviewReplyControls.tsx": {

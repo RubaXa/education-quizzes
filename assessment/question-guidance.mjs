@@ -1,8 +1,10 @@
+/** @see ../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../docs/decisions/program-explanation-2026-11-01.md */
 /** Checked feedback contract, separate from answer/explanation/learning.
  * @see ../docs/modules/assessments/quizzes.md#question-guidance
  */
-import {reviewSupplementErrors} from '../packages/education-presentation/review-content.mjs'
+import {reviewOverviewLimits,reviewSupplementErrors} from '../packages/education-presentation/review-content.mjs'
+import {excludedQuizQuestionIds} from '../src/lib/quiz.ts'
 export function guidanceErrors(guidance) {
   const errors = []
   if (!guidance || typeof guidance !== 'object' || Array.isArray(guidance)) return ['Нужен проверенный guidance.']
@@ -10,11 +12,19 @@ export function guidanceErrors(guidance) {
   for (const field of execution ? ['observation', 'reason'] : ['observation', 'question']) {
     if (typeof guidance[field] !== 'string' || guidance[field].trim().length < 15) errors.push(`Нужен конкретный guidance.${field}.`)
   }
-  if (Object.keys(guidance).some((key) => !['mode', 'reason', 'observation', 'question', 'source', 'presentation'].includes(key))) errors.push('Неизвестные поля guidance запрещены.')
+  if (Object.keys(guidance).some((key) => !['mode', 'reason', 'observation', 'question', 'source', 'presentation', 'answerFeedback'].includes(key))) errors.push('Неизвестные поля guidance запрещены.')
   if (guidance.mode !== undefined && !execution) errors.push('Неизвестный режим guidance.')
   if (execution && (guidance.question !== undefined || guidance.presentation?.activity !== undefined
     || guidance.presentation?.visual?.kind !== 'comparison' || !guidance.presentation?.details?.length
     || guidance.observation?.length > 160 || guidance.reason?.length > 160)) errors.push('Разбор программы: короткое правило, причина, таблица выполнения и пояснение; без вопроса и ввода.')
+  if (guidance.answerFeedback !== undefined) {
+    const fields = { confirmed: reviewOverviewLimits.confirmed, missing: reviewOverviewLimits.focus, next: reviewOverviewLimits.bridge }
+    const feedback = guidance.answerFeedback
+    if (execution || !feedback || Object.keys(feedback).length !== 3 || Object.entries(fields).some(([key, limit]) =>
+      typeof feedback[key] !== 'string' || !feedback[key].trim() || feedback[key].length > limit)) {
+      errors.push('Нужны три короткие фразы разбора: что получилось, чего не хватило, как дополнить.')
+    }
+  }
   errors.push(...reviewSupplementErrors(guidance.presentation))
   const source = guidance.source
   for (const field of ['title', 'edition', 'section', 'pages', 'locator']) {
@@ -29,10 +39,13 @@ export function guidanceErrors(guidance) {
   return errors
 }
 
-export function questionGuidanceErrors(questions) {
+export function questionGuidanceErrors(questions, assessedAnswerIds) {
   const errors = [], seen = new Set()
   for (const item of questions) {
     errors.push(...guidanceErrors(item.answer?.guidance).map((error) => `${item.id}: ${error}`))
+    if (item.answer?.guidance?.answerFeedback !== undefined && !assessedAnswerIds?.has(item.id)) {
+      errors.push(`${item.id}: разбор ответа требует проверенного текста в сданной попытке.`)
+    }
     if(item.answer?.guidance?.mode === 'program-explanation') {
       if(!item.code?.trim())errors.push(`${item.id}: разбор выполнения требует видимый код вопроса.`)
     } else if(!item.answer?.guidance?.presentation?.activity)errors.push(`${item.id}: нужна наглядная опора текущего вопроса presentation.activity без готового ответа.`)
@@ -51,7 +64,7 @@ export function publishedAnswer(answer = {}) {
   return entry
 }
 
-export function repairQuestionGuidance(assignment, key, request) {
+export function repairQuestionGuidance(assignment, key, request, review) {
   if (!assignment?.testId || request?.testId !== assignment.testId || !request.reason?.trim()) throw new Error('Exact test identity and reason required.')
   const ids = assignment.questions.map((question) => question.id)
   if (!request.entries || Object.keys(request.entries).length !== ids.length || ids.some((id) => !request.entries[id])) throw new Error('Cover every question exactly once.')
@@ -60,7 +73,16 @@ export function repairQuestionGuidance(assignment, key, request) {
     if (Object.keys(item.answer).some((field) => !['guidance', 'sourceEvidence'].includes(field))) throw new Error('Only guidance and sourceEvidence may change.')
     if (!key.entries?.[item.id]) throw new Error(`Missing existing key: ${item.id}`)
   }
-  const errors = questionGuidanceErrors(questions)
+  const excluded = excludedQuizQuestionIds(assignment)
+  const assessed = new Set(assignment.questions.filter(({ id, kind, points }) => {
+    const answer = assignment.answers?.[id]
+    const score = review?.entries?.[id]?.points
+    const observed = request.answerFeedbackObservations?.[id]
+    return assignment.status === 'submitted' && kind === 'long' && !excluded.has(id)
+      && typeof answer === 'string' && answer.trim() && Number.isFinite(score) && score >= 0 && score < points
+      && observed?.answer === answer && observed.points === score
+  }).map(({ id }) => id))
+  const errors = questionGuidanceErrors(questions, assessed)
   if (errors.length) throw new Error(errors.join('\n'))
   const entries = { ...key.entries }, changed = []
   for (const { id, answer } of questions) {

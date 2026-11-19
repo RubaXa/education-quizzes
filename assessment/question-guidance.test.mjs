@@ -51,3 +51,20 @@ it('validates learner-safe current-step interaction rather than forwarding a hid
  base.presentation.activity.tokens[0].correct=true
  expect(guidanceErrors(base).length).toBeGreaterThan(0)
 })
+
+it('attaches answer feedback only to the exact checked written answer, preserving the original next step', () => {
+  const answerFeedback = {confirmed:'Ты описал природное явление.',missing:'Не указан признак, по которому оно отличается.',next:'Назови один признак и свяжи его с выводом.'}
+  const written = {...assignment,status:'submitted',questions:[{id:'q',kind:'long',points:1}]}
+  const checked = {entries:{q:{points:0}}}
+  const pack = {...request,entries:{q:{...entry,guidance:{...guidance,answerFeedback}}},
+    answerFeedbackObservations:{q:{answer:assignment.answers.q,points:0}}}
+  const repaired = repairQuestionGuidance(written,key,pack,checked)
+  expect(repaired.key.entries.q).toEqual({...key.entries.q,guidance:{...guidance,answerFeedback}})
+  expect(questionGuidanceErrors([{id:'q',answer:pack.entries.q}]).join()).toContain('сданной попытке')
+  expect(() => repairQuestionGuidance(written,key,pack)).toThrow(/проверенного текста/)
+  expect(() => repairQuestionGuidance({...written,answers:{q:'Новая запись'}},key,pack,checked)).toThrow(/проверенного текста/)
+  expect(() => repairQuestionGuidance(written,key,pack,{entries:{q:{points:0.5}}})).toThrow(/проверенного текста/)
+  expect(() => repairQuestionGuidance({...written,authorScopeExclusions:{version:1,revision:1,questionIds:['q']}},key,pack,checked)).toThrow(/проверенного текста/)
+  expect(guidanceErrors({...guidance,answerFeedback:{...answerFeedback,next:' '}})).not.toEqual([])
+  expect(guidanceErrors({...guidance,answerFeedback:{...answerFeedback,key:'закрытая часть'}})).not.toEqual([])
+})

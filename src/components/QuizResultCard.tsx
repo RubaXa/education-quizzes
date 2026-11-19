@@ -37,6 +37,10 @@ export default function ResultCard({ result, index,parent=false,submittedAt,conv
   const needsReflection = wrong || partial
   const spelling = spellingFeedback(result)
   const guidance = result.guidance
+  const written = result.question.kind === 'long'
+  const answerFeedback = written && needsReflection && !skipped && typeof result.answer === 'string' && result.answer.trim()
+    ? guidance?.answerFeedback
+    : undefined
   const presentation=projectReviewSupplement(guidance?.presentation)
   const execution=Boolean(result.question.code && guidance?.mode==='program-explanation' && presentation?.visual?.kind==='comparison')
   const hasActiveQuestion=needsReflection&&!spelling&&!execution&&Boolean(guidance?.question)
@@ -48,10 +52,11 @@ export default function ResultCard({ result, index,parent=false,submittedAt,conv
   const stateLabel=excluded?'Не входит в зачёт этого задания':skipped?'Пропущено':pending?'Ждёт проверки':wrong?'Неверно':partial?'Частично верно':'Верно'
   const missing=needsReflection&&!spelling&&!guidance?'Для этого вопроса ещё нет проверенного разбора с точным источником.':undefined
   const data:ReviewBriefData = {id:result.question.id,label:`Вопрос ${index+1}`,status:state,stateLabel,
-    prompt:result.question.prompt,response:{label:parent?'Ответ ребёнка':'Ваш ответ',value:answerText(result.question,result.answer)},
+    prompt:result.question.prompt,response:{label:parent?'Ответ ребёнка':answerFeedback?'Ваш текстовый ответ':'Ваш ответ',value:answerText(result.question,result.answer)},
+    answerFeedback,
     meta:skipped?'Без оценки':pending?`Баллы уточняются · максимум ${result.question.points}`:`${result.points} из ${result.question.points} баллов`,
     body:excluded?'Вопрос и собственный ответ сохранены в истории. Баллы не начисляются.':pending?'Разбор появится здесь после проверки.':skipped?'Вопрос не входил в оценку этой попытки.':undefined,
-    focus:needsReflection&&!spelling&&guidance?guidance.observation:missing,
+    focus:needsReflection&&!spelling&&guidance&&!answerFeedback?guidance.observation:missing,
     bridge:needsReflection&&execution?guidance?.reason:undefined,
     question:needsReflection&&!spelling&&!execution&&guidance?guidance.question:undefined,
     activity:needsReflection&&!execution?presentation?.activity:undefined,

@@ -3149,10 +3149,12 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-11-17",
-      "updated": "2026-11-17",
+      "updated": "2026-11-19",
       "parent": "shared.design.student-review-step",
       "uses": [
         "module.assessments.quizzes",
+        "module.assessments.assessment-decision-graph",
+        "shared.design.compact-review",
         "module.synchronization.event-queue",
         "shared.design.ui-kit"
       ],
@@ -3162,6 +3164,10 @@
         "Education operator"
       ],
       "code": [
+        "assessment/question-guidance.mjs",
+        "scripts/quiz.mjs",
+        "src/components/ReviewBrief.tsx",
+        "src/lib/quiz.ts",
         "packages/education-presentation/quiz-review-reply.mjs",
         "packages/education-presentation/quiz-review-reply.d.mts",
         "src/lib/quizCardViewModel.ts",
@@ -16989,7 +16995,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-31",
-      "updated": "2026-11-01",
+      "updated": "2026-11-19",
       "parent": "shared.design",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -18406,12 +18412,22 @@
     },
     {
       "from": "decision.quiz-review-dialogue-2026-11-17",
+      "to": "module.assessments.assessment-decision-graph",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-review-dialogue-2026-11-17",
       "to": "module.assessments.quizzes",
       "type": "uses"
     },
     {
       "from": "decision.quiz-review-dialogue-2026-11-17",
       "to": "module.synchronization.event-queue",
+      "type": "uses"
+    },
+    {
+      "from": "decision.quiz-review-dialogue-2026-11-17",
+      "to": "shared.design.compact-review",
       "type": "uses"
     },
     {
@@ -19152,6 +19168,11 @@
     {
       "from": "file:assessment/question-guidance.mjs",
       "to": "decision.program-explanation-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:assessment/question-guidance.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
     },
     {
@@ -21951,6 +21972,11 @@
     },
     {
       "from": "file:scripts/quiz.mjs",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/quiz.mjs",
       "to": "decision.teacher-control-source-refresh-2026-11-18",
       "type": "implements"
     },
@@ -23576,6 +23602,11 @@
     },
     {
       "from": "file:src/components/ReviewBrief.tsx",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/ReviewBrief.tsx",
       "to": "decision.review-readability-repair-2026-10-31",
       "type": "implements"
     },
@@ -24952,6 +24983,11 @@
     {
       "from": "file:src/lib/quiz.ts",
       "to": "decision.program-explanation-2026-11-01",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/quiz.ts",
+      "to": "decision.quiz-review-dialogue-2026-11-17",
       "type": "implements"
     },
     {

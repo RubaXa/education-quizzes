@@ -25,3 +25,33 @@ it('quiz feedback persists an explicit micro-answer, restores waiting, and paren
   expect(host.textContent).not.toContain('Отправить ответ');expect(host.textContent).not.toContain('Непонятно')
  }finally{await act(async()=>root.unmount());host.remove()}
 })
+
+it('keeps the assessed written answer and its explanation visible while a follow-up is awaiting review',async()=>{
+ const written:QuestionResult = {
+  ...result,
+  question:{...result.question,kind:'long',prompt:'На что рассчитывал герой и какого факта он не знал?'},
+  answer:'Напарник обиделся.',
+  guidance:{
+   ...result.guidance!,
+   answerFeedback:{confirmed:'Ты понял реакцию напарника.',missing:'Назови ожидание героя и факт, которого он не знал.',next:'Найди нужный факт в истории и свяжи его с выводом.'},
+  },
+ }
+ const host=document.createElement('div')
+ document.body.append(host)
+ const root=createRoot(host)
+ const conversation:ReviewConversationBinding={canReply:true,ready:true,guidance:[],loadHistory:change=>{change([]);return()=>{}},send:async()=>'b'.repeat(64)}
+ try {
+  await act(async()=>root.render(<QuizResultCard result={written} index={3} conversation={conversation}/>))
+  const checkFeedback=()=>{
+   for(const text of ['Ваш текстовый ответ','Напарник обиделся.','Что получилось','Ты понял реакцию напарника.','Чего не хватило','Назови ожидание героя и факт, которого он не знал.','Как дополнить','Найди нужный факт в истории и свяжи его с выводом.','0 из 1 баллов']) expect(host.textContent).toContain(text)
+  }
+  checkFeedback()
+  const click=async(text:string)=>{await act(async()=>Array.from(host.querySelectorAll('button')).find(b=>b.textContent===text)?.click())}
+  await click('Первый персонаж')
+  await click('Отправить ответ')
+  expect(host.textContent).toContain('Ответ на следующий шаг отправлен')
+  checkFeedback()
+  expect(host.querySelector('.edu-step-tokens')).toBeNull()
+  expect(host.querySelector('details:not([open]) textarea')).not.toBeNull()
+ } finally {await act(async()=>root.unmount());host.remove()}
+})

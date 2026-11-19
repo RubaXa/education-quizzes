@@ -3,10 +3,12 @@ id: decision.quiz-review-dialogue-2026-11-17
 status: accepted
 implementation: implemented
 created: 2026-11-17
-updated: 2026-11-17
+updated: 2026-11-19
 parent: shared.design.student-review-step
 uses:
   - module.assessments.quizzes
+  - module.assessments.assessment-decision-graph
+  - shared.design.compact-review
   - module.synchronization.event-queue
   - shared.design.ui-kit
 consumers:
@@ -14,6 +16,10 @@ consumers:
   - "parent"
   - "Education operator"
 code:
+  - assessment/question-guidance.mjs
+  - scripts/quiz.mjs
+  - src/components/ReviewBrief.tsx
+  - src/lib/quiz.ts
   - packages/education-presentation/quiz-review-reply.mjs
   - packages/education-presentation/quiz-review-reply.d.mts
   - src/lib/quizCardViewModel.ts
@@ -46,6 +52,8 @@ sections:
 QuizResultCard.dialogue.test.tsx воспроизводит отсутствие кнопки. Локальный выбор
 не выполняет контракт [диалога](../shared/design/student-review-step.md#отправка-и-ответ).
 
+19.11 семья сообщила, что статус отправки следующего шага заслоняет причину оценки уже проверенного письменного ответа.
+
 ## Было → стало
 
 Результат вопроса подключает тот же ReviewConversation, что письменная работа.
@@ -62,6 +70,8 @@ checkedAt — submittedAt исходной попытки. Изменённый 
 издание и страницу; свободные section/locator сохраняются в родительском источнике.
 Регрессия проверяет весь HTML раскрытий, а не только первый экран.
 
+Проверенное пояснение состоит из трёх коротких частей сразу после сохранённого текста. Пояснение сохраняется при отправке и разборе следующего шага. Модель шага, исходный ответ, баллы и история сохраняются.
+
 ## Действия и роли
 
 Ребёнок выбирает, отправляет ответ или «Непонятно», видит ожидание и проверенный
@@ -74,6 +84,8 @@ Rules ограничивают запись действующим ученик�
 Адресное поручение содержит реальную попытку, источники, ключ и выданную помощь.
 Штатный help-response публикует micro-step evidence, не полный зачёт или mastery.
 
+Оператор связывает новые фразы с точным проверенным текстом и баллом. В опубликованное пояснение попадают только три безопасные фразы, без закрытой описи. Ребёнок видит, как дополнить свою запись, пока следующий шаг проверяется отдельно.
+
 ## Проверки
 
 Реальный клик в общем компоненте; выбор до отправки, pending, неизменные баллы и
@@ -82,7 +94,13 @@ Rules ограничивают запись действующим ученик�
 клиентом запрещены. Общие regressions письменного диалога сохраняются.
 Сверка живых карточек обеих ролей не создаёт ответы от имени ребёнка.
 
+Регрессии проверяют исходный ответ и три фразы до и после отправки, а также отказ для изменившегося или непроверенного текста. Адресный readback подтверждает сохранность оценки.
+
 ## Согласование
 
 Прямой запрос родителя17.11: «приведи старые разборы к этому общему блоку» и
 «проверь карточки обеих ролей». Отправка и обработка — действующий контракт блока.
+
+19.11.2026 пользователь поручил применить новый разбор к проверенному вопросу, проверить ученический экран и отправить изменения в main.
+
+Изменены `assessment/question-guidance.mjs`, `scripts/quiz.mjs`, `src/lib/quiz.ts`, `src/components/ReviewBrief.tsx`, `src/components/QuizResultCard.tsx` и `src/components/ReviewConversation.tsx`.

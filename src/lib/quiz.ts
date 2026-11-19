@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 /** @see ../../docs/decisions/program-explanation-2026-11-01.md */
 /** @see ../../docs/modules/assessments/quizzes.md#author-scope-correction */
@@ -10,6 +11,7 @@ export type Answer = string | string[]
 /** Manually checked, student-safe feedback. Never derive it from the closed solution. */
 export type QuestionGuidance = {
   mode?: 'program-explanation'
+  answerFeedback?: import('../../packages/education-presentation/review-content.mjs').OpenAnswerFeedback
   reason?: string
   presentation?: import('../../packages/education-presentation/review-content.mjs').ReviewSupplement
   observation: string

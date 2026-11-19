@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../../docs/decisions/compact-review-rollout-2026-10-31.md */
@@ -11,7 +12,7 @@ import type {ReviewActivityData} from '../../packages/education-presentation/rev
 import './ReviewBrief.css'
 import './ReviewVisual.css'
 import type { ReactNode } from 'react'
-import type { ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
+import type { OpenAnswerFeedback,ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
 import { reviewOverviewLimits } from '../../packages/education-presentation/review-content.mjs'
 export type { ReviewVisualData,ReviewBriefDetail } from '../../packages/education-presentation/review-content.mjs'
 
@@ -23,6 +24,7 @@ export interface ReviewBriefData {
   stateLabel?: string
   prompt?: string
   response?: { label:string;value:string }
+  answerFeedback?: OpenAnswerFeedback
   body?: string
   meta?: string
   confirmed?: string
@@ -80,6 +82,11 @@ export default function ReviewBrief({ data,children,context,reply,articleRef,rea
     {data.prompt&&<p className="edu-review-copy edu-review-prompt">{data.prompt}</p>}
     {context}
     {data.response&&<p className="edu-review-copy edu-review-response"><span>{data.response.label}</span><strong>{data.response.value}</strong></p>}
+    {data.answerFeedback && <>
+      <p className="edu-review-copy edu-review-confirmed"><StatusIcon status="complete" size={15} /><span><strong>Что получилось. </strong>{data.answerFeedback.confirmed}</span></p>
+      <p className="edu-review-copy edu-review-focus"><strong>Чего не хватило. </strong>{data.answerFeedback.missing}</p>
+      <p className="edu-review-copy edu-review-bridge"><strong>Как дополнить. </strong>{data.answerFeedback.next}</p>
+    </>}
     {body&&<p className="edu-review-copy">{body}</p>}
     {data.confirmed && <p className="edu-review-copy edu-review-confirmed"><StatusIcon status="complete" size={15} /><span>{data.confirmed}</span></p>}
     {!complete && <>

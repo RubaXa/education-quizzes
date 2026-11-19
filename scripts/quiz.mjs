@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/quiz-review-dialogue-2026-11-17.md */
 /** @see ../docs/decisions/teacher-control-source-refresh-2026-11-18.md */
 /** @see ../docs/decisions/assessment-format-gates-2026-11-17.md */
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
@@ -620,7 +621,7 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOn
   if (!assignmentDoc.exists || !keyDoc.exists) fail('Назначение или ключ отсутствует.')
   const assignment = assignmentDoc.data(), key = keyDoc.data(), review = reviewDoc.data() ?? null
   assertQuizOwner(assignment, owner)
-  const repaired = semanticOnly ? semanticShortAnswerRepair(assignment,key,request) : conceptOnly ? conceptShortOmissionRepair(assignment, key, request) : guidanceOnly ? repairQuestionGuidance(assignment, key, request) : canonicalShortKeyRepair(assignment, key, request)
+  const repaired = semanticOnly ? semanticShortAnswerRepair(assignment,key,request) : conceptOnly ? conceptShortOmissionRepair(assignment, key, request) : guidanceOnly ? repairQuestionGuidance(assignment, key, request, review) : canonicalShortKeyRepair(assignment, key, request)
   const before = summarize(grade(assignment, key, review))
   const after = summarize(grade(assignment, repaired.key, review))
   if (guidanceOnly && JSON.stringify(before) !== JSON.stringify(after)) fail('Разбор не может менять оценку.')
@@ -635,14 +636,16 @@ async function repairCanonicalShortAnswers(learnerToken, requestPath, guidanceOn
       const [currentAssignment, currentKey] = await Promise.all([transaction.get(assignmentRef), transaction.get(keyRef)])
       assertQuizOwner(currentAssignment.data(), owner)
       if (correctionFingerprint(currentAssignment.data()) !== correctionFingerprint(assignment)
-        || correctionFingerprint(currentKey.data()) !== correctionFingerprint(key)) fail('Состояние изменилось; перечитайте попытку и повторите проверку.')
+        || correctionFingerprint(currentKey.data()) !== correctionFingerprint(key)
+        || (guidanceOnly && correctionFingerprint((await transaction.get(reviewRef)).data() ?? null) !== correctionFingerprint(review))) fail('Состояние изменилось; перечитайте попытку и повторите проверку.')
       transaction.update(keyRef, { entries: repaired.key.entries })
     })
   }
   if (apply) {
-    const [actualAssignment, actualKey] = await Promise.all([assignmentRef.get(), keyRef.get()])
+    const [actualAssignment, actualKey, actualReview] = await Promise.all([assignmentRef.get(), keyRef.get(), guidanceOnly ? reviewRef.get() : null])
     if (correctionFingerprint(actualAssignment.data()) !== correctionFingerprint(assignment)
-      || correctionFingerprint(actualKey.data()) !== correctionFingerprint(repaired.key)) fail('Исправление не подтверждено readback.')
+      || correctionFingerprint(actualKey.data()) !== correctionFingerprint(repaired.key)
+      || (guidanceOnly && correctionFingerprint(actualReview?.data() ?? null) !== correctionFingerprint(review))) fail('Исправление не подтверждено readback.')
   }
   console.log(JSON.stringify({ testId: assignment.testId, changed: repaired.changed, before, after, applied: apply, verified: apply, backup }))
 }

@@ -4,6 +4,7 @@ export type ReviewVisualData =
  | { kind:'annotation';label:string;parts:{text:string;mark?:'focus'|'reference'}[] }
  | { kind:'timeline';label:string;events:{date:string;label:string}[] }
  | { kind:'comparison';label:string;columns:string[];rows:{cells:string[]}[] }
+export type OpenAnswerFeedback = { confirmed:string;missing:string;next:string }
 export interface ReviewBriefDetail { label:string;text:string;quotation?:string;visual?:ReviewVisualData }
 export interface ReviewSupplement { version:1;visual?:ReviewVisualData;details?:ReviewBriefDetail[];activity?:import('./review-activity.mjs').ReviewActivityData }
 export const reviewOverviewLimits:Readonly<{title:number;confirmed:number;focus:number;bridge:number;question:number;total:number}>

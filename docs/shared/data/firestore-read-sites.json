@@ -6060,6 +6060,18 @@
     "note": "Авторская коррекция: один вычисленный scopeHistory/закрытая рубрика либо CAS ранее прочитанного документа; точный token, владелец и обе роли проверяются. Нет query/listener, новых клиентских чтений или обхода всех семей. См. quizzes.md#author-scope-correction и firestore-read-paths.md."
   },
   {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-10",
+    "file": "scripts/quiz.mjs",
+    "line": 640,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "addressed-quiz-feedback-cas",
+    "refresh": "per explicit feedback repair transaction or readback",
+    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0-2",
     "file": "scripts/quiz.mjs",
     "line": 643,
@@ -6082,6 +6094,18 @@
     "policy": "operator-point",
     "refresh": "explicit canonical-short repair only",
     "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147-2",
+    "file": "scripts/quiz.mjs",
+    "line": 645,
+    "api": "admin.get",
+    "target": "reviewRef",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "addressed-quiz-feedback-cas",
+    "refresh": "per explicit feedback repair transaction or readback",
+    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
   },
   {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-2",
