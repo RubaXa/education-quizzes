@@ -12,6 +12,7 @@ describe('collapsed homework review', () => {
     const item={...review('cannot-assess',[]),items:[{stageId:'one',label:'Первое',status:'cannot-assess'},{stageId:'two',label:'Второе',status:'cannot-assess'}],studentFeedback:{title:'Уточнение',confirmed:'Первая часть сохранена.',focus:'Объём уточняется.',question:'Какая часть уже готова?',steps:[{stageId:'two',status:'cannot-assess',uploadId:'photo',location:'Верх снимка',observation:'Последний пункт не виден на фото.',explanation:'Полученное сохраняем.'}]}} as DayWorkReview
     expect(reviewStatusExplanation(item)).toContain('Последний пункт не виден на фото.')
     expect(reviewStatusExplanation({...item,studentFeedback:undefined}).trim().length).toBeGreaterThan(20)
+    expect(reviewStatusExplanation({...item,assessmentBasis:{outcome:'unresolved',disputedRequirements:[{id:'scope',action:'Обозначить дополнительные морфемы'}]}})).toBe('Уточняем, входит ли в задание: «Обозначить дополнительные морфемы». Этот спорный пункт решает родитель. Принятые части сохраняются.')
   })
   it('explains uncertainty from the published reason without reading a private key',()=>{
     const item={...review('cannot-assess',['cannot-assess']),assessmentBasis:{outcome:'unresolved',limitation:'Не виден последний пункт.'},answer:'PRIVATE_KEY'} as DayWorkReview
