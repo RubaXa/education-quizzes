@@ -1,6 +1,7 @@
 /** @see ../docs/modules/synchronization/global-sync.md#operator-queue */
 import { expect, it } from 'vitest'
 import { acknowledgeReconciledDay } from './reconciliation-ack.mjs'
+import {syncFingerprint} from './job-queue.mjs'
 const scope = { runId: 'run', familyId: 'family', childId: 'child', date: '2026-11-09' }
 function fixture() {
   let row = { kind: 'reconcile-day', runId: 'run', familyId: 'family', childId: 'child', sourceId: scope.date, fingerprint: 'revision-1', status: 'queued' }
@@ -17,6 +18,19 @@ it('closes exactly the checked revision from queued, with durable evidence and i
   expect(f.get()).toMatchObject({ acknowledgedFingerprint: 'revision-1', evidence: 'publication-audit:run:2026-11-09:both-roles' })
   await acknowledgeReconciledDay(f.db, { ...scope, auditPublication: f.auditPublication })
   expect(f.writes()).toBe(1)
+})
+it('closes a previous-run job only when its exact source revision matches the fresh owned publication audit',async()=>{
+ const f=fixture(),revision={digest:'unchanged-source'}
+ f.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,revision])})
+ const auditPublication=async()=>({pending:[],expectedByDate:new Map([[scope.date,{sourceRevision:revision}]])})
+ expect(await acknowledgeReconciledDay(f.db,{...scope,auditPublication})).toMatchObject({status:'done',verified:true})
+ expect(f.get()).toMatchObject({runId:'previous-run',evidence:'publication-audit:run:2026-11-09:both-roles'})
+ const stale=fixture();stale.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,{digest:'different-source'}])})
+ await expect(acknowledgeReconciledDay(stale.db,{...scope,auditPublication})).rejects.toThrow('reconciliation_owner_or_run_changed')
+ expect(stale.writes()).toBe(0)
+ const unknown=fixture();unknown.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,null])})
+ await expect(acknowledgeReconciledDay(unknown.db,{...scope,auditPublication:unknown.auditPublication})).rejects.toThrow('reconciliation_owner_or_run_changed')
+ expect(unknown.writes()).toBe(0)
 })
 it('rejects incomplete publication, missing date and a changed owner/run/revision without writes', async () => {
   for (const patch of [{ fingerprint: 'new' }, { runId: 'new' }, { childId: 'other' }]) {

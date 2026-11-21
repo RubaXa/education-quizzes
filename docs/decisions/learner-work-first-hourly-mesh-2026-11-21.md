@@ -35,6 +35,12 @@ inbox/inventory без collect; reconcile запускается после ад
 проверяются. Возраст и исходный run не маскируются новым временем скачивания.
 Неполные, чужие, будущие и относящиеся к другой неделе снимки не подходят.
 
+`sync/reconciliation-ack.mjs`: внутреннее поручение с прежним runId закрывается
+новым аудитом только при точном совпадении отпечатка ревизии источника. CLI
+проверяет текущий run, владельца и42снимка; транзакция сохраняет исходный runId
+поручения и проверяет его вместе с владельцем/отпечатком от чтения до readback.
+Совпадения даты или свежести недостаточно; чужая и изменённая ревизии запрещены.
+
 `diary/application/homework-content.mjs`, `diary/application/diff.mjs`,
 `sync/day-source-revision.mjs`, `day/build.mjs`: сравнение игнорирует только
 пробелы, updatedAt и точный повтор всей строки. Сырые источники сохранены;
@@ -64,6 +70,9 @@ RED→GREEN: `operator/recipes.test.mjs`, `sync/mesh-refresh.test.mjs`,
 `packages/telegram-notifications/adapters/config.test.mjs`,
 `packages/telegram-notifications/application/education-sync-dispatcher.test.mjs`.
 Обязательны полный npm run check и граф спецификаций.
+Регрессия живого часового переиспользования:
+`sync/reconciliation-ack.test.mjs` — прежний run с той же ревизией принимается,
+иной источник и смена run/владельца/ревизии во время аудита не записываются.
 
 ## Согласование
 
