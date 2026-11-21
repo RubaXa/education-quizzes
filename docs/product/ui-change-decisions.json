@@ -8057,7 +8057,7 @@
       }
     },
     "sync/reconciliation-ack.mjs": {
-      "sha256": "88972f24a29d216a678fe28a0574e520c3dce00d735c1f89b3743a18bf11d8f6",
+      "sha256": "82a0c9457ea7e76c62964e4f395912cbebc3c7c00e630ea45e2d2b32ad5eef11",
       "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
         "docs/services/telegram-bot/education-sync-dispatch.md",

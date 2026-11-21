@@ -19,15 +19,15 @@ it('closes exactly the checked revision from queued, with durable evidence and i
   await acknowledgeReconciledDay(f.db, { ...scope, auditPublication: f.auditPublication })
   expect(f.writes()).toBe(1)
 })
-it('closes a previous-run job only when its exact source revision matches the fresh owned publication audit',async()=>{
+it('closes unchanged or superseded previous-run jobs after a fresh current-source audit, preserving their identity',async()=>{
  const f=fixture(),revision={digest:'unchanged-source'}
  f.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,revision])})
  const auditPublication=async()=>({pending:[],expectedByDate:new Map([[scope.date,{sourceRevision:revision}]])})
  expect(await acknowledgeReconciledDay(f.db,{...scope,auditPublication})).toMatchObject({status:'done',verified:true})
  expect(f.get()).toMatchObject({runId:'previous-run',evidence:'publication-audit:run:2026-11-09:both-roles'})
  const stale=fixture();stale.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,{digest:'different-source'}])})
- await expect(acknowledgeReconciledDay(stale.db,{...scope,auditPublication})).rejects.toThrow('reconciliation_owner_or_run_changed')
- expect(stale.writes()).toBe(0)
+ expect(await acknowledgeReconciledDay(stale.db,{...scope,auditPublication})).toMatchObject({status:'done',verified:true})
+ expect(stale.get()).toMatchObject({runId:'previous-run',acknowledgedFingerprint:syncFingerprint([scope.date,{digest:'different-source'}]),supersededByFingerprint:syncFingerprint([scope.date,revision])})
  const unknown=fixture();unknown.change({runId:'previous-run',fingerprint:syncFingerprint([scope.date,null])})
  await expect(acknowledgeReconciledDay(unknown.db,{...scope,auditPublication:unknown.auditPublication})).rejects.toThrow('reconciliation_owner_or_run_changed')
  expect(unknown.writes()).toBe(0)

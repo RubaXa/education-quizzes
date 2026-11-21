@@ -4,7 +4,7 @@
 import { Timestamp } from '@google-cloud/firestore'
 import { syncJobId, syncFingerprint } from './job-queue.mjs'
 
-/** Acknowledge one exact revision only after a fresh publication audit. */
+/** Close one fenced job only after a fresh audit of the current owned source. */
 export async function acknowledgeReconciledDay(db, { runId, familyId, childId, date, auditPublication }) {
   const id = syncJobId('reconcile-day', familyId, childId, date)
   const ref = db.doc(`operatorSyncJobs/${id}`)
@@ -15,10 +15,11 @@ export async function acknowledgeReconciledDay(db, { runId, familyId, childId, d
   const audit = await auditPublication()
   if (!audit || audit.pending?.length !== 0 || !(audit.expectedByDate instanceof Map)
     || !audit.expectedByDate.has(date)) throw new Error('reconciliation_publication_unverified')
-  // Hourly reuse creates a new audit run, not a new source revision.
+  // The current source may supersede an old job (including a digest migration).
+  // Its complete both-role audit closes that technical job, never pupil work.
   const auditedRevision = [...audit.expectedByDate].find(([day]) => day === date)?.[1]?.sourceRevision
-  if (before.runId !== runId && (!auditedRevision || before.fingerprint !== syncFingerprint([date,
-    auditedRevision]))) throw new Error('reconciliation_owner_or_run_changed')
+  if (before.runId !== runId && !auditedRevision) throw new Error('reconciliation_owner_or_run_changed')
+  const auditedSourceFingerprint = auditedRevision ? syncFingerprint([date, auditedRevision]) : before.fingerprint
   await db.runTransaction(async tx => {
     const live = (await tx.get(ref)).data()
     if (!matches(live) || live.runId !== before.runId || live.fingerprint !== before.fingerprint) throw new Error('reconciliation_revision_changed')
@@ -27,7 +28,9 @@ export async function acknowledgeReconciledDay(db, { runId, familyId, childId, d
     const now = Timestamp.now()
     tx.update(ref, { status: 'done', phase: 'readback-verified', reason: null, updatedAt: now, completedAt: now,
       ...(live.status === 'blocked' ? { resolvedBlock: { reason: live.reason, phase: live.phase ?? null, resolvedAt: now } } : {}),
-      evidence: `publication-audit:${runId}:${date}:both-roles`, acknowledgedFingerprint: live.fingerprint })
+      evidence: `publication-audit:${runId}:${date}:both-roles`, acknowledgedFingerprint: live.fingerprint,
+      auditedSourceFingerprint,
+      ...(auditedSourceFingerprint !== live.fingerprint ? { supersededByFingerprint: auditedSourceFingerprint } : {}) })
   })
   const after = (await ref.get()).data()
   if (!matches(after) || after.runId !== before.runId || after.fingerprint !== before.fingerprint || after.status !== 'done') throw new Error('reconciliation_readback_failed')
