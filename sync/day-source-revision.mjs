@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import {homeworkContent,homeworkText} from '../diary/application/homework-content.mjs'
 
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical)
@@ -17,9 +18,9 @@ export function daySourceRevision(snapshot) {
   const schedule = snapshot.schedule.map((item) => ({
     id: item.id, start_at: item.start_at, finish_at: item.finish_at,
     subject_id: item.subject_id, subject_name: item.subject_name,
-    cancelled: item.cancelled, replaced: item.replaced, homework: item.homework, marks: item.marks,
+    cancelled: item.cancelled, replaced: item.replaced, homework: homeworkText(item.homework), marks: item.marks,
   })).sort((a, b) => String(a.id).localeCompare(String(b.id)))
-  const assignments = snapshot.assignments.map((item) => ({
+  const assignments = snapshot.assignments.map((item) => homeworkContent({
     sourceItemId: item.sourceItemId, lessonDate: item.lessonDate,
     descriptions: item.descriptions, materialCounts: item.materialCounts,
     homeworkEntries: item.homeworkEntries, teacherFiles: item.teacherFiles, detailStatus: item.detailStatus,

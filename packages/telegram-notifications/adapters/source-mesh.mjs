@@ -1,5 +1,6 @@
 /** @see ../../../docs/decisions/mesh-auth-recovery-2026-11-01.md */
 import { createHash } from 'node:crypto'
+import {homeworkText} from '../../../diary/application/homework-content.mjs'
 import { isCalendarOnlyEvent, meshEventSignals } from '../../education-connect/lib/mesh.mjs'
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#контракт-снимка @see ../../../docs/services/telegram-bot/adapters/mesh.md#ошибки-и-восстановление */
@@ -60,12 +61,12 @@ export function normalizeMeshObservation({ scope, schedule, assignments, marks, 
       const lesson = lessons.get(String(item.sourceItemId))
       if (!lesson || !canonicalTime(lesson.start_at) || !canonicalTime(lesson.finish_at) || safeDate(lesson.start_at) !== scope.date) return invalid('invalid_homework_lesson')
       const subject = safeText(item.subjectName || lesson.subject_name, 120)
-      const descriptions = (Array.isArray(item.descriptions) ? item.descriptions : []).map(canonicalText).filter(Boolean).sort()
+      const descriptions = [...new Set((Array.isArray(item.descriptions) ? item.descriptions : []).map(homeworkText).filter(Boolean))].sort()
       const entries = item.homeworkEntries.map((entry) => {
         if (!entry || typeof entry.description !== 'string') return null
         const idValue = String(entry.id ?? '')
         const positionalFallback = idValue.startsWith(`${item.sourceItemId}-`) && /^\d+$/.test(idValue.slice(String(item.sourceItemId).length + 1))
-        return [positionalFallback || !stableId(entry.id) ? null : idValue, canonicalText(entry.description), safeDate(entry.updatedAt)]
+        return [positionalFallback || !stableId(entry.id) ? null : idValue, homeworkText(entry.description)]
       })
       if (entries.some((entry) => !entry)) return invalid('invalid_homework_entry')
       entries.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
@@ -94,7 +95,7 @@ export function meshScopeKey(scope) {
 
 /** @see ../../../docs/services/telegram-bot/adapters/mesh.md#ответственность-и-режим @see ../../../docs/services/telegram-bot/adapters/mesh.md#ошибки-и-восстановление */
 export function createMeshSourceAdapter({ resolver, now = () => new Date(), random = Math.random,
-  pollMs = 15 * 60_000, jitterMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout, pollConcurrency = 4, onHealth = () => {}, projectionCache = new Map(), includeScheduleDateDiagnostics = false } = {}) {
+  pollMs = 60 * 60_000, jitterMs = 60_000, setTimer = setTimeout, clearTimer = clearTimeout, pollConcurrency = 4, onHealth = () => {}, projectionCache = new Map(), includeScheduleDateDiagnostics = false } = {}) {
   if (!resolver || typeof resolver.validateScope !== 'function' || typeof resolver.withChildAdapter !== 'function'
     || pollMs < 1_000 || jitterMs < 0 || !Number.isInteger(pollConcurrency) || pollConcurrency < 1) throw new Error('invalid_mesh_source_config')
   async function validateScope(scope, options = {}) {

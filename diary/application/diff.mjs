@@ -1,3 +1,4 @@
+import {homeworkContent,homeworkText} from './homework-content.mjs'
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))
   if (value && typeof value === 'object') {
@@ -9,7 +10,7 @@ function canonical(value) {
 const sections = {
   schedule: {
     key: (item) => String(item.id),
-    value: (item) => ({ start_at: item.start_at, finish_at: item.finish_at, subject_id: item.subject_id, subject_name: item.subject_name, cancelled: item.cancelled, replaced: item.replaced, homework: item.homework, marks: item.marks }),
+    value: (item) => ({ start_at: item.start_at, finish_at: item.finish_at, subject_id: item.subject_id, subject_name: item.subject_name, cancelled: item.cancelled, replaced: item.replaced, homework: homeworkText(item.homework), marks: item.marks }),
   },
   marks: {
     key: (item) => `${item.subject_id}:${item.period ?? ''}`,
@@ -17,7 +18,7 @@ const sections = {
   },
   assignments: {
     key: (item) => item.sourceItemId,
-    value: (item) => ({ lessonDate: item.lessonDate, descriptions: item.descriptions, materialCounts: item.materialCounts, homeworkEntries: item.homeworkEntries, teacherFiles: item.teacherFiles, detailStatus: item.detailStatus }),
+    value: (item) => homeworkContent({ lessonDate: item.lessonDate, descriptions: item.descriptions, materialCounts: item.materialCounts, homeworkEntries: item.homeworkEntries, teacherFiles: item.teacherFiles, detailStatus: item.detailStatus }),
   },
 }
 

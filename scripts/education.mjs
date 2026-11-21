@@ -36,6 +36,8 @@ try {
     output(await executeRecipe('status', run))
   } else if (command === 'begin' && argument === '--apply') {
     output(await executeRecipe('begin', run))
+  } else if (command === 'reconcile' && argument === '--apply') {
+    output(await executeRecipe('reconcile', run))
   } else if (command === 'discover' && argument === '--apply') {
     output(await executeRecipe('discover', run))
   } else if (command === 'finalize' && argument === '--apply') {

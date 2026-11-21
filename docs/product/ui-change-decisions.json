@@ -251,19 +251,21 @@
       }
     },
     "day/build.mjs": {
-      "sha256": "0ab7dcafa1adae1c8c3acd20aa48d46e1a636f7e0d1b1fb7b91427201773eac6",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "7a3b8f29969fbc2370e06846b4ef3db444b083a4c5e960d10d176ffa2f95a859",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "day/card-policy.mjs": {
@@ -719,18 +721,22 @@
       }
     },
     "operator/recipes.mjs": {
-      "record": "docs/decisions/sync-task-routing-2026-10-23.md",
+      "sha256": "0fb3f3d11e80157fd2dd27ac87751dc97ec84846230b41c16d660ffb68195e1c",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
+        "docs/modules/synchronization/global-sync.md",
         "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "operator/recipes.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель23.10 требует детерминированного полного плана синхронизации с обязательной проверкой всех источников."
-      },
-      "sha256": "df3103b0c6d21bf5774f37d2531bf7ac32c131081a9f15382701cd8c4d002501"
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
+      }
     },
     "operator/run-operation.mjs": {
       "sha256": "349e556ef78d5c546f727b9ff923ebb41ca77b80826c4223a6d9daa5b064aa48",
@@ -1042,17 +1048,21 @@
       }
     },
     "packages/telegram-notifications/adapters/config.mjs": {
-      "sha256": "51f42b779aa7cc84e84c888c48fa267eb2a7a34c4a3f4c0947b148751a0fd37f",
-      "record": "docs/decisions/unified-education-events-2026-10-19.md",
+      "sha256": "cf4b7285564c109a4acf0456c94f7014720e638d04814fd3af59ace44591d176",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/modules/synchronization/event-queue.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "packages/telegram-notifications/adapters/config.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 требует одну внутреннюю очередь событий и одну подписку вместо множества source watchers; ранее поручил реализацию через Luna с проверкой root, тестами, спецификациями и выпуском в main."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "packages/telegram-notifications/adapters/firestore.mjs": {
@@ -1227,19 +1237,21 @@
       }
     },
     "packages/telegram-notifications/adapters/source-mesh.mjs": {
-      "sha256": "744c1e7f97e8e685da04e0a8929d19c173ca27138588bbb1d178ac524df4d7b0",
-      "record": "docs/decisions/mesh-auth-recovery-2026-11-01.md",
+      "sha256": "7528181761dcaf0b4fd0db9cb9e775f44957ad3d022c2573f63124edcb9d2abe",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/shared/server-runtime.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "packages/education-connect/lib/mesh-auth.test.mjs",
-        "packages/telegram-notifications/adapters/mesh-credentials.test.mjs",
-        "packages/telegram-notifications/adapters/source-mesh.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель01.11 прямо потребовал найти и устранить причину недоступности МЭШ, проверить ЦДЗ и использовать штатный npx-пакет."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "packages/telegram-notifications/adapters/telegram.mjs": {
@@ -1303,20 +1315,21 @@
       }
     },
     "packages/telegram-notifications/application/education-sync-dispatcher.mjs": {
-      "sha256": "687bf1fb347634e663228864940bda2a6b7fcefbfe55f16809f00f3be6312c1c",
-      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
+      "sha256": "f0fccbfd6d61ffa12b8de9e91e5d38cc52f7cc5790c6f31c3d715236f80603b7",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "sync/reconciliation-ack.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель08.11.2026 потребовал устранить зависание на старом permission_required и закрывать проверенные внутренние задачи без его участия."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "packages/telegram-notifications/application/identity.mjs": {
@@ -2052,18 +2065,21 @@
       }
     },
     "scripts/education.mjs": {
-      "sha256": "d8303af9ef47dcf65ce738b87c1da8dff119aa05860e46dac1fe97ca1651c831",
-      "record": "docs/decisions/sync-phase-report-2026-10-29.md",
+      "sha256": "6b5e553d8e44b1124909bb9f05e5f6c715e1ec54b75ac0345b2fbd9c0a94090e",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/modules/synchronization/execution-artifact.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "operator/run-report.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Постоянное требование родителя: каждый запуск заканчивается компактным отчётом всех фаз в чате без отдельного файла; текущий dispatch прямо требует нормальные safeguards навыка."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "scripts/ensure-book-upload-index.mjs": {
@@ -2446,18 +2462,21 @@
       }
     },
     "scripts/sync-project.mjs": {
-      "sha256": "7c0775a930d9111b152be4490abc0506b6cd98cee7ace2d52166944a739557c7",
-      "record": "docs/decisions/deadline-in-sync-2026-11-16.md",
+      "sha256": "60929cd248e98a0c24aa7e80e3e78395aa0692fd32f655aa5dc05472f68da9e7",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/modules/assignments/deadline-control.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос семьи16.11: встроить контроль срока и конца периода в существующую синхронизацию, не создавать новых расписаний."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "scripts/sync-queue.mjs": {
@@ -5351,22 +5370,21 @@
       }
     },
     "sync/day-source-revision.mjs": {
-      "sha256": "e3c56c886c524d84062aad7b4b31c4a72de9580312c666522299c31a203c9760",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "b0447aebf0d43bbdd7165e8899c56ce191bf1ddbde3d20b2899336580ad38840",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "62954fee3a2ef4357a5b6eadec228951c87cfc628e36a236445ae2100f492950"
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "sync/event-task-artifact.mjs": {
@@ -8133,20 +8151,21 @@
       }
     },
     "diary/application/diff.mjs": {
-      "sha256": "c6a9889fabbe5fb9e305c69a3a06e8bf20cbad54444c1ad51c562485f2b75b0c",
-      "record": "docs/decisions/readiness-handover-2026-11-16.md",
+      "sha256": "d0debc6a27009f7a3f74f73d6167693209cea49e9c67dd07dd7f86805e819692",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
       "specs": [
-        "docs/modules/assignments/README.md",
-        "docs/modules/notifications/inbox.md"
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
-        "day/learning-gate.test.mjs",
-        "diary/application/school-alerts.test.mjs",
-        "diary/application/sync.test.mjs"
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя16.11: исправить граф готовности и несдачи, найти прежние решения и не просить повторное фото зачтённого."
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     },
     "day/learning-gate.mjs": {
@@ -9091,6 +9110,42 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+      }
+    },
+    "diary/application/homework-content.mjs": {
+      "sha256": "99858fae8127b93deeb3c728b8f70aedc297efa5f9cedc46e6421136540b1f7a",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
+      "specs": [
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
+      }
+    },
+    "sync/mesh-refresh.mjs": {
+      "sha256": "ab8cb869508fa5a7245af563c5c661d9048e7de131c2195863eea215044644b1",
+      "record": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md",
+      "specs": [
+        "docs/modules/synchronization/global-sync.md",
+        "docs/modules/synchronization/task-routing.md"
+      ],
+      "tests": [
+        "operator/recipes.test.mjs",
+        "sync/mesh-refresh.test.mjs",
+        "diary/application/homework-content.test.mjs",
+        "packages/telegram-notifications/application/education-sync-dispatcher.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
       }
     }
   }

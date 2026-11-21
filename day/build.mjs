@@ -1,3 +1,4 @@
+import {homeworkText} from '../diary/application/homework-content.mjs'
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
 /** @see ../docs/decisions/mesh-informational-entry-2026-10-21.md */
 /** @see ../docs/decisions/audio-library-2026-10-22.md#было--стало */
@@ -185,7 +186,7 @@ export function buildDaySource(local, date) {
       }
       const old = subject.tasks.find((task) => task.id === taskId)
       if (old) {
-        if (old.meshText !== description) {
+        if (homeworkText(old.meshText) !== homeworkText(description)) {
           delete audioSelections[taskId]
           // A changed teacher instruction invalidates the previous agent interpretation.
           // Keep uploads separately, but show only the new raw MESH text until review.

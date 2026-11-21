@@ -33,6 +33,7 @@ import { assertGradeSnapshotAligned } from '../day/grade-reconciliation.mjs'
 import { assertPublicationDashboardOwner, pendingPublicationDates, projectExpectedByDateToWindow, publicationReconciliationCandidates, refreshedCalendarChecks, validatedFamilyDashboardAssignments } from '../sync/publication-audit.mjs'
 import { enqueueSyncJob, syncFingerprint } from '../sync/job-queue.mjs'
 import { reuseRunContext } from '../sync/run-context.mjs'
+import {reusableMeshRun} from '../sync/mesh-refresh.mjs'
 import { calendarFailure, calendarShape, captureSchoolCalendar, normalizeSchoolCalendar } from '../sync/school-calendar.mjs'
 import { publishSchoolCalendar } from '../sync/school-calendar-publication.mjs'
 import { resolveProjectAuditSourcePath, runProjectPublicationAudit } from '../sync/project-audit.mjs'
@@ -321,6 +322,22 @@ async function collectAccount(accountId, targets, runId, today) {
     for (const target of targets) {
       const childTiming = newTiming()
       try {
+        const manifests=existsSync(runDir)?readdirSync(runDir).filter(name=>/^run-.*\.json$/.test(name)).flatMap(name=>{
+          try{return [readJson(runDir,name)]}catch{return []}
+        }):[]
+        const cached=reusableMeshRun(manifests,target,today)
+        if(cached&&dateWindow(today).every(date=>{
+          const snapshot=readJson(cached.job.sourceDir,`snapshot-${date}.json`)
+          return snapshot?.complete===true&&snapshot.date===date
+        })){
+          const dates=dateWindow(today)
+          const {pending}=await auditPublishedDays(cached.job.sourceDir,dates,today,childTiming,target,{requireOwnedDashboards:true})
+          await status(target,runId,'awaiting-review',{checkedDates:42,totalDates:42,lastFullMeshAt:cached.job.lastFullMeshAt,
+            pendingPublicationCount:pending.length,reason:'recent-complete-source-reused'})
+          results.push({target,result:{...cached.job,state:'awaiting-enrichment',sourceFetched:false,reusedFromRunId:cached.runId,
+            changes:{lessons:0,grades:0,assignments:0},changedDates:[],pendingPublicationDates:pending,timing:finishTiming(childTiming)}})
+          continue
+        }
         const scope = { source: 'mesh', familyId: target.familyId, childId: target.childId,
           sourceAccountId: accountId, sourcePersonId: target.sourcePersonId }
         const legacyOwner = target.credentialKind === 'legacy'
@@ -514,13 +531,15 @@ if (command === 'calendar') {
     finishTiming(runTiming)
     const manifest = { runId, startedFor: today, finishedAt: new Date().toISOString(),
       inventory: publicSummary(data), timing: runTiming, jobs: results.map(({ target, result }) => ({
-        familyId: target.familyId, childId: target.childId, sourceAccountId: target.sourceAccountId ?? null, ...result,
+        ...result, familyId: target.familyId, childId: target.childId, sourceAccountId: target.sourceAccountId ?? null,
+        sourcePersonId: target.sourcePersonId ?? null,
       })) }
     writeJson(runDir, `run-${runId}.json`, manifest)
     const blocked = results.filter((item) => item.result.state === 'blocked').length
     const calendarsBlocked = results.filter((item) => item.result.schoolCalendar?.state === 'blocked').length
     console.log(JSON.stringify({ runId, families: data.families.length, children: data.targets.length,
-      fetched: results.length - blocked, blocked, calendarsBlocked,
+      fetched: results.filter(item=>item.result.state!=='blocked'&&item.result.sourceFetched!==false).length,
+      reused: results.filter(item=>item.result.sourceFetched===false).length, blocked, calendarsBlocked,
       report: collectedProjectSummary(manifest), timing: runTiming,
       changedDates: results.reduce((sum, item) => sum + (item.result.changedDates?.length ?? 0), 0),
       pendingPublicationDates: results.reduce((sum, item) => sum + (item.result.pendingPublicationDates?.length ?? 0), 0),

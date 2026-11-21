@@ -12,7 +12,7 @@ export function loadConfig(env = process.env) {
     sourceOperationTimeoutMs: boundedInteger(env.TELEGRAM_SOURCE_OPERATION_TIMEOUT_MS, 600_000, 30_000, 86_400_000, 'source_operation_timeout_invalid'),
     deliveryOperationTimeoutMs: boundedInteger(env.TELEGRAM_DELIVERY_OPERATION_TIMEOUT_MS, 600_000, 30_000, 86_400_000, 'delivery_operation_timeout_invalid'),
     educationSyncOperationTimeoutMs: boundedInteger(env.TELEGRAM_EDUCATION_SYNC_OPERATION_TIMEOUT_MS, 60_000, 1_000, 600_000, 'education_sync_operation_timeout_invalid'),
-    meshPollMs: boundedInteger(env.TELEGRAM_MESH_POLL_MS, 900_000, 60_000, 86_400_000, 'mesh_poll_interval_invalid'),
+    meshPollMs: Math.max(3_600_000,boundedInteger(env.TELEGRAM_MESH_POLL_MS, 3_600_000, 60_000, 86_400_000, 'mesh_poll_interval_invalid')),
     meshConnectionDirectory: connectionDirectory(env.TELEGRAM_MESH_CONNECTION_DIRECTORY),
   })
 }

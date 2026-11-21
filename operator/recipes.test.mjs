@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { executeRecipe } from './recipes.mjs'
 
 describe('operator discovery and final reconciliation', () => {
-  it('begins every full cycle with a fresh inbox, inventory and full Mesh collection, even twice in succession', async () => {
+  it('returns learner work before any Mesh collection, then reconciles sources explicitly', async () => {
     const calls = []
     const run = async ({ operation }) => { calls.push(operation); return { summary: { inbox: { complete: true } } } }
     await executeRecipe('begin', run)
     await executeRecipe('begin', run)
-    expect(calls).toEqual(['queue.scan', 'project.plan', 'project.collect', 'queue.scan', 'project.plan', 'project.collect'])
+    expect(calls).toEqual(['queue.scan', 'project.plan', 'queue.scan', 'project.plan'])
+    await executeRecipe('reconcile', run)
+    expect(calls.at(-1)).toBe('project.collect')
   })
   it('gets one fresh inbox through queue scan at each boundary', async () => {
     const calls = []

@@ -113,12 +113,13 @@ describe('EducationSyncDispatcher', () => {
     ['Mesh event', ['mesh'], {}],
   ])('requires a full source check for every %s dispatch', (_label, workKinds, batch) => {
     const message = buildMessage('req-work', '/workspace/PETR/scripts/education-sync-dispatch.mjs', workKinds, batch)
-    expect(message).toContain('full verification mode for every dispatch')
+    expect(message).toContain('learner work first')
     expect(message).toContain('full inbox snapshot')
     expect(message).toContain('complete 42-day Mesh collection')
-    expect(message).toContain('Never skip this because a prior sync or Rules/PWA update was recent')
+    expect(message).toContain('do not collect Mesh more frequently')
+    expect(message).not.toContain('Never skip this because a prior sync')
     expect(message).not.toContain('do not run full project.collect')
-    if (batch.actionThroughGeneration) expect(message).toContain('Do not broaden the event range; the full inbox and Mesh collection are still required')
+    if (batch.actionThroughGeneration) expect(message).toContain('Mesh reconciliation follows learner work')
   })
 })
 

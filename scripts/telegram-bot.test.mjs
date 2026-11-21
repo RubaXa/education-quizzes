@@ -27,7 +27,7 @@ describe('telegram worker flags and technical settings', () => {
     expect(config.sourcePageSize).toBe(250)
     expect(config.sourceConcurrency).toBe(4)
     expect(config.sourceReconcileMs).toBe(30_000)
-    expect(config.meshPollMs).toBe(900_000)
+    expect(config.meshPollMs).toBe(3_600_000)
     expect(config.meshConnectionDirectory).toBe('.local/mesh-connections')
     expect(config.startupOperationTimeoutMs).toBe(600_000)
     expect(() => loadConfig({ AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwxyz', TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod', TELEGRAM_SOURCE_PAGE_SIZE: '1001' }))

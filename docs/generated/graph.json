@@ -1733,6 +1733,30 @@
       "path": "docs/decisions/ldd-copy-button-2026-10-19.md"
     },
     {
+      "id": "decision.learner-work-first-hourly-mesh",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-21",
+      "updated": "2026-11-21",
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "module.synchronization.task-routing"
+      ],
+      "consumers": [
+        "Education operator",
+        "Telegram worker"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/learner-work-first-hourly-mesh-2026-11-21.md"
+    },
+    {
       "id": "decision.legacy-upload-cleanup-2026-11-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -6683,6 +6707,20 @@
       "path": "diary/application/diff.test.mjs",
       "kind": "verification",
       "purpose": "Изменение точки независимо от средней",
+      "consumer": "Vitest"
+    },
+    {
+      "id": "file:diary/application/homework-content.mjs",
+      "path": "diary/application/homework-content.mjs",
+      "kind": "artifact",
+      "purpose": "Сравнение содержания без времени редактирования, лишних пробелов и точного повтора всей записи; оригиналы сохраняются",
+      "consumer": "Diary diff; day source revision; Telegram observation"
+    },
+    {
+      "id": "file:diary/application/homework-content.test.mjs",
+      "path": "diary/application/homework-content.test.mjs",
+      "kind": "verification",
+      "purpose": "Метаданные и дубли без потери номеров, назначений и файлов",
       "consumer": "Vitest"
     },
     {
@@ -12797,6 +12835,20 @@
       "consumer": "Legacy bridge; task capture"
     },
     {
+      "id": "file:sync/mesh-refresh.mjs",
+      "path": "sync/mesh-refresh.mjs",
+      "kind": "artifact",
+      "purpose": "Часовое переиспользование полного42-дневного снимка того же ребёнка и аккаунта; публикация проверяется отдельно",
+      "consumer": "`scripts/sync-project.mjs`; Vitest"
+    },
+    {
+      "id": "file:sync/mesh-refresh.test.mjs",
+      "path": "sync/mesh-refresh.test.mjs",
+      "kind": "verification",
+      "purpose": "Регрессии часового окна, неполного снимка и изоляции владельцев",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/olympiad-help.mjs",
       "path": "sync/olympiad-help.mjs",
       "kind": "artifact",
@@ -15019,7 +15071,8 @@
         "sync/project-plan.mjs",
         "sync/project-audit.mjs",
         "sync/publication-audit.mjs",
-        "sync/run-context.mjs"
+        "sync/run-context.mjs",
+        "sync/mesh-refresh.mjs"
       ],
       "parent": "module.synchronization",
       "uses": [
@@ -17981,6 +18034,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.learner-work-first-hourly-mesh",
+      "to": "module.synchronization.task-routing",
+      "type": "uses"
+    },
+    {
       "from": "decision.legacy-upload-cleanup-2026-11-18",
       "to": "operations.deployment",
       "type": "uses"
@@ -19782,6 +19840,11 @@
     },
     {
       "from": "file:diary/application/diff.mjs",
+      "to": "module.school-diary",
+      "type": "implements"
+    },
+    {
+      "from": "file:diary/application/homework-content.mjs",
       "to": "module.school-diary",
       "type": "implements"
     },
@@ -26196,6 +26259,11 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/mesh-refresh.mjs",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/olympiad-help.mjs",
       "to": "module.olympiad-preparation",
       "type": "implements"
@@ -28682,6 +28750,11 @@
     },
     {
       "from": "module.school-diary",
+      "to": "file:diary/application/homework-content.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary",
       "to": "file:diary/application/mark-details.test.mjs",
       "type": "verified-by"
     },
@@ -28932,6 +29005,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decision.learner-work-first-hourly-mesh",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "decision.moving-preparation-window-2026-11-05",
       "type": "contains"
     },
@@ -28968,6 +29046,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "file:sync/job-queue-fence.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:sync/mesh-refresh.test.mjs",
       "type": "verified-by"
     },
     {

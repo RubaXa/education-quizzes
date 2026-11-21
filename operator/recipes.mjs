@@ -5,7 +5,8 @@
 const recipes = Object.freeze({
   status: ['project.plan', 'inbox.snapshot', 'queue.list'],
   discover: ['queue.scan', 'project.plan'],
-  begin: ['queue.scan', 'project.plan', 'project.collect'],
+  begin: ['queue.scan', 'project.plan'],
+  reconcile: ['project.collect'],
   finalize: ['queue.scan'],
 })
 

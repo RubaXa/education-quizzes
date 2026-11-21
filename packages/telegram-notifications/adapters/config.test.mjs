@@ -9,6 +9,12 @@ const roots = []
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }) })
 
 describe('Telegram secret configuration', () => {
+  it('keeps existing shorter Mesh settings compatible but never polls more than hourly',()=>{
+    const env={AGI_EDU_BOT:'123456:abcdefghijklmnopqrstuvwx',TELEGRAM_FIRESTORE_PROJECT_ID:'education-prod'}
+    expect(loadConfig(env).meshPollMs).toBe(3_600_000)
+    expect(loadConfig({...env,TELEGRAM_MESH_POLL_MS:'900000'}).meshPollMs).toBe(3_600_000)
+    expect(loadConfig({...env,TELEGRAM_MESH_POLL_MS:'7200000'}).meshPollMs).toBe(7_200_000)
+  })
   it('sets bounded defaults and validates operation deadlines', () => {
     const env = { AGI_EDU_BOT: '123456:abcdefghijklmnopqrstuvwx', TELEGRAM_FIRESTORE_PROJECT_ID: 'education-prod' }
     expect(loadConfig(env)).toMatchObject({ sourceOperationTimeoutMs: 600_000, deliveryOperationTimeoutMs: 600_000,
