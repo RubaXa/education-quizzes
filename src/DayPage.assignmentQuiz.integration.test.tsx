@@ -873,6 +873,24 @@ it.each([true, false])('preserves the private guide beside a quiz-only reading t
 })
 
 /** The actual linked-quiz consumer must keep a context receipt inside its assignment. */
+it.each([false,true])('shows a received CDZ result without asking for it again, but does not credit reading (parent=%s)',async parent=>{
+ const id='mesh-geography'
+ scene.page!.subjects=[{id:'geography',name:'География',icon:'🌍',materials:'',mesh:'п.39,ЦДЗ',summary:'',tasks:[{id,title:'§39 и ЦДЗ',kind:'check',status:'unknown',detail:'Повторить §39 и выполнить ЦДЗ.',meshText:'п.39,ЦДЗ',source:'МЭШ'}]}]
+ scene.page!.testPlacements=[];scene.guides={};scene.uploads=[]
+ scene.reviews=[{id:'context',taskId:id,contextEvidence:[{id:'receipt',purpose:'context-evidence',type:'platform-result',title:'Атмосфера',points:4,maxPoints:4,duration:7,observedDate:'2026-11-21',uploadId:'screenshot',location:'Карточка результата',summary:'Результат назначенного ЦДЗ сохранён; чтение отдельно не подтверждено.'}]}]
+ const view=await renderPage(parent)
+ try{
+  const card=view.host.querySelector<HTMLDetailsElement>(`#day-task-${id}`)!
+  await act(async()=>card.querySelector<HTMLElement>('summary')!.click())
+  expect(card.textContent).toContain('Атмосфера: 4/4')
+  expect(card.textContent).toContain('Результат ЦДЗ сохранён')
+  expect(card.textContent).not.toContain('Результат ЦДЗ пока не подтверждён')
+  expect(card.textContent).not.toContain('Нужен скриншот результата ЦДЗ')
+  expect(card.textContent).not.toContain('Загрузить результат ЦДЗ')
+  expect(scene.reviews[0].status).toBeUndefined()
+  expect(scene.page!.subjects[0].tasks[0].status).toBe('unknown')
+ }finally{await view.cleanup()}
+})
 it.each([[false,false],[false,true],[true,false],[true,true]])('keeps a distinct context receipt with the linked selftest (parent=%s, placed=%s)',async(parent,placed)=>{
  const id='mesh-geography'
  scene.page!.subjects=[{id:'geography',name:'География',icon:'🌍',materials:'',mesh:'п.38',summary:'',tasks:[{id,title:'Гидросфера и человек',kind:'read',status:'unknown',detail:'Прочитай §38.',meshText:'п.38',source:'МЭШ',testToken:'diagrams-test'}]}]

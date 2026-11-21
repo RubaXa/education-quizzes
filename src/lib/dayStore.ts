@@ -88,6 +88,13 @@ export function cdzEvidenceLabel(result?: PlatformResult) {
 export function isCdzTask(task: Pick<DayTask, 'id' | 'kind' | 'meshText' | 'title'>) {
   return isExplicitCdzTask(task)
 }
+/** A saved platform receipt describes CDZ evidence, never the completion of reading.
+ * @see ../../docs/modules/school-diary/day-page.md#cdz-proof */
+export function cdzContextResultLabel(task: DayTask, review?: DayWorkReview) {
+  if (!isCdzTask(task) || review?.taskId !== task.id) return ''
+  const result = review.contextEvidence?.filter(item => item.purpose === 'context-evidence' && item.type === 'platform-result').at(-1)
+  return result ? `Результат ЦДЗ сохранён · ${result.points}/${result.maxPoints} баллов` : ''
+}
 export type DayMaterialLink = { catalogRef?:string; title: string; url: string; sourceType: 'textbook-page' | 'teacher-attachment' | 'external-text' | 'audio'; reason?: string; sourceRef?: string; sharedAcrossTasks?: boolean; pdfPage?: number; printedPage?: number | null; editionStatus?: string; extraction?: string; sourceSha256?: string; sourceQuote?: string; collectionId?: string; audioKind?: 'sb' | 'wb' | 'test'; exercise?: string | null; exerciseType?: 'exercise' | 'part'; sourceUrl?: string }
 export type DaySubject = { id: string; name: string; icon: string; materials: string; mesh: string; summary: string; tasks: DayTask[] }
 export type DayTestPlacement = { token: string; subjectId: string; taskId?: string; relatedTaskId?: string; originDate?: string; optional?: boolean }

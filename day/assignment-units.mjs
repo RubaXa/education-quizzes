@@ -15,7 +15,8 @@ function validate(task,{sourceRefs=[],guide,subjectId,placements=[]}={},privateG
   if(!keys(unit,['id','title','kind','sourceRefs','original','instructions','guideStageIds','learnerStageIds','quizToken'])
    ||!text(unit.id,64)||!/^[a-z][a-z0-9-]*$/.test(unit.id)||ids.has(unit.id)||!text(unit.title,160)
    ||!['written','reading','oral','mixed'].includes(unit.kind)||!text(unit.original,2000)
-   ||!unique(unit.sourceRefs)||!unit.sourceRefs.length||unit.sourceRefs.some(ref=>!sourceRefs.includes(ref))
+   ||!unique(unit.sourceRefs)||!unit.sourceRefs.length||unit.sourceRefs.some(ref=>ref!==task.id&&!sourceRefs.includes(ref))
+   ||unit.sourceRefs.includes(task.id)&&!(task.meshText??task.detail??'').includes(unit.original)
    ||!Array.isArray(unit.instructions)||!unit.instructions.length||unit.instructions.length>8||unit.instructions.some(line=>!text(line,600))){errors.push('assignmentUnits: неполная единица, дубликат, закрытые поля или источник вне назначения.');continue}
   ids.add(unit.id)
   for(const [field,available] of [['guideStageIds',guide?.stages],['learnerStageIds',task.learnerFlow?.stages]]){

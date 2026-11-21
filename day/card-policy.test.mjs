@@ -48,6 +48,10 @@ describe('stable written-language card contract', () => {
   })
 
   it('keeps each assigned MESH exercise as a separate required route stage', () => {
+    const chapters={cardPolicyVersion:1,cardPattern:'source-units',outputKind:'structured-notes',assignmentUnits:{items:[{guideStageIds:['chapter-12']},{guideStageIds:['chapter-13']}]}}
+    const chapterGuide={kind:'structured-notes',presentation:'learning-route',pattern:'source-units',revision:1,stages:['chapter-12','chapter-13'].map(id=>({id,expected:'Сверить событие с главой',hintPreview:'Найди событие',revealPreview:'Разобрать причину',reviewLabels:[id]}))}
+    expect(validLearningRoute('literature',chapters,chapterGuide)).toBe(true)
+    expect(validLearningRoute('literature',chapters,{...chapterGuide,stages:chapterGuide.stages.toReversed()})).toBe(false)
     const task = { id: 'mesh-351902085', kind: 'written', cardPolicyVersion: 1, cardPattern: 'source-units',
       outputKind: 'structured-notes', instructionStatus: { state: 'reviewed' },
       steps: [{ text: 'В упр. 218 выпиши сравнения.' }, { text: 'В упр. 223 выпиши олицетворения.' }] }

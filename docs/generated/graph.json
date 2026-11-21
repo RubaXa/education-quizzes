@@ -1202,6 +1202,32 @@
       "path": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md"
     },
     {
+      "id": "decision.current-source-cards",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-21",
+      "updated": "2026-11-21",
+      "parent": "module.assignments.source-units",
+      "uses": [
+        "module.synchronization.subject-decision-graph",
+        "module.school-diary.day-page"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/current-source-cards-2026-11-21.md"
+    },
+    {
       "id": "decision.current-task-source-audit-2026-11-16",
       "status": "accepted",
       "implementation": "implemented",
@@ -17874,6 +17900,16 @@
       "type": "uses"
     },
     {
+      "from": "decision.current-source-cards",
+      "to": "module.school-diary.day-page",
+      "type": "uses"
+    },
+    {
+      "from": "decision.current-source-cards",
+      "to": "module.synchronization.subject-decision-graph",
+      "type": "uses"
+    },
+    {
       "from": "decision.current-task-source-audit-2026-11-16",
       "to": "module.synchronization.plan-generation",
       "type": "uses"
@@ -26782,6 +26818,11 @@
       "from": "module.assignments.deadline-control",
       "to": "module.synchronization.task-routing",
       "type": "uses"
+    },
+    {
+      "from": "module.assignments.source-units",
+      "to": "decision.current-source-cards",
+      "type": "contains"
     },
     {
       "from": "module.assignments.source-units",

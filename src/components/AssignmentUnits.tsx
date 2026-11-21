@@ -36,7 +36,7 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
     {groupAdjacentMaterialPages(unitLinks.filter(link=>canReadInside(link)||link.url.startsWith('data:image/'))).map(group=><MaterialReader key={group[0].url} links={group} parent={parent} imageResolver={imageResolver}/>)}
     {unitLinks.filter(link=>link.sourceType==='audio').map(link=><AudioPlayer key={link.url} link={link}/>)}
     {unitLinks.filter(link=>link.sourceType!=='audio'&&!canReadInside(link)&&!link.url.startsWith('data:image/')).map(link=><a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">{link.title} <ExternalLink size={13} aria-hidden="true"/></a>)}
-    {!unitLinks.length&&<p className="day-loading">Открываем связанный оригинал…</p>}
+    {!unitLinks.length&&!unit.sourceRefs.includes(task.id)&&<p className="day-loading">Открываем связанный оригинал…</p>}
     <details className="day-assignment-brief-compact"><summary>Как написано в оригинале</summary><p>{unit.original}</p></details>
     <div className="assignment-unit-instructions day-submission-instructions"><strong>Что сделать</strong><ol>{unit.instructions.map((line,index)=><li key={index}>{line}</li>)}</ol></div>
     {!parent&&<TaskGuidance items={guidance.filter(item=>unit.guideStageIds?.includes(item.stageId))}/>}

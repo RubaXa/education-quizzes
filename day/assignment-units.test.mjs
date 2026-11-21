@@ -10,6 +10,12 @@ function fixture(){
  return {task,context}
 }
 describe('source-bound assignment units',()=>{
+ it('uses the exact teacher instruction as an original for notebook repetition, without inventing a textbook page',()=>{
+  const task={id:'mesh-notes',meshText:'Учим записи в тетрадях.',assignmentUnits:{version:1,sourceText:'Учим записи в тетрадях.',items:[{id:'notes',title:'Повторить конспект',kind:'reading',sourceRefs:['mesh-notes'],original:'Учим записи в тетрадях.',instructions:['Повтори назначенные записи в своей тетради.']}]}}
+  expect(assignmentUnitErrors(task)).toEqual([])
+  task.assignmentUnits.items[0].original='Выучи параграф21.'
+  expect(assignmentUnitErrors(task).length).toBeGreaterThan(0)
+ })
  it('uses the same gate for public shape, native publication and addressed correction without changing teacher scope',()=>{
   const {task,context}=fixture();expect(assignmentUnitErrors(task,context)).toEqual([]);expect(assignmentUnitShapeErrors(task,context)).toEqual([])
   expect(assignmentOwnsQuiz(task,token)).toBe(true)

@@ -8,7 +8,7 @@ import {problemRequired} from '../../day/task-requirement.mjs'
 /** @see ../../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /** @see ../../docs/modules/materials/material-clarification.md */
 import { materialRequestView, hasSourceReceipt } from './materialRequest'
-import { cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
+import { cdzContextResultLabel, cdzResultLabel, isCdzTask, uploadMatchesTask } from './dayStore'
 import type { DayTask, DayUpload, DayWorkReview } from './dayStore'
 import { problemCardHeading, activeProcessing, workCoverageComplete } from './reviewPresentation'
 import { parentAccepted, requiredFamilyActions, stageCompletion, practiceRequired, taskRequired } from './parentCompletion'
@@ -114,7 +114,7 @@ export function lessonWorkItems(tasks: DayTask[], uploads: DayUpload[], reviews:
         : 'Работа разобрана; основание неопределённости — в карточке.'
         : review?.status === 'needs-fix' ? 'Нужно исправить работу' : review?.status === 'partial' ? 'Нужно дополнить работу' : review?.status === 'cannot-assess' ? 'Фото нужно переснять'
           : (task.kind === 'read' || task.kind === 'check') && quiz ? quiz.detail
-            : isCdzTask(task) ? 'Ожидается результат ЦДЗ' : task.kind === 'check' ? 'Нужно выполнить задание МЭШ' : 'Нужно выполнить и загрузить работу'
+            : isCdzTask(task) ? cdzContextResultLabel(task, review) || 'Ожидается результат ЦДЗ' : task.kind === 'check' ? 'Нужно выполнить задание МЭШ' : 'Нужно выполнить и загрузить работу'
     return [{ id: task.id, title: task.title, state, detail, qualityOpen: covered,
       unresolvedReason: state === 'unclear' ? review?.assessmentBasis?.unresolvedReason : undefined }]
   })

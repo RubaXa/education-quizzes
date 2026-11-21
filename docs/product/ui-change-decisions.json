@@ -269,8 +269,8 @@
       }
     },
     "day/card-policy.mjs": {
-      "sha256": "99d25086be93234a7dc80de0c584fae0e75a77bfe53d88fe58dffc6fc80d24a3",
-      "record": "docs/decisions/criteria-knowledge-ui-kit-2026-11-16.md",
+      "sha256": "2cef9157c68f63be4f05913734744e5b4aade09eebfbbb130f169f96e40b6f97",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/reviews/criteria-and-knowledge.md",
         "docs/shared/design/ui-kit.md"
@@ -2681,8 +2681,8 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "cb5785e3eb20f57396e1302d8c8dfecabe3fbf8896173051285e9205769c1752",
-      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
+      "sha256": "895ce6fc44c3e315c7c941be91bcab0e87d71c69bae3731b62ee5b91b7ad566f",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/statuses.md"
@@ -4188,8 +4188,8 @@
       }
     },
     "src/lib/dayStore.ts": {
-      "sha256": "4617307742e473544289849b3cd5089f95b9c9c21c2edad4c9e034c89a5edf03",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "66b2ec0546ea5ba42607144db89ffbe09965155016c21bcdabf39253dfb8a16a",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/assignments/source-units.md"
       ],
@@ -4304,8 +4304,8 @@
       }
     },
     "src/lib/homeworkStatus.ts": {
-      "sha256": "489d64cfbc64da9e441ede469716f72734410ff53ba47910fde1f47b4379de6c",
-      "record": "docs/decisions/stage-assessment-evidence-2026-11-18.md",
+      "sha256": "a12deabdd924a89255d1f9baf32c923fefab3fec18fdf201cdfb29002917ba2b",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md"
       ],
@@ -9047,8 +9047,8 @@
       }
     },
     "day/assignment-units.mjs": {
-      "sha256": "64a16a4c0f5707f7834e379da73f4bcee9b45e8a54bbfab66b029432201eb094",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "c2c50ccd6ef24269177017c9d22f8a87ebcb5ec783ec1677b6962e7711debcea",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/assignments/source-units.md"
       ],
@@ -9063,8 +9063,8 @@
       }
     },
     "src/components/AssignmentUnits.tsx": {
-      "sha256": "9999ae0cebec6a752c61c88e4315cb28b72144b0f0b7e937b28a72a59d0c9206",
-      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
+      "sha256": "df5280ba5964f2d9f465813b185bed585d05a435fd35085f6e7368975368d49e",
+      "record": "docs/decisions/current-source-cards-2026-11-21.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
         "docs/shared/design/statuses.md"

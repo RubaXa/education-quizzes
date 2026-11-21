@@ -36,6 +36,7 @@ export const learningRoutePatterns = Object.freeze({
 /** Each separately assigned numbered exercise is its own required review result.
  * Additional textbook instructions do not become stages. @see ../docs/modules/reviews/review-criteria-provenance.md#assigned-units */
 function assignedUnitStageIds(task) {
+  if (task?.assignmentUnits?.items?.length) return task.assignmentUnits.items.flatMap(unit=>unit.guideStageIds??[])
   const steps = task?.steps
   if (!Array.isArray(steps) || steps.length < 2) return []
   const numbers = steps.map((step) => /^В упр\.\s*(\d+)\b/u.exec(step?.text ?? '')?.[1])
