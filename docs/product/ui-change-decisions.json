@@ -2492,17 +2492,18 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "517edf33276daee26c02bb1801eb038ae005f043ae703983cacde70640edb24b",
-      "record": "docs/decisions/current-task-source-audit-2026-11-16.md",
+      "sha256": "cc7345b6c490e55c270c06d34687f603c4c20e45ff83dac64bcf0b81132a99c6",
+      "record": "docs/decisions/queue-evidence-2026-11-22.md",
       "specs": [
-        "docs/modules/synchronization/task-routing.md"
+        "docs/modules/synchronization/global-sync.md"
       ],
       "tests": [
+        "sync/queue-evidence.test.mjs",
         "scripts/sync-queue-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь16.11.2026 потребовал сверить все текущие задания по предметному графу и исправить обнаруженные пробелы рабочего процесса."
+        "evidence": "Прямое поручение семьи22.11: разобрать50поручений и5блокировок по доказательствам, без повторного запроса присланного."
       }
     },
     "scripts/telegram-bot.mjs": {
@@ -9168,6 +9169,21 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Родитель21.11.2026 требует сначала разбирать полученные работы учеников, затем МЭШ не чаще раза в час и отличать метаданные от реального изменения задания."
+      }
+    },
+    "sync/queue-evidence.mjs": {
+      "sha256": "d2491d1e25f9b8b7d0125818ed84479db323d4dd13dbb9d77fb9af704cae4115",
+      "record": "docs/decisions/queue-evidence-2026-11-22.md",
+      "specs": [
+        "docs/modules/synchronization/global-sync.md"
+      ],
+      "tests": [
+        "sync/queue-evidence.test.mjs",
+        "scripts/sync-queue-resolution.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение семьи22.11: разобрать50поручений и5блокировок по доказательствам, без повторного запроса присланного."
       }
     }
   }

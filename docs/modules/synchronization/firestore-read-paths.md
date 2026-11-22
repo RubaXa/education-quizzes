@@ -24,6 +24,13 @@ sections:
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
 
+22.11, `sync:queue evidence --id`: один известный operatorSyncJobs; для day-source
+явный dayToken либо адресный owner query по familyId/childId/date (limit2), затем
+owner/page, files того же дня и getAll точных progress/private IDs задачи и её
+номеров. Для quiz-source — четыре известных документа и query продолжений по
+testId с обязательным owner filter. Это ручной read-only аудит старого поручения,
+без глобального discovery, подписок, автоматической оценки и клиентских reads.
+
 22.11, `quiz enable-text-review PERSON --apply`: разовая миграция использует тот
 же ограниченный learner dashboard, что audit-access; читает назначение каждого
 его ID и только для открытых short — адресные key/private rubric. Транзакция

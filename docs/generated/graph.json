@@ -3195,6 +3195,32 @@
       "path": "docs/decisions/question-guidance-2026-10-19.md"
     },
     {
+      "id": "decision.queue-evidence-2026-11-22",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-22",
+      "updated": "2026-11-22",
+      "parent": "module.synchronization.global-sync",
+      "uses": [
+        "module.synchronization.firestore-read-paths"
+      ],
+      "consumers": [
+        "Education operator"
+      ],
+      "code": [
+        "sync/queue-evidence.mjs",
+        "scripts/sync-queue.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/queue-evidence-2026-11-22.md"
+    },
+    {
       "id": "decision.quiz-review-dialogue-2026-11-17",
       "status": "accepted",
       "implementation": "implemented",
@@ -12979,6 +13005,20 @@
       "consumer": "Vitest; разработчик"
     },
     {
+      "id": "file:sync/queue-evidence.mjs",
+      "path": "sync/queue-evidence.mjs",
+      "kind": "artifact",
+      "purpose": "Закрытый адресный read-only экспорт доказательств старого поручения без зачёта",
+      "consumer": "sync-queue CLI"
+    },
+    {
+      "id": "file:sync/queue-evidence.test.mjs",
+      "path": "sync/queue-evidence.test.mjs",
+      "kind": "verification",
+      "purpose": "Владелец, сохранение фото и частичных результатов при экспорте",
+      "consumer": "Vitest"
+    },
+    {
       "id": "file:sync/reconciliation-ack.mjs",
       "path": "sync/reconciliation-ack.mjs",
       "kind": "artifact",
@@ -18532,6 +18572,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.queue-evidence-2026-11-22",
+      "to": "module.synchronization.firestore-read-paths",
+      "type": "uses"
+    },
+    {
       "from": "decision.quiz-review-dialogue-2026-11-17",
       "to": "module.assessments.assessment-decision-graph",
       "type": "uses"
@@ -22389,6 +22434,11 @@
     {
       "from": "file:scripts/sync-queue.mjs",
       "to": "decision.moving-preparation-window-2026-11-05",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/sync-queue.mjs",
+      "to": "decision.queue-evidence-2026-11-22",
       "type": "implements"
     },
     {
@@ -26407,6 +26457,16 @@
       "type": "implements"
     },
     {
+      "from": "file:sync/queue-evidence.mjs",
+      "to": "decision.queue-evidence-2026-11-22",
+      "type": "implements"
+    },
+    {
+      "from": "file:sync/queue-evidence.mjs",
+      "to": "module.synchronization.global-sync",
+      "type": "implements"
+    },
+    {
       "from": "file:sync/reconciliation-ack.mjs",
       "to": "decision.sync-permission-scope-2026-11-08",
       "type": "implements"
@@ -29103,6 +29163,11 @@
     },
     {
       "from": "module.synchronization.global-sync",
+      "to": "decision.queue-evidence-2026-11-22",
+      "type": "contains"
+    },
+    {
+      "from": "module.synchronization.global-sync",
       "to": "decision.sync-permission-scope-2026-11-08",
       "type": "contains"
     },
@@ -29159,6 +29224,11 @@
     {
       "from": "module.synchronization.global-sync",
       "to": "file:sync/publication-audit.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.synchronization.global-sync",
+      "to": "file:sync/queue-evidence.test.mjs",
       "type": "verified-by"
     },
     {

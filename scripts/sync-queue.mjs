@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/** @see ../docs/decisions/queue-evidence-2026-11-22.md */
 /** @see ../docs/decisions/moving-preparation-window-2026-11-05.md */
 /** @see ../docs/decisions/lesson-repetition-2026-11-01.md */
 /** @see ../docs/decisions/informatics-assessment-2026-11-01.md */
@@ -19,6 +20,7 @@ import { enqueueSyncJob, setSyncJob, syncFingerprint, syncJobId } from '../sync/
 import { pendingManualQuestionIds, quizDecision, supplementalAssessmentPlacement } from '../assessment/decision-graph.mjs'
 import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
 import { taskRoute, taskRouteCandidates, syncRoutePlan } from '../sync/task-route.mjs'
+import { queueEvidence } from '../sync/queue-evidence.mjs'
 
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
@@ -31,7 +33,7 @@ const measurements = { phaseMs: {}, sourceDocuments: {}, sdkCalls: {} }
 const queueProjectionFile = resolve('.local/project-sync/queue-projection.json')
 const candidateCacheFile = resolve('.local/project-sync/candidate-fingerprints.json')
 const command = process.argv[2] ?? 'scan'
-if (!['scan', 'list', 'claim', 'advance', 'finish', 'block'].includes(command)) {
+if (!['scan', 'list', 'evidence', 'claim', 'advance', 'finish', 'block'].includes(command)) {
   throw new Error('Использование: npm run sync:queue -- scan|list|claim|advance|finish|block [--id ID] [--phase PHASE] [--evidence REF] [--reason CODE]')
 }
 function option(name) { const at = process.argv.indexOf(name); return at < 0 ? null : process.argv[at + 1] }
@@ -413,15 +415,16 @@ if (command === 'scan') {
     candidates: candidates.length, created, unchanged, fullAudit: previousFingerprints === null,
     resolved, ...queue, measurements: { ...measurements, inbox: inbox.measurements,
       totalMs: Math.round(performance.now() - started), note: 'SDK calls and returned documents, not billed reads' } }, null, 2))
-} else if (command === 'list') {
+} else if (command === 'list' || command === 'evidence') {
   const id = option('--id')
+  if(command==='evidence'&&!id)throw Error('Нужен точный --id.')
   if (id) {
     if (!/^[a-f0-9]{64}$/.test(id)) throw new Error('Нужен корректный ID задачи.')
     const record = (await db.doc(`operatorSyncJobs/${id}`).get()).data()
     if (!record) throw new Error('Задача не найдена.')
     const artifact = /^operatorSyncTaskArtifacts\/[a-f0-9]{64}$/.test(record.artifactPath ?? '')
       ? (await db.doc(record.artifactPath).get()).data() ?? null : null
-    console.log(JSON.stringify({ id, record, artifact }, null, 2))
+    console.log(JSON.stringify({ id, record, artifact, ...(command==='evidence'?{current:await queueEvidence(db,record)}:{}) }, null, 2))
   } else console.log(JSON.stringify(await reportQueue(), null, 2))
 } else {
   const id = option('--id'), phase = option('--phase') ?? (command === 'claim' ? 'started' : command === 'finish' ? 'verified' : command === 'block' ? 'blocked' : null)
