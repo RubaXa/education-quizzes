@@ -13,6 +13,8 @@ it('migrates only open text policy, queues even an exact short answer and requir
  expect(a).toEqual(before)
  expect(patch.rubrics.q[0].description).toBe(a.questions[0].prompt)
  expect(textReviewMigration({...a,status:'submitted'},k)).toBeNull()
+ const legacy={...a,questions:[...a.questions,{id:'old-long',kind:'long',points:2,prompt:'Старое объяснение'}]}
+ expect(textReviewMigration(legacy,{entries:{...k.entries,'old-long':{}}},{rubrics:{unrelated:[{id:'kept'}]}}).rubrics).toEqual({...patch.rubrics,unrelated:[{id:'kept'}]})
  const migrated={...a,...patch.assignmentPatch,status:'submitted'}
  const privateKey=privateQuizKey(k,{rubrics:patch.rubrics})
  expect(pendingManualQuestionIds(migrated,{})).toEqual(['q'])

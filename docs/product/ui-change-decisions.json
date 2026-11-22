@@ -8314,7 +8314,7 @@
       }
     },
     "assessment/manual-review-contract.mjs": {
-      "sha256": "209d34069675c49d0317784a1e86102bca8725f103cd185c865b42e1ca8ea9b2",
+      "sha256": "d82f689876d2c9ebbacc06bb35eae3cf8509ee7af9c4dfd96f541a7d1c60aa86",
       "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",

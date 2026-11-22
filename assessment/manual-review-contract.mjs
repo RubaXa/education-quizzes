@@ -26,7 +26,7 @@ export function assertQuestionRubric(question,entry){
 export function textReviewMigration(assignment,key,privateRecord={}){
  if(assignment.status!=='open'||assignment.textAnswerReviewVersion===1||!assignment.questions?.some(q=>q.kind==='short'))return null
  const rubrics={...privateRecord.rubrics}
- for(const q of assignment.questions.filter(q=>q.kind==='short'||q.kind==='long'))rubrics[q.id]=assertQuestionRubric(q,{...key?.entries?.[q.id],...(rubrics[q.id]?{criteria:rubrics[q.id]}:{})})
+ for(const q of assignment.questions.filter(q=>q.kind==='short'))rubrics[q.id]=assertQuestionRubric(q,{...key?.entries?.[q.id],...(rubrics[q.id]?{criteria:rubrics[q.id]}:{})})
  return {assignmentPatch:{textAnswerReviewVersion:1},rubrics}
 }
 export function assertManualQuizReview(assignment,key,review){
