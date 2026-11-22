@@ -8,6 +8,10 @@ function database(values,collections={}){
   collection:path=>({get:async()=>({docs:(collections[path]??[]).map(([id,v])=>snap(v,id))})})}
 }
 describe('addressed queue evidence',()=>{
+ it('checks the quiz owner before fetching the private key or results',async()=>{
+  const db={doc:path=>({get:async()=>{if(path!=='assignments/quiz')throw Error('private read before owner');return snap({familyId:'other',childId:'c',testId:'test'})}})}
+  await expect(queueEvidence(db,{familyId:'f',childId:'c',source:{type:'quiz',id:'quiz',testId:'test'}})).rejects.toThrow(/^queue_evidence_owner_mismatch$/)
+ })
  it('rejects another owner before reading photos or private results',async()=>{
   const db=database({'dayOwners/day':{familyId:'other',childId:'c'},'dayPages/day':{}})
   await expect(queueEvidence(db,{familyId:'f',childId:'c',source:{type:'day-task',dayToken:'day',taskId:'task'}})).rejects.toThrow('owner')

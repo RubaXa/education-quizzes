@@ -10,8 +10,9 @@ export async function queueEvidence(db,job){
  if(s.type==='quiz'){
   const token=s.id
   if(!/^[A-Za-z0-9_-]{1,128}$/.test(token??''))throw Error('queue_evidence_quiz_missing')
-  const [assignment,key,review,privateReview]=await Promise.all(['assignments','answerKeys','reviews','quizReviewPrivate'].map(c=>data(db,`${c}/${token}`)))
+  const assignment=await data(db,`assignments/${token}`)
   if(!owned(assignment,job)||assignment.testId!==s.testId)throw Error('queue_evidence_owner_mismatch')
+  const [key,review,privateReview]=await Promise.all(['answerKeys','reviews','quizReviewPrivate'].map(c=>data(db,`${c}/${token}`)))
   const linked=await db.collection('assignments').where('linkedToTestId','==',s.testId).get()
   return {...base,assignment,key,review,privateReview,linked:linked.docs.filter(x=>owned(x.data(),job)).map(x=>({token:x.id,...x.data()}))}
  }

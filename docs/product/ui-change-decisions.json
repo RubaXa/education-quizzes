@@ -9172,7 +9172,7 @@
       }
     },
     "sync/queue-evidence.mjs": {
-      "sha256": "d2491d1e25f9b8b7d0125818ed84479db323d4dd13dbb9d77fb9af704cae4115",
+      "sha256": "62e2cc674b6fc3a71f4fed14947a1f5b6cde4e38480dfa8922c2fc3997cb52ff",
       "record": "docs/decisions/queue-evidence-2026-11-22.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md"
