@@ -134,20 +134,22 @@
       }
     },
     "assessment/decision-graph.mjs": {
-      "sha256": "75401d74a4d4d19f797d3517bbdfa1face43efd8fa7211595726af42a2300de2",
-      "record": "docs/decisions/assessment-format-gates-2026-11-17.md",
+      "sha256": "a93923e47157fbd39c5c14724d6631dee371f788edce0dab2309f49f9885c170",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/assessments/format-plan.md",
-        "docs/modules/assessments/quizzes.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/format-plan.test.mjs",
-        "assessment/canonical-short-key.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11.2026 требует детерминированный CLI плана форматов и обязательную проверку перед публикацией, чтобы тест не состоял из одних полей ввода; текущий EducationSync требует смысловой сверки ответов по оригиналам."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "assessment/followup-contract.mjs": {
@@ -185,19 +187,22 @@
       }
     },
     "assessment/question-guidance.mjs": {
-      "sha256": "e0aca65ec0d9bdc73e2f52ee1dee8bb184acaba9b5cc3e049cda0d91f3d663c7",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "175b47ca00085a19ceacf42c43077f425f3cb077e8f46de7d410089ac0bf0935",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.dialogue.test.tsx"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "assessment/quiz-lineage.mjs": {
@@ -309,19 +314,22 @@
       }
     },
     "day/data-contract.mjs": {
-      "sha256": "8874def77dc3939f1b7f3de4563207c88ad641310f32d9fbdf56c5ce8af187f9",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "ff0fe1ccb896f3182e54d10b167957f392d5de6d5df426aa955996647592e35c",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "day/family-source-graph.mjs": {
@@ -2048,20 +2056,17 @@
       }
     },
     "scripts/education-sync-dispatch.mjs": {
-      "sha256": "8f28761ab5fae843ed022978ff883086edca9568455cfaeae48560e19c808965",
-      "record": "docs/decisions/sync-claim-liveness-2026-11-19.md",
+      "sha256": "6f3b5909379547c25aa63440335ed271fc2df1b29b268066e384d67d035f4ca9",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
-        "docs/modules/synchronization/global-sync.md"
+        "docs/services/telegram-bot/education-sync-dispatch.md"
       ],
       "tests": [
-        "sync/reconciliation-ack.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
         "scripts/education-sync-dispatch.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель08.11.2026 потребовал устранить зависание на старом permission_required и закрывать проверенные внутренние задачи без его участия."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "scripts/education.mjs": {
@@ -2328,19 +2333,22 @@
       }
     },
     "scripts/quiz.mjs": {
-      "sha256": "ee9a12eca3ac96008e4af641f9d37555c35624e6c85f11a6d4c7e9929324887a",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "4e0ebc02cabb009e29c1bc9bf75394d24e7b5a62180c7962a2204782814ab51d",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.dialogue.test.tsx"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "scripts/release-note.mjs": {
@@ -2447,18 +2455,22 @@
       }
     },
     "scripts/sync-inbox.mjs": {
-      "sha256": "8d61c45f9beedfb2dc89f75986245c4ca80cfb75bc265edf66d2f79937bb9ba7",
-      "record": "docs/decisions/moving-preparation-window-2026-11-05.md",
+      "sha256": "5d371ae09faf4572c2551e09bce235db6f604dc2389897e0d3db9845a60a7d83",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/synchronization/global-sync.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "sync/preparation-window.test.mjs",
-        "sync/help-request-resolution.test.mjs"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя05.11: выполнить доступные задачи, разобрать блокировки; окно с понедельника текущей недели."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "scripts/sync-project.mjs": {
@@ -2681,20 +2693,22 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "895ce6fc44c3e315c7c941be91bcab0e87d71c69bae3731b62ee5b91b7ad566f",
-      "record": "docs/decisions/current-source-cards-2026-11-21.md",
+      "sha256": "b7f73bbf755dbf0fd140f9963ee46c281c1e177bb813c05e23fe972623501370",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/statuses.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/TaskDisclosure.test.tsx",
-        "src/lib/assignmentUnitView.test.ts",
-        "src/lib/reviewPresentation.test.ts"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "src/UiKit.css": {
@@ -2757,18 +2771,22 @@
       }
     },
     "src/WeekendMathSlot.tsx": {
-      "sha256": "66033487e2cf78e58816a87acc75c334829e5044e3263c468f8d6a0d54c266d7",
-      "record": "docs/decisions/numbered-source-gap-2026-11-18.md",
+      "sha256": "35a3b33696d946c9eb2a09b73a7f6159656dd1c79246349c897ae424587e0a13",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/reviews/card-generation-policy.md",
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
         "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
         "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое правило семьи: неполное условие не становится обязательным результатом; проверка обеих ролей18.11 выявила возврат №11без рисунка в обязательный счётчик подготовки календаря."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "src/components/ArtifactAvatar.css": {
@@ -3571,19 +3589,22 @@
       }
     },
     "src/components/QuizResultCard.tsx": {
-      "sha256": "2912037c0bf22ea90e4edfe4339e05331f92018e6758f8a702a2325d5bbcd1d5",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "391242d6db14f94e1e213e2e1d70bf5aea8974bf26514f6409d15ab5c138cb5a",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.dialogue.test.tsx"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "src/components/QuizTextAnswer.tsx": {
@@ -4606,19 +4627,22 @@
       }
     },
     "src/lib/quiz.ts": {
-      "sha256": "51a682b818e83c0e09af2e71cadc86beabf15c4d3d526bf70071812af40d3d63",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "4b85203fec909bc588ffaebbf1a99c3fb0501720891a821ae1020c4edf4b1e38",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "assessment/question-guidance.test.mjs",
-        "src/components/QuizResultCard.dialogue.test.tsx"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "19.11.2026 пользователь попросил применить новый разбор к этому вопросу и проверить, что ребёнок видит подтверждение, пробел и действие."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "src/lib/quizCardViewModel.ts": {
@@ -5388,39 +5412,33 @@
       }
     },
     "sync/event-task-artifact.mjs": {
-      "sha256": "37d927e67eea40a15a57d047ba6ebe7b617ea6732ed9ee16ddd2a0d1eede2ea7",
-      "record": "docs/decisions/quiz-review-dialogue-2026-11-17.md",
+      "sha256": "ed4e48f8ce09eb844d4887d2d2c3dcd9d512afd67268c18aeeef86f1f312b7fd",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/shared/design/student-review-step.md",
-        "docs/modules/assessments/quizzes.md"
-      ],
-      "tests": [
-        "src/components/QuizResultCard.dialogue.test.tsx",
-        "src/lib/quizReviewConversation.test.ts",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "src/components/ReviewConversation.test.tsx"
-      ],
-      "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал привести текущие разборы к одному общему блоку, выбирать режим по реальным ответам и проверить обе роли. Отправка ответа и проверенный переход входят в его действующий контракт."
-      }
-    },
-    "sync/event-task-export.mjs": {
-      "sha256": "10caab70fe8d6c272a807ad513bc072a07a174263eb1d52df12dc9c7222c27d0",
-      "record": "docs/decisions/sync-single-drainer-2026-11-05.md",
-      "specs": [
-        "docs/services/telegram-bot/education-sync-dispatch.md",
         "docs/modules/synchronization/execution-artifact.md"
       ],
       "tests": [
-        "packages/telegram-notifications/application/education-sync-action-store.test.mjs",
-        "packages/telegram-notifications/application/education-sync-dispatch-store.test.mjs",
-        "sync/event-task-export.test.mjs",
-        "scripts/education-sync-dispatch.test.mjs"
+        "sync/help-response.test.mjs",
+        "sync/event-task-artifact.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "По прямому поручению пользователя 21.10.2026 через EducationSync исправить удержание новых action задач блокировкой МЭШ, с независимым исполнением и честным сохранением blocked источника."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
+      }
+    },
+    "sync/event-task-export.mjs": {
+      "sha256": "f379597c943c70a1170be82e715a1824c02c51fdafbede0cb265d6dc6edda2be",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
+      "specs": [
+        "docs/modules/synchronization/execution-artifact.md"
+      ],
+      "tests": [
+        "sync/event-task-export.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "sync/help-request-cache.mjs": {
@@ -8296,20 +8314,22 @@
       }
     },
     "assessment/manual-review-contract.mjs": {
-      "sha256": "10f60c0e2ded09cbfff1ee8d8a334cc5a7050214a4a9d9bff4484330cf113307",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "209d34069675c49d0317784a1e86102bca8725f103cd185c865b42e1ca8ea9b2",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/lib/quiz.authorScope.test.ts",
-        "assessment/quiz-author-scope.test.mjs",
-        "assessment/followup-contract.test.mjs"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "day/decision-registry.mjs": {
@@ -9063,20 +9083,22 @@
       }
     },
     "src/components/AssignmentUnits.tsx": {
-      "sha256": "df5280ba5964f2d9f465813b185bed585d05a435fd35085f6e7368975368d49e",
-      "record": "docs/decisions/current-source-cards-2026-11-21.md",
+      "sha256": "e62345345030c6f90cb134d3e5304e8dd20a5a380bb363f41e3a1f11ae554fef",
+      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
       "specs": [
-        "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/statuses.md"
+        "docs/modules/assessments/quizzes.md",
+        "docs/modules/materials/material-clarification.md",
+        "docs/modules/school-diary/dashboard.md"
       ],
       "tests": [
-        "src/components/TaskDisclosure.test.tsx",
-        "src/lib/assignmentUnitView.test.ts",
-        "src/lib/reviewPresentation.test.ts"
+        "src/lib/quiz.test.ts",
+        "assessment/manual-review-contract.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/WeekendMathSlot.test.tsx"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
+        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
       }
     },
     "src/lib/assignmentUnitView.ts": {

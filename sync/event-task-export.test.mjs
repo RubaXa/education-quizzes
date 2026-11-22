@@ -33,6 +33,23 @@ async function fixture() {
 }
 
 describe('request scoped task export', () => {
+  it('preserves an exact changed-source blocker and still exports independent actions in the frozen range',async()=>{
+    const {db,rows,store,state,options,task}=await fixture()
+    rows.get('assignments/quiz').status='open'
+    const e={...rows.get(`operatorSyncTaskArtifacts/${task.artifactPath.split('/').at(-1)}`),eventId:'c'.repeat(64),sourceRef:{kind:'quiz',documentPath:'assignments/other',quizToken:'other'}}
+    rows.set('assignments/other',{familyId:'f',childId:'c',status:'submitted',questions:[],answers:{}})
+    const a=await prepareEventTaskArtifact(db,e,{now})
+    const other={...task,eventId:e.eventId,jobId:'d'.repeat(64),artifactPath:a.artifactPath}
+    rows.set(`operatorSyncJobs/${other.jobId}`,{familyId:'f',childId:'c',status:'queued'})
+    store.readActionTasks.mockResolvedValue({tasks:[task,other],complete:true,nextCursor:null})
+    state.workflowLeaseUntil='2026-10-19T10:20:00.000Z'
+    const result=await exportEventTaskManifest(db,store,{...options,now:'2026-10-19T10:06:00.000Z'})
+    expect(result).toMatchObject({status:'partial',taskCount:2,blockedCount:1})
+    const page=JSON.parse(readFileSync(join(result.manifestPath,'..','page-1.json'),'utf8'))
+    expect(page.tasks[0].sourceFailure).toEqual({code:'task_source_not_reviewable'})
+    expect(page.tasks[1]).not.toHaveProperty('sourceFailure')
+    expect(rows.get(`operatorSyncJobs/${task.jobId}`).status).toBe('queued')
+  })
   it('exports private captured inputs and only a safe path/count summary', async () => {
     const { db, store, options } = await fixture()
     const result = await exportEventTaskManifest(db, store, options)

@@ -1,6 +1,6 @@
 /** @see ../docs/decisions/assignment-source-audit-corrections-2026-11-16.md */
 import {createHash} from 'node:crypto'
-import {excludedQuizQuestionIds} from '../src/lib/quiz.ts'
+import {excludedQuizQuestionIds,needsManualTextReview} from '../src/lib/quiz.ts'
 /** @see ../docs/modules/reviews/criteria-and-knowledge.md#criteria */
 const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value
 const hash=value=>createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex')
@@ -15,9 +15,19 @@ export function assertQuizReviewRevision(previous,review){
 }
 export function privateQuizKey(key,privateRecord){return {...key,entries:Object.fromEntries(Object.entries(key?.entries??{}).map(([id,value])=>{const {criteria:_criteria,...entry}=value;return [id,{...entry,...(privateRecord?.rubrics?.[id]?{criteria:privateRecord.rubrics[id]}:{})}]}))}}
 export function assertQuestionRubric(question,entry){
- const rubric=entry?.criteria
+ // A legacy short key has no authored rubric. The full question, never a string
+ // match, is its criterion; the reviewer still checks the original source.
+ const rubric=entry?.criteria??(question.kind==='short'?[{id:'answer',description:question.prompt,skillId:quizSkillId('text-answer',question.topic??question.prompt),skillLabel:question.topic??'Смысл ответа по условию',maxPoints:question.points}]:undefined)
  if(!Array.isArray(rubric)||!rubric.length||new Set(rubric.map(c=>c.id)).size!==rubric.length||rubric.some(c=>!c.id||!c.description?.trim()||!c.skillId?.trim()||!c.skillLabel?.trim()||!Number.isFinite(c.maxPoints)||c.maxPoints<=0)||Math.abs(rubric.reduce((n,c)=>n+c.maxPoints,0)-question.points)>1e-8)throw Error(`Вопрос ${question.id}: нужна полная рубрика критериев с суммой баллов вопроса.`)
  return rubric
+}
+/** Policy-only migration: never rewrites questions, answers or submitted history.
+ * @see ../docs/modules/assessments/quizzes.md#semantic-short-answer */
+export function textReviewMigration(assignment,key,privateRecord={}){
+ if(assignment.status!=='open'||assignment.textAnswerReviewVersion===1||!assignment.questions?.some(q=>q.kind==='short'))return null
+ const rubrics={...privateRecord.rubrics}
+ for(const q of assignment.questions.filter(q=>q.kind==='short'||q.kind==='long'))rubrics[q.id]=assertQuestionRubric(q,{...key?.entries?.[q.id],...(rubrics[q.id]?{criteria:rubrics[q.id]}:{})})
+ return {assignmentPatch:{textAnswerReviewVersion:1},rubrics}
 }
 export function assertManualQuizReview(assignment,key,review){
  if(assignment?.status!=='submitted'||!assignment.familyId||!assignment.childId||review.attemptFingerprint!==quizAttemptDigest(assignment,key))throw Error('Попытка или ключ изменились; нужен свежий адресный экспорт.')
@@ -34,7 +44,7 @@ export function assertManualQuizReview(assignment,key,review){
   for(const c of rubric){const f=checks.find(x=>x.id===c.id);if(!Number.isFinite(f.points)||f.points<0||f.points>c.maxPoints||!f.observation?.trim())throw Error('Нужна проверка каждого критерия в пределах его баллов.');checked.push({...c,id:`${id}:${c.id}`,finding:{result:f.points===c.maxPoints?'confirmed':f.points===0?'not-met':'partial',score:f.points,maxPoints:c.maxPoints,observation:f.observation,uploadId:`answer:${id}`,location:`question:${id}`}})}
   if(Math.abs(checks.reduce((n,c)=>n+c.points,0)-entry.points)>1e-8)throw Error('Итог вопроса не равен сумме критериев.')
  }
- for(const q of assignment.questions.filter(q=>q.kind==='long'&&!excluded.has(q.id)))if(typeof assignment.answers?.[q.id]==='string'&&assignment.answers[q.id].trim()&&!entries[q.id])throw Error('Открытый ответ остался непроверенным.')
+ for(const q of assignment.questions.filter(q=>needsManualTextReview(assignment,q)&&!excluded.has(q.id)))if(typeof assignment.answers?.[q.id]==='string'&&assignment.answers[q.id].trim()&&!entries[q.id])throw Error('Открытый ответ остался непроверенным.')
  return checked
 }
 export function publicManualReview(review){return {entries:Object.fromEntries(Object.entries(review.entries).map(([id,e])=>[id,{points:e.points,explanation:e.explanation,...(e.source?{source:e.source}:{}),...(e.learning?{learning:e.learning}:{})}]))}}

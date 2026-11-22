@@ -132,7 +132,9 @@ export async function captureEventTaskInputs(db, event, { now = new Date().toISO
       || !source.storage?.path || !HASH.test(source.storage?.sha256 ?? ''))) fail('task_source_not_reviewable')
     if(event.eventType==='help.requested'&&source.requestKind==='condition'&&source.planRevision!==undefined&&!source.photoUploadIds&&!source.reviewReply&&(source.planRevision!==page.planRevision||!source.requestText?.trim()))fail('task_help_plan_changed')
     if (event.eventType === 'help.requested' && source.reviewReply !== undefined) {
-      if (source.photoUploadIds !== undefined || !Number.isInteger(source.planRevision) || source.planRevision !== page.planRevision) fail('task_help_plan_changed')
+      // The exact current review/step below is the authority for a microreply.
+      // A neighbouring task publication may advance the shared day revision.
+      if (source.photoUploadIds !== undefined || !Number.isInteger(source.planRevision) || source.planRevision<1 || source.planRevision>page.planRevision) fail('task_help_plan_changed')
       if (reviewReplyErrors(source.reviewReply).length) fail('task_review_reply_invalid')
       const publicReview = await db.doc(`dayProgress/${event.sourceRef.dayToken}/items/${taskId}`).get()
       const sourceId = source.reviewReply?.sourceId

@@ -3,7 +3,7 @@ id: shared.design.student-review-step
 status: accepted
 implementation: implemented
 created: 2026-11-01
-updated: 2026-11-17
+updated: 2026-11-22
 parent: shared.design.compact-review
 uses:
   - shared.access-and-privacy
@@ -96,6 +96,13 @@ JSON с text/presentation.activity. Старые результаты читаю
 
 
 ## Отправка и ответ
+
+Уточнение22.11: общий номер ревизии дня может вырасти из-за соседнего задания.
+Микроответ сохраняет свою положительную `planRevision` не новее текущей страницы;
+его допустимость определяют точные текущие `checkedAt`, `correctedAt`, sourceId,
+вопрос и activity через resolveReviewReplyStep. Изменившийся разбор или вопрос
+по-прежнему блокирует привязку. Обновление соседней карточки само по себе не
+отбрасывает ответ; ответ не переносит зачёт на другое условие или всю работу.
 
 Прямое требование родителя01.11: после выбора/ввода нужен проверенный отклик по
 ответу и переход, а не только подсветка. ReviewConversation и ReviewReplyControls

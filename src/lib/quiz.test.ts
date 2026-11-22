@@ -30,6 +30,13 @@ const key: AnswerKey = {
 }
 
 describe('grading', () => {
+  it.each(['другим известиям', 'Другим известия', 'Из других сообщений'])('waits for semantic review of typed words: %s', answer => {
+    const text = { ...assignment, textAnswerReviewVersion: 1 as const, questions: [{ id: 'news', kind: 'short' as const, prompt: 'Откуда узнали?', points: 1 }], answers: { news: answer } }
+    const key = { entries: { news: { correct: 'другим известиям' } } }
+    expect(grade(text, key)[0].points).toBeNull()
+    expect(grade(text, key, { entries: { news: { points: 1, explanation: 'Смысл подтверждён по источнику.' } } })[0].points).toBe(1)
+    expect(grade({ ...text, textAnswerReviewVersion: undefined }, key)[0].points).toBe(answer === 'другим известиям' ? 1 : 0)
+  })
   it('counts only filled answers for the shared test list', () => {
     expect(countAnswered(assignment)).toBe(2)
     expect(countAnswered({ ...assignment, answers: { zero: '  ', many: [], reason: '' } })).toBe(0)

@@ -1,9 +1,27 @@
 import {expect,it} from 'vitest'
-import {assertManualQuizReview,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision} from './manual-review-contract.mjs'
+import {assertManualQuizReview,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision,textReviewMigration} from './manual-review-contract.mjs'
+import {pendingManualQuestionIds} from './decision-graph.mjs'
 import {publishedAnswer} from './question-guidance.mjs'
 const assignment={testId:'test',familyId:'family',childId:'child',status:'submitted',questions:[{id:'q1',kind:'long',points:2,prompt:'Письмо о национальном блюде'}],answers:{q1:'Письмо ученика'}}
 const key={entries:{q1:{criteria:[{id:'topic',description:'Национальное блюдо',skillId:'english-topic',skillLabel:'Содержание',maxPoints:1},{id:'language',description:'Язык',skillId:'english-language',skillLabel:'Язык',maxPoints:1}]}}}
 const review=()=>({attemptFingerprint:quizAttemptDigest(assignment,key),priorReviewFingerprint:quizReviewDigest(null),correctionReason:'',entries:{q1:{points:1,explanation:'Язык верен, тема не соответствует условию.',criteriaChecks:[{id:'topic',points:0,observation:'Названо другое блюдо'},{id:'language',points:1,observation:'Грамматические формы верны'}]}}})
+it('migrates only open text policy, queues even an exact short answer and requires semantic criteria',()=>{
+ const a={...assignment,status:'open',questions:[{id:'q',kind:'short',points:1,prompt:'Назови источник сообщения'}],answers:{q:'другим известиям'},startedAt:'unchanged'}
+ const k={entries:{q:{correct:'другим известиям'}}},before=structuredClone(a)
+ const patch=textReviewMigration(a,k)
+ expect(patch.assignmentPatch).toEqual({textAnswerReviewVersion:1})
+ expect(a).toEqual(before)
+ expect(patch.rubrics.q[0].description).toBe(a.questions[0].prompt)
+ expect(textReviewMigration({...a,status:'submitted'},k)).toBeNull()
+ const migrated={...a,...patch.assignmentPatch,status:'submitted'}
+ const privateKey=privateQuizKey(k,{rubrics:patch.rubrics})
+ expect(pendingManualQuestionIds(migrated,{})).toEqual(['q'])
+ const r={attemptFingerprint:quizAttemptDigest(migrated,privateKey),entries:{}}
+ expect(()=>assertManualQuizReview(migrated,privateKey,r)).toThrow(/непроверенным/)
+ r.entries.q={points:1,explanation:'Смысл верен по оригиналу.',criteriaChecks:[{id:'answer',points:1,observation:'Назван нужный источник.'}]}
+ expect(assertManualQuizReview(migrated,privateKey,r)).toHaveLength(1)
+ expect(pendingManualQuestionIds(migrated,r)).toEqual([])
+})
 it('requires every criterion, bounded points, current attempt and existing answered question',()=>{
  expect(assertManualQuizReview(assignment,key,review())).toHaveLength(2)
  const r=review();r.entries.q1.criteriaChecks.pop();expect(()=>assertManualQuizReview(assignment,key,r)).toThrow(/пропустил/)

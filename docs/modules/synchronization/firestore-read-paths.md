@@ -3,7 +3,7 @@ id: module.synchronization.firestore-read-paths
 status: accepted
 implementation: partial
 created: 2026-10-13
-updated: 2026-11-19
+updated: 2026-11-22
 consumers:
   - "Education sync operator"
   - "sync-project CLI"
@@ -23,6 +23,12 @@ sections:
   - аудиобиблиотека--22-октября
 ---
 # Реестр путей чтения Firestore и выбор способа обновления
+
+22.11, `quiz enable-text-review PERSON --apply`: разовая миграция использует тот
+же ограниченный learner dashboard, что audit-access; читает назначение каждого
+его ID и только для открытых short — адресные key/private rubric. Транзакция
+повторяет три документа с CAS, readback проверяет их целиком. Нет глобального
+query, нового listener или повторного чтения с клиента; submitted не меняются.
 
 19.11, повтор собственного `dispatch claim`: при приватном claim того же
 `CODEX_THREAD_ID` один адресный read `educationSyncDispatch/current` сверяет

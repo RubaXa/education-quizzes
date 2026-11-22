@@ -274,7 +274,8 @@ function safeError(error) {
   const known = new Set(['education_sync_action_request_unclaimed', 'firestore_project_unavailable', 'usage_invalid', 'claim_file_invalid', 'claim_file_unavailable', 'event_not_eligible', 'event_owner_unverified',
     'task_manifest_unavailable', 'task_manifest_incomplete', 'task_manifest_invalid', 'task_manifest_cursor_invalid',
     'task_artifact_invalid', 'task_artifact_superseded', 'task_artifact_refresh_conflict', 'task_owner_mismatch',
-    'task_owner_unavailable', 'task_source_missing', 'task_source_superseded', 'task_source_not_reviewable', 'task_context_missing'])
+    'task_owner_unavailable', 'task_source_missing', 'task_source_superseded', 'task_source_not_reviewable', 'task_context_missing',
+    'task_help_plan_changed','task_review_step_changed','task_review_reply_invalid','task_quiz_reply_not_active'])
   return known.has(error?.message) ? error.message : 'education_sync_dispatch_failed'
 }
 

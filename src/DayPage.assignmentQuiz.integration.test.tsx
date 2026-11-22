@@ -274,6 +274,7 @@ it('asks the child for missing source material through the standard uploader, wi
     id:'notes',kind:'read',status:'unknown',title:'Повторить записи',detail:'',source:'МЭШ',meshText:'Повторить записи по последней теме.',
     assessmentIntent:{state:'needs-topic',evidenceRef:'МЭШ не назвал тему'},
     materialRequest:{id:'notes-1',state:'open',question:'Какая последняя тема записана в тетради?',photoPrompt:'Пришли заголовок и все страницы последних записей.'},
+    assignmentUnits:{version:1,sourceText:'Повторить записи по последней теме.',items:[{id:'notebook',title:'Конспект',kind:'reading',original:'Повторить записи по последней теме.',sourceRefs:['notes'],instructions:['Повтори назначенные записи.']}]},
   }]}]
   for (const parent of [false,true]) {
     sessionStorage.setItem('education-day-initial-tab', 'homework')
@@ -285,6 +286,8 @@ it('asks the child for missing source material through the standard uploader, wi
       expect(Boolean(input)).toBe(!parent)
       if (input) { expect(input.multiple).toBe(true); expect(input.accept).toContain('image/*'); expect(input.accept).toContain('.pdf'); expect(input.accept).toContain('.docx'); expect(input.accept).toContain('.xlsx'); expect(input.accept).toContain('.txt') }
       expect(view.host.textContent).toContain('Нужен материал для уточнения')
+      expect(view.host.textContent).toContain('Нужен материал для теста')
+      expect(view.host.textContent).not.toContain('Чтение ещё не проверено')
       expect(view.host.textContent).not.toContain('Работа проверена')
     } finally { await view.cleanup() }
   }

@@ -29,7 +29,8 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
   const unitReview=assignmentUnitReview(review,unit),unitGuide=assignmentUnitGuide(guide,unit)
   const completion=stageCompletion(unitReview,decisions)
   const confirmed=completion?completion.actualConfirmed===completion.total:unitReview?.status==='verified'
-  const status=assignmentUnitStatus(unit,unitReview,confirmed)
+  const sourcePending=task.materialRequest?.state==='open'&&unit.sourceRefs.includes(task.id)
+  const status=sourcePending?{status:'waiting' as const,label:'Нужен материал для теста',explanation:task.materialRequest!.question}:assignmentUnitStatus(unit,unitReview,confirmed)
   const flow=task.learnerFlow&&unit.learnerStageIds?.length?{...task.learnerFlow,scope:unit.title,stages:task.learnerFlow.stages.filter(stage=>unit.learnerStageIds!.includes(stage.id))}:undefined
   return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={status.status}/><span>{status.label}</span></>} statusExplanation={status.explanation} meta={groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`).join(', ')}>
    <div>
@@ -44,7 +45,7 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
     {parent&&unitGuide&&<ParentTaskGuide guide={unitGuide} review={unitReview} decisions={decisions} guidance={guidance.filter(item=>unit.guideStageIds?.includes(item.stageId))} guidanceReady={guidanceReady} stageAssessments={stageAssessments.filter(result=>unit.guideStageIds?.includes(result.stageId))} onSend={onSend} onStageChoice={onStageChoice}/>}
     {!parent&&!unit.quizToken&&stageAssessments.filter(result=>unit.guideStageIds?.includes(result.stageId)).map(result=><StageAssessment key={result.stageId} result={result} parent={false}/>)}
     {renderQuiz?.(unit)}
-    {!parent&&['written','mixed'].includes(unit.kind)&&<div className="day-task-actions"><PhotoUploadControl label="Добавить фото работы" onPhotos={onPhotos}/></div>}
+    {!parent&&task.materialRequest?.state!=='open'&&['written','mixed'].includes(unit.kind)&&<div className="day-task-actions"><PhotoUploadControl label="Добавить фото работы" onPhotos={onPhotos}/></div>}
    </div>
   </DecisionTaskDisclosure>
  })}</div>

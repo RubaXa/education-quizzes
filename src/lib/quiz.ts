@@ -52,6 +52,8 @@ export type QuizReading = {
 
 export type Assignment = {
   schemaVersion: 1
+  /** Words require source-based semantic review; absent only on historical attempts. */
+  textAnswerReviewVersion?: 1
   /** Placement only; access continues to follow the assignment's family. */
   learningContext?: { kind: 'homework' | 'course' | 'olympiad'; id: string }
   testId: string
@@ -178,7 +180,7 @@ export function grade(
         learning: skipped ? undefined : expected?.learning }
     }
 
-    if (question.kind === 'long') {
+    if (needsManualTextReview(assignment, question)) {
       return {
         question,
         answer,
@@ -223,6 +225,11 @@ export function grade(
       learning: correct ? undefined : expected.learning,
     }
   })
+}
+
+/** @see ../../docs/modules/assessments/quizzes.md#semantic-short-answer */
+export function needsManualTextReview(assignment: Pick<Assignment, 'textAnswerReviewVersion'>, question: Pick<QuizQuestion, 'kind'>): boolean {
+  return question.kind === 'long' || (question.kind === 'short' && assignment.textAnswerReviewVersion === 1)
 }
 
 export function summarize(results: QuestionResult[]) {

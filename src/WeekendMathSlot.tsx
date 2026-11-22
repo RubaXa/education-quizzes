@@ -4,6 +4,7 @@ import {problemRequired} from '../day/task-requirement.mjs'
 /** @see ../docs/decisions/weekend-self-check-2026-11-14.md */
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
 import TaskWorkEvidence from '@/components/TaskWorkEvidence'
+import AssignmentUnits from '@/components/AssignmentUnits'
 import { workFileContentType } from '../storage/work-file-types.mjs'
 /* @see ../docs/decisions/weekend-parent-actions-2026-10-18.md */
 /* @see ../docs/decisions/work-photo-expand-2026-10-18.md */
@@ -120,6 +121,7 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
   const subjects = page.subjects.map((subject) => ({ ...subject, tasks: subject.tasks.filter((task) => requested.has(task.id)) })).filter((subject) => subject.tasks.length)
   const completed = requested.size > 0 && subjects.flatMap(subject => subject.tasks).length === requested.size && subjects.flatMap(subject => subject.tasks).every(task => {
     if (!task.problems?.length && task.kind === 'check' && task.testToken) {
+      if(uploads.some(upload=>uploadMatchesTask(upload,task.id)&&upload.status!=='reviewed')||local.some(photo=>photo.taskId===task.id))return false
       const latest = quizChain(tests.find(test => test.token === task.testToken), tests).at(-1)
       return quizOutcomes.ready && latest?.status === 'submitted' && !latest.followupRequested
         && latest.points != null && latest.maxPoints != null && quizPassed({ points: latest.points, maxPoints: latest.maxPoints })
@@ -136,8 +138,14 @@ export default function WeekendMathSlot({ token, taskIds, parent, lessonDate, du
     {subjects.flatMap(subject => subject.tasks).filter(task => !task.problems?.length && task.kind === 'check' && task.testToken).map(task => {
       const chain = quizChain(tests.find(test => test.token === task.testToken), tests)
       const latest = chain.at(-1)
+      const subjectId=subjects.find(subject=>subject.tasks.includes(task))!.id
+      const review=reviews.find(item=>item.taskId===task.id)
+      const renderQuiz=()=>latest ? <QuizCard chain={chain} parent={parent} headingProvided={task.title} /> : <p className="day-loading">Загружаем самопроверку…</p>
       return <TaskDisclosure key={task.id} id={`weekend-${task.id}`} title={task.title} status={<ResultBadge input={latest ? quizResultInput(latest) : { kind: 'waiting' }} showPoints />}>
-        {latest ? <QuizCard chain={chain} parent={parent} headingProvided={task.title} /> : <p className="day-loading">Загружаем самопроверку…</p>}
+        {/* artifact.units → view.role: the test never replaces the teacher sheet. */}
+        {task.assignmentUnits && <AssignmentUnits task={task} subjectId={subjectId} links={page.materialLinks?.[task.id]??[]} parent={parent} guide={taskPrivate[task.id]?.guide} review={review} decisions={parentDecisions.events} {...guidance.forTask(task.id,taskPrivate[task.id]?.guide)} onPhotos={files=>addPhotos(task.id,files)} renderQuiz={unit=>unit.quizToken===task.testToken?renderQuiz():undefined}/>}
+        {!task.assignmentUnits?.items.some(unit=>unit.quizToken===task.testToken)&&renderQuiz()}
+        {task.assignmentUnits && <TaskWorkEvidence layout="weekend" taskId={task.id} taskTitle={task.title} studentToken={studentToken} uploads={uploads} localPhotos={local.filter(photo=>photo.taskId===task.id).map(photo=>({...photo,previewUrl:photo.url}))} review={review} now={statusNow} pages={[page,...(evidencePages??[])]} onDelete={!parent?(qualifiedId)=>{const [sourceToken,photoId]=qualifiedId.split(':');return removePendingDayPhoto(sourceToken,photoId)}:undefined}/>}
       </TaskDisclosure>
     })}
     {subjects.map((subject) => subject.tasks.filter((task) => task.problems?.length).map((task) => {

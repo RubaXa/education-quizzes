@@ -93,6 +93,7 @@ export function assignmentShapeErrors(assignment) {
   if (!object(assignment)) return ['Тест должен быть документом.']
   // Pre-v1 assignments remain readable; new releases always write version 1.
   if (assignment.schemaVersion != null && assignment.schemaVersion !== 1) errors.push('Неизвестная версия теста.')
+  if (assignment.textAnswerReviewVersion !== undefined && assignment.textAnswerReviewVersion !== 1) errors.push('Неизвестная версия смысловой проверки текста.')
   if (!text(assignment.testId) || !text(assignment.title) || !text(assignment.subject)) errors.push('У теста нет ID, названия или предмета.')
   if (!['open', 'submitted'].includes(assignment.status)) errors.push('Неизвестный статус теста.')
   if (!Array.isArray(assignment.questions)) return [...errors, 'Вопросы теста должны быть массивом.']

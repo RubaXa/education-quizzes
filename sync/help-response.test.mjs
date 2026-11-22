@@ -73,12 +73,13 @@ describe('shared help response', () => {
 
 
 describe('checked review reply publication',()=>{
- for(const outcome of ['correct','partial','retry','stuck','clarify'])it(`publishes ${outcome} with one next step and keeps the original result`,async()=>{
+ for(const pageRevision of [2,3])for(const outcome of ['correct','partial','retry','stuck','clarify'])it(`publishes ${outcome} at page revision ${pageRevision} with one next step and keeps the original result`,async()=>{
   const {db,rows}=fixture()
   const activity={kind:'write',label:'Вывод',instruction:'Запиши свою мысль.',tokens:[{id:'own',text:'Твоя мысль'}],frame:[{slotId:'own'}]}
   const review={taskId:'task',status:'partial',checkedAt:'2026-11-01',studentFeedback:{question:'Как связаны эти факты?',presentation:{version:1,activity}}}
   const reply={version:1,sourceId:'review',checkedAt:review.checkedAt,correctedAt:null,step:{question:review.studentFeedback.question,activity},intent:outcome==='stuck'?'stuck':'answer',value:JSON.stringify({selected:[],groups:{},written:{own:'Моя мысль'}})}
   const request={taskId:'task',revision:1,planRevision:2,eventReceiptId:eventId,reviewReply:reply,requestText:''}
+  rows.get('dayPages/day').planRevision=pageRevision
   rows.set('dayProgress/day/items/task',review);rows.set('dayHelp/day/items/task',request);rows.set(`dayHelp/day/items/task/requests/${eventId}`,request)
   const before=structuredClone(review),artifact=await prepareEventTaskArtifact(db,event,{now})
   const jobPath=`operatorSyncJobs/${syncJobId('triage-help','family','child',eventId)}`

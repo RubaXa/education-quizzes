@@ -37,7 +37,7 @@ export default function ResultCard({ result, index,parent=false,submittedAt,conv
   const needsReflection = wrong || partial
   const spelling = spellingFeedback(result)
   const guidance = result.guidance
-  const written = result.question.kind === 'long'
+  const written = result.question.kind === 'long' || result.question.kind === 'short'
   const answerFeedback = written && needsReflection && !skipped && typeof result.answer === 'string' && result.answer.trim()
     ? guidance?.answerFeedback
     : undefined

@@ -4449,6 +4449,33 @@
       "path": "docs/decisions/telegram-sync-recovery-2026-10-19.md"
     },
     {
+      "id": "decision.text-review-and-source-upload-2026-11-22",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-22",
+      "updated": "2026-11-22",
+      "parent": "module.assessments",
+      "uses": [
+        "module.assessments.quizzes",
+        "module.materials.material-clarification",
+        "module.assignments.source-units"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "Education operator"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/text-review-and-source-upload-2026-11-22.md"
+    },
+    {
       "id": "decision.three-day-assessment-preparation-2026-11-17",
       "status": "accepted",
       "implementation": "implemented",
@@ -13137,7 +13164,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-11-19",
+      "updated": "2026-11-22",
       "consumers": [
         "student",
         "parent",
@@ -13284,7 +13311,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-11-19",
+      "updated": "2026-11-22",
       "consumers": [
         "student",
         "parent",
@@ -13437,7 +13464,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-11-19",
-      "updated": "2026-11-19",
+      "updated": "2026-11-22",
       "parent": "module.assignments",
       "uses": [
         "module.synchronization.subject-decision-graph",
@@ -13771,7 +13798,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-16",
-      "updated": "2026-11-17",
+      "updated": "2026-11-22",
       "consumers": [
         "parent",
         "student",
@@ -14663,7 +14690,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-10-16",
+      "updated": "2026-11-22",
       "consumers": [
         "parent",
         "student",
@@ -15019,7 +15046,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-19",
-      "updated": "2026-10-21",
+      "updated": "2026-11-22",
       "parent": "module.synchronization",
       "uses": [
         "module.synchronization.global-sync",
@@ -15052,7 +15079,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-13",
-      "updated": "2026-11-19",
+      "updated": "2026-11-22",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
@@ -17230,7 +17257,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-11-01",
-      "updated": "2026-11-17",
+      "updated": "2026-11-22",
       "parent": "shared.design.compact-review",
       "uses": [
         "shared.access-and-privacy",
@@ -18892,6 +18919,21 @@
     {
       "from": "decision.telegram-sync-recovery-2026-10-19",
       "to": "shared.server-runtime",
+      "type": "uses"
+    },
+    {
+      "from": "decision.text-review-and-source-upload-2026-11-22",
+      "to": "module.assessments.quizzes",
+      "type": "uses"
+    },
+    {
+      "from": "decision.text-review-and-source-upload-2026-11-22",
+      "to": "module.assignments.source-units",
+      "type": "uses"
+    },
+    {
+      "from": "decision.text-review-and-source-upload-2026-11-22",
+      "to": "module.materials.material-clarification",
       "type": "uses"
     },
     {
@@ -26747,6 +26789,11 @@
     {
       "from": "module.assessments",
       "to": "decision.quiz-runner-kit-audit-2026-11-01",
+      "type": "contains"
+    },
+    {
+      "from": "module.assessments",
+      "to": "decision.text-review-and-source-upload-2026-11-22",
       "type": "contains"
     },
     {

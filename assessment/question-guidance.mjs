@@ -4,7 +4,7 @@
  * @see ../docs/modules/assessments/quizzes.md#question-guidance
  */
 import {reviewOverviewLimits,reviewSupplementErrors} from '../packages/education-presentation/review-content.mjs'
-import {excludedQuizQuestionIds} from '../src/lib/quiz.ts'
+import {excludedQuizQuestionIds,needsManualTextReview} from '../src/lib/quiz.ts'
 export function guidanceErrors(guidance) {
   const errors = []
   if (!guidance || typeof guidance !== 'object' || Array.isArray(guidance)) return ['Нужен проверенный guidance.']
@@ -78,7 +78,7 @@ export function repairQuestionGuidance(assignment, key, request, review) {
     const answer = assignment.answers?.[id]
     const score = review?.entries?.[id]?.points
     const observed = request.answerFeedbackObservations?.[id]
-    return assignment.status === 'submitted' && kind === 'long' && !excluded.has(id)
+    return assignment.status === 'submitted' && needsManualTextReview(assignment,{kind}) && !excluded.has(id)
       && typeof answer === 'string' && answer.trim() && Number.isFinite(score) && score >= 0 && score < points
       && observed?.answer === answer && observed.points === score
   }).map(({ id }) => id))

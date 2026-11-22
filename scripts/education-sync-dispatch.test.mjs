@@ -10,6 +10,12 @@ const REQUEST = '01a150dc-e067-7cc2-b08f-f573bf83e6e3'
 function output() { let value = ''; return { write: (part) => { value += part }, value: () => value } }
 
 describe('education sync dispatch CLI', () => {
+  it.each(['task_help_plan_changed','task_review_step_changed','task_review_reply_invalid','task_quiz_reply_not_active'])('preserves the exact safe source failure: %s',async code=>{
+    const err=output(),out=output()
+    expect(await main(['status'],{env:{TELEGRAM_FIRESTORE_PROJECT_ID:'petr-education'},out,err,createDb:()=>({terminate:async()=>{}}),createStore:()=>({read:async()=>{throw Object.assign(new Error(code),{safeCode:code})}})})).toBe(1)
+    expect(err.value()).toBe(`${code}\n`)
+    expect(out.value()).toBe('')
+  })
   it('reuses only this chat’s server-verified claim after a lost claimed response', async () => {
     const root = mkdtempSync(resolve(tmpdir(), 'education-own-claim-'))
     const store = { claimRequest: vi.fn(async ({tokenHash}) => { store.hash=tokenHash; return {status:'claimed'} }),

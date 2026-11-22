@@ -54,6 +54,31 @@ async function renderSlot(parent = true, options: { preparationThrough?: string;
 }
 
 describe('weekend source-selected practice', () => {
+  it.each([false,true])('keeps the real teacher sheet and photo evidence beside its preparation test, parent=%s', async parent => {
+    scene.role=parent?'parent':'student'
+    const task=scene.page!.subjects[0].tasks[0]
+    delete task.problems; delete task.practiceVariants
+    task.testToken='quiz-token'
+    task.assignmentUnits={version:1,sourceText:'Реши задачи из файла.',items:[{id:'sheet',title:'Лист учителя · страница 1',kind:'mixed',original:'Реши задачи из файла.',instructions:['Открой лист и добавь фото уже решённых задач.'],sourceRefs:['teacher#1']}]}
+    scene.page!.materialLinks={combinatorics:[{sourceRef:'teacher#1',title:'Оригинал учителя',url:'data:image/png;base64,demo',sourceType:'teacher-attachment'}]}
+    scene.uploads=[{id:'student-token:saved',taskId:'combinatorics',status:'reviewed',dataUrl:'data:image/png;base64,saved'} as DayUpload]
+    const {host,close}=await renderSlot(parent)
+    try {
+      expect(host.textContent).toContain('Лист учителя · страница 1')
+      expect(host.querySelectorAll('.day-upload-chip')).toHaveLength(1)
+      expect(host.querySelectorAll('input[type=file]').length).toBe(parent?0:1)
+    } finally {close()}
+  })
+  it('keeps submitted worksheet photos visible after a passed test and the preparation date',async()=>{
+    scene.role='student'
+    const task=scene.page!.subjects[0].tasks[0]
+    delete task.problems;delete task.practiceVariants;task.testToken='quiz-token'
+    quizScene.tests={'quiz-token':{testId:'test',title:'Проверка',subject:'Математика',status:'submitted',answers:{a:'1'},questions:[{id:'a',kind:'number',prompt:'Сколько?',points:1}]} as unknown as Assignment}
+    quizScene.scores={'quiz-token':{points:1,maxPoints:1}}
+    scene.uploads=[{id:'student-token:new',taskId:task.id,status:'pending'} as DayUpload]
+    const {host,close}=await renderSlot(false,{preparationThrough:'2026-10-18',selectedDate:'2026-10-20'})
+    try{expect(host.textContent).toContain('Комбинаторика')}finally{close()}
+  })
   it.each([false,true])('keeps a missing-figure number outside the preparation obligation in both roles, parent=%s',async parent=>{
     scene.role=parent?'parent':'student'
     const task=scene.page!.subjects[0].tasks[0]

@@ -9,6 +9,7 @@
  * @see ../docs/modules/assessments/assessment-decision-graph.md#contract
  */
 import { repetitionDecision } from './lesson-repetition.mjs'
+import { needsManualTextReview } from '../src/lib/quiz.ts'
 export const assessmentModes = Object.freeze(['ordinary', 'control-diagnostic', 'control-followup', 'targeted-followup'])
 export const assessmentLayers = Object.freeze(['current', 'prior-gap', 'baseline', 'spaced', 'transfer'])
 export const subjectAdapters = Object.freeze({
@@ -153,7 +154,7 @@ export function quizDecision(task) {
 export function pendingManualQuestionIds(assignment, review) {
   return (assignment?.questions ?? [])
     .filter((question) => !assignment?.authorScopeExclusions?.questionIds?.includes(question.id))
-    .filter((question) => question.kind === 'long')
+    .filter((question) => needsManualTextReview(assignment, question))
     .filter((question) => {
       const answer = assignment?.answers?.[question.id]
       return typeof answer === 'string' ? Boolean(answer.trim()) : Array.isArray(answer) && answer.length > 0

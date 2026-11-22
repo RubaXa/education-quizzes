@@ -23,7 +23,7 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
   mkdirSync(directory, { recursive: true, mode: 0o700 })
   chmodSync(directory, 0o700)
   const pages = [], seenCursors = new Set()
-  let cursor = null, taskCount = 0, doneCount = 0, legacyCount = sourceOnly ? 1 : 0
+  let cursor = null, taskCount = 0, doneCount = 0, blockedCount=0, legacyCount = sourceOnly ? 1 : 0
   do {
     if (sourceOnly) break // There is no claimed action range; never read pending action events.
     const page = await store.readActionTasks({ requestId, cursor, limit: 100, now })
@@ -52,7 +52,15 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
       const superseded = observation && observation.artifactId !== artifact.artifactId
       let validation = superseded ? { state: 'stale' } : validateTaskArtifact(artifact, { eventId: row.eventId, observation, now })
       if (validation.state === 'stale') {
-        const refreshed = await prepareEventTaskArtifact(db, artifact, { now })
+        let refreshed
+        try { refreshed=await prepareEventTaskArtifact(db,artifact,{now}) }
+        catch(error){
+          const sourceFailures=new Set(['task_help_plan_changed','task_review_step_changed','task_quiz_reply_not_active','task_source_superseded','task_source_not_reviewable','task_source_missing','task_help_photo_not_reviewable'])
+          if(!sourceFailures.has(error?.safeCode??error?.message))throw error
+          blockedCount++
+          tasks.push({jobId:row.jobId,kind:row.kind,generation:row.generation,artifact,sourceFailure:{code:error.safeCode??error.message},acceptance:'Источник изменился или недоступен. Старый артефакт — только история, не разрешение публикации. Разобрать актуальное действие или доказать вытеснение опубликованным откликом. Не закрывать автоматически; продолжить независимые действия этого пакета.'})
+          continue
+        }
         if (refreshed.fingerprint !== artifact.fingerprint) {
           const jobRef = db.doc(`operatorSyncJobs/${row.jobId}`)
           await db.runTransaction(async (tx) => {
@@ -94,14 +102,14 @@ export async function exportEventTaskManifest(db, store, { root, requestId, toke
       || JSON.stringify(finalState.sendingKinds) !== JSON.stringify(state.sendingKinds))
     || finalExecution.actionAfterGeneration !== execution.actionAfterGeneration
     || finalExecution.actionThroughGeneration !== execution.actionThroughGeneration) throw new Error('claim_file_invalid')
-  const manifest = { schemaVersion: 1, requestId, createdAt: now, state: legacyCount ? 'partial' : taskCount ? 'ready' : 'no-work',
+  const manifest = { schemaVersion: 1, requestId, createdAt: now, state: legacyCount||blockedCount ? 'partial' : taskCount ? 'ready' : 'no-work',
     coverage: { actionAfterGeneration: sourceOnly ? null : execution.actionAfterGeneration ?? null,
       actionThroughGeneration: execution.actionThroughGeneration ?? null,
       ...(sourceOnly ? { sourceThroughGeneration: state.sendingGeneration } : {}) },
-    pages, taskCount, doneCount, legacyCount }
+    pages, taskCount, doneCount, legacyCount,blockedCount }
   const manifestPath = resolve(directory, 'manifest.json')
   writePrivate(manifestPath, manifest)
-  return { status: manifest.state, requestId, generation, manifestPath, taskCount, doneCount, legacyCount, pageCount: pages.length }
+  return { status: manifest.state, requestId, generation, manifestPath, taskCount, doneCount, legacyCount,blockedCount, pageCount: pages.length }
 }
 
 function writePrivate(path, value) {

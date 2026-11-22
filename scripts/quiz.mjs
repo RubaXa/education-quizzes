@@ -20,12 +20,12 @@ import { repeatedQuestionCopy } from '../assessment/question-copy.mjs'
 import { assignmentShapeErrors } from '../day/data-contract.mjs'
 import { assertFollowupCoverage, assertOpenRevisionReadback, openQuizRevision, titleOnlyQuizRevision, topicsOnlyQuizRevision, authorSourceQuizRevision } from '../assessment/followup-contract.mjs'
 import { assertLineageContinuation, quizLineageStatistics } from '../assessment/quiz-lineage.mjs'
-import { grade, summarize } from '../src/lib/quiz.ts'
+import { grade, summarize, needsManualTextReview } from '../src/lib/quiz.ts'
 import { canonicalShortKeyRepair, conceptShortOmissionRepair, semanticShortAnswerRepair, correctionFingerprint } from '../assessment/canonical-short-key.mjs'
 import { publishedAnswer, questionGuidanceErrors, repairQuestionGuidance } from '../assessment/question-guidance.mjs'
 import { needsQuizFollowup } from '../src/lib/quizCompletion.ts'
 import { learningContext } from '../assessment/learning-context.mjs'
-import {assertManualQuizReview,assertQuestionRubric,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision,quizSkillId} from '../assessment/manual-review-contract.mjs'
+import {assertManualQuizReview,assertQuestionRubric,quizAttemptDigest,publicManualReview,privateQuizKey,quizReviewDigest,assertQuizReviewRevision,quizSkillId,textReviewMigration} from '../assessment/manual-review-contract.mjs'
 import {learningObservation,prepareLearningWrites} from '../sync/learning-observations.mjs'
 import {exportAuthorScope,correctAuthorScope,authorScopeFingerprint} from '../assessment/quiz-author-scope.mjs'
 /** @see ../docs/modules/assessments/quizzes.md#author-scope-correction */
@@ -232,6 +232,7 @@ async function create(specPath, studentPersonId) {
   const createdAt = Timestamp.now()
   const assignment = {
     schemaVersion: 1,
+    textAnswerReviewVersion: 1,
     ...owner,
     ...(spec.learningContext === undefined ? {} : { learningContext: learningContext(spec.learningContext) }),
     testId,
@@ -257,7 +258,7 @@ async function create(specPath, studentPersonId) {
   const batch = db.batch()
   batch.create(db.doc(`assignments/${learnerToken}`), assignment)
   batch.create(db.doc(`answerKeys/${learnerToken}`), { entries })
-  batch.create(db.doc(`quizReviewPrivate/${learnerToken}`),{familyId:owner.familyId,childId:owner.childId,rubrics:Object.fromEntries(spec.questions.filter(q=>q.answer?.criteria).map(q=>[q.id,q.answer.criteria]))})
+  batch.create(db.doc(`quizReviewPrivate/${learnerToken}`),{familyId:owner.familyId,childId:owner.childId,rubrics:Object.fromEntries(spec.questions.filter(q=>needsManualTextReview(assignment,q)).map(q=>[q.id,assertQuestionRubric(q,q.answer)]))})
   batch.create(db.doc(`previews/${previewToken}`), {
     testId,
     title: spec.title,
@@ -573,6 +574,38 @@ async function auditAccess(studentPersonId) {
   console.log(JSON.stringify({ checked: active.length, active }, null, 2))
 }
 
+/** Reuses the bounded learner board audit path; no global scan or new listener.
+ * @see ../docs/modules/synchronization/firestore-read-paths.md
+ * @see ../docs/modules/assessments/quizzes.md#semantic-short-answer */
+async function enableTextReview(studentPersonId){
+ const owner=assignmentOwner(studentPersonId),apply=process.argv.includes('--apply')
+ const board=await db.collection(`dashboard/${learnerBoardToken()}/assignments`).get()
+ let changed=0,verified=0
+ for(const item of board.docs){
+  const ref=db.doc(`assignments/${item.id}`),a=await ref.get()
+  if(!a.exists||a.data().status!=='open')continue
+  assertQuizOwner(a.data(),owner)
+  if(a.data().textAnswerReviewVersion===1||!a.data().questions?.some(q=>q.kind==='short'))continue
+  const kref=db.doc(`answerKeys/${item.id}`),pref=db.doc(`quizReviewPrivate/${item.id}`)
+  const [k,p]=await db.getAll(kref,pref),patch=textReviewMigration(a.data(),k.data(),p.data())
+  if(!patch)continue
+  changed++
+  if(!apply)continue
+  const backupDir=resolve(localDir,'quiz-corrections');mkdirSync(backupDir,{recursive:true})
+  writeFileSync(resolve(backupDir,`${a.data().testId}-text-review-${Date.now()}.json`),JSON.stringify({assignment:a.data(),key:k.data(),privateRecord:p.data()??null}),{mode:0o600,flag:'wx'})
+  await db.runTransaction(async tx=>{
+   const [current,key,privateDoc]=await Promise.all([tx.get(ref),tx.get(kref),tx.get(pref)])
+   if(!isDeepStrictEqual(current.data(),a.data())||!isDeepStrictEqual(key.data(),k.data())||!isDeepStrictEqual(privateDoc.data(),p.data()))fail('Попытка изменилась: повторите миграцию.')
+   tx.update(ref,patch.assignmentPatch)
+   tx.set(pref,{...owner,rubrics:patch.rubrics},{merge:true})
+  })
+  const [saved,key,privateDoc]=await db.getAll(ref,kref,pref)
+  if(!isDeepStrictEqual(saved.data(),{...a.data(),...patch.assignmentPatch})||!isDeepStrictEqual(key.data(),k.data())||!isDeepStrictEqual(privateDoc.data(),{...p.data(),...owner,rubrics:patch.rubrics}))fail('Миграция текста не прошла обратное чтение.')
+  verified++
+ }
+ console.log(JSON.stringify({changed,applied:apply,verified,preservedSubmittedHistory:true}))
+}
+
 async function bindFamily(sourcePath, taskId, studentPersonId) {
   if (!sourcePath || !taskId) fail('Укажите исходник дня и точный taskId теста.')
   const source = loadJson(sourcePath)
@@ -658,7 +691,7 @@ async function reviewAttempt(learnerToken, reviewPath) {
   const [assignmentDoc,keyDoc,privateDoc]=await db.getAll(assignmentRef,keyRef,privateRef)
   const assignment=assignmentDoc.data(),key=privateQuizKey(keyDoc.data(),privateDoc.data()),criteria=assertManualQuizReview(assignment,key,review)
   for(const result of grade(assignment,key,publicManualReview(review))){
-    if(result.question.kind==='long'||result.skipped||result.excluded||result.points===null)continue
+    if(needsManualTextReview(assignment,result.question)||result.skipped||result.excluded||result.points===null)continue
     const label=result.question.topic??assignment.subject
     const skillId=quizSkillId(assignment.subject,label)
     criteria.push({id:result.question.id,skillId,skillLabel:label,finding:{result:result.points===result.question.points?'confirmed':result.points===0?'not-met':'partial',score:result.points,maxPoints:result.question.points,observation:result.explanation??'Автоматическая сверка по сохранённому ключу',uploadId:`answer:${result.question.id}`,location:`question:${result.question.id}`}})
@@ -688,7 +721,7 @@ async function registerRubric(learnerToken,path){
  const fingerprint=await db.runTransaction(async tx=>{
   const [a,k,p]=await Promise.all([tx.get(assignmentRef),tx.get(keyRef),tx.get(privateRef)])
   if(!a.exists||!k.exists||!a.data().familyId||!a.data().childId||quizAttemptDigest(a.data(),privateQuizKey(k.data(),p.data()))!==packet.attemptFingerprint)fail('Рубрика требует свежую попытку с семейной привязкой.')
-  const questions=a.data().questions.filter(q=>q.kind==='long'),rubrics=packet.entries??{}
+  const questions=a.data().questions.filter(q=>needsManualTextReview(a.data(),q)),rubrics=packet.entries??{}
   if(Object.keys(rubrics).length!==questions.length||questions.some(q=>!rubrics[q.id]))fail('Нужны рубрики всех открытых вопросов без посторонних ID.')
   const entries=Object.fromEntries(Object.entries(k.data().entries).map(([id,value])=>[id,publishedAnswer(value)]))
   for(const q of questions)assertQuestionRubric(q,{criteria:rubrics[q.id]})
@@ -715,6 +748,7 @@ try {
   else if (command === 'board-status') await boardStatus()
   else if (command === 'sync-links') await syncBoardLinks(first === '--apply')
   else if (command === 'audit-access') await auditAccess(first)
+  else if (command === 'enable-text-review') await enableTextReview(first)
   else if (command === 'bind-family') await bindFamily(first, second, third)
   else if (command === 'export') await exportAttempt(first, second)
   else if (command === 'review') await reviewAttempt(first, second)

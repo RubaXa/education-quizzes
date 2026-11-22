@@ -1718,7 +1718,7 @@
   {
     "id": "packages/telegram-notifications/adapters/runtime.mjs#admin.get#8132c83ea5f4",
     "file": "packages/telegram-notifications/adapters/runtime.mjs",
-    "line": 32,
+    "line": 34,
     "api": "admin.get",
     "target": "db.doc(`telegramBotRuntimeChecks/${config.projectId}`)",
     "group": "operator-other",
@@ -2294,7 +2294,7 @@
   {
     "id": "packages/telegram-notifications/adapters/source-mesh.mjs#admin.get#709d43babe52",
     "file": "packages/telegram-notifications/adapters/source-mesh.mjs",
-    "line": 112,
+    "line": 113,
     "api": "admin.get",
     "target": "gradeCache",
     "group": "operator-other",
@@ -2414,7 +2414,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#85afab9eb9a1",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 64,
+    "line": 65,
     "api": "admin.get",
     "target": "this.db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -2426,7 +2426,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#85afab9eb9a1-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 70,
+    "line": 71,
     "api": "admin.get",
     "target": "this.db.doc(event.sourceRef.documentPath)",
     "group": "operator-other",
@@ -2438,7 +2438,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#54bb826a8ac0",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 71,
+    "line": 72,
     "api": "admin.get",
     "target": "(await uploadDeletionRef(this.db, event))",
     "group": "operator-other",
@@ -2450,7 +2450,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 202,
+    "line": 203,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2462,7 +2462,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 204,
+    "line": 205,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2474,7 +2474,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 240,
+    "line": 241,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2486,7 +2486,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 241,
+    "line": 242,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2498,7 +2498,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-5",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 242,
+    "line": 243,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2510,7 +2510,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-6",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 243,
+    "line": 244,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2522,7 +2522,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-7",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 244,
+    "line": 245,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2534,7 +2534,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-8",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 245,
+    "line": 246,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2546,7 +2546,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-9",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 246,
+    "line": 247,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2558,7 +2558,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-10",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 247,
+    "line": 248,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2570,7 +2570,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 303,
+    "line": 304,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2582,7 +2582,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 308,
+    "line": 309,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2594,7 +2594,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#c30cbab590f4",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 323,
+    "line": 324,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -2606,7 +2606,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-11",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 333,
+    "line": 335,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2618,7 +2618,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-12",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 392,
+    "line": 399,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2630,7 +2630,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-13",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 409,
+    "line": 416,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2642,7 +2642,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-14",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 425,
+    "line": 432,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2654,7 +2654,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-15",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 461,
+    "line": 468,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2666,7 +2666,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#9c790211fd82-3",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 476,
+    "line": 483,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -2678,7 +2678,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#c30cbab590f4-2",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 490,
+    "line": 497,
     "api": "admin.get",
     "target": "query",
     "group": "operator-other",
@@ -2690,7 +2690,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#58861734446e",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 492,
+    "line": 499,
     "api": "admin.get",
     "target": "db.doc(`operatorSyncJobs/${eventDoc.data().jobId}`)",
     "group": "operator-other",
@@ -2702,7 +2702,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-16",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 500,
+    "line": 507,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2714,7 +2714,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-17",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 564,
+    "line": 571,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2726,7 +2726,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-18",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 582,
+    "line": 589,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2738,7 +2738,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-19",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 616,
+    "line": 623,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -2750,7 +2750,7 @@
   {
     "id": "packages/telegram-notifications/application/education-sync-dispatcher.mjs#admin.get#d669616b66b7-20",
     "file": "packages/telegram-notifications/application/education-sync-dispatcher.mjs",
-    "line": 641,
+    "line": 648,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -4886,7 +4886,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#9441ebbcf2fa",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 133,
+    "line": 151,
     "api": "admin.get",
     "target": "db.collection('telegramNotificationEvents').doc(eventId)",
     "group": "operator-other",
@@ -4898,7 +4898,7 @@
   {
     "id": "scripts/education-sync-dispatch.mjs#admin.get#c573803dc1ae",
     "file": "scripts/education-sync-dispatch.mjs",
-    "line": 161,
+    "line": 179,
     "api": "admin.get",
     "target": "selected",
     "group": "operator-other",
@@ -5606,7 +5606,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ffa52efd6c07",
     "file": "scripts/quiz.mjs",
-    "line": 188,
+    "line": 189,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -5618,7 +5618,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#9ea2d7f73efd",
     "file": "scripts/quiz.mjs",
-    "line": 196,
+    "line": 197,
     "api": "admin.get",
     "target": "db.doc(`reviews/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -5630,7 +5630,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#67ef58f895e7",
     "file": "scripts/quiz.mjs",
-    "line": 196,
+    "line": 197,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${parents.docs[0].id}`)",
     "group": "operator-other",
@@ -5642,7 +5642,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#c7a806345120",
     "file": "scripts/quiz.mjs",
-    "line": 222,
+    "line": 223,
     "api": "admin.get",
     "target": "db.collection('assignments').where('linkedToTestId', '==', spec.linkedToTestId)",
     "group": "operator-other",
@@ -5654,7 +5654,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5",
     "file": "scripts/quiz.mjs",
-    "line": 311,
+    "line": 313,
     "api": "admin.get",
     "target": "db.doc(`assignments/${learnerToken}`)",
     "group": "operator-other",
@@ -5666,7 +5666,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#93adc9e22f88",
     "file": "scripts/quiz.mjs",
-    "line": 337,
+    "line": 339,
     "api": "admin.get",
     "target": "db.doc(`assignments/${tokenToRead}`)",
     "group": "operator-other",
@@ -5678,7 +5678,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#a13ac351f175",
     "file": "scripts/quiz.mjs",
-    "line": 337,
+    "line": 339,
     "api": "admin.get",
     "target": "db.doc(`answerKeys/${tokenToRead}`)",
     "group": "operator-other",
@@ -5690,7 +5690,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#ef0cb380cd40",
     "file": "scripts/quiz.mjs",
-    "line": 338,
+    "line": 340,
     "api": "admin.get",
     "target": "db.doc(`reviews/${tokenToRead}`)",
     "group": "operator-other",
@@ -5702,7 +5702,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#0a2cf8c61005",
     "file": "scripts/quiz.mjs",
-    "line": 348,
+    "line": 350,
     "api": "admin.get",
     "target": "db.collection('assignments').where('testId', '==', assignment.linkedToTestId)",
     "group": "operator-other",
@@ -5714,7 +5714,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f",
     "file": "scripts/quiz.mjs",
-    "line": 391,
+    "line": 393,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5726,7 +5726,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-2",
     "file": "scripts/quiz.mjs",
-    "line": 391,
+    "line": 393,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5738,7 +5738,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-3",
     "file": "scripts/quiz.mjs",
-    "line": 391,
+    "line": 393,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5750,7 +5750,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-4",
     "file": "scripts/quiz.mjs",
-    "line": 402,
+    "line": 404,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5762,7 +5762,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-5",
     "file": "scripts/quiz.mjs",
-    "line": 402,
+    "line": 404,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5774,7 +5774,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-6",
     "file": "scripts/quiz.mjs",
-    "line": 410,
+    "line": 412,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5786,7 +5786,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-7",
     "file": "scripts/quiz.mjs",
-    "line": 410,
+    "line": 412,
     "api": "admin.get",
     "target": "transaction",
     "group": "operator-other",
@@ -5798,7 +5798,7 @@
   {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c",
     "file": "scripts/quiz.mjs",
-    "line": 431,
+    "line": 433,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -5810,7 +5810,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#12294cd34eda",
     "file": "scripts/quiz.mjs",
-    "line": 434,
+    "line": 436,
     "api": "admin.get",
     "target": "authorHistoryRef",
     "group": "operator-other",
@@ -5822,7 +5822,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#2e47d8dc9017",
     "file": "scripts/quiz.mjs",
-    "line": 475,
+    "line": 477,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.token}`)",
     "group": "operator-other",
@@ -5834,7 +5834,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#73bcb67b3161",
     "file": "scripts/quiz.mjs",
-    "line": 503,
+    "line": 505,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${ownerToken}/assignments`)",
     "group": "operator-other",
@@ -5846,7 +5846,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868",
     "file": "scripts/quiz.mjs",
-    "line": 505,
+    "line": 507,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -5858,7 +5858,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#6f14da11a5d7",
     "file": "scripts/quiz.mjs",
-    "line": 519,
+    "line": 521,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${board}/assignments`)",
     "group": "operator-other",
@@ -5870,7 +5870,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-2",
     "file": "scripts/quiz.mjs",
-    "line": 521,
+    "line": 523,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -5882,7 +5882,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#03a1fbb7fefa",
     "file": "scripts/quiz.mjs",
-    "line": 542,
+    "line": 544,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${boardToken}/assignments`)",
     "group": "operator-other",
@@ -5894,7 +5894,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5b369111a272",
     "file": "scripts/quiz.mjs",
-    "line": 546,
+    "line": 548,
     "api": "admin.get",
     "target": "db.doc(`assignments/${entry.id}`)",
     "group": "operator-other",
@@ -5906,7 +5906,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#7f9af9eb32fd",
     "file": "scripts/quiz.mjs",
-    "line": 564,
+    "line": 566,
     "api": "admin.get",
     "target": "db.collection(`dashboard/${learnerBoardToken()}/assignments`)",
     "group": "operator-other",
@@ -5918,7 +5918,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#b65d76738868-3",
     "file": "scripts/quiz.mjs",
-    "line": 567,
+    "line": 569,
     "api": "admin.get",
     "target": "db.doc(`assignments/${item.id}`)",
     "group": "operator-other",
@@ -5928,21 +5928,21 @@
     "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
   },
   {
-    "id": "scripts/quiz.mjs#admin.get#7710d62b032d",
+    "id": "scripts/quiz.mjs#admin.get#7f9af9eb32fd-2",
     "file": "scripts/quiz.mjs",
-    "line": 581,
+    "line": 582,
     "api": "admin.get",
-    "target": "db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`)",
+    "target": "db.collection(`dashboard/${learnerBoardToken()}/assignments`)",
     "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "operator-point",
-    "refresh": "on affected event",
-    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+    "assessment": "justified",
+    "policy": "bounded-learner-board-migration",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "One explicit owner-checked migration reuses audit-access learner board IDs; no global collection scan/listener. See firestore-read-paths.md 22.11."
   },
   {
     "id": "scripts/quiz.mjs#admin.get#49263dc18a20",
     "file": "scripts/quiz.mjs",
-    "line": 584,
+    "line": 585,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",
@@ -5952,165 +5952,9 @@
     "note": "Адресное чтение перед изменением или проверкой целостности; сверить, нельзя ли взять уже прочитанную ревизию без потери защиты от гонок."
   },
   {
-    "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-2",
-    "file": "scripts/quiz.mjs",
-    "line": 595,
-    "api": "admin.get",
-    "target": "db.doc(`assignments/${learnerToken}`)",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "operator-point",
-    "refresh": "on affected event",
-    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#0e6be1588830",
-    "file": "scripts/quiz.mjs",
-    "line": 596,
-    "api": "admin.get",
-    "target": "db.doc(`answerKeys/${learnerToken}`)",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "operator-point",
-    "refresh": "on affected event",
-    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#f6f324f19b6f",
-    "file": "scripts/quiz.mjs",
-    "line": 597,
-    "api": "admin.get",
-    "target": "db.doc(`reviews/${learnerToken}`)",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "operator-point",
-    "refresh": "on affected event",
-    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#144f5b1c8865",
-    "file": "scripts/quiz.mjs",
-    "line": 598,
-    "api": "admin.get",
-    "target": "db.doc(`quizReviewPrivate/${learnerToken}`)",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-operation-evidence",
-    "refresh": "explicit-operation-and-post-write-readback",
-    "note": "Exact-token private rubric export; no family scan or listener. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0",
-    "file": "scripts/quiz.mjs",
-    "line": 619,
-    "api": "admin.get",
-    "target": "assignmentRef",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "operator-point",
-    "refresh": "explicit canonical-short repair only",
-    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#91aa8173d754",
-    "file": "scripts/quiz.mjs",
-    "line": 619,
-    "api": "admin.get",
-    "target": "keyRef",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "operator-point",
-    "refresh": "explicit canonical-short repair only",
-    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147",
-    "file": "scripts/quiz.mjs",
-    "line": 619,
-    "api": "admin.get",
-    "target": "reviewRef",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "operator-point",
-    "refresh": "explicit canonical-short repair only",
-    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-8",
-    "file": "scripts/quiz.mjs",
-    "line": 635,
-    "api": "admin.get",
-    "target": "transaction",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-owner-source-revision",
-    "refresh": "explicit author scope command; transaction retry and addressed readback only",
-    "note": "Авторская коррекция: один вычисленный scopeHistory/закрытая рубрика либо CAS ранее прочитанного документа; точный token, владелец и обе роли проверяются. Нет query/listener, новых клиентских чтений или обхода всех семей. См. quizzes.md#author-scope-correction и firestore-read-paths.md."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-9",
-    "file": "scripts/quiz.mjs",
-    "line": 635,
-    "api": "admin.get",
-    "target": "transaction",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-owner-source-revision",
-    "refresh": "explicit author scope command; transaction retry and addressed readback only",
-    "note": "Авторская коррекция: один вычисленный scopeHistory/закрытая рубрика либо CAS ранее прочитанного документа; точный token, владелец и обе роли проверяются. Нет query/listener, новых клиентских чтений или обхода всех семей. См. quizzes.md#author-scope-correction и firestore-read-paths.md."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-10",
-    "file": "scripts/quiz.mjs",
-    "line": 640,
-    "api": "admin.get",
-    "target": "transaction",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "addressed-quiz-feedback-cas",
-    "refresh": "per explicit feedback repair transaction or readback",
-    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0-2",
-    "file": "scripts/quiz.mjs",
-    "line": 643,
-    "api": "admin.get",
-    "target": "assignmentRef",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "operator-point",
-    "refresh": "explicit canonical-short repair only",
-    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#91aa8173d754-2",
-    "file": "scripts/quiz.mjs",
-    "line": 643,
-    "api": "admin.get",
-    "target": "keyRef",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "operator-point",
-    "refresh": "explicit canonical-short repair only",
-    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147-2",
-    "file": "scripts/quiz.mjs",
-    "line": 645,
-    "api": "admin.get",
-    "target": "reviewRef",
-    "group": "operator-other",
-    "assessment": "conditional",
-    "policy": "addressed-quiz-feedback-cas",
-    "refresh": "per explicit feedback repair transaction or readback",
-    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
-  },
-  {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-2",
     "file": "scripts/quiz.mjs",
-    "line": 655,
+    "line": 590,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6122,7 +5966,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba",
     "file": "scripts/quiz.mjs",
-    "line": 667,
+    "line": 597,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6134,7 +5978,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba-2",
     "file": "scripts/quiz.mjs",
-    "line": 667,
+    "line": 597,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6146,31 +5990,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba-3",
     "file": "scripts/quiz.mjs",
-    "line": 667,
-    "api": "admin.get",
-    "target": "tx",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-operation-evidence",
-    "refresh": "explicit-operation-and-post-write-readback",
-    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#5309697998ba-4",
-    "file": "scripts/quiz.mjs",
-    "line": 667,
-    "api": "admin.get",
-    "target": "tx",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-operation-evidence",
-    "refresh": "explicit-operation-and-post-write-readback",
-    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.get#5309697998ba-5",
-    "file": "scripts/quiz.mjs",
-    "line": 671,
+    "line": 597,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6182,7 +6002,7 @@
   {
     "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-3",
     "file": "scripts/quiz.mjs",
-    "line": 677,
+    "line": 602,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
@@ -6192,9 +6012,225 @@
     "note": "Addressed attempt/key/private review preflight or post-write public/private readback for one token. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
   },
   {
+    "id": "scripts/quiz.mjs#admin.get#7710d62b032d",
+    "file": "scripts/quiz.mjs",
+    "line": 615,
+    "api": "admin.get",
+    "target": "db.doc(`dashboard/${learnerBoardToken()}/assignments/${placement.token}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "on affected event",
+    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#49263dc18a20-2",
+    "file": "scripts/quiz.mjs",
+    "line": 618,
+    "api": "admin.get",
+    "target": "ref",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#62b9e3afebf5-2",
+    "file": "scripts/quiz.mjs",
+    "line": 629,
+    "api": "admin.get",
+    "target": "db.doc(`assignments/${learnerToken}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "on affected event",
+    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#0e6be1588830",
+    "file": "scripts/quiz.mjs",
+    "line": 630,
+    "api": "admin.get",
+    "target": "db.doc(`answerKeys/${learnerToken}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "on affected event",
+    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#f6f324f19b6f",
+    "file": "scripts/quiz.mjs",
+    "line": 631,
+    "api": "admin.get",
+    "target": "db.doc(`reviews/${learnerToken}`)",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "operator-point",
+    "refresh": "on affected event",
+    "note": "Проверить кратность адресного чтения в одном EducationSync: локальный снимок/мемоизация по ID допустимы, если не нарушают актуальность перед записью."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#144f5b1c8865",
+    "file": "scripts/quiz.mjs",
+    "line": 632,
+    "api": "admin.get",
+    "target": "db.doc(`quizReviewPrivate/${learnerToken}`)",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-post-write-readback",
+    "note": "Exact-token private rubric export; no family scan or listener. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0",
+    "file": "scripts/quiz.mjs",
+    "line": 653,
+    "api": "admin.get",
+    "target": "assignmentRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#91aa8173d754",
+    "file": "scripts/quiz.mjs",
+    "line": 653,
+    "api": "admin.get",
+    "target": "keyRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147",
+    "file": "scripts/quiz.mjs",
+    "line": 653,
+    "api": "admin.get",
+    "target": "reviewRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-8",
+    "file": "scripts/quiz.mjs",
+    "line": 669,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-owner-source-revision",
+    "refresh": "explicit author scope command; transaction retry and addressed readback only",
+    "note": "Авторская коррекция: один вычисленный scopeHistory/закрытая рубрика либо CAS ранее прочитанного документа; точный token, владелец и обе роли проверяются. Нет query/listener, новых клиентских чтений или обхода всех семей. См. quizzes.md#author-scope-correction и firestore-read-paths.md."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-9",
+    "file": "scripts/quiz.mjs",
+    "line": 669,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-owner-source-revision",
+    "refresh": "explicit author scope command; transaction retry and addressed readback only",
+    "note": "Авторская коррекция: один вычисленный scopeHistory/закрытая рубрика либо CAS ранее прочитанного документа; точный token, владелец и обе роли проверяются. Нет query/listener, новых клиентских чтений или обхода всех семей. См. quizzes.md#author-scope-correction и firestore-read-paths.md."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5af2f146a13f-10",
+    "file": "scripts/quiz.mjs",
+    "line": 673,
+    "api": "admin.get",
+    "target": "transaction",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "addressed-quiz-feedback-cas",
+    "refresh": "per explicit feedback repair transaction or readback",
+    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#a95d9b7de7f0-2",
+    "file": "scripts/quiz.mjs",
+    "line": 678,
+    "api": "admin.get",
+    "target": "assignmentRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#91aa8173d754-2",
+    "file": "scripts/quiz.mjs",
+    "line": 678,
+    "api": "admin.get",
+    "target": "keyRef",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "operator-point",
+    "refresh": "explicit canonical-short repair only",
+    "note": "One owned submitted quiz: initial assignment/key/review, compare-and-set assignment/key and exact readback. No collection scan, polling or new client subscription; canonical-short-repair contract."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#f6c6727e8147-2",
+    "file": "scripts/quiz.mjs",
+    "line": 678,
+    "api": "admin.get",
+    "target": "reviewRef",
+    "group": "operator-other",
+    "assessment": "conditional",
+    "policy": "addressed-quiz-feedback-cas",
+    "refresh": "per explicit feedback repair transaction or readback",
+    "note": "Читает проверку единственной заданной попытки, чтобы исключить гонку с изменением баллов. Чтение только у оператора при публикации."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-4",
+    "file": "scripts/quiz.mjs",
+    "line": 691,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-post-write-readback",
+    "note": "Addressed attempt/key/private review preflight or post-write public/private readback for one token. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-4",
+    "file": "scripts/quiz.mjs",
+    "line": 703,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-post-write-readback",
+    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-5",
+    "file": "scripts/quiz.mjs",
+    "line": 703,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-post-write-readback",
+    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+  },
+  {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba-6",
     "file": "scripts/quiz.mjs",
-    "line": 686,
+    "line": 703,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6206,7 +6242,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba-7",
     "file": "scripts/quiz.mjs",
-    "line": 686,
+    "line": 703,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6218,7 +6254,7 @@
   {
     "id": "scripts/quiz.mjs#admin.get#5309697998ba-8",
     "file": "scripts/quiz.mjs",
-    "line": 686,
+    "line": 707,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -6228,28 +6264,76 @@
     "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
   },
   {
-    "id": "scripts/quiz.mjs#admin.get#5309697998ba-9",
+    "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-5",
     "file": "scripts/quiz.mjs",
-    "line": 692,
-    "api": "admin.get",
-    "target": "tx",
-    "group": "operator-other",
-    "assessment": "justified",
-    "policy": "addressed-operation-evidence",
-    "refresh": "explicit-operation-and-post-write-readback",
-    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
-  },
-  {
-    "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-4",
-    "file": "scripts/quiz.mjs",
-    "line": 698,
+    "line": 713,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-other",
     "assessment": "justified",
     "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-9",
+    "file": "scripts/quiz.mjs",
+    "line": 722,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
     "refresh": "explicit-operation-and-post-write-readback",
-    "note": "Addressed attempt/key/private review preflight or post-write public/private readback for one token. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+    "note": "Transaction CAS of the exact assignment, key, prior review and immutable revision before grading/rubric change. See docs/modules/synchronization/firestore-read-paths.md (16.11 criteria/knowledge)."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-10",
+    "file": "scripts/quiz.mjs",
+    "line": 722,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-11",
+    "file": "scripts/quiz.mjs",
+    "line": 722,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.get#5309697998ba-12",
+    "file": "scripts/quiz.mjs",
+    "line": 728,
+    "api": "admin.get",
+    "target": "tx",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
+  },
+  {
+    "id": "scripts/quiz.mjs#admin.getAll#b0c1c92f920c-6",
+    "file": "scripts/quiz.mjs",
+    "line": 734,
+    "api": "admin.getAll",
+    "target": "db",
+    "group": "operator-other",
+    "assessment": "justified",
+    "policy": "addressed-operation-evidence",
+    "refresh": "explicit-operation-and-CAS-readback",
+    "note": "Addressed assignment/key/private rubric CAS or post-write readback. Existing revision/rubric path or policy-only migration; preserves answers and submitted history. See firestore-read-paths.md 22.11."
   },
   {
     "id": "scripts/refresh-math-guides.mjs#admin.get#21cade62ede4",
@@ -7130,7 +7214,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.getAll#92f60824ea9d",
     "file": "scripts/sync-inbox.mjs",
-    "line": 60,
+    "line": 61,
     "api": "admin.getAll",
     "target": "db",
     "group": "operator-sync",
@@ -7142,7 +7226,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#df747feb5ab2",
     "file": "scripts/sync-inbox.mjs",
-    "line": 99,
+    "line": 100,
     "api": "admin.get",
     "target": "child.collection('bookPages').where('bookId', '==', doc.id).count()",
     "group": "operator-sync",
@@ -7154,7 +7238,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#89f6f5fb9fd6",
     "file": "scripts/sync-inbox.mjs",
-    "line": 122,
+    "line": 123,
     "api": "admin.get",
     "target": "db.collection(`dayUploads/${ownerDoc.id}/files`) .where('status', 'in', ['requested', 'awaiting-upload', 'uploaded', 'pending', 'upload-error'])",
     "group": "operator-sync",
@@ -7166,7 +7250,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#f44a1d2befd4",
     "file": "scripts/sync-inbox.mjs",
-    "line": 141,
+    "line": 142,
     "api": "admin.get",
     "target": "progress",
     "group": "operator-sync",
@@ -7178,7 +7262,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#1837532e154d",
     "file": "scripts/sync-inbox.mjs",
-    "line": 154,
+    "line": 155,
     "api": "admin.get",
     "target": "db.collection(`dayParentDecisions/${ownerDoc.id}/events`)",
     "group": "operator-sync",
@@ -7190,7 +7274,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#655b80732cb1",
     "file": "scripts/sync-inbox.mjs",
-    "line": 157,
+    "line": 158,
     "api": "admin.get",
     "target": "db.collection(`dayGuidance/${ownerDoc.id}/items`) .where('stageId', '==', 'help-response')",
     "group": "operator-sync",
@@ -7202,7 +7286,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#f44a1d2befd4-2",
     "file": "scripts/sync-inbox.mjs",
-    "line": 163,
+    "line": 164,
     "api": "admin.get",
     "target": "progress",
     "group": "operator-sync",
@@ -7214,7 +7298,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#fc528875f200",
     "file": "scripts/sync-inbox.mjs",
-    "line": 181,
+    "line": 182,
     "api": "admin.get",
     "target": "db.doc(`reviews/${doc.id}`)",
     "group": "operator-sync",
@@ -7226,7 +7310,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#21200b656434",
     "file": "scripts/sync-inbox.mjs",
-    "line": 193,
+    "line": 194,
     "api": "admin.get",
     "target": "db.collectionGroup('bookUploads')",
     "group": "operator-sync",
@@ -7238,7 +7322,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#0f4737cb4e8b",
     "file": "scripts/sync-inbox.mjs",
-    "line": 194,
+    "line": 195,
     "api": "admin.get",
     "target": "db.collectionGroup('books')",
     "group": "operator-sync",
@@ -7250,7 +7334,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#8e5fe9a05915",
     "file": "scripts/sync-inbox.mjs",
-    "line": 195,
+    "line": 196,
     "api": "admin.get",
     "target": "db.collection('dayOwners')",
     "group": "operator-sync",
@@ -7262,7 +7346,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#ec96a644308d",
     "file": "scripts/sync-inbox.mjs",
-    "line": 196,
+    "line": 197,
     "api": "admin.get",
     "target": "db.collection('assignments').where('status', '==', 'submitted')",
     "group": "operator-sync",
@@ -7274,7 +7358,7 @@
   {
     "id": "scripts/sync-inbox.mjs#admin.get#9b7db11415bb",
     "file": "scripts/sync-inbox.mjs",
-    "line": 197,
+    "line": 198,
     "api": "admin.get",
     "target": "db.collectionGroup('helpRequests')",
     "group": "operator-sync",
@@ -7286,7 +7370,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#a3750996ffdd",
     "file": "scripts/sync-project.mjs",
-    "line": 165,
+    "line": 166,
     "api": "admin.get",
     "target": "db.collection(`families/${target.familyId}/children/${target.childId}/tasks`) .where('dueDate', '>=', dates[0]).where('dueDate', '<=', dates.at(-1))",
     "group": "operator-sync",
@@ -7298,7 +7382,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#ddaa06b20bbd",
     "file": "scripts/sync-project.mjs",
-    "line": 177,
+    "line": 178,
     "api": "admin.get",
     "target": "db.doc(`dayDashboards/${token}`)",
     "group": "operator-sync",
@@ -7310,7 +7394,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#4e894d48fdca",
     "file": "scripts/sync-project.mjs",
-    "line": 199,
+    "line": 200,
     "api": "admin.get",
     "target": "db.doc(`dayPages/${token}`)",
     "group": "operator-sync",
@@ -7322,7 +7406,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#efe6ef9926c8",
     "file": "scripts/sync-project.mjs",
-    "line": 223,
+    "line": 224,
     "api": "admin.get",
     "target": "snapshot.ref",
     "group": "operator-sync",
@@ -7334,7 +7418,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18",
     "file": "scripts/sync-project.mjs",
-    "line": 372,
+    "line": 389,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -7346,7 +7430,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#16193df213d4",
     "file": "scripts/sync-project.mjs",
-    "line": 392,
+    "line": 409,
     "api": "admin.get",
     "target": "db.collection('operatorSyncJobs').where('runId', '==', runId)",
     "group": "operator-sync",
@@ -7358,7 +7442,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#4016429218e6",
     "file": "scripts/sync-project.mjs",
-    "line": 414,
+    "line": 431,
     "api": "admin.get",
     "target": "statusRef({ familyId, childId })",
     "group": "operator-sync",
@@ -7370,7 +7454,7 @@
   {
     "id": "scripts/sync-project.mjs#admin.get#51573d45cc18-2",
     "file": "scripts/sync-project.mjs",
-    "line": 429,
+    "line": 446,
     "api": "admin.get",
     "target": "statusRef(target)",
     "group": "operator-sync",
@@ -8270,7 +8354,7 @@
   {
     "id": "src/lib/dayStore.ts#getDoc#6593dc56d36b",
     "file": "src/lib/dayStore.ts",
-    "line": 177,
+    "line": 184,
     "api": "getDoc",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -8282,7 +8366,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#1658e056615b",
     "file": "src/lib/dayStore.ts",
-    "line": 183,
+    "line": 190,
     "api": "onSnapshot",
     "target": "doc(db, 'dayPages', token)",
     "group": "client-day",
@@ -8294,7 +8378,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c2b7cd8e3f9b",
     "file": "src/lib/dayStore.ts",
-    "line": 218,
+    "line": 225,
     "api": "onSnapshot",
     "target": "doc(db, 'families', familyId, 'children', childId, 'bookPages', ref)",
     "group": "client-day",
@@ -8306,7 +8390,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#b781e597a36b",
     "file": "src/lib/dayStore.ts",
-    "line": 235,
+    "line": 242,
     "api": "onSnapshot",
     "target": "collection(db, 'dayUploads', studentToken, 'files')",
     "group": "client-day",
@@ -8318,7 +8402,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#9c726eac32b0",
     "file": "src/lib/dayStore.ts",
-    "line": 259,
+    "line": 266,
     "api": "onSnapshot",
     "target": "collection(db, 'dayProgress', studentToken, 'items')",
     "group": "client-day",
@@ -8330,7 +8414,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#c6f7e46096c2",
     "file": "src/lib/dayStore.ts",
-    "line": 263,
+    "line": 270,
     "api": "onSnapshot",
     "target": "collection(db, 'dayReviewPrivate', studentToken, 'items')",
     "group": "client-day",
@@ -8342,7 +8426,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#592bd0712c2e",
     "file": "src/lib/dayStore.ts",
-    "line": 281,
+    "line": 288,
     "api": "onSnapshot",
     "target": "reference",
     "group": "client-day",
@@ -8354,7 +8438,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#d0e658ed1ab2",
     "file": "src/lib/dayStore.ts",
-    "line": 294,
+    "line": 301,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items')",
     "group": "client-day",
@@ -8366,7 +8450,7 @@
   {
     "id": "src/lib/dayStore.ts#onSnapshot#a8f62002fde7",
     "file": "src/lib/dayStore.ts",
-    "line": 302,
+    "line": 309,
     "api": "onSnapshot",
     "target": "collection(db, 'dayHelp', studentToken, 'items', taskId, 'requests')",
     "group": "client-day",
@@ -8378,7 +8462,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53",
     "file": "src/lib/dayStore.ts",
-    "line": 314,
+    "line": 321,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8390,7 +8474,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#8976fa978048",
     "file": "src/lib/dayStore.ts",
-    "line": 332,
+    "line": 339,
     "api": "getDocFromServer",
     "target": "historyRef",
     "group": "client-day",
@@ -8402,7 +8486,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#0685a719664c",
     "file": "src/lib/dayStore.ts",
-    "line": 338,
+    "line": 345,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayUploads', studentToken, 'files', id)",
     "group": "client-day",
@@ -8414,7 +8498,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee",
     "file": "src/lib/dayStore.ts",
-    "line": 344,
+    "line": 351,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -8426,7 +8510,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#fd8c8b58bd6d",
     "file": "src/lib/dayStore.ts",
-    "line": 349,
+    "line": 356,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayProgress', studentToken, 'items', taskId)",
     "group": "client-day",
@@ -8438,7 +8522,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#68f6846e2d98",
     "file": "src/lib/dayStore.ts",
-    "line": 350,
+    "line": 357,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayGuidance', studentToken, 'items', reviewReply.sourceId)",
     "group": "client-day",
@@ -8450,7 +8534,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#2c2f801eef32",
     "file": "src/lib/dayStore.ts",
-    "line": 362,
+    "line": 369,
     "api": "getDocFromServer",
     "target": "immutable ? historyRef : sourceRef",
     "group": "client-day",
@@ -8462,7 +8546,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-2",
     "file": "src/lib/dayStore.ts",
-    "line": 379,
+    "line": 386,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8474,7 +8558,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40",
     "file": "src/lib/dayStore.ts",
-    "line": 387,
+    "line": 394,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8486,7 +8570,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#705de0a8baee-2",
     "file": "src/lib/dayStore.ts",
-    "line": 410,
+    "line": 417,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayPages', studentToken)",
     "group": "client-day",
@@ -8498,7 +8582,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-2",
     "file": "src/lib/dayStore.ts",
-    "line": 426,
+    "line": 433,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8510,7 +8594,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-3",
     "file": "src/lib/dayStore.ts",
-    "line": 438,
+    "line": 445,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -8522,7 +8606,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#d8f08464ae53-3",
     "file": "src/lib/dayStore.ts",
-    "line": 444,
+    "line": 451,
     "api": "getDocFromServer",
     "target": "doc(db, 'dayOwners', studentToken)",
     "group": "client-day",
@@ -8534,7 +8618,7 @@
   {
     "id": "src/lib/dayStore.ts#getDocFromServer#249d93879c40-4",
     "file": "src/lib/dayStore.ts",
-    "line": 458,
+    "line": 465,
     "api": "getDocFromServer",
     "target": "ref",
     "group": "client-day",
@@ -10526,7 +10610,7 @@
   {
     "id": "sync/reconciliation-ack.mjs#admin.get#726ca7b49d9e",
     "file": "sync/reconciliation-ack.mjs",
-    "line": 19,
+    "line": 24,
     "api": "admin.get",
     "target": "tx",
     "group": "operator-other",
@@ -10538,7 +10622,7 @@
   {
     "id": "sync/reconciliation-ack.mjs#admin.get#ba82da48a4cf-2",
     "file": "sync/reconciliation-ack.mjs",
-    "line": 28,
+    "line": 35,
     "api": "admin.get",
     "target": "ref",
     "group": "operator-other",

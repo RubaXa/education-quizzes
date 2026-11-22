@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { applicationDefault, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { pendingManualQuestionIds } from '../assessment/decision-graph.mjs'
+import { needsManualTextReview } from '../src/lib/quiz.ts'
 import { HelpRequestCache } from '../sync/help-request-cache.mjs'
 import { helpRequestResolution } from '../sync/help-request-resolution.mjs'
 
@@ -175,7 +176,7 @@ async function addDays(items, owners) {
 async function addSubmittedQuizzes(items, snapshot) {
   await boundedEach(snapshot.docs, 6, async (doc) => {
     const data = doc.data()
-    const openQuestions = (data.questions ?? []).filter((question) => question.kind === 'long')
+    const openQuestions = (data.questions ?? []).filter((question) => needsManualTextReview(data, question))
     if (!openQuestions.length) return // Other question types are graded from answerKeys.
     readCalls.manualReviews++
     const review = await db.doc(`reviews/${doc.id}`).get()
