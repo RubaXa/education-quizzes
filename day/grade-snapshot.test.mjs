@@ -10,6 +10,28 @@ const mesh = { complete: true, fetchedAt: '2026-10-16T06:30:00.000Z',
     marks: [{ value: 5, weight: 1 }, { value: 4, weight: 1 }, { value: 5, weight: 1 }] }] }
 
 describe('штатное обновление среза оценок', () => {
+  it('starts an explicitly confirmed later period without mixing or losing the previous ledger', () => {
+    const old = { ...previous, period: { start: '2026-09-01', end: '2026-11-22' } }
+    const fresh = { ...mesh, fetchedAt: '2026-11-24T10:48:40Z', marksScope: 'subject-period-full',
+      marks: [{ subject_name: 'Математика', start: '2026-11-23', end: '2027-02-21', period: 'Период 2',
+        count: 1, average: '5.00', marks: [{ value: 5, weight: 1 }] }] }
+    const result = proposeGradeSnapshot(old, fresh, report, { startNewPeriod: true })
+    expect(result.proposal.period).toMatchObject({ start: '2026-11-23', end: '2027-02-21', index: 2 })
+    expect(result.proposal.subjects[0].grades).toEqual([[5, 1]])
+    expect(result.proposal.previousPeriods[0]).toEqual(old)
+    expect(old.subjects[0].grades).toEqual([[5, 1], [4, 1]])
+    expect(proposeGradeSnapshot(result.proposal, fresh, report).changes).toEqual([])
+    const added = { ...fresh, marks: [{ ...fresh.marks[0], count: 2, marks: [{ value: 5, weight: 1 }, { value: 5, weight: 1 }] }] }
+    expect(proposeGradeSnapshot(result.proposal, added, report).proposal.snapshot_id).toMatch(/period-2$/)
+    for (const source of [
+      { ...fresh, marksScope: 'partial' },
+      { ...fresh, marks: [{ ...fresh.marks[0], start: '2026-11-01' }] },
+      { ...fresh, marks: [{ ...fresh.marks[0], count: 2 }] },
+      { ...fresh, marks: [{ ...fresh.marks[0], average: '4.00' }] },
+      { ...fresh, marks: [{ ...fresh.marks[0], subject_name: 'Чужой предмет' }] },
+    ]) expect(() => proposeGradeSnapshot(old, source, report, { startNewPeriod: true })).toThrow()
+    expect(() => proposeGradeSnapshot(old, fresh, report)).toThrow()
+  })
   it('keeps a new pass/fail subject with zero marks outside the numeric ledger', () => {
     const source={...mesh,marks:[{...mesh.marks[0],fixed_value:'5'},
       {subject_name:'Практикум',average:'0.00',count:0,marks:[],fixed_value:'Зч'}]}

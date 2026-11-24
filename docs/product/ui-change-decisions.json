@@ -408,18 +408,17 @@
       }
     },
     "day/grade-snapshot.mjs": {
-      "sha256": "d35bb3f9aaab33b4ed789a9b3b1525588f41d1205377fe64b2e615cc006eb617",
-      "record": "docs/decisions/ungraded-subject-ledger-2026-11-18.md",
+      "sha256": "2b233e19a0352308a4a4783afcb5c12a5db81a5f16a70dd8ccfca809d5d4a5f2",
+      "record": "docs/decisions/new-grade-period-2026-11-24.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
       ],
       "tests": [
-        "day/grade-snapshot.test.mjs",
-        "day/grade-reconciliation.test.mjs"
+        "day/grade-snapshot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Полный dispatch18.11.2026 требует сверки всех оценок МЭШ штатными CLI; новая зачётная строка без числовых отметок не должна превращаться в0или блокировать прежние числовые предметы."
+        "evidence": "Прямой EducationSync24.11 требует полной сверки новых оценок и сохранения истории через штатный CLI; первая отметка нового периода воспроизвела отсутствие операции."
       }
     },
     "day/homework-kind.mjs": {
@@ -2193,22 +2192,17 @@
       }
     },
     "scripts/grade-snapshot.mjs": {
-      "sha256": "36218ce8bcd9e5bc7c5487cd52b30cfa714c3af722acc6720208ee32334c0746",
-      "record": "docs/decisions/stable-grade-snapshot-command-2026-10-16.md",
+      "sha256": "9aa22dbf6aaa614a5e6914ecba4a35e6b63ceb0a8d6527ffbb468b9087dd39b0",
+      "record": "docs/decisions/new-grade-period-2026-11-24.md",
       "specs": [
         "docs/modules/school-diary/grades.md"
       ],
       "tests": [
-        "day/grade-snapshot.test.mjs",
-        "day/grade-publication.test.mjs"
+        "day/grade-snapshot.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель 16.10.2026 попросил штатные повторяемые команды Education вместо одноразовых inline-скриптов."
-      },
-      "documentationMigration": {
-        "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
-        "previousSha256": "b175f8e9a3c964b98fdb9df3995b8d7d4f52f7d42e8b0b7992751b95df57af78"
+        "evidence": "Прямой EducationSync24.11 требует полной сверки новых оценок и сохранения истории через штатный CLI; первая отметка нового периода воспроизвела отсутствие операции."
       }
     },
     "scripts/install-upload-worker.mjs": {

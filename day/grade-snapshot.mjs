@@ -1,6 +1,7 @@
 /** Deterministic additive reconciliation of the confirmed numeric grade ledger.
  * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation */
 /** @see ../docs/decisions/ungraded-subject-ledger-2026-11-18.md */
+/** @see ../docs/decisions/new-grade-period-2026-11-24.md */
 import { assertGradeSnapshotAligned } from './grade-reconciliation.mjs'
 
 const aliases = new Map([
@@ -26,7 +27,7 @@ export function gradeCollectionProvenance(receipt, mesh) {
   return `operator-run:${receipt.runId}`
 }
 
-export function proposeGradeSnapshot(previous, mesh, reportPath) {
+export function proposeGradeSnapshot(previous, mesh, reportPath, { startNewPeriod = false } = {}) {
   const threshold = Number(previous?.working_threshold)
   if (previous?.working_threshold_status !== 'conditional; not a confirmed school rule'
     || !Number.isFinite(threshold) || threshold <= 4 || threshold > 5) {
@@ -40,6 +41,31 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
   }
   const byName = new Map(mesh.marks.map((entry) => [aliases.get(entry.subject_name) ?? entry.subject_name, entry]))
   const known = new Set((previous.subjects ?? []).map(entry=>entry.name))
+  if (startNewPeriod) {
+    const rows = mesh.marks
+    const period = rows[0]
+    const date = mesh.fetchedAt.slice(0, 10)
+    const isoDate = value => /^20\d{2}-\d{2}-\d{2}$/.test(value ?? '') && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value
+    if (mesh.marksScope !== 'subject-period-full' || !rows.length || byName.size !== rows.length
+      || !isoDate(previous.period?.end) || !isoDate(period.start) || !isoDate(period.end)
+      || period.start <= previous.period.end || period.end < period.start || date < period.start || date > period.end
+      || rows.some(row => row.start !== period.start || row.end !== period.end || row.period !== period.period
+        || !known.has(aliases.get(row.subject_name) ?? row.subject_name)
+        || !Number.isInteger(row.count) || row.count <= 0 || !Array.isArray(row.marks) || row.marks.length !== row.count
+        || row.marks.some(mark => !Number.isInteger(Number(mark.value)) || Number(mark.value) < 2 || Number(mark.value) > 5
+          || !Number.isInteger(Number(mark.weight)) || Number(mark.weight) < 1)
+        || Math.abs(row.marks.reduce((sum, mark) => sum + Number(mark.value) * Number(mark.weight), 0)
+          / row.marks.reduce((sum, mark) => sum + Number(mark.weight), 0) - Number(row.average)) > 0.005
+        || !Number.isFinite(Number(row.average)))) throw new Error('Нужен полный подтверждённый новый период после прежнего, с известными предметами и согласованными отметками.')
+    const index = (previous.period.index ?? Number(/period-(\d+)$/.exec(previous.snapshot_id ?? '')?.[1] ?? 1)) + 1
+    const seed = { ...previous, period: { start: period.start, end: period.end, index, title: period.period },
+      subjects: rows.map(row => ({ ...previous.subjects.find(subject => subject.name === (aliases.get(row.subject_name) ?? row.subject_name)),
+        grades: [], displayed_average: 0, app_more_fives: 0 })) }
+    const result = proposeGradeSnapshot(seed, mesh, reportPath)
+    const { previousPeriods = [], ...archive } = previous
+    return { ...result, proposal: { ...result.proposal, observed_subject_count: rows.length,
+      previousPeriods: [...previousPeriods, archive] }, periodChanged: true }
+  }
   const unexpected = [...byName].filter(([name])=>!known.has(name))
   if (!known.size || byName.size !== mesh.marks.length
     || previous.subjects.some((entry) => !byName.has(entry.name))
@@ -88,7 +114,8 @@ export function proposeGradeSnapshot(previous, mesh, reportPath) {
     return next
   })
   const date = mesh.fetchedAt.slice(0, 10)
-  const proposal = changes.length ? { ...previous, snapshot_id: `grades:${date}-period-1`, observed_at: date,
+  const periodIndex = previous.period?.index ?? Number(/period-(\d+)$/.exec(previous.snapshot_id ?? '')?.[1] ?? 1)
+  const proposal = changes.length ? { ...previous, snapshot_id: `grades:${date}-period-${periodIndex}`, observed_at: date,
     source_report: reportPath, subjects } : previous
   assertGradeSnapshotAligned(proposal, mesh)
   return { proposal, changes }

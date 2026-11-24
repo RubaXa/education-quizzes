@@ -1,6 +1,7 @@
 /** Stable operator command for the numeric grade ledger.
  * @see ../docs/modules/school-diary/grades.md#mesh-reconciliation */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+/** @see ../docs/decisions/new-grade-period-2026-11-24.md */
 import { resolve } from 'node:path'
 import { proposeGradeSnapshot, gradeCollectionProvenance } from '../day/grade-snapshot.mjs'
 
@@ -26,7 +27,8 @@ if (receiptPath) {
   const receipt = JSON.parse(readFileSync(reportFile, 'utf8'))
   provenance = gradeCollectionProvenance(receipt, mesh)
 }
-const { proposal, changes } = proposeGradeSnapshot(previous, mesh, provenance)
+const { proposal, changes, periodChanged = false } = proposeGradeSnapshot(previous, mesh, provenance,
+  { startNewPeriod: args.includes('--new-period') })
 if (action === '--apply' && changes.length) writeFileSync(ledgerFile, `${JSON.stringify(proposal, null, 2)}\n`)
-console.log(JSON.stringify({ sourceDate: date, fetchedAt: mesh.fetchedAt, changedSubjects: changes,
+console.log(JSON.stringify({ sourceDate: date, fetchedAt: mesh.fetchedAt, periodChanged, changedSubjects: changes,
   applied: action === '--apply' && changes.length > 0, unchanged: changes.length === 0 }, null, 2))

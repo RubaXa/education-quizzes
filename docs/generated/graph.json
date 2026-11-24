@@ -2220,6 +2220,31 @@
       "path": "docs/decisions/moving-preparation-window-2026-11-05.md"
     },
     {
+      "id": "decision.new-grade-period",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-24",
+      "updated": "2026-11-24",
+      "parent": "module.school-diary.grades",
+      "uses": [],
+      "consumers": [
+        "grade snapshot CLI",
+        "Education sync operator"
+      ],
+      "code": [
+        "day/grade-snapshot.mjs",
+        "scripts/grade-snapshot.mjs"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/new-grade-period-2026-11-24.md"
+    },
+    {
       "id": "decision.numbered-source-gap-2026-11-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -6428,14 +6453,14 @@
       "id": "file:day/grade-snapshot.mjs",
       "path": "day/grade-snapshot.mjs",
       "kind": "artifact",
-      "purpose": "Чистое аддитивное предложение полного снимка МЭШ и пересчёт условного числа пятёрок с учётом весов",
+      "purpose": "Аддитивная сверка оценок и явный переход подтверждённого периода с сохранением прежнего журнала",
       "consumer": "`scripts/grade-snapshot.mjs`"
     },
     {
       "id": "file:day/grade-snapshot.test.mjs",
       "path": "day/grade-snapshot.test.mjs",
       "kind": "verification",
-      "purpose": "Идемпотентность, weighted threshold и барьер против потери/изменения оценки",
+      "purpose": "Идемпотентность, weighted threshold, смена периода и барьер против потери/изменения оценки",
       "consumer": "Vitest; разработчик"
     },
     {
@@ -14850,7 +14875,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-10-08",
-      "updated": "2026-11-18",
+      "updated": "2026-11-24",
       "consumers": [
         "parent",
         "student",
@@ -19668,6 +19693,11 @@
     },
     {
       "from": "file:day/grade-snapshot.mjs",
+      "to": "decision.new-grade-period",
+      "type": "implements"
+    },
+    {
+      "from": "file:day/grade-snapshot.mjs",
       "to": "decision.ungraded-subject-ledger",
       "type": "implements"
     },
@@ -21914,6 +21944,11 @@
     {
       "from": "file:scripts/generate-sw.mjs",
       "to": "product.pwa",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/grade-snapshot.mjs",
+      "to": "decision.new-grade-period",
       "type": "implements"
     },
     {
@@ -28749,6 +28784,11 @@
     {
       "from": "module.school-diary.grades",
       "to": "decision.grade-average-ui-kit-2026-10-18",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.grades",
+      "to": "decision.new-grade-period",
       "type": "contains"
     },
     {
