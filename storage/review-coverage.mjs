@@ -1,9 +1,21 @@
+/** @see ../docs/decisions/queue-evidence-2026-11-22.md */
 /**
  * A photo has one upload placement but may prove several tasks on the same day.
  * Coverage is asserted by the reviewer after reading the original, never inferred
  * from the button used to upload it.
  * @see ../docs/modules/materials/storage-privacy.md#multi-task-photo
  */
+export function publishedPhotoCoverage(uploadId, upload, results) {
+  const ids = upload?.coveredTaskIds
+  if (upload?.status !== 'reviewed' || !Array.isArray(ids) || !ids.length
+    || new Set(ids).size !== ids.length || !upload.coverageNote?.trim()) return false
+  const statuses = new Set(['verified', 'partial', 'needs-fix', 'cannot-assess'])
+  return ids.every(id => {
+    const result = results.get(id)
+    return [result, ...(result?.history ?? [])].some(attempt =>
+      statuses.has(attempt?.status) && attempt.uploadIds?.includes(uploadId))
+  })
+}
 export function reviewCoverage(batch) {
   if (!Array.isArray(batch.reviews) || !batch.reviews.length || batch.taskId !== undefined) {
     throw new Error('Для фото с уточнённой привязкой нужны отдельные разборы заданий.')

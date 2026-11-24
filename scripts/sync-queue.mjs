@@ -21,6 +21,7 @@ import { pendingManualQuestionIds, quizDecision, supplementalAssessmentPlacement
 import { followupQueueSource } from '../assessment/quiz-lineage.mjs'
 import { taskRoute, taskRouteCandidates, syncRoutePlan } from '../sync/task-route.mjs'
 import { queueEvidence } from '../sync/queue-evidence.mjs'
+import { publishedPhotoCoverage } from '../storage/review-coverage.mjs'
 
 /** Scan live Firebase sources, persist operator work, and expose resumable phases.
  * The operator still performs source research and pedagogy; this command never
@@ -217,7 +218,7 @@ async function discover() {
       const data = file.data(), result = byTask.get(data.taskId)
       // A newer submission may supersede this attempt in dayProgress. The
       // upload's own reviewed status remains its durable historical result.
-      if (result?.status || hasSourceReceipt(result) || pageTaskById.get(data.taskId)?.platformResult?.state === 'completed') continue
+      if (publishedPhotoCoverage(file.id, data, byTask) || result?.status || hasSourceReceipt(result) || pageTaskById.get(data.taskId)?.platformResult?.state === 'completed') continue
       missing.push(job('repair-review', owner.familyId, owner.childId,
         `${owner.date}:${file.id}`, { type: 'student-work', dayToken: ownerDoc.id, date: owner.date, uploadId: file.id, taskId: data.taskId },
         [file.id, data.taskId, data.reviewedAt?.toMillis?.()], 5))
@@ -282,6 +283,11 @@ async function verifiedResolution(record) {
     if (!owner) return null
     const upload = (await db.doc(`dayUploads/${owner.id}/files/${source.id ?? source.uploadId}`).get()).data()
     if (record.kind === 'transfer-work') return ['pending', 'reviewed'].includes(upload?.status) ? 'upload-transferred' : null
+    if (upload?.coveredTaskIds?.length) {
+      const covered = await db.getAll(...[...new Set(upload.coveredTaskIds)].map(id => db.doc(`dayProgress/${owner.id}/items/${id}`)))
+      if (publishedPhotoCoverage(source.id ?? source.uploadId, upload, new Map(covered.map(doc => [doc.id, doc.data()])))) return 'photo-coverage-reviews-published'
+      return null
+    }
     const result = upload?.taskId ? (await db.doc(`dayProgress/${owner.id}/items/${upload.taskId}`).get()).data() : null
     const page = record.kind === 'repair-review' ? (await db.doc(`dayPages/${owner.id}`).get()).data() : null
     const platformDone = page?.subjects?.some((subject) => subject.tasks?.some((task) =>

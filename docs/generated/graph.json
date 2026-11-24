@@ -3224,7 +3224,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-11-22",
-      "updated": "2026-11-22",
+      "updated": "2026-11-24",
       "parent": "module.synchronization.global-sync",
       "uses": [
         "module.synchronization.firestore-read-paths"
@@ -3234,7 +3234,8 @@
       ],
       "code": [
         "sync/queue-evidence.mjs",
-        "scripts/sync-queue.mjs"
+        "scripts/sync-queue.mjs",
+        "storage/review-coverage.mjs"
       ],
       "sections": [
         "основание",
@@ -12529,8 +12530,8 @@
       "id": "file:storage/review-coverage.mjs",
       "path": "storage/review-coverage.mjs",
       "kind": "artifact",
-      "purpose": "Сверка покрытия нескольких номеров одним оригиналом",
-      "consumer": "`scripts/submissions.mjs`"
+      "purpose": "Сверка покрытия нескольких номеров одним оригиналом и адресных результатов фото",
+      "consumer": "`scripts/submissions.mjs`; `scripts/sync-queue.mjs`"
     },
     {
       "id": "file:storage/review-coverage.test.mjs",
@@ -26074,6 +26075,11 @@
     {
       "from": "file:storage/review-challenge.mjs",
       "to": "module.reviews.review-criteria-provenance",
+      "type": "implements"
+    },
+    {
+      "from": "file:storage/review-coverage.mjs",
+      "to": "decision.queue-evidence-2026-11-22",
       "type": "implements"
     },
     {

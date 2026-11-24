@@ -2486,7 +2486,7 @@
       }
     },
     "scripts/sync-queue.mjs": {
-      "sha256": "cc7345b6c490e55c270c06d34687f603c4c20e45ff83dac64bcf0b81132a99c6",
+      "sha256": "17da8806bf6d02316ff27ce0a7434e2afe30d4d8c56cb245bdd069a7d433b746",
       "record": "docs/decisions/queue-evidence-2026-11-22.md",
       "specs": [
         "docs/modules/synchronization/global-sync.md"
@@ -5220,18 +5220,18 @@
       }
     },
     "storage/review-coverage.mjs": {
-      "sha256": "7fd887231028eb03d6f3675cf468474dbdae7af7117a160c7e13ac7f6d3f3123",
-      "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
+      "sha256": "e73d230cfd8864a8ec0f48364c3891d8a4d3d051ab797613de611116c9f459e9",
+      "record": "docs/decisions/queue-evidence-2026-11-22.md",
       "specs": [
-        "docs/shared/specification-system.md"
+        "docs/modules/materials/storage-privacy.md"
       ],
       "tests": [
-        "scripts/spec-graph.test.mjs",
-        "scripts/check-ui-contract.test.mjs"
+        "storage/review-coverage.test.mjs",
+        "scripts/sync-queue-resolution.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямое поручение пользователя 16.10.2026 внедрить согласованную структуру спецификаций, перенести ссылки в коде и проверить сохранность требований; изменение предметного поведения не выполнялось."
+        "evidence": "Dispatch24.11: разобрать полученные фото, сохранить реальные результаты и закрыть выполненные поручения по доказательствам без повторного запроса присланного."
       },
       "documentationMigration": {
         "record": "docs/decisions/specification-graph-migration-2026-10-16.md",
