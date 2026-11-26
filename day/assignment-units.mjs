@@ -3,6 +3,10 @@
 const text=(value,max)=>typeof value==='string'&&value.trim().length>0&&value.length<=max
 const keys=(value,allowed)=>value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(k=>allowed.includes(k))
 const unique=list=>Array.isArray(list)&&list.length===new Set(list).size
+/** Commands of an operator-verified original, never unassigned neighbouring text. */
+export function englishSourceActions(value=''){
+ return {listening:/\blisten(?:ing)?\b|аудирован|слуша/iu.test(value),reading:/\bread(?:ing)?\b|прочита|читать|чтени/iu.test(value)}
+}
 /** One provenance gate for the publisher and addressed correction. No inferred exercises. */
 function validate(task,{sourceRefs=[],guide,subjectId,placements=[]}={},privateGuide=true){
  const plan=task?.assignmentUnits
@@ -19,6 +23,8 @@ function validate(task,{sourceRefs=[],guide,subjectId,placements=[]}={},privateG
    ||unit.sourceRefs.includes(task.id)&&!(task.meshText??task.detail??'').includes(unit.original)
    ||!Array.isArray(unit.instructions)||!unit.instructions.length||unit.instructions.length>8||unit.instructions.some(line=>!text(line,600))){errors.push('assignmentUnits: неполная единица, дубликат, закрытые поля или источник вне назначения.');continue}
   ids.add(unit.id)
+  if(subjectId==='english'&&englishSourceActions(unit.original).listening
+   &&!unit.sourceRefs.some(ref=>ref.startsWith('audio:'))&&task.materialRequest?.state!=='open')errors.push('assignmentUnits: для Listen нужна связанная аудиозапись в этой единице или открытый запрос недостающего аудио.')
   for(const [field,available] of [['guideStageIds',guide?.stages],['learnerStageIds',task.learnerFlow?.stages]]){
    const selected=unit[field]??[]
    if(!unique(selected)||selected.some(id=>!text(id,64)||!/^[a-z][a-z0-9-]*$/.test(id)||(field!=='guideStageIds'||privateGuide)&&!available?.some(stage=>stage.id===id)))errors.push(`assignmentUnits: ${field} ссылается на неизвестный этап.`)

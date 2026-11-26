@@ -2010,10 +2010,12 @@
       }
     },
     "scripts/day.mjs": {
-      "sha256": "110f5b87011aa22c503ecf9ccacdcb654bbc150ce6ee5721ba1a1821cff9ac96",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "e5cd1be806e1b0ef9407fa2fa72dc670d3f4f0d1518a1139e9f6f5c881a96c2b",
+      "record": "docs/decisions/english-listening-source-actions-2026-11-26.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/assignments/source-units.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/materials/audio-library.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
@@ -2022,7 +2024,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя26.11.2026: исправить граф анализа английского и задание48, учитывать полное Listen/read и связать имеющуюся аудиозапись, сохранив прежние результаты."
       }
     },
     "scripts/direct-upload-worker.mjs": {
@@ -8258,12 +8260,14 @@
       }
     },
     "sync/subject-decisions.mjs": {
-      "sha256": "055c1c4ea4e7a31444a53499080bd1274062965073fb3b8e7ab3cecb27476e15",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "550b4ca07a6c69a47758df3e0d6d4586e9211843a31b891d8ddf64aaaedea821",
+      "record": "docs/decisions/english-listening-source-actions-2026-11-26.md",
       "specs": [
         "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/materials/audio-library.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
@@ -8274,7 +8278,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Прямой запрос пользователя26.11.2026: исправить граф анализа английского и задание48, учитывать полное Listen/read и связать имеющуюся аудиозапись, сохранив прежние результаты."
       }
     },
     "sync/decision-evidence.mjs": {
@@ -9056,10 +9060,12 @@
       }
     },
     "day/assignment-units.mjs": {
-      "sha256": "c2c50ccd6ef24269177017c9d22f8a87ebcb5ec783ec1677b6962e7711debcea",
-      "record": "docs/decisions/current-source-cards-2026-11-21.md",
+      "sha256": "a21a5fdc4c35d35454b5177cf094795b97270194f61ad794f577e13c89a2ea7d",
+      "record": "docs/decisions/english-listening-source-actions-2026-11-26.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/assignments/source-units.md",
+        "docs/modules/synchronization/subject-decision-graph.md",
+        "docs/modules/materials/audio-library.md"
       ],
       "tests": [
         "src/DayPage.assignmentQuiz.integration.test.tsx",
@@ -9068,7 +9074,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "evidence": "Прямой запрос пользователя26.11.2026: исправить граф анализа английского и задание48, учитывать полное Listen/read и связать имеющуюся аудиозапись, сохранив прежние результаты."
       }
     },
     "src/components/AssignmentUnits.tsx": {

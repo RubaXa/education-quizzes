@@ -1,6 +1,24 @@
 import { expect, it } from 'vitest'
 import { subjectDecisionPlan, subjectDecisionProfiles } from './subject-decisions.mjs'
 import { taskRoute } from './task-route.mjs'
+it('recovers both modalities from a whole assigned English exercise and never reuses a reading quiz as listening evidence',()=>{
+ const task={id:'mesh-english',kind:'written',meshText:'упр.7 стр.47, упр.1 стр.48',testToken:'reading-result',instructionStatus:{state:'reviewed'},decisionRuleIds:['english.exercise','english.reading'],assignmentUnits:{items:[
+  {id:'writing',original:'Write your own quiz.'},
+  {id:'pilgrims',original:'Decide which sentences are T or F. Listen and read to check. Correct the false sentences.',sourceRefs:['book#48','audio:track-48-1']}
+ ]}}
+ const plan=subjectDecisionPlan(task,'english')
+ expect(plan.actions.map(a=>a.ruleId)).toEqual(['english.exercise','english.reading','english.listening'])
+ const listening=plan.actions.find(a=>a.ruleId==='english.listening')
+ expect(listening.existingProductRef).toBeUndefined()
+ expect(listening.sourceUnitIds).toEqual(['pilgrims'])
+ expect(listening.audioSourceRefs).toEqual(['audio:track-48-1'])
+ expect(listening.checks.join(' ')).toContain('Текстовый тест')
+ expect(subjectDecisionPlan({...task,assignmentUnits:undefined,decisionRuleIds:undefined},'english').actions.map(a=>a.ruleId)).not.toContain('english.listening')
+})
+it('recognizes Listen as an instruction without adding reading unless it is assigned',()=>{
+ expect(subjectDecisionPlan({kind:'read',meshText:'Listen and choose.'},'english').actions.map(a=>a.ruleId)).toEqual(['english.listening'])
+ expect(subjectDecisionPlan({kind:'read',meshText:'Listen and read to check.'},'english').actions.map(a=>a.ruleId)).toEqual(['english.listening','english.reading'])
+})
 it.each(['geography','biology'])('does not turn a material counter or an authored platform card into teacher homework: %s',subject=>{
  const task={id:'mesh-counter',kind:'check',meshText:'п.38',outputKind:'platform-result',materialCounts:{count_execute:1},instructionStatus:{state:'reviewed'},assessmentIntent:{state:'confirmed',mode:'ordinary',topic:'Параграф',evidenceRef:'book:38'}}
  const plan=subjectDecisionPlan(task,subject)

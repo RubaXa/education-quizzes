@@ -1425,6 +1425,32 @@
       "path": "docs/decisions/energy-hope-archive-2026-10-28.md"
     },
     {
+      "id": "decision.english-listening-source-actions-2026-11-26",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-26",
+      "updated": "2026-11-26",
+      "parent": "module.synchronization.subject-decision-graph",
+      "uses": [
+        "module.assignments.source-units",
+        "module.materials.audio-library"
+      ],
+      "consumers": [
+        "Education operator",
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/english-listening-source-actions-2026-11-26.md"
+    },
+    {
       "id": "decision.family-book-access-2026-10-22",
       "status": "accepted",
       "implementation": "partial",
@@ -13602,7 +13628,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-11-19",
-      "updated": "2026-11-22",
+      "updated": "2026-11-26",
       "parent": "module.assignments",
       "uses": [
         "module.synchronization.subject-decision-graph",
@@ -13858,7 +13884,7 @@
         "shared.access-and-privacy"
       ],
       "created": "2026-10-22",
-      "updated": "2026-10-23",
+      "updated": "2026-11-26",
       "consumers": [
         "student",
         "parent",
@@ -15385,7 +15411,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-11-16",
-      "updated": "2026-11-16",
+      "updated": "2026-11-26",
       "parent": "module.synchronization",
       "uses": [
         "module.reviews.subject-aware-guidance",
@@ -18151,6 +18177,16 @@
     {
       "from": "decision.energy-hope-archive-2026-10-28",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.english-listening-source-actions-2026-11-26",
+      "to": "module.assignments.source-units",
+      "type": "uses"
+    },
+    {
+      "from": "decision.english-listening-source-actions-2026-11-26",
+      "to": "module.materials.audio-library",
       "type": "uses"
     },
     {
@@ -29547,6 +29583,11 @@
       "from": "module.synchronization.shared-artifact-pipeline",
       "to": "module.synchronization.global-sync",
       "type": "uses"
+    },
+    {
+      "from": "module.synchronization.subject-decision-graph",
+      "to": "decision.english-listening-source-actions-2026-11-26",
+      "type": "contains"
     },
     {
       "from": "module.synchronization.subject-decision-graph",

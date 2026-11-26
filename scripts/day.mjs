@@ -423,7 +423,8 @@ function validate(source, { allowUnchangedLegacyTeacherLinks = false } = {}) {
     for (const task of subject.tasks) {
       if (!/^[a-z0-9-]+$/.test(task.id ?? '') || ids.has(task.id) || !task.title) fail('Нужны уникальные id и названия действий.')
       ids.add(task.id)
-      if(task.assignmentUnits){const errors=assignmentUnitErrors(task,{sourceRefs:[...(taskPageRefs()[task.id]??[]),...(source.materialLinks?.[task.id]??[]).map(link=>link.sourceRef).filter(Boolean)],guide:task.parentGuide,subjectId:subject.id,placements:source.testPlacements});if(errors.length)fail(errors.join('\n'))}
+      // Audio selections are proposals here; stagePublish rechecks units against canonical family links.
+      if(task.assignmentUnits){const errors=assignmentUnitErrors(task,{sourceRefs:[...(taskPageRefs()[task.id]??[]),...(source.materialLinks?.[task.id]??[]).map(link=>link.sourceRef).filter(Boolean),...(source.audioSelections?.[task.id]??[]).map(item=>item?.sourceRef).filter(ref=>typeof ref==='string')],guide:task.parentGuide,subjectId:subject.id,placements:source.testPlacements});if(errors.length)fail(errors.join('\n'))}
       const stageErrors=stageAssessmentErrors(task,subject.id,source.testPlacements,task.parentGuide)
       if(stageErrors.length)fail(stageErrors.join('\n'))
       const flowErrors = learnerFlowErrors(task, materialPlan.taskPages[task.id] ?? [])
@@ -739,6 +740,11 @@ async function stagePublish(date, batch, links, indexTokens, stagedPages, notify
     ...(allMaterialLinks[taskId] ?? []).filter((link) => link.sourceType !== 'audio'), ...links,
   ]
   for (const task of source.subjects.flatMap((subject) => subject.tasks)) {
+    if(task.assignmentUnits){
+      const subject=source.subjects.find(subject=>subject.tasks.includes(task))
+      const errors=assignmentUnitErrors(task,{sourceRefs:[...(pageRefs[task.id]??[]),...(allMaterialLinks[task.id]??[]).map(link=>link.sourceRef).filter(Boolean)],guide:task.parentGuide,subjectId:subject.id,placements:source.testPlacements})
+      if(errors.length)fail(errors.join('\n'))
+    }
     if (pageRefs[task.id]?.length && (publishedPageLinks[task.id]?.length ?? 0) !== pageRefs[task.id].length) {
       fail(`Для ${task.id} опубликованы не все страницы учебника: ${publishedPageLinks[task.id]?.length ?? 0} из ${pageRefs[task.id].length}.`)
     }

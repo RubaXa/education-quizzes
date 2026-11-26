@@ -5,6 +5,7 @@ import { programmingAssignment, isControlAssignment, quizDecision } from '../ass
 import { previousLessonReference } from '../assessment/lesson-repetition.mjs'
 import { classifyMeshNotice } from '../day/mesh-notice.mjs'
 import {platformAssignmentErrors} from '../day/homework-kind.mjs'
+import {englishSourceActions} from '../day/assignment-units.mjs'
 const rule = (id, when, product, checks) => ({ id, when, product, checks, executor: 'agent-with-publisher-validation',
  nodeId:`subject:${id}`,edgeIds:[`choose:${id}`,`prepare:${id}`],uiScenarioId:id,
  specRef:'docs/modules/synchronization/subject-decision-graph.md#subjects',
@@ -71,13 +72,15 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
  const normalized = key === 'practicum' ? 'special' : key
  const profile = subjectDecisionProfiles[normalized] ?? subjectDecisionProfiles.generic
  const repetitionParts = previousLessonReference(task) && Array.isArray(task.repetition?.parts) ? task.repetition.parts : null
- const text = repetitionParts ? [task.meshText,...repetitionParts.map(part=>part.topic)].join(' ') : task.meshText ?? ''
+ const sourceUnits=normalized==='english'&&task.instructionStatus?.state==='reviewed'?task.assignmentUnits?.items??[]:[]
+ const text = repetitionParts ? [task.meshText,...repetitionParts.map(part=>part.topic)].join(' ') : [task.meshText,...sourceUnits.map(unit=>unit.original)].filter(Boolean).join(' ')
+ const englishActions=normalized==='english'?englishSourceActions(text):{}
  const hasTeacherFiles = context.hasTeacherFiles === true || task.materialStatus?.state === 'teacher-attachment-linked' || Boolean(task.sourceInventory?.sources?.length)
  const informational = !context.hasFamilyTask && Boolean(classifyMeshNotice(text,{hasTeacherFiles}))
  const organization = /(?:взять|сдать|принести|тетради\s+сдать)[^.\n]{0,100}(?:тетрад|лист|альбом|проверку)|тетради\s+сдать/iu.test(text)
  const writing = !repetitionParts && (task.kind === 'written' || ['written','worked-solution','text-structure','structured-notes'].includes(task.outputKind) || Boolean(task.problems?.length))
  const oral = Boolean(repetitionParts) || task.kind === 'read' || ['oral','reading'].includes(task.outputKind) || /повторить|устно|выучить|читать|прочитать|пересказ|слов[ао]рн.*диктант|прослушать|аудирован/iu.test(text)
-  || !isControlAssignment(task) && quizDecision(task)?.job === 'prepare-quiz'
+  || englishActions.listening || englishActions.reading || !isControlAssignment(task) && quizDecision(task)?.job === 'prepare-quiz'
  const actions=[]
  const obligationErrors=platformAssignmentErrors(task)
  const add = (action,ruleId) => {const r=profile.rules.find(x=>x.id===ruleId) ?? profile.rules[0]; actions.push({action,ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor,nodeId:r.nodeId,edgeIds:r.edgeIds,specRef:r.specRef,decisionRef:r.decisionRef,uiScenarioId:r.uiScenarioId})}
@@ -91,12 +94,12 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
    add('written',id)
   }
   if (oral) {
-   const id=normalized==='english' ? /диктант|слова|слов\s+/iu.test(text)?'english.vocabulary':/ауди|слуша|listening/iu.test(text)?'english.listening':/рассказ|диалог|говорени|speaking/iu.test(text)?'english.speaking':'english.reading'
+   const id=normalized==='english' ? /диктант|слова|слов\s+/iu.test(text)?'english.vocabulary':englishActions.listening?'english.listening':/рассказ|диалог|говорени|speaking/iu.test(text)?'english.speaking':'english.reading'
     : normalized==='russian' && /диктант|выучить.*слов/iu.test(text)?'russian.vocabulary'
     : normalized==='literature' && /стих|выразительн/iu.test(text)?'literature.recitation'
     : ({math:'math.theory',special:'special.theory',russian:'russian.rule',literature:'literature.reading',history:'history.reading',geography:'geography.reading',biology:'biology.reading',informatics:'informatics.theory',technology:'technology.theory'})[normalized] ?? 'generic.oral'
    add('oral',id)
-   if (normalized==='english' && id!=='english.listening' && /ауди|слуша|listening/iu.test(text)) add('listening','english.listening')
+   if (normalized==='english' && id!=='english.listening' && englishActions.listening) add('listening','english.listening')
    if (normalized==='english' && id!=='english.speaking' && /рассказ|диалог|говорени|speaking/iu.test(text)) add('speaking','english.speaking')
   }
   if (hasTeacherFiles && !writing && !oral) actions.push({action:'classify-material',ruleId:`${normalized}.source-classification`,product:'verified-material-purpose',checks:['Прочитать весь файл: задачи, текст, критерии или уже выполненная работа','По содержимому выбрать номера с разбором либо тематический тест; файл сам по себе не готовый продукт'],executor:'agent-confirmation-required'})
@@ -116,12 +119,23 @@ export function subjectDecisionPlan(task = {}, subject = 'generic', context = {}
   actions.length=0
   for(const r of explicit)actions.push({action:r.product.includes('quiz')?'oral':'written',ruleId:r.id,product:r.product,checks:r.checks,executor:r.executor,nodeId:r.nodeId,edgeIds:r.edgeIds,specRef:r.specRef,decisionRef:r.decisionRef,uiScenarioId:r.uiScenarioId})
  }
+ if(normalized==='english'&&!repetitionParts&&!informational){
+  for(const [kind,present] of Object.entries(englishActions)){
+   if(!present)continue
+   const ruleId=`english.${kind}`
+   if(!actions.some(action=>action.ruleId===ruleId))add(kind,ruleId)
+   const action=actions.find(action=>action.ruleId===ruleId)
+   const units=sourceUnits.filter(unit=>englishSourceActions(unit.original)[kind])
+   action.sourceUnitIds=units.map(unit=>unit.id)
+   if(kind==='listening')action.audioSourceRefs=[...new Set(units.flatMap(unit=>unit.sourceRefs??[]).filter(ref=>ref.startsWith('audio:')))]
+  }
+ }
  for (const action of actions) {
   const meta=Object.values(subjectDecisionProfiles).flatMap(p=>p.rules).find(r=>r.id===action.ruleId)
   if(meta)Object.assign(action,{nodeId:meta.nodeId,edgeIds:meta.edgeIds,specRef:meta.specRef,decisionRef:meta.decisionRef,uiScenarioId:meta.uiScenarioId})
   const proof=context.partSources?.[action.partId ?? action.ruleId]
   action.sourceState ??= proof?.confirmed===true && typeof proof.ref==='string' && proof.ref.trim() ? 'confirmed-part' : actions.length>1 ? 'requires-source-for-this-part' : 'requires-content-verification'
-  if (task.testToken && /quiz|assessment|dictation|diagnostic/u.test(action.product)) action.existingProductRef = task.testToken
+  if (task.testToken && action.ruleId!=='english.listening' && /quiz|assessment|dictation|diagnostic/u.test(action.product)) action.existingProductRef = task.testToken
  }
  return {subject:normalized,profile:profile.title,inputs:[
   {origin:'mesh',state:task.meshText?'present':'requires-review'},

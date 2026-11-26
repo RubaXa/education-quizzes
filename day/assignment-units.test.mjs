@@ -10,6 +10,16 @@ function fixture(){
  return {task,context}
 }
 describe('source-bound assignment units',()=>{
+ it('requires audio in the same assigned unit for Listen even when a reading quiz already exists',()=>{
+  const {task,context}=fixture(),unit=task.assignmentUnits.items[1]
+  unit.original='Who were the Pilgrims? Decide T/F. Listen and read to check. Correct the false sentences.'
+  expect(assignmentUnitErrors(task,context).join(' ')).toMatch(/аудио/)
+  context.sourceRefs.push('audio:book-48-1')
+  task.assignmentUnits.items[0].sourceRefs.push('audio:book-48-1')
+  expect(assignmentUnitErrors(task,context).join(' ')).toMatch(/аудио/)
+  unit.sourceRefs.push('audio:book-48-1')
+  expect(assignmentUnitErrors(task,context)).toEqual([])
+ })
  it('uses the exact teacher instruction as an original for notebook repetition, without inventing a textbook page',()=>{
   const task={id:'mesh-notes',meshText:'Учим записи в тетрадях.',assignmentUnits:{version:1,sourceText:'Учим записи в тетрадях.',items:[{id:'notes',title:'Повторить конспект',kind:'reading',sourceRefs:['mesh-notes'],original:'Учим записи в тетрадях.',instructions:['Повтори назначенные записи в своей тетради.']}]}}
   expect(assignmentUnitErrors(task)).toEqual([])

@@ -989,6 +989,28 @@ it.each([true,false])('shows the linked stage result and opens its existing quiz
 })
 
 // @see ../docs/modules/assignments/source-units.md
+it.each([true,false])('keeps the audio player in the exact Listen/read unit and retains the earlier quiz parent=%s',async parent=>{
+ const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'written',problems:undefined,practiceVariants:undefined,testToken:undefined,meshText:'Упр.7 стр.47, упр.1 стр.48.',assignmentUnits:{version:1,sourceText:'Упр.7 стр.47, упр.1 стр.48.',items:[
+  {id:'write',title:'С.47 · №7',kind:'written',sourceRefs:['book#47'],original:'Write your own quiz.',instructions:['Составь викторину.']},
+  {id:'listen-read',title:'С.48 · №1 · слушать и читать',kind:'reading',sourceRefs:['book#48','audio:track-48-1'],original:'Listen and read to check. Correct the false sentences.',instructions:['Включи запись и проверь утверждения.'],quizToken:'diagrams-test'}
+ ]}}
+ scene.page!.subjects=[{...scene.page!.subjects[0],id:'english',tasks:[task]}]
+ scene.quizSubject='Английский язык';scene.quizSubmitted=true
+ scene.page!.testPlacements=[{subjectId:'english',taskId,token:'diagrams-test'}]
+ scene.page!.materialLinks={[taskId]:[{title:'Запись к №1',sourceType:'audio',sourceRef:'audio:track-48-1',url:'https://disk.yandex.ru/d/synthetic-audio',sourceSha256:'a'.repeat(64)}]}
+ const view=await renderPage(parent)
+ try{
+  const writing=view.host.querySelector(`#day-unit-${taskId}-write`)!,reading=view.host.querySelector(`#day-unit-${taskId}-listen-read`)!
+  expect(writing.querySelector('.edu-audio')).toBeNull()
+  expect(reading.querySelector('.edu-audio')).not.toBeNull()
+  expect(reading.querySelector('[aria-label="Воспроизвести: Запись к №1"]')).not.toBeNull()
+  expect(view.host.querySelectorAll('#day-quiz-diagrams-test')).toHaveLength(1)
+  expect(reading.querySelector('input[type=file]')).toBeNull()
+  expect(scene.quizSubmitted).toBe(true)
+  expect((reading as HTMLDetailsElement).open).toBe(false)
+ }finally{await view.cleanup()}
+})
+
 it.each(['english','russian','literature'])('renders source-bound exercise units before explanations for %s in both roles',async subjectId=>{
  for(const parent of [true,false]){
   const task:DayTask={...scene.page!.subjects[0].tasks[0],kind:'written' as const,problems:undefined,practiceVariants:undefined,testToken:undefined,
