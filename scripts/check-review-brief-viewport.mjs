@@ -19,12 +19,13 @@ export async function loadReviewBriefFixture() {
     const { default: WorkReview } = await vite.ssrLoadModule('/src/components/WorkReview.tsx')
     const { default: ParentTaskGuide } = await vite.ssrLoadModule('/src/components/ParentTaskGuide.tsx')
     const { solutionGuideExample,solutionVisualExamples } = await vite.ssrLoadModule('/src/lib/solutionExamples.ts')
+    const {writtenSheetExample,writtenSheetUploads}=await vite.ssrLoadModule('/src/ui-kit/WrittenReviewSheetExample.tsx')
     const {default:SolutionBlocks}=await vite.ssrLoadModule('/src/components/SolutionBlocks.tsx')
     const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample,reviewBriefLegacy } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
     const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
     const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
-    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/ReviewActivity.css','src/components/WorkReview.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-    return { css,fonts,visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?review:studentReviewProjection(review),uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
+    const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/ReviewActivity.css','src/components/WorkReview.css','src/components/WrittenReviewSheet.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
+    return { css,fonts,renderSheet:(parent)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?writtenSheetExample:studentReviewProjection(writtenSheetExample),uploads:writtenSheetUploads,parent})),visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?review:studentReviewProjection(review),uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
   } finally { await vite.close() }
 }
 
@@ -80,7 +81,7 @@ async function main() {
       await page.evaluate(()=>document.fonts.ready)
       assert(!(await geometry()).overflow,`Legacy overflow: ${width}/${parent}`)
       assert(await page.locator('.edu-review-question').isVisible(),'Legacy question hidden')
-      assert(await page.locator('.edu-review-question').evaluate(el=>el.getBoundingClientRect().bottom)<320,'Legacy explanation pushes the current question below the compact first level')
+      assert(await page.locator('.edu-written-sheet').isVisible(),'Saved written fragments lost before the current dialogue')
       assert(await page.locator('.edu-review-focus').count()===0,'Legacy long paragraph remains expanded')
       assert(await page.locator('details[open]').count()===0,'Legacy disclosures start expanded')
       assert(await page.locator('.day-review-history').count()===1,'Legacy history lost')
@@ -134,8 +135,17 @@ async function main() {
       assert(await page.locator('.edu-solution-graph-canvas line').first().evaluate(el=>getComputedStyle(el).stroke!=='none'),'Graph connections missing')
       assert(await page.locator('.day-parent-guide').evaluate(el=>el.scrollWidth<=el.clientWidth),'Visual model overflow')
     }
+    for(const parent of [false,true])for(const width of [320,375,390,430]) {
+      await page.setViewportSize({width,height:900})
+      await page.setContent(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${compiled}${fixture.fonts}body{margin:0;padding:8px}</style><main class="day-page">${fixture.renderSheet(parent)}</main>`)
+      assert(await page.locator('.edu-written-paper').isVisible(),'Written sheet lost')
+      assert(await page.locator('.edu-written-sheet').evaluate(el=>el.scrollWidth<=el.clientWidth&&document.documentElement.scrollWidth<=document.documentElement.clientWidth),'Written sheet overflow')
+      assert(await page.locator('.edu-written-mark').evaluateAll(els=>els.every(e=>e.getBoundingClientRect().height>=44)),'Written sheet touch target under44px')
+      assert(await page.locator('.edu-written-mark.corrected').evaluate(el=>getComputedStyle(el.querySelector('svg')).color!==getComputedStyle(el).color),'Written sheet status colour lost')
+      assert(await page.locator('.edu-review-state').innerText()==='Зачтено','Written sheet changed the result')
+    }
     assert(!errors.length, errors.join('\n'))
-    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,methodGuide:true,errors }))
+    console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,methodGuide:true,writtenSheet:true,errors }))
   } finally { await browser.close() }
 }
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) await main()

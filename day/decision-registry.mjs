@@ -58,7 +58,7 @@ export const decisionEdges=[
  edge('context:clarification','learner.context','review.support','Понять ответ и сверить источник','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
  edge('clarification:family','review.support','family.requirement','Неразрешённое противоречие: решение родителя','docs/shared/design/student-review-step.md#assignment-clarification',adaptiveRef),
  edge('review:support','review','review.support','Ответ, затруднение или уточнение','docs/shared/design/student-review-step.md#adaptive-support',adaptiveRef),
- edge('support:component','review.support','view.component','Тот же блок в выбранном режиме','docs/shared/design/student-review-step.md#adaptive-support',adaptiveRef),
+ edge('support:component','review.support','view.component','Тот же блок в выбранном режиме; письменная работа — лист с адресными пометками','docs/shared/design/student-review-step.md#adaptive-support',adaptiveRef),
  edge('role:parent','view.role','view.parent-review','Родитель: ответ, отличие и полный ход','docs/modules/reviews/parent-review.md#graph',parentRef),
  edge('role:student','view.role','view.student-support','Ученик: безопасная опора и один шаг','docs/modules/reviews/parent-review.md#graph',parentRef),
  edge('parent:component','view.parent-review','view.component','Полная родительская композиция','docs/modules/reviews/parent-review.md#graph',parentRef),

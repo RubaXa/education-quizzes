@@ -18,7 +18,10 @@ export function studentReviewProjection(review) {
   const dispute = basis?.disputedRequirements?.map((item) => ({ id: item.id, action: item.action }))
   const history = review.history?.map((entry) => ({
     status: entry.status, checkedAt: entry.checkedAt,
-    ...(entry.studentFeedback?.title ? { studentFeedback: { title: entry.studentFeedback.title } } : {}),
+    ...(entry.studentFeedback?.title ? { studentFeedback: { title: entry.studentFeedback.title,
+      ...(projectReviewSupplement(entry.studentFeedback.presentation)?.sheet ? {presentation:{version:1,sheet:projectReviewSupplement(entry.studentFeedback.presentation).sheet}} : {}),
+    } } : {}),
+    ...(projectReviewSupplement(entry.studentFeedback?.presentation)?.sheet ? {uploadIds:entry.uploadIds} : {}),
   }))
   return prune({
     ...context,

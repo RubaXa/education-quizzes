@@ -2688,22 +2688,21 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "b7f73bbf755dbf0fd140f9963ee46c281c1e177bb813c05e23fe972623501370",
-      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
+      "sha256": "5be9e8de2523be79fa97bb8a3069f05759f9ef7f8f798da5253dc81b52fdf9f5",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/materials/material-clarification.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/lib/quiz.test.ts",
-        "assessment/manual-review-contract.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs",
+        "src/DayPage.assignmentQuiz.integration.test.tsx"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "src/UiKit.css": {
@@ -3874,20 +3873,20 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "90cd6c352f072a6c08adad2b3c02823c5e125ef3cd087b5abb10df44eb1412a2",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "018fd45cc7df0b80bde7af4f75893f87088e96fcca9040324cf2dd9224af827a",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -5239,20 +5238,20 @@
       }
     },
     "storage/review-projection.mjs": {
-      "sha256": "27ab63752b09a552759b3fa7bbe3bcc1c842aafc7818943f8f67dcac981117b5",
-      "record": "docs/decisions/assignment-source-audit-corrections-2026-11-16.md",
+      "sha256": "b6d7825c203ef5341927d2f49e875135dc96381935a1b7e214128990bd001bc6",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/modules/assessments/quizzes.md",
-        "docs/modules/reviews/review-criteria-provenance.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "storage/context-evidence.test.mjs",
-        "scripts/submissions.context-evidence.test.mjs",
-        "src/components/WorkReview.contextEvidence.test.tsx"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямой запрос родителя 16.11.2026: сверить текущие задания с учителем и оригиналами, убрать придуманное, сохранить присланное без повторных запросов."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "storage/review-publication-event.mjs": {
@@ -6748,19 +6747,20 @@
       }
     },
     "storage/tutoring-decision.mjs": {
-      "sha256": "e8f7a879312b568b109ffc846063f27038fb5d14752a2e3c76f8cc7ea452753b",
-      "record": "docs/decisions/review-readability-repair-2026-10-31.md",
+      "sha256": "714c4cd1af3842fb4567428152085a6a27ecb8154a21480ef24ea58416e3a899",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/components/WorkReview.compact.test.tsx",
-        "src/components/ReviewBrief.test.tsx",
-        "storage/tutoring-decision.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель 31.10 прислал мобильный скриншот и прямо отверг нечитаемый результат как не соответствующий согласованному макету; исправляется ранее разрешённый общий формат."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "scripts/privacy-exceptions.mjs": {
@@ -7041,47 +7041,37 @@
       }
     },
     "packages/education-presentation/review-content.mjs": {
-      "sha256": "dfef3dd566c48ae6d6b40861f2fc8ffedbd66c8069fb13932e13e41f07612fed",
-      "record": "docs/decisions/student-review-step-2026-11-01.md",
+      "sha256": "ea5c4866b42ef5e1640c603ee3a39e7a6b86b2d12ef63e729362fbd8721c6da3",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/shared/design/compact-review.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "packages/education-presentation/review-activity.test.mjs",
-        "storage/student-review-edit.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "01.11.2026 родитель прямо потребовал исправить ученическую часть всех разборов: понятная модель текущего шага, интерактив без ответа и служебных фраз; общие инструкции, UI Kit и проверка ученического вида."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "79c6e8a0d40ada490be2cdd2582a2e5c89e0144c486198e71e23ae3beb8842b6",
-      "record": "docs/decisions/adaptive-review-modes-2026-11-17.md",
+      "sha256": "0ff386ed96553c07cfb17b940c4965d01144e42d2aff3273b12db51e8a2d22db",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/shared/design/student-review-step.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/components/ReviewActivity.test.tsx",
-        "src/components/ReviewConversation.test.tsx",
-        "src/components/PhotoHelpPanel.integration.test.tsx",
-        "src/components/SubjectRequirementSwitch.test.tsx",
-        "src/components/QuizResultCard.test.tsx",
-        "src/lib/parentCompletion.test.ts",
-        "src/lib/parentCompletion.producer.test.ts",
-        "sync/help-response.test.mjs",
-        "sync/deadline-control.test.mjs",
-        "sync/deadline-evidence.test.mjs",
-        "scripts/firestore-rules-help-emulator.test.mjs",
-        "scripts/check-schedule-viewport.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs",
-        "day/decision-registry.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11.2026 потребовал три режима одного блока, понимание детского ответа, явное решение семьи и согласованность с существующей синхронизацией без новых расписаний."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7139,21 +7129,20 @@
       }
     },
     "src/components/ReviewBriefShowcase.tsx": {
-      "sha256": "13c248c2fcb0045d7c1f8b2f6a62a1d364dad920d15a155f63d2292dd4bc3cc7",
-      "record": "docs/decisions/parent-review-pilot-2026-11-17.md",
+      "sha256": "a76998e776e8767721346f4a5ccbda8a461a978d42fba94505e1667c53eb58fb",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/modules/reviews/parent-review.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/components/QuizParentReview.test.tsx",
-        "src/components/QuizParentReview.access.test.tsx",
-        "storage/quiz-parent-review.test.mjs",
-        "scripts/firestore-rules-quiz-dialogue-emulator.test.mjs",
-        "day/decision-registry.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11 потребовал полный ответ и понятный разбор для своей роли, подсказки ребёнку, один доведённый пример и фиксацию каждого решения в спецификации, графе и UI Kit."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "src/components/ReviewTypography.css": {
@@ -8328,19 +8317,20 @@
       }
     },
     "day/decision-registry.mjs": {
-      "sha256": "78c0f191f738a4625fc9c62101a1d4b7fff46722df554840c73c78ce6d878167",
-      "record": "docs/decisions/source-bound-assignment-units-2026-11-19.md",
+      "sha256": "708201f83120fc265911b06760547d5e90f8b0c8920ee232251a32e3bf8f4b28",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/modules/assignments/source-units.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "storage/task-presentation-edit.test.mjs",
-        "day/assignment-units.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026: общая структура всех предметов, отдельные упражнения с оригиналами и понятной расшифровкой; прежние ответы, фото и роли сохраняются."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "src/components/DecisionTaskDisclosure.tsx": {
@@ -8711,33 +8701,37 @@
       }
     },
     "scripts/review-presentation.mjs": {
-      "sha256": "0d977f693eb190668011af100d6223ebb11ce432486af84adc8bf8ff6c0f8b3f",
-      "record": "docs/decisions/review-presentation-migration-2026-11-17.md",
+      "sha256": "0e3567c35c4841b1b539fe7f8062890713048dd6c5567c97f40616094d9e5c1c",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/services/operator-cli/README.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "storage/review-presentation-edit.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11.2026 поручил привести старые разборы текущих заданий к общему блоку по реальным ответам, проверить обе роли и не запрашивать уже присланное."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "storage/review-presentation-edit.mjs": {
-      "sha256": "d65b778276502b5aa49932a8254741cad73d371db0c979f6ad1cbf21cb7bf679",
-      "record": "docs/decisions/review-presentation-migration-2026-11-17.md",
+      "sha256": "39ed68d5b549207f4cb5825175047f4da9dee48b720f625aabeb9f3c42848ca2",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
       "specs": [
-        "docs/shared/design/student-review-step.md",
-        "docs/services/operator-cli/README.md"
+        "docs/modules/reviews/marked-work-sheet.md"
       ],
       "tests": [
-        "storage/review-presentation-edit.test.mjs"
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "direct-request",
-        "evidence": "Родитель17.11.2026 поручил привести старые разборы текущих заданий к общему блоку по реальным ответам, проверить обе роли и не запрашивать уже присланное."
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     },
     "packages/education-presentation/quiz-review-reply.mjs": {
@@ -9178,6 +9172,74 @@
       "authorization": {
         "status": "direct-request",
         "evidence": "Прямое поручение семьи22.11: разобрать50поручений и5блокировок по доказательствам, без повторного запроса присланного."
+      }
+    },
+    "packages/education-presentation/marked-work-sheet.mjs": {
+      "sha256": "da91fa05f5ff6f9e17d727b7a2e842f878e7808160c8872b0fe4f905cc96e382",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "specs": [
+        "docs/modules/reviews/marked-work-sheet.md"
+      ],
+      "tests": [
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+      }
+    },
+    "src/components/WrittenReviewSheet.tsx": {
+      "sha256": "1785d2244e18b00dda387fd421f9067906f83cd6034eb33e9507b7cd5f1ecbbf",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "specs": [
+        "docs/modules/reviews/marked-work-sheet.md"
+      ],
+      "tests": [
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+      }
+    },
+    "src/components/WrittenReviewSheet.css": {
+      "sha256": "8c33c910175120613d83a2be461e4f522513933ed957803d6b7a5888c4359b23",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "specs": [
+        "docs/modules/reviews/marked-work-sheet.md"
+      ],
+      "tests": [
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+      }
+    },
+    "src/ui-kit/WrittenReviewSheetExample.tsx": {
+      "sha256": "8d0b9d227489620d445270b6ae586c953c7dc5afa77b5e27869092de9042c57a",
+      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "specs": [
+        "docs/modules/reviews/marked-work-sheet.md"
+      ],
+      "tests": [
+        "packages/education-presentation/marked-work-sheet.test.mjs",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "storage/review-presentation-edit.test.mjs",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "approved-mockup",
+        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
       }
     }
   }

@@ -1904,6 +1904,29 @@
       "path": "docs/decisions/local-connect-diagnostics-2026-11-01.md"
     },
     {
+      "id": "decision.marked-work-sheet-2026-11-26",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-26",
+      "updated": "2026-11-26",
+      "parent": "module.reviews",
+      "uses": [
+        "module.reviews.marked-work-sheet"
+      ],
+      "consumers": [
+        "Ребёнок и родитель"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/marked-work-sheet-2026-11-26.md"
+    },
+    {
       "id": "decision.mesh-auth-recovery-2026-11-01",
       "status": "accepted",
       "implementation": "implemented",
@@ -7718,6 +7741,27 @@
       "consumer": "Приложение; dispatcher; Vitest"
     },
     {
+      "id": "file:packages/education-presentation/marked-work-sheet.d.mts",
+      "path": "packages/education-presentation/marked-work-sheet.d.mts",
+      "kind": "artifact",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/marked-work-sheet.mjs",
+      "path": "packages/education-presentation/marked-work-sheet.mjs",
+      "kind": "artifact",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
+      "id": "file:packages/education-presentation/marked-work-sheet.test.mjs",
+      "path": "packages/education-presentation/marked-work-sheet.test.mjs",
+      "kind": "verification",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
       "id": "file:packages/education-presentation/notification.d.mts",
       "path": "packages/education-presentation/notification.d.mts",
       "kind": "artifact",
@@ -11015,6 +11059,27 @@
       "consumer": "Vitest"
     },
     {
+      "id": "file:src/components/WrittenReviewSheet.css",
+      "path": "src/components/WrittenReviewSheet.css",
+      "kind": "artifact",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
+      "id": "file:src/components/WrittenReviewSheet.test.tsx",
+      "path": "src/components/WrittenReviewSheet.test.tsx",
+      "kind": "verification",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
+      "id": "file:src/components/WrittenReviewSheet.tsx",
+      "path": "src/components/WrittenReviewSheet.tsx",
+      "kind": "artifact",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
+    },
+    {
       "id": "file:src/DayDashboard.css",
       "path": "src/DayDashboard.css",
       "kind": "artifact",
@@ -12224,6 +12289,13 @@
       "kind": "artifact",
       "purpose": "Общая компактная оболочка назначения и рабочий пример",
       "consumer": "Ученик; родитель; UI Kit"
+    },
+    {
+      "id": "file:src/ui-kit/WrittenReviewSheetExample.tsx",
+      "path": "src/ui-kit/WrittenReviewSheetExample.tsx",
+      "kind": "artifact",
+      "purpose": "Схема, сохранение, общий компонент или проверка письменного листа",
+      "consumer": "Ученик; родитель; оператор; UI Kit"
     },
     {
       "id": "file:src/UiKit.css",
@@ -14387,6 +14459,33 @@
         "current-task-audit"
       ],
       "path": "docs/modules/reviews/criteria-and-knowledge.md"
+    },
+    {
+      "id": "module.reviews.marked-work-sheet",
+      "status": "accepted",
+      "implementation": "partial",
+      "created": "2026-11-26",
+      "updated": "2026-11-26",
+      "parent": "module.reviews",
+      "uses": [
+        "shared.design.compact-review"
+      ],
+      "consumers": [
+        "Ученик и родитель",
+        "Оператор письменной проверки"
+      ],
+      "code": [
+        "packages/education-presentation/marked-work-sheet.mjs",
+        "src/components/WrittenReviewSheet.tsx",
+        "src/components/WrittenReviewSheet.css"
+      ],
+      "sections": [
+        "назначение",
+        "данные-и-приватность",
+        "поведение-и-iphone",
+        "публикация-и-проверки"
+      ],
+      "path": "docs/modules/reviews/marked-work-sheet.md"
     },
     {
       "id": "module.reviews.math-solution-route",
@@ -18208,6 +18307,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.marked-work-sheet-2026-11-26",
+      "to": "module.reviews.marked-work-sheet",
+      "type": "uses"
+    },
+    {
       "from": "decision.mesh-auth-recovery-2026-11-01",
       "to": "module.school-diary",
       "type": "uses"
@@ -20665,6 +20769,16 @@
     {
       "from": "file:packages/education-events/envelope.mjs",
       "to": "module.synchronization.event-queue",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/marked-work-sheet.d.mts",
+      "to": "module.reviews.marked-work-sheet",
+      "type": "implements"
+    },
+    {
+      "from": "file:packages/education-presentation/marked-work-sheet.mjs",
+      "to": "module.reviews.marked-work-sheet",
       "type": "implements"
     },
     {
@@ -24323,6 +24437,16 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/WrittenReviewSheet.css",
+      "to": "module.reviews.marked-work-sheet",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WrittenReviewSheet.tsx",
+      "to": "module.reviews.marked-work-sheet",
+      "type": "implements"
+    },
+    {
       "from": "file:src/DayDashboard.css",
       "to": "decision.calendar-fixed-height-2026-10-19",
       "type": "implements"
@@ -25740,6 +25864,11 @@
     {
       "from": "file:src/ui-kit/TaskDisclosureExample.tsx",
       "to": "module.school-diary.day-page",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/ui-kit/WrittenReviewSheetExample.tsx",
+      "to": "module.reviews.marked-work-sheet",
       "type": "implements"
     },
     {
@@ -28183,6 +28312,21 @@
       "type": "uses"
     },
     {
+      "from": "module.reviews.marked-work-sheet",
+      "to": "file:packages/education-presentation/marked-work-sheet.test.mjs",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.marked-work-sheet",
+      "to": "file:src/components/WrittenReviewSheet.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.reviews.marked-work-sheet",
+      "to": "shared.design.compact-review",
+      "type": "uses"
+    },
+    {
       "from": "module.reviews.math-solution-route",
       "to": "decision.reviews.math-parent-stage-review",
       "type": "contains"
@@ -28514,6 +28658,11 @@
     },
     {
       "from": "module.reviews",
+      "to": "decision.marked-work-sheet-2026-11-26",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews",
       "to": "module.assessments",
       "type": "uses"
     },
@@ -28540,6 +28689,11 @@
     {
       "from": "module.reviews",
       "to": "module.reviews.criteria-and-knowledge",
+      "type": "contains"
+    },
+    {
+      "from": "module.reviews",
+      "to": "module.reviews.marked-work-sheet",
       "type": "contains"
     },
     {

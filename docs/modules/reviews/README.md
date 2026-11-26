@@ -35,6 +35,8 @@ code:
 
 ## Спецификации
 
+- [Лист письменной работы с пометками](marked-work-sheet.md)
+
 - [adaptive-problem-card](adaptive-problem-card.md)
 - [card-flow-certification](card-flow-certification.md)
 - [card-generation-policy](card-generation-policy.md)

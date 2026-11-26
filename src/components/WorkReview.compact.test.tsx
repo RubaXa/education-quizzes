@@ -17,10 +17,12 @@ describe('shared compact review', () => {
       focus: 'В двух пунктах перепутаны объяснения.', question: 'Что следует из роли каждого?',
       steps: [{ stageId: 'roles', uploadId: 'photo', location: 'пункт 3', observation: 'Первая запись ученика.', explanation: 'Проверь истинность фразы по роли жителя.', status: 'partial' }] },
     history: [{ status: 'partial', studentFeedback: { title: 'Прежняя попытка', confirmed: 'Начало верно.', focus: 'Прежнее замечание.', question: 'Прежний вопрос.' } }] }
-  it.each([false, true])('shows the current question immediately and keeps explanations separate, parent=%s', parent => {
+  it.each([false, true])('keeps the written observation before its dialogue and explanations separate, parent=%s', parent => {
     const html = renderToStaticMarkup(<WorkReview review={review} uploads={[]} parent={parent} />)
     expect(html).toContain('edu-review-brief')
-    expect(html.indexOf('Что следует из роли каждого?')).toBeLessThan(html.indexOf('Первая запись ученика.'))
+    expect(html.indexOf('Первая запись ученика.')).toBeLessThan(html.indexOf('Что следует из роли каждого?'))
+    expect(html).toContain('Распознанные фрагменты')
+    expect(html.match(/class="edu-review-copy edu-review-question"/g)).toHaveLength(1)
     expect(html).toContain('edu-review-detail')
     expect(html).toContain('Предыдущие попытки')
     expect(html).not.toContain('class="day-work-review-feedback"')

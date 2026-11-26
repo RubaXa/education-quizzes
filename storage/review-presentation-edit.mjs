@@ -4,6 +4,7 @@ import {guidanceFingerprint as hash} from './guidance-correction.mjs'
 import {studentReviewProjection} from './review-projection.mjs'
 import {tutoringPlanErrors} from './tutoring-decision.mjs'
 import {reviewActivityValid} from '../packages/education-presentation/review-activity.mjs'
+import {markedWorkSheetValid} from '../packages/education-presentation/marked-work-sheet.mjs'
 const same=(a,b)=>hash(a)===hash(b)
 const text=(v,min=12,max=1000)=>typeof v==='string'&&v.trim().length>=min&&v.length<=max
 const keys=(v,allowed)=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k))
@@ -54,4 +55,30 @@ export async function editReviewPresentation(db,input,{apply=false,now=null}={})
  const after=await read(db,input)
  if(!same(after.values.privateReview,planned.privateReview)||!same(after.values.publicReview,planned.publicReview)||!['owner','page','guide','help','uploads','guidance'].every(k=>same(after.values[k],state.values[k])))throw Error('Readback: коррекция или неизменные данные не совпали; нужен свежий экспорт.')
  return {valid:true,applied:true,verified:true,taskId:input.taskId,attemptCreated:false,learningChanged:false,gradeChanged:false}
+}
+
+/** Presentation-only sheet correction; keeps the live dialogue clock and every grade intact.
+ * @see ../docs/modules/reviews/marked-work-sheet.md#публикация-и-проверки */
+export async function editReviewSheet(db,input,{apply=false,now=null}={}){
+ address(input)
+ function prepareSheet(s){
+  if(!keys(input,['schemaVersion','studentToken','taskId','familyId','childId','expected','sourceIdentity','reason','semanticSafetyReviewed','sheet'])||input.schemaVersion!==1||!text(input.reason,20)||input.semanticSafetyReviewed!==true||!markedWorkSheetValid(input.sheet))throw Error('Нужен проверенный публичный лист с причиной и semanticSafetyReviewed.')
+  const v=s.values,old=v.privateReview
+  if(v.owner.familyId!==input.familyId||v.owner.childId!==input.childId||!same(s.expected,input.expected)||!same(input.sourceIdentity,s.sourceIdentity))throw Error('CAS: владелец, источник или адресные данные устарели; нужен свежий экспорт.')
+  if(!old.studentFeedback||!['verified','partial','needs-fix','cannot-assess'].includes(old.status)||old.purpose||!same(v.publicReview,studentReviewProjection(old)))throw Error('Нужен существующий согласованный разбор письменной работы.')
+  for(const b of input.sheet.blocks){
+   const upload=v.uploads.find(u=>u.id===b.uploadId)
+   if(!old.uploadIds?.includes(b.uploadId)||!upload||upload.data.taskId!==input.taskId&&!upload.data.coveredTaskIds?.includes(input.taskId))throw Error('Лист ссылается на чужое или непроверенное фото.')
+  }
+  if(same(old.studentFeedback.presentation?.sheet??null,input.sheet))return {unchanged:true}
+  const privateReview={...old,studentFeedback:{...old.studentFeedback,presentation:{...old.studentFeedback.presentation,version:1,sheet:input.sheet}},sheetCorrections:[...(old.sheetCorrections??[]),{at:now,reason:input.reason,previousSheet:old.studentFeedback.presentation?.sheet??null,semanticSafetyReviewed:true}]}
+  return {unchanged:false,privateReview,publicReview:studentReviewProjection(privateReview)}
+ }
+ const state=await read(db,input),planned=prepareSheet(state)
+ if(!apply||planned.unchanged)return {valid:true,applied:false,unchanged:planned.unchanged,taskId:input.taskId}
+ if(now===null)throw Error('Для записи нужна дата коррекции.')
+ await db.runTransaction(async tx=>{const fresh=await read(db,input,tx),next=prepareSheet(fresh);tx.set(fresh.refs[3],next.privateReview);tx.set(fresh.refs[4],next.publicReview)})
+ const after=await read(db,input)
+ if(!same(after.values.privateReview,planned.privateReview)||!same(after.values.publicReview,planned.publicReview)||!['owner','page','guide','help','uploads','guidance'].every(k=>same(after.values[k],state.values[k])))throw Error('Readback: лист или неизменные данные не совпали.')
+ return {valid:true,applied:true,verified:true,taskId:input.taskId,attemptCreated:false,learningChanged:false,gradeChanged:false,dialogueChanged:false}
 }

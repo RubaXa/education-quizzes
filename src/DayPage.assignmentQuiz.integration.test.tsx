@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { DayPageData, DayTask, DayUpload, DayWorkReview } from './lib/dayStore'
 import type { ParentCompletionEvent } from './lib/parentCompletion'
 import DayPage from './DayPage'
+import {writtenSheetExample,writtenSheetUploads} from './ui-kit/WrittenReviewSheetExample'
 
 (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -131,6 +132,20 @@ async function renderPage(parent: boolean) {
   await act(async () => { root.render(<DayPage token="student-token" parent={parent} headerReturnTarget={null} />) })
   return { host, root, cleanup: async () => { await act(async () => root.unmount()); host.remove() } }
 }
+
+it.each([true,false])('keeps the marked sheet in a written task when the parent route owns its verdict, parent=%s',async parent=>{
+ const source=page(),id='demo-sheet'
+ scene.page={...source,testPlacements:[],subjects:[{...source.subjects[0],tasks:[{id,kind:'written',status:'verified',title:'Письменная работа',detail:'Упражнение',source:'МЭШ'}]}]}
+ scene.reviews=[structuredClone(writtenSheetExample)];scene.uploads=writtenSheetUploads
+ scene.guides={[id]:{guide:{kind:'worked-solution',presentation:'learning-route',stages:[]}}}
+ const view=await renderPage(parent)
+ try{
+  expect(view.host.querySelectorAll('.edu-written-sheet')).toHaveLength(1)
+  const mark=view.host.querySelector<HTMLButtonElement>('.edu-written-mark.corrected')!
+  await act(async()=>mark.click());expect(view.host.querySelector('.edu-written-comment')?.textContent).toContain('Исправление принято')
+  expect(view.host.textContent).toContain('Оригиналы · 1')
+ }finally{await view.cleanup()}
+})
 
 it.each([true, false])('keeps an olympiad placement outside required work in role parent=%s', async (parent) => {
   scene.page = { ...page(), subjects: [{ id: 'math', name: 'Математика', icon: '∑', materials: '', mesh: '', summary: '', tasks: [] }],

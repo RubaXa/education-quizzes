@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { studentReviewProjection } from './review-projection.mjs'
 
 describe('публичная проекция разбора', () => {
+  it('keeps the authorized sheet in attempt history without forwarding historical keys or hints',()=>{
+    const sheet={version:1,title:'Моя запись',blocks:[{id:'a',uploadId:'photo',location:'Строка 1',parts:[{text:'Моя запись'}]}]}
+    const projected=studentReviewProjection({history:[{status:'partial',uploadIds:['photo'],studentFeedback:{title:'Первая проверка',focus:'PRIVATE',presentation:{version:1,sheet,details:[{label:'Не передавать старую подсказку',text:'PRIVATE'}]}},answerKey:'PRIVATE'}]})
+    expect(projected.history[0].studentFeedback.presentation).toEqual({version:1,sheet});expect(JSON.stringify(projected)).not.toContain('PRIVATE')
+  })
   it('preserves the source analysis without inventing a homework verdict or exposing a key', () => {
     const sourceAnalysis={requestId:'notes-1',topic:'Баллада',observed:'Виден заголовок',quality:'Записи читаются',limitation:'Самостоятельность неизвестна',nextStep:'Повтори записи',evidence:[]}
     const result=studentReviewProjection({taskId:'notes',purpose:'source-material',sourceAnalysis,answerKey:'private',assessmentBasis:{outcome:'met'}})

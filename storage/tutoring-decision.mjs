@@ -41,6 +41,7 @@ export function tutoringPlanErrors(review) {
   if(overviewErrors.length)return overviewErrors
   const presentationErrors = reviewSupplementErrors(f?.presentation)
   if (presentationErrors.length) return presentationErrors
+  if(f?.presentation?.sheet?.blocks.some(b=>!review.uploadIds?.includes(b.uploadId)))return ['Каждый блок листа должен ссылаться на проверенное фото этой работы.']
   if (f?.bridge !== undefined && (typeof f.bridge !== 'string' || !f.bridge.trim() || f.bridge.length > 700)) return ['Объясняющий переход должен быть коротким проверенным текстом.']
   if (!p || p.version !== 1 || p.taskId !== review.taskId || !workTypes.has(p.workType)) return ['Нужен адресный tutoringPlan с видом работы и taskId.']
   const acceptedStages = (review.items ?? []).filter(item => item.status === 'correct' && item.stageId).map(item => item.stageId).sort()

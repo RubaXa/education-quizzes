@@ -3,6 +3,7 @@
 /** Typed, bounded allowlist for learner-visible review graphics and disclosures.
  * @see ../../docs/shared/design/compact-review.md#data */
 import {reviewActivityValid} from './review-activity.mjs'
+import {markedWorkSheetValid} from './marked-work-sheet.mjs'
 const text = (value, max = 900) => typeof value === 'string' && value.trim().length > 0 && value.length <= max
 const keys = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every(key => allowed.includes(key))
 /** An authoring budget, never a substring or a smaller font in the renderer. */
@@ -31,7 +32,8 @@ export function reviewVisualValid(visual) {
 }
 export function reviewSupplementErrors(value) {
   if (value === undefined) return []
-  if (!keys(value,['version','visual','details','activity']) || value.version !== 1
+  if (!keys(value,['version','visual','details','activity','sheet']) || value.version !== 1
+    || value.sheet !== undefined && !markedWorkSheetValid(value.sheet)
     || value.activity !== undefined && !reviewActivityValid(value.activity)
     || value.visual !== undefined && !reviewVisualValid(value.visual)
     || value.details !== undefined && (!Array.isArray(value.details) || value.details.length > 20 || value.details.some(detail =>

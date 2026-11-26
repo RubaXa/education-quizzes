@@ -1,6 +1,6 @@
 /** @see ../docs/shared/design/student-review-step.md#addressed-presentation-migration */
 import {describe,it,expect} from 'vitest'
-import {exportReviewPresentation,editReviewPresentation} from './review-presentation-edit.mjs'
+import {exportReviewPresentation,editReviewPresentation,editReviewSheet} from './review-presentation-edit.mjs'
 import {studentReviewProjection} from './review-projection.mjs'
 const copy=v=>structuredClone(v)
 function fixture(){
@@ -17,6 +17,18 @@ function fixture(){
 }
 async function packet(f){const e=await exportReviewPresentation(f.db,{studentToken:f.token,taskId:f.taskId});return {schemaVersion:1,studentToken:f.token,taskId:f.taskId,familyId:e.familyId,childId:e.childId,expected:e.expected,sourceIdentity:e.sourceIdentity,reason:'Родитель запросил общий блок по настоящей работе.',semanticSafetyReviewed:true,...f.patch}}
 describe('existing review presentation migration',()=>{
+ it('adds an anchored sheet to accepted work while keeping the dialogue, results and history byte-for-byte',async()=>{
+  const f=fixture(),old=f.rows.get('dayReviewPrivate/student/items/mesh-1');old.status='verified';old.correctedAt='live-dialogue';f.rows.set('dayProgress/student/items/mesh-1',studentReviewProjection(old))
+  const original=copy(old),p=await packet(f);delete p.question;delete p.activity;delete p.responseCriterion;delete p.branches
+  p.sheet={version:1,title:'Запись',blocks:[{id:'line',uploadId:'photo',location:'Строка 1',parts:[{text:'Запись ученика',mark:{id:'a',status:'correct',comment:'Этот шаг подтверждён.'}}]}]}
+  expect(await editReviewSheet(f.db,p)).toMatchObject({valid:true,applied:false})
+  expect(await editReviewSheet(f.db,p,{apply:true,now:'sheet-time'})).toMatchObject({verified:true,attemptCreated:false,dialogueChanged:false})
+  const saved=copy(f.rows.get('dayReviewPrivate/student/items/mesh-1'));delete saved.sheetCorrections;delete saved.studentFeedback.presentation.sheet
+  expect(saved).toEqual(original);expect(f.rows.get('dayProgress/student/items/mesh-1')).toEqual(studentReviewProjection(f.rows.get('dayReviewPrivate/student/items/mesh-1')))
+  const fresh=await exportReviewPresentation(f.db,{studentToken:f.token,taskId:f.taskId});p.expected=fresh.expected
+  expect(await editReviewSheet(f.db,p,{apply:true,now:'again'})).toMatchObject({unchanged:true,applied:false})
+  p.sheet.blocks[0].uploadId='foreign';await expect(editReviewSheet(f.db,p,{apply:true,now:'now'})).rejects.toThrow(/фото/)
+ })
  it('preserves an older assessment revision while binding the new support to the freshly reviewed source',async()=>{const f=fixture();f.rows.get('dayPages/student').planRevision=3;const p=await packet(f);expect(await editReviewPresentation(f.db,p,{apply:true,now:'now'})).toMatchObject({verified:true});expect(f.rows.get('dayReviewPrivate/student/items/mesh-1').planRevision).toBe(2);const g=fixture(),q=await packet(g);q.sourceIdentity.teacherText='Подменённое условие.';await expect(editReviewPresentation(g.db,q,{apply:true,now:'now'})).rejects.toThrow(/источник/);expect(g.writes).toBe(0)})
  it('previews and changes only support, preserving grades, criteria, attempts, photos and knowledge',async()=>{const f=fixture(),p=await packet(f),before=copy([...f.rows]);expect(await editReviewPresentation(f.db,p)).toMatchObject({applied:false,valid:true});expect(f.writes).toBe(0);expect(await editReviewPresentation(f.db,p,{apply:true,now:'correction-time'})).toMatchObject({verified:true,attemptCreated:false,learningChanged:false});expect(f.writes).toBe(2);const saved=f.rows.get('dayReviewPrivate/student/items/mesh-1'),old=new Map(before).get('dayReviewPrivate/student/items/mesh-1');for(const key of ['status','checkedAt','criteriaFingerprint','criteriaChecks','learningObservationId','items','history','uploadIds'])expect(saved[key]).toEqual(old[key]);expect(saved.studentFeedback.confirmed).toBe(old.studentFeedback.confirmed);expect(f.rows.get('dayProgress/student/items/mesh-1')).toEqual(studentReviewProjection(saved));for(const [path,value]of before)if(!path.startsWith('dayProgress/')&&!path.startsWith('dayReviewPrivate/'))expect(f.rows.get(path)).toEqual(value)})
  it.each(['status','items','criteriaChecks','uploadIds','confirmed'])('rejects grading or accepted-content field %s',async key=>{const f=fixture(),p=await packet(f);p[key]='forbidden';await expect(editReviewPresentation(f.db,p,{apply:true})).rejects.toThrow();expect(f.writes).toBe(0)})

@@ -13,6 +13,7 @@ import { ArtifactStatusGlyph } from './ArtifactAvatar'
 import StatusIcon from './StatusIcon'
 import RequirementSwitch from './RequirementSwitch'
 import ReviewConversation from './ReviewConversation'
+import WrittenReviewSheet from './WrittenReviewSheet'
 import type {ReviewConversationBinding} from './ReviewConversation'
 import { workReviewBrief } from '@/lib/workReviewBrief'
 import './WorkReview.css'
@@ -92,7 +93,7 @@ export default function WorkReview({ review, uploads, accepted = false, canDecid
 
     {review && receipt && !review.status && <ReviewConversation review={review} parent={parent} data={{id:receipt.id,label:'Результат сохранён',status:'neutral',stateLabel:'Результат платформы',confirmed:`${receipt.title}: ${receipt.points}/${receipt.maxPoints}`,focus:receipt.summary,meta:`${receiptDate} · ${receipt.duration} мин`}} />}
 
-    {review?.status && <ReviewConversation key={`${review.id}:${JSON.stringify(review.checkedAt)}:${JSON.stringify(review.correctedAt)}`} review={review} binding={conversation} parent={parent} data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
+    {review?.status && <ReviewConversation key={`${review.id}:${JSON.stringify(review.checkedAt)}:${JSON.stringify(review.correctedAt)}`} review={review} binding={conversation} parent={parent} context={<WrittenReviewSheet key={`${review.id}:${JSON.stringify(review.studentFeedback?.presentation?.sheet)}`} review={review} uploads={uploads}/>} data={{ ...workReviewBrief(review, {complete:accepted||familyDone,
       label:pending.length?'Предыдущая проверка':undefined,stateLabel:requiredActions.length?'Доработать по решению родителя':familyDone?(parent?`Готово по семейному плану · ${familyStages?.confirmed} из ${familyStages?.required}`:'Готово'):accepted?(parent?'Засчитано родителем':'Засчитано'):undefined}),
       meta:parent&&review.mathReasoning?`${answer==='correct'?'Ответ верен':answer==='incorrect'?'Ответ неверен':'Ответ не установлен'} · ${argumentLabel}`:undefined }}>
         {receipt && <p>{formatReviewProse(`${receipt.title}: ${receipt.points}/${receipt.maxPoints} · ${receiptDate} · ${receipt.duration} мин. ${receipt.summary}`)}</p>}

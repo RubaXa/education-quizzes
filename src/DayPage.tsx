@@ -48,6 +48,7 @@ import { useDayQuizOutcomes } from '@/lib/useDayQuizOutcomes'
 import AudioPlayer from '@/components/AudioPlayer'
 import MaterialReader, { canReadInside } from '@/components/MaterialReader'
 import WorkReview from '@/components/WorkReview'
+import WrittenReviewSheet from '@/components/WrittenReviewSheet'
 import ProblemGroup from '@/components/ProblemGroup'
 import { ProblemCard } from '@/components/ProblemCard'
 import OlympiadSourceQueue from '@/components/OlympiadSourceQueue'
@@ -596,6 +597,9 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
               const materialView = materialRequestView(task, taskUploads, review)
               const accepted = parentAccepted(review, parentDecisions.events)
               const familyStageComplete = stageCompletion(review, parentDecisions.events)?.complete ?? false
+              // A parent learning route owns its verdict, but still shows the same marked work.
+              // @see ../docs/modules/reviews/marked-work-sheet.md
+              const separateReview = Boolean(review?.contextEvidence?.length) || !(stageResults.length && familyStageComplete) && review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length))
               const criterionPending = review?.assessmentBasis?.outcome === 'unresolved'
               const familyActions = requiredFamilyActions(review, parentDecisions.events)
               const processing = activeProcessing(review, taskUploads)
@@ -676,7 +680,8 @@ export default function DayPage({ token, parent, headerReturnTarget, olympiadSco
                   return chain.length?<div id={`day-quiz-${task.testToken}`}><QuizCard chain={chain} parent={parent} placementOptional={currentPlacements.find(p=>p.token===task.testToken)?.optional}/></div>:<p className="day-loading">Загружаем общую самопроверку…</p>
                 })()}
                 {/* @see ../docs/modules/reviews/russian-language-route.md#review-in-one-route the parent route owns its verdict; keep WorkReview for the learner and for parent decisions. */}
-                {(Boolean(review?.contextEvidence?.length) || !(stageResults.length && familyStageComplete) && review?.purpose !== 'source-material' && showSeparateWorkReview(parent, taskGuides[task.id]?.guide?.presentation, canAcceptCorrectAnswer(review), Boolean(review?.assessmentBasis?.disputedRequirements?.length || review?.requirementChecks?.length))) && <WorkReview conversation={reviewConversationFor(studentToken,review,!parent&&helpRole==='student',guidanceReady&&(helpRole==='student'||helpRole==='parent'),helpRequests.find(h=>h.taskId===task.id),guidance)} review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}
+                {parent && review?.status && !separateReview && review.purpose!=='source-material' && <WrittenReviewSheet key={`${review.id}:${JSON.stringify(review.checkedAt)}:${JSON.stringify(review.correctedAt)}:${JSON.stringify(review.studentFeedback?.presentation?.sheet)}`} review={review} uploads={taskUploads}/>}
+                {separateReview && <WorkReview conversation={reviewConversationFor(studentToken,review,!parent&&helpRole==='student',guidanceReady&&(helpRole==='student'||helpRole==='parent'),helpRequests.find(h=>h.taskId===task.id),guidance)} review={review} uploads={taskUploads} accepted={accepted} canDecide={helpRole === 'parent' && !taskUploads.some((upload) => upload.status === 'pending')} onDecision={parent && canAcceptCorrectAnswer(review) && review ? (action) => recordParentCompletion(review, action) : undefined} decisions={parentDecisions.events} parent={parent} onRequirementChoice={parent && review?.assessmentBasis?.disputedRequirements?.length ? (id, action) => recordRequirementChoice(review, id, action) : undefined} />}
                 {familyActions.length > 0 && <div className="day-submission-instructions"><strong>Доработка по решению родителя</strong><ol>{familyActions.map((action) => <li key={action}>{action}</li>)}</ol><p>Это семейное решение по спорному требованию. В МЭШ такого уточнения нет.</p></div>}
                 {!task.assignmentUnits && !!task.steps?.length && <ol className="day-task-steps">{task.steps.map((step, index) => <Instruction key={index} item={step} index={index} familyAssigned={Boolean(task.familyOrigin)} />)}</ol>}
                 {needsTextbook && !task.materialRequest?.presentation && <p className="day-material-warning">📖 {task.materialStatus?.message}</p>}
