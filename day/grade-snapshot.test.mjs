@@ -10,6 +10,26 @@ const mesh = { complete: true, fetchedAt: '2026-10-16T06:30:00.000Z',
     marks: [{ value: 5, weight: 1 }, { value: 4, weight: 1 }, { value: 5, weight: 1 }] }] }
 
 describe('штатное обновление среза оценок', () => {
+  it('adds a known subject on its first mark in the current period without inheriting old grades', () => {
+    const period = { start: '2026-11-23', end: '2027-02-21', index: 2, title: 'Период 2' }
+    const old = { ...previous, period, subjects: [{ id: 'geography', name: 'География', grades: [[5, 1]], displayed_average: 5, app_more_fives: 0 }],
+      previousPeriods: [{ ...previous, period: { start: '2026-09-01', end: '2026-11-22' } }] }
+    const source = { complete: true, marksScope: 'subject-period-full', fetchedAt: '2026-11-26T13:00:00Z', marks: [
+      { subject_name: 'География', ...period, period: period.title, count: 1, average: '5.00', marks: [{ value: 5, weight: 1 }] },
+      { subject_name: 'Математика', ...period, period: period.title, count: 1, average: '4.00', marks: [{ value: 4, weight: 1 }] },
+    ] }
+    const result = proposeGradeSnapshot(old, source, report)
+    expect(result.proposal.subjects[1]).toMatchObject({ id: 'math', grades: [[4, 1]], displayed_average: 4 })
+    expect(result.proposal.previousPeriods).toEqual(old.previousPeriods)
+    expect(result.proposal.period).toEqual(period)
+    expect(result.proposal.observed_subject_count).toBe(2)
+    expect(proposeGradeSnapshot(result.proposal, source, report).changes).toEqual([])
+    for (const patch of [{ marksScope: 'partial' },
+      { marks: [source.marks[0], { ...source.marks[1], start: '2026-09-01' }] },
+      { marks: [source.marks[0], { ...source.marks[1], average: '5.00' }] },
+      { marks: [source.marks[0], { ...source.marks[1], subject_name: 'Незнакомый' }] },
+    ]) expect(() => proposeGradeSnapshot(old, { ...source, ...patch }, report)).toThrow()
+  })
   it('starts an explicitly confirmed later period without mixing or losing the previous ledger', () => {
     const old = { ...previous, period: { start: '2026-09-01', end: '2026-11-22' } }
     const fresh = { ...mesh, fetchedAt: '2026-11-24T10:48:40Z', marksScope: 'subject-period-full',

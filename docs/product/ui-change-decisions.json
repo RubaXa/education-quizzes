@@ -408,7 +408,7 @@
       }
     },
     "day/grade-snapshot.mjs": {
-      "sha256": "2b233e19a0352308a4a4783afcb5c12a5db81a5f16a70dd8ccfca809d5d4a5f2",
+      "sha256": "56ed702bad61d7be129604ee677704341c67ec02a59de28814370cca92cd422b",
       "record": "docs/decisions/new-grade-period-2026-11-24.md",
       "specs": [
         "docs/modules/school-diary/grades.md"

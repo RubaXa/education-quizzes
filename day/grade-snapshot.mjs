@@ -41,6 +41,30 @@ export function proposeGradeSnapshot(previous, mesh, reportPath, { startNewPerio
   }
   const byName = new Map(mesh.marks.map((entry) => [aliases.get(entry.subject_name) ?? entry.subject_name, entry]))
   const known = new Set((previous.subjects ?? []).map(entry=>entry.name))
+  // A new period initially contains only subjects that already have marks.
+  // Reuse archived identity, never its marks, when a known subject first appears.
+  const additions = mesh.marks.filter(row => !known.has(aliases.get(row.subject_name) ?? row.subject_name) && row.count > 0)
+  if (!startNewPeriod && additions.length) {
+    const archived = new Map((previous.previousPeriods ?? []).flatMap(period => period.subjects ?? [])
+      .map(subject => [subject.name, subject]))
+    const validPeriod = previous.period?.start && previous.period?.end
+      && mesh.marksScope === 'subject-period-full'
+      && mesh.fetchedAt.slice(0, 10) >= previous.period.start && mesh.fetchedAt.slice(0, 10) <= previous.period.end
+      && mesh.marks.every(row => row.start === previous.period.start && row.end === previous.period.end
+        && row.period === previous.period.title)
+    if (validPeriod && additions.every(row => archived.has(aliases.get(row.subject_name) ?? row.subject_name)
+      && Number.isInteger(row.count) && row.marks?.length === row.count
+      && row.marks.every(mark => Number.isInteger(Number(mark.value)) && Number(mark.value) >= 2 && Number(mark.value) <= 5
+        && Number.isInteger(Number(mark.weight)) && Number(mark.weight) >= 1)
+      && Math.abs(row.marks.reduce((sum, mark) => sum + Number(mark.value) * Number(mark.weight), 0)
+        / row.marks.reduce((sum, mark) => sum + Number(mark.weight), 0) - Number(row.average)) <= 0.005)) {
+      previous = { ...previous, subjects: [...previous.subjects, ...additions.map(row => {
+        const { id, name } = archived.get(aliases.get(row.subject_name) ?? row.subject_name)
+        return { id, name, grades: [], displayed_average: 0, app_more_fives: 0 }
+      })] }
+      additions.forEach(row => known.add(aliases.get(row.subject_name) ?? row.subject_name))
+    }
+  }
   if (startNewPeriod) {
     const rows = mesh.marks
     const period = rows[0]
@@ -116,7 +140,7 @@ export function proposeGradeSnapshot(previous, mesh, reportPath, { startNewPerio
   const date = mesh.fetchedAt.slice(0, 10)
   const periodIndex = previous.period?.index ?? Number(/period-(\d+)$/.exec(previous.snapshot_id ?? '')?.[1] ?? 1)
   const proposal = changes.length ? { ...previous, snapshot_id: `grades:${date}-period-${periodIndex}`, observed_at: date,
-    source_report: reportPath, subjects } : previous
+    source_report: reportPath, observed_subject_count: subjects.length, subjects } : previous
   assertGradeSnapshotAligned(proposal, mesh)
   return { proposal, changes }
 }

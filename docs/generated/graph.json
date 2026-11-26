@@ -2247,7 +2247,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-11-24",
-      "updated": "2026-11-24",
+      "updated": "2026-11-26",
       "parent": "module.school-diary.grades",
       "uses": [],
       "consumers": [
