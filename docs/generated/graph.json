@@ -15522,9 +15522,11 @@
         "module.synchronization.education-pipeline",
         "service.telegram-bot.education-sync-dispatch"
       ],
-      "sections": [],
+      "sections": [
+        "verification-boundary"
+      ],
       "created": "2026-10-16",
-      "updated": "2026-10-19",
+      "updated": "2026-11-26",
       "consumers": [
         "Education sync operator",
         "sync-project CLI",
