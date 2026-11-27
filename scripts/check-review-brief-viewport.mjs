@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/archive-and-compact-written-review-2026-11-27.md */
 /** @see ../docs/decisions/adaptive-review-modes-2026-11-17.md */
 /** @see ../docs/decisions/review-readability-repair-2026-10-31.md */
 /** @see ../docs/decisions/compact-review-rollout-2026-10-31.md */
@@ -20,12 +21,15 @@ export async function loadReviewBriefFixture() {
     const { default: ParentTaskGuide } = await vite.ssrLoadModule('/src/components/ParentTaskGuide.tsx')
     const { solutionGuideExample,solutionVisualExamples } = await vite.ssrLoadModule('/src/lib/solutionExamples.ts')
     const {writtenSheetExample,writtenSheetUploads}=await vite.ssrLoadModule('/src/ui-kit/WrittenReviewSheetExample.tsx')
+    const {default:AssignmentUnits}=await vite.ssrLoadModule('/src/components/AssignmentUnits.tsx')
     const {default:SolutionBlocks}=await vite.ssrLoadModule('/src/components/SolutionBlocks.tsx')
     const { reviewBriefExamples, reviewBriefVerified, reviewBriefUncertain,reviewBriefWorkExample,reviewBriefLegacy } = await vite.ssrLoadModule('/src/lib/reviewBriefExamples.ts')
     const fontRoot = join(root, 'node_modules/@fontsource-variable/geist/files')
     const fonts = ['cyrillic', 'latin'].map(part => `@font-face{font-family:'Geist Variable';src:url(data:font/woff2;base64,${readFileSync(join(fontRoot, `geist-${part}-wght-normal.woff2`)).toString('base64')}) format('woff2');font-weight:100 900;unicode-range:${part === 'cyrillic' ? 'U+0400-052F,U+2DE0-2DFF,U+A640-A69F' : 'U+0000-00FF'}}`).join('\n')
     const css = fonts + ['src/education-design-tokens.css','src/DayPage.css','src/UiKit.css','src/components/StatusIcon.css','src/components/ReviewBrief.css','src/components/ReviewVisual.css','src/components/ReviewActivity.css','src/components/WorkReview.css','src/components/WrittenReviewSheet.css'].map(path => readFileSync(join(root, path), 'utf8')).join('\n')
-    return { css,fonts,renderSheet:(parent)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?writtenSheetExample:studentReviewProjection(writtenSheetExample),uploads:writtenSheetUploads,parent})),visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?review:studentReviewProjection(review),uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
+    const task={id:'phone-english',title:'Английский',assignmentUnits:{version:1,sourceText:'Listen and read',items:[{id:'p48',title:'С.48 · №1 · слушать и читать',kind:'mixed',sourceRefs:['book#48','audio:48'],original:'Listen and read',instructions:['Слушай и читай.']}]}}
+    const links=[{title:'Страница48',sourceType:'textbook-page',sourceRef:'book#pdf-0048',pdfPage:48,printedPage:48,url:'https://example.test/page48.png'},{title:'Аудио48',sourceType:'audio',sourceRef:'audio:48',printedPage:48,url:'https://example.test/48.mp3'}]
+    return { css,fonts,renderUnits:parent=>renderToStaticMarkup(createElement(AssignmentUnits,{task,subjectId:'english',links,parent,onPhotos:()=>{}})),renderSheet:(parent)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?writtenSheetExample:studentReviewProjection(writtenSheetExample),uploads:writtenSheetUploads,parent})),visuals:renderToStaticMarkup(createElement(SolutionBlocks,{blocks:solutionVisualExamples})),guide:solutionGuideExample,renderGuide:(guide=solutionGuideExample)=>renderToStaticMarkup(createElement(ParentTaskGuide,{guide})), examples: reviewBriefExamples, states: [reviewBriefVerified, reviewBriefUncertain], legacy:reviewBriefLegacy, render: data => renderToStaticMarkup(createElement(ReviewBrief, { data })),renderWork:(data,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:reviewBriefWorkExample(data),uploads:[],parent})),renderReview:(review,parent=false)=>renderToStaticMarkup(createElement(WorkReview,{review:parent?review:studentReviewProjection(review),uploads:[],parent,canDecide:parent,...(parent?{onDecision:async()=>{}}:{})})) }
   } finally { await vite.close() }
 }
 
@@ -139,10 +143,24 @@ async function main() {
       await page.setViewportSize({width,height:900})
       await page.setContent(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${compiled}${fixture.fonts}body{margin:0;padding:8px}</style><main class="day-page">${fixture.renderSheet(parent)}</main>`)
       assert(await page.locator('.edu-written-paper').isVisible(),'Written sheet lost')
+      assert(await page.locator('.edu-written-toggle').getAttribute('aria-expanded')==='true','Review must start expanded')
+      assert(await page.locator('.edu-written-toggle').evaluate(el=>el.getBoundingClientRect().height>=44),'Small review toggle')
+      assert(await page.locator('.edu-written-tabs button').evaluateAll(els=>els.every(el=>el.getBoundingClientRect().height<=46&&el.scrollWidth<=el.clientWidth)),'Review tabs wrap or overflow')
       assert(await page.locator('.edu-written-sheet').evaluate(el=>el.scrollWidth<=el.clientWidth&&document.documentElement.scrollWidth<=document.documentElement.clientWidth),'Written sheet overflow')
       assert(await page.locator('.edu-written-mark').evaluateAll(els=>els.every(e=>e.getBoundingClientRect().height>=44)),'Written sheet touch target under44px')
       assert(await page.locator('.edu-written-mark.corrected').evaluate(el=>getComputedStyle(el.querySelector('svg')).color!==getComputedStyle(el).color),'Written sheet status colour lost')
       assert(await page.locator('.edu-review-state').innerText()==='Зачтено','Written sheet changed the result')
+    }
+    for(const parent of [false,true])for(const width of [320,390,430]){
+      await page.setViewportSize({width,height:900})
+      await page.setContent(`<!doctype html><meta charset="utf-8"><style>${compiled}${fixture.fonts}body{margin:0;padding:32px}</style><main class="day-page">${fixture.renderUnits(parent)}</main>`)
+      const unit=page.locator('.assignment-unit')
+      assert(await unit.locator('.edu-task-summary-meta').innerText()==='с. 48','Repeated audio page label')
+      assert(await unit.evaluate(el=>el.scrollWidth<=el.clientWidth&&document.documentElement.scrollWidth<=document.documentElement.clientWidth),'Unit overflow')
+      assert(await unit.locator('.edu-task-heading').evaluate(el=>el.getBoundingClientRect().height<=112),'Unit heading is too tall')
+      assert(await unit.locator('.edu-task-status-help').evaluate(el=>el.getBoundingClientRect().height>=44),'Small status help target')
+      await unit.locator(':scope > summary').click()
+      assert(await unit.locator('audio').count()===1,'Audio lost while compacting metadata')
     }
     assert(!errors.length, errors.join('\n'))
     console.log(JSON.stringify({ samplesAt390: measured, themes: 2, widths: [320, 390, 540], enlargedPrimaryText: true, disclosure: 'mouse/Enter/Space', legacyRoles:true,builtColours:true,methodGuide:true,writtenSheet:true,errors }))

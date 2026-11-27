@@ -1,3 +1,4 @@
+/** @see ../docs/decisions/archive-and-compact-written-review-2026-11-27.md */
 /** @see ../docs/decisions/collapsed-variant-status-2026-10-21.md */
 /**
  * @see ../docs/product/school-day.md
@@ -23,8 +24,7 @@ import type { CachedHomeworkRow } from '@/lib/dayDashboardViewCache'
 import { currentEducationPersonId, readCachedPersonalContext } from '@/lib/personalAccess'
 import { useDashboardDayWork } from '@/lib/useDashboardDayWork'
 /** @see ../docs/decisions/continuous-course-preparation-2026-11-07.md */
-import WeekendMathSlot from './WeekendMathSlot'
-import { activePreparations } from '../sync/preparation-window.mjs'
+import PreparationCards from './components/PreparationCards'
 import OlympiadHome from './components/OlympiadHome'
 import './DayDashboard.css'
 import { reportUiError } from '@/lib/uiErrors'
@@ -207,7 +207,6 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
     return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', refreshTime) }
   }, [])
 
-  const weekendWorks = activePreparations(index?.weekendWork??[], selectedDate)
   const liveHomeworkRows: CachedHomeworkRow[] = nextWork.subjects.map((subject) => {
     const placements = (nextWork.page?.testPlacements ?? []).filter((placement) => placement.subjectId === subject.id && (placement.originDate ?? nextDate) === nextDate)
     const tasks = withQuizPlacements(subject.tasks, placements)
@@ -389,7 +388,7 @@ export default function DayDashboard({ token, parent, familyScope }: { token: st
 
     <div className={`day-dashboard-selected-heading${parent ? ' parent' : ''}`}>{personalParent && <a className="day-dashboard-parent-home" href="#/">← Все дети</a>}<div className="day-dashboard-kicker">{parent ? 'Панель родителя' : 'Мой план'} · выбранный день</div><h1>{dateLabel(selectedDate, { weekday: 'long', day: 'numeric', month: 'long' })}</h1></div>
 
-    {weekendWorks.map((slot) => <WeekendMathSlot key={`${slot.dayToken}:${slot.taskIds.join(',')}`} token={slot.dayToken} taskIds={slot.taskIds} parent={parent} lessonDate={slot.lessonDate} dueDate={slot.dueDate} title={slot.title} preparationThrough={slot.preparationThrough} selectedDate={selectedDate} />)}
+    <PreparationCards scope={`${readCachedPersonalContext()?.session.personId??'link'}:${token}`} slots={index.weekendWork??[]} parent={parent} selectedDate={selectedDate}/>
 
     <div className="day-dashboard-grid">
       <div className="day-dashboard-main">

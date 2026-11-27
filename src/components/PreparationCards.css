@@ -1,0 +1,13 @@
+/** @see ../../docs/decisions/archive-and-compact-written-review-2026-11-27.md */
+/* @see ../../docs/modules/school-diary/dashboard.md#weekend-work-contract */
+.edu-preparation{position:relative;min-width:0}
+.edu-preparation:has(>.edu-preparation-archive)>.weekend-math-slot>header{padding-right:44px}
+.edu-preparation-archive{position:absolute;right:8px;top:8px}
+.edu-preparation:has(>.edu-preparation-archive):not(:has(>.weekend-math-slot)){display:none}
+.edu-preparation-archive,.edu-preparation-history button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:8px;border:0;border-radius:var(--edu-radius-control);background:transparent;color:var(--edu-text-secondary);cursor:pointer}
+.edu-preparation-archive:focus-visible,.edu-preparation-history button:focus-visible,.edu-preparation-history summary:focus-visible{outline:2px solid var(--edu-focus);outline-offset:2px}
+.edu-preparation-history{margin-top:12px;color:var(--edu-text-secondary);font-size:14px}
+.edu-preparation-history>summary{min-height:44px;align-content:center;cursor:pointer}
+.edu-preparation-history ul{margin:0;padding:0;list-style:none}
+.edu-preparation-history li{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--edu-card-border)}
+.edu-preparation-history li span{min-width:0;overflow-wrap:anywhere}

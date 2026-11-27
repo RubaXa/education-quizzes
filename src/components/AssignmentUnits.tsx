@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/archive-and-compact-written-review-2026-11-27.md */
 /** @see ../../docs/modules/assignments/source-units.md
  * @see ../../docs/decisions/source-bound-assignment-units-2026-11-19.md */
 import type {ReactNode} from 'react'
@@ -32,7 +33,7 @@ export default function AssignmentUnits({task,subjectId,links,parent,guide,revie
   const sourcePending=task.materialRequest?.state==='open'&&unit.sourceRefs.includes(task.id)
   const status=sourcePending?{status:'waiting' as const,label:'Нужен материал для теста',explanation:task.materialRequest!.question}:assignmentUnitStatus(unit,unitReview,confirmed)
   const flow=task.learnerFlow&&unit.learnerStageIds?.length?{...task.learnerFlow,scope:unit.title,stages:task.learnerFlow.stages.filter(stage=>unit.learnerStageIds!.includes(stage.id))}:undefined
-  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={status.status}/><span>{status.label}</span></>} statusExplanation={status.explanation} meta={groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`).join(', ')}>
+  return <DecisionTaskDisclosure subjectId={subjectId} task={task} key={unit.id} id={`day-unit-${task.id}-${unit.id}`} className="assignment-unit" title={unit.title} status={<><StatusIcon size={15} status={status.status}/><span>{status.label}</span></>} statusExplanation={status.explanation} meta={[...new Set(groupAdjacentMaterialPages(unitLinks.filter(link=>link.printedPage)).map(group=>`с. ${group[0].printedPage}${group.length>1?`–${group.at(-1)!.printedPage}`:''}`))].join(', ')}>
    <div>
     {groupAdjacentMaterialPages(unitLinks.filter(link=>canReadInside(link)||link.url.startsWith('data:image/'))).map(group=><MaterialReader key={group[0].url} links={group} parent={parent} imageResolver={imageResolver}/>)}
     {unitLinks.filter(link=>link.sourceType==='audio').map(link=><AudioPlayer key={link.url} link={link}/>)}

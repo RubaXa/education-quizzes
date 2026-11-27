@@ -1,3 +1,4 @@
+/** @see ../../docs/decisions/archive-and-compact-written-review-2026-11-27.md */
 /** @see ../../docs/modules/reviews/marked-work-sheet.md#поведение-и-iphone */
 .edu-written-sheet{min-width:0;margin:12px 0;color:var(--edu-review-ink);font-size:16px;line-height:1.5}
 .edu-written-tools,.edu-written-tabs{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -33,3 +34,12 @@
 .edu-written-originals figcaption{display:flex;gap:8px;flex-wrap:wrap;font-size:14px}
 .edu-written-originals .edu-image{max-width:100%}
 @media(max-width:430px){.edu-written-paper{padding:12px}.edu-written-tools{align-items:stretch}.edu-written-tabs{width:100%}.edu-written-tabs button{flex:1;min-width:0}.edu-written-tools label{width:100%}}
+
+/* @see ../../docs/modules/reviews/marked-work-sheet.md#поведение-и-iphone */
+.edu-written-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;width:100%;padding:6px 0;border:0;background:transparent;color:var(--edu-review-ink);font:inherit;text-align:left;cursor:pointer}
+.edu-written-toggle svg{flex:none;transition:transform .2s}
+.edu-written-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+.edu-written-toggle:focus-visible{outline:2px solid var(--edu-focus);outline-offset:2px;border-radius:var(--edu-radius-control)}
+.edu-written-content[hidden]{display:none}
+.edu-written-tabs button{white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.edu-written-toggle svg{transition:none}}

@@ -401,6 +401,44 @@
       "path": "docs/decisions/adaptive-review-modes-2026-11-17.md"
     },
     {
+      "id": "decision.archive-and-compact-written-review-2026-11-27",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-27",
+      "updated": "2026-11-27",
+      "parent": "module.school-diary.dashboard",
+      "uses": [
+        "module.assignments.source-units",
+        "module.reviews.marked-work-sheet"
+      ],
+      "consumers": [
+        "student",
+        "parent",
+        "UI Kit"
+      ],
+      "code": [
+        "src/DayDashboard.tsx",
+        "src/DayPage.tsx",
+        "src/components/WorkReview.tsx",
+        "scripts/check-review-brief-viewport.mjs",
+        "src/components/TaskDisclosure.css",
+        "src/components/AssignmentUnits.tsx",
+        "src/components/WrittenReviewSheet.tsx",
+        "src/components/WrittenReviewSheet.css",
+        "src/components/PreparationCards.tsx",
+        "src/components/PreparationCards.css",
+        "src/lib/useViewChoices.ts"
+      ],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/archive-and-compact-written-review-2026-11-27.md"
+    },
+    {
       "id": "decision.assessment-format-gates",
       "status": "accepted",
       "implementation": "implemented",
@@ -10438,6 +10476,27 @@
       "consumer": "DayPage; UI Kit; Vitest"
     },
     {
+      "id": "file:src/components/PreparationCards.css",
+      "path": "src/components/PreparationCards.css",
+      "kind": "artifact",
+      "purpose": "Иконки и компактный архив подготовки",
+      "consumer": "Ученик; родитель"
+    },
+    {
+      "id": "file:src/components/PreparationCards.test.tsx",
+      "path": "src/components/PreparationCards.test.tsx",
+      "kind": "verification",
+      "purpose": "Архив, возврат, изоляция и обе роли",
+      "consumer": "Ученик; родитель"
+    },
+    {
+      "id": "file:src/components/PreparationCards.tsx",
+      "path": "src/components/PreparationCards.tsx",
+      "kind": "artifact",
+      "purpose": "Архивируемая проекция подготовки с возвратом",
+      "consumer": "Ученик; родитель"
+    },
+    {
       "id": "file:src/components/ProblemCard.css",
       "path": "src/components/ProblemCard.css",
       "kind": "artifact",
@@ -12158,6 +12217,13 @@
       "kind": "artifact",
       "purpose": "Общая привязка истории, готовности и команды отправки этапа по исходному token/taskId",
       "consumer": "DayPage; WeekendMathSlot"
+    },
+    {
+      "id": "file:src/lib/useViewChoices.ts",
+      "path": "src/lib/useViewChoices.ts",
+      "kind": "artifact",
+      "purpose": "Локальные предпочтения отображения без изменения учебных данных",
+      "consumer": "Ученик; родитель"
     },
     {
       "id": "file:src/lib/utils.ts",
@@ -14516,7 +14582,7 @@
       "status": "accepted",
       "implementation": "partial",
       "created": "2026-11-26",
-      "updated": "2026-11-26",
+      "updated": "2026-11-27",
       "parent": "module.reviews",
       "uses": [
         "shared.design.compact-review"
@@ -17902,6 +17968,16 @@
     {
       "from": "decision.adaptive-review-modes-2026-11-17",
       "to": "shared.design.ui-kit",
+      "type": "uses"
+    },
+    {
+      "from": "decision.archive-and-compact-written-review-2026-11-27",
+      "to": "module.assignments.source-units",
+      "type": "uses"
+    },
+    {
+      "from": "decision.archive-and-compact-written-review-2026-11-27",
+      "to": "module.reviews.marked-work-sheet",
       "type": "uses"
     },
     {
@@ -21711,6 +21787,11 @@
     },
     {
       "from": "file:scripts/check-review-brief-viewport.mjs",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:scripts/check-review-brief-viewport.mjs",
       "to": "decision.compact-review-rollout-2026-10-31",
       "type": "implements"
     },
@@ -22921,6 +23002,11 @@
     },
     {
       "from": "file:src/components/AssignmentUnits.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/AssignmentUnits.tsx",
       "to": "module.assignments.source-units",
       "type": "implements"
     },
@@ -23650,6 +23736,26 @@
       "type": "implements"
     },
     {
+      "from": "file:src/components/PreparationCards.css",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PreparationCards.css",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PreparationCards.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/PreparationCards.tsx",
+      "to": "module.school-diary.dashboard",
+      "type": "implements"
+    },
+    {
       "from": "file:src/components/ProblemCard.css",
       "to": "module.reviews.adaptive-problem-card",
       "type": "implements"
@@ -24196,6 +24302,11 @@
     },
     {
       "from": "file:src/components/TaskDisclosure.css",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/TaskDisclosure.css",
       "to": "module.school-diary.day-page",
       "type": "implements"
     },
@@ -24461,6 +24572,11 @@
     },
     {
       "from": "file:src/components/WorkReview.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WorkReview.tsx",
       "to": "decision.assignment-source-audit-corrections-2026-11-16",
       "type": "implements"
     },
@@ -24506,7 +24622,17 @@
     },
     {
       "from": "file:src/components/WrittenReviewSheet.css",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WrittenReviewSheet.css",
       "to": "module.reviews.marked-work-sheet",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/components/WrittenReviewSheet.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
       "type": "implements"
     },
     {
@@ -24547,6 +24673,11 @@
     {
       "from": "file:src/DayDashboard.css",
       "to": "shared.design",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayDashboard.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
       "type": "implements"
     },
     {
@@ -24652,6 +24783,11 @@
     {
       "from": "file:src/DayPage.tsx",
       "to": "decision.adaptive-review-modes-2026-11-17",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/DayPage.tsx",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
       "type": "implements"
     },
     {
@@ -25752,6 +25888,16 @@
     {
       "from": "file:src/lib/useTaskGuidance.ts",
       "to": "module.reviews.subject-aware-guidance",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useViewChoices.ts",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "implements"
+    },
+    {
+      "from": "file:src/lib/useViewChoices.ts",
+      "to": "module.reviews.marked-work-sheet",
       "type": "implements"
     },
     {
@@ -28821,6 +28967,11 @@
     },
     {
       "from": "module.school-diary.dashboard",
+      "to": "decision.archive-and-compact-written-review-2026-11-27",
+      "type": "contains"
+    },
+    {
+      "from": "module.school-diary.dashboard",
       "to": "decision.weekend-self-check-2026-11-14",
       "type": "contains"
     },
@@ -28842,6 +28993,11 @@
     {
       "from": "module.school-diary.dashboard",
       "to": "file:src/components/HomeworkOverview.test.tsx",
+      "type": "verified-by"
+    },
+    {
+      "from": "module.school-diary.dashboard",
+      "to": "file:src/components/PreparationCards.test.tsx",
       "type": "verified-by"
     },
     {

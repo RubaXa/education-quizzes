@@ -2651,23 +2651,28 @@
       }
     },
     "src/DayDashboard.tsx": {
-      "sha256": "abe2e7b6c0088432a8c675afdf55f1ce00217dde1a86cd961b9b21d74b055d76",
-      "record": "docs/decisions/three-day-assessment-preparation-2026-11-17.md",
+      "sha256": "c2b266b8da9c2c4160ba3287971551682924e8801974404e77dbfc4aa8a77c99",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
         "docs/modules/assignments/deadline-control.md",
         "docs/modules/synchronization/task-routing.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "sync/preparation-window.test.mjs",
         "sync/deadline-control.test.mjs",
         "sync/subject-decisions.test.mjs",
         "day/dashboard-index.test.mjs",
-        "assessment/decision-graph.test.mjs"
+        "assessment/decision-graph.test.mjs",
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель17.11 требует подготовку за три дня до каждой контрольной/самостоятельной по материалу учителя либо курсу с исследованием примеров; в активном обзоре только один текущий спецкурс без потери истории."
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/DayPage.css": {
@@ -2690,21 +2695,24 @@
       }
     },
     "src/DayPage.tsx": {
-      "sha256": "5be9e8de2523be79fa97bb8a3069f05759f9ef7f8f798da5253dc81b52fdf9f5",
-      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "sha256": "604ee316b0804c666916e010506157b5973b105aa7d39fee6e38102240afd9ac",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
-        "docs/modules/reviews/marked-work-sheet.md"
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "packages/education-presentation/marked-work-sheet.test.mjs",
         "src/components/WrittenReviewSheet.test.tsx",
         "storage/review-presentation-edit.test.mjs",
         "scripts/check-review-brief-viewport.test.mjs",
-        "src/DayPage.assignmentQuiz.integration.test.tsx"
+        "src/DayPage.assignmentQuiz.integration.test.tsx",
+        "src/components/PreparationCards.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/UiKit.css": {
@@ -3875,20 +3883,23 @@
       }
     },
     "src/components/WorkReview.tsx": {
-      "sha256": "018fd45cc7df0b80bde7af4f75893f87088e96fcca9040324cf2dd9224af827a",
-      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "sha256": "04d2f7cb261265f5eb3a8567af841575837e56fd6b1ae3e010b108b2fadf1e4f",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
-        "docs/modules/reviews/marked-work-sheet.md"
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "packages/education-presentation/marked-work-sheet.test.mjs",
         "src/components/WrittenReviewSheet.test.tsx",
         "storage/review-presentation-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/PreparationCards.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/components/ui/badge.tsx": {
@@ -7060,8 +7071,8 @@
       }
     },
     "scripts/check-review-brief-viewport.mjs": {
-      "sha256": "0ff386ed96553c07cfb17b940c4965d01144e42d2aff3273b12db51e8a2d22db",
-      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "sha256": "52da26e113999631fbec018c0c99708500de1915606d6fb4d159a779f5414440",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
         "docs/modules/reviews/marked-work-sheet.md"
       ],
@@ -7072,8 +7083,8 @@
         "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+        "status": "direct-request",
+        "evidence": "Прямой запрос27.11.2026: проверить обе роли, компактный разбор и плашки на iPhone без Computer Use."
       }
     },
     "src/components/QuizResultCard.css": {
@@ -7822,20 +7833,26 @@
       }
     },
     "src/components/TaskDisclosure.css": {
-      "sha256": "778a51c7ca5413f1a9b0493ec215d1e55725d8a2d1891f271a4a78f333458dbb",
-      "record": "docs/decisions/task-status-explanation-2026-11-19.md",
+      "sha256": "0d8656d9bf4d6ec20a51efc5eaea7cc1278f12a597ec3b21fc95981b6a6653ac",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
         "docs/modules/school-diary/day-page.md",
-        "docs/shared/design/statuses.md"
+        "docs/shared/design/statuses.md",
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/components/TaskDisclosure.test.tsx",
         "src/lib/assignmentUnitView.test.ts",
-        "src/lib/reviewPresentation.test.ts"
+        "src/lib/reviewPresentation.test.ts",
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Прямой запрос пользователя19.11.2026 со скриншотом №292: нажатие знака вопроса сворачивает карточку вместо пояснения; круги у упражнений не объясняют статус и сливаются с текстом."
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/components/TaskDisclosure.tsx": {
@@ -9078,22 +9095,27 @@
       }
     },
     "src/components/AssignmentUnits.tsx": {
-      "sha256": "e62345345030c6f90cb134d3e5304e8dd20a5a380bb363f41e3a1f11ae554fef",
-      "record": "docs/decisions/text-review-and-source-upload-2026-11-22.md",
+      "sha256": "c9974ec992d1fe82730ecc98cc4c2e09abe4becfd9a7dff5f041a95e9141c744",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
         "docs/modules/assessments/quizzes.md",
         "docs/modules/materials/material-clarification.md",
-        "docs/modules/school-diary/dashboard.md"
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "src/lib/quiz.test.ts",
         "assessment/manual-review-contract.test.mjs",
         "src/DayPage.assignmentQuiz.integration.test.tsx",
-        "src/WeekendMathSlot.test.tsx"
+        "src/WeekendMathSlot.test.tsx",
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Родитель22.11 прямо потребовал смысловую ИИ-проверку всех словесных ответов, доступ к листу комбинаторики и несколько фото недостающего конспекта через общую карточку."
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/lib/assignmentUnitView.ts": {
@@ -9198,37 +9220,43 @@
       }
     },
     "src/components/WrittenReviewSheet.tsx": {
-      "sha256": "1785d2244e18b00dda387fd421f9067906f83cd6034eb33e9507b7cd5f1ecbbf",
-      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "sha256": "ee16be875ba15f2b9e48c0a7639fae25bea0ef509ad52f0abad45f85e9ce226f",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
-        "docs/modules/reviews/marked-work-sheet.md"
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "packages/education-presentation/marked-work-sheet.test.mjs",
         "src/components/WrittenReviewSheet.test.tsx",
         "storage/review-presentation-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/PreparationCards.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/components/WrittenReviewSheet.css": {
-      "sha256": "8c33c910175120613d83a2be461e4f522513933ed957803d6b7a5888c4359b23",
-      "record": "docs/decisions/marked-work-sheet-2026-11-26.md",
+      "sha256": "4d7f9bf948723991573d18b930c4e8bbb1143ffeb2e6a453031bff9ef032935b",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
       "specs": [
-        "docs/modules/reviews/marked-work-sheet.md"
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/assignments/source-units.md"
       ],
       "tests": [
         "packages/education-presentation/marked-work-sheet.test.mjs",
         "src/components/WrittenReviewSheet.test.tsx",
         "storage/review-presentation-edit.test.mjs",
-        "scripts/check-review-brief-viewport.test.mjs"
+        "scripts/check-review-brief-viewport.test.mjs",
+        "src/components/PreparationCards.test.tsx"
       ],
       "authorization": {
-        "status": "approved-mockup",
-        "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     },
     "src/ui-kit/WrittenReviewSheetExample.tsx": {
@@ -9246,6 +9274,60 @@
       "authorization": {
         "status": "approved-mockup",
         "evidence": "Родитель26.11.2026 одобрил макет листа английского с пометками и прямо поручил внедрить его для письменных работ, сохранить результаты/историю, проверить обе роли и iPhone и выпустить."
+      }
+    },
+    "src/components/PreparationCards.tsx": {
+      "sha256": "025bd9b8b344b01f3bc3aab718f7efc9df05848175206bf365a801bf5ac738f1",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
+      "specs": [
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
+      }
+    },
+    "src/components/PreparationCards.css": {
+      "sha256": "d6e07a91cdbf13ee064f12ef4180d05d929db06bcb4fe525c0a2888e662d7e77",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
+      "specs": [
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
+      }
+    },
+    "src/lib/useViewChoices.ts": {
+      "sha256": "26f238078a7bc8f330088669edba9d56b54f5ea8bec27d14ade5b93cb089a8d0",
+      "record": "docs/decisions/archive-and-compact-written-review-2026-11-27.md",
+      "specs": [
+        "docs/modules/school-diary/dashboard.md",
+        "docs/modules/reviews/marked-work-sheet.md",
+        "docs/modules/assignments/source-units.md"
+      ],
+      "tests": [
+        "src/components/PreparationCards.test.tsx",
+        "src/components/WrittenReviewSheet.test.tsx",
+        "scripts/check-review-brief-viewport.test.mjs"
+      ],
+      "authorization": {
+        "status": "direct-request",
+        "evidence": "Прямое поручение27.11.2026: архив иконкой, компактные плашки, Разбор и запоминание сворачивания."
       }
     }
   }

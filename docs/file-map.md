@@ -1526,3 +1526,9 @@
 | [src/components/WrittenReviewSheet.test.tsx](../src/components/WrittenReviewSheet.test.tsx) | [Лист с пометками](modules/reviews/marked-work-sheet.md) | Схема, сохранение, общий компонент или проверка письменного листа | Ученик; родитель; оператор; UI Kit |
 | [src/ui-kit/WrittenReviewSheetExample.tsx](../src/ui-kit/WrittenReviewSheetExample.tsx) | [Лист с пометками](modules/reviews/marked-work-sheet.md) | Схема, сохранение, общий компонент или проверка письменного листа | Ученик; родитель; оператор; UI Kit |
 | [docs/decisions/english-listening-source-actions-2026-11-26.md](decisions/english-listening-source-actions-2026-11-26.md) | [Предметный граф](modules/synchronization/subject-decision-graph.md) | Полное условие Listen/read, адресное аудио и сохранение прежнего чтения | Оператор; издатель; проверки |
+
+| [docs/decisions/archive-and-compact-written-review-2026-11-27.md](../docs/decisions/archive-and-compact-written-review-2026-11-27.md) | [Контракт](modules/school-diary/dashboard.md) | Основание ручного архива и компактного разбора | Ученик; родитель |
+| [src/components/PreparationCards.tsx](../src/components/PreparationCards.tsx) | [Контракт](modules/school-diary/dashboard.md) | Архивируемая проекция подготовки с возвратом | Ученик; родитель |
+| [src/components/PreparationCards.css](../src/components/PreparationCards.css) | [Контракт](modules/school-diary/dashboard.md) | Иконки и компактный архив подготовки | Ученик; родитель |
+| [src/components/PreparationCards.test.tsx](../src/components/PreparationCards.test.tsx) | [Контракт](modules/school-diary/dashboard.md) | Архив, возврат, изоляция и обе роли | Ученик; родитель |
+| [src/lib/useViewChoices.ts](../src/lib/useViewChoices.ts) | [Контракт](modules/reviews/marked-work-sheet.md) | Локальные предпочтения отображения без изменения учебных данных | Ученик; родитель |
