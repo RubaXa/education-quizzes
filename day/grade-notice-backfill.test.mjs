@@ -39,6 +39,29 @@ describe('grade notice recovery', () => {
     const same = { ...after, fetchedAt: '2026-10-20T10:00:00Z', marks: after.marks.map((row) => ({ ...row, marks: [...row.marks].reverse() })) }
     expect(gradeNoticeBackfill(after, same, ledger, 'child')).toEqual([])
   })
+  it('announces a first mark for a subject omitted by the previous full period feed', () => {
+    const baseline = { ...after, marksScope: 'subject-period-full' }
+    const russian = { subject_id: 2, subject_name: 'Русский язык', period: 'Первый',
+      start: '2026-09-01', end: '2026-11-22', count: 1, average: '5.00', marks: [mark(4, '5')] }
+    const current = { ...baseline, fetchedAt: '2026-10-20T10:00:00Z', marks: [...baseline.marks, russian] }
+    const currentLedger = { ...ledger, period: { title: 'Первый', start: russian.start, end: russian.end },
+      subjects: [...ledger.subjects, { id: 'russian', name: 'Русский язык', displayed_average: 5, grades: [[5, 1]] }] }
+    const [notice] = gradeNoticeBackfill(baseline, current, currentLedger, 'child')
+    expect(notice.data).toMatchObject({ type: 'grade_added', subject: 'Русский язык' })
+    expect(notice.key).toMatch(/^grade:child:russian:/)
+    expect(gradeNoticeBackfill(current, { ...current, fetchedAt: '2026-10-21T10:00:00Z' }, currentLedger, 'child')).toEqual([])
+    expect(() => gradeNoticeBackfill({ ...baseline, marksScope: undefined }, current, currentLedger, 'child')).toThrow()
+    expect(() => gradeNoticeBackfill(baseline, { ...current, marks: [russian] }, currentLedger, 'child')).toThrow()
+    const otherPeriod = { ...russian, start: '2026-11-23', end: '2027-02-21', period: 'Второй' }
+    expect(() => gradeNoticeBackfill(baseline, { ...current, marks: [...baseline.marks, otherPeriod] }, currentLedger, 'child')).toThrow()
+    expect(() => gradeNoticeBackfill(baseline, current, ledger, 'child')).toThrow()
+    const unknownPeriod = { ...russian, start: undefined, end: undefined, period: undefined }
+    const unknownBaseline = { ...baseline, marks: baseline.marks.map((row) => ({ ...row, start: undefined, end: undefined, period: undefined })) }
+    expect(() => gradeNoticeBackfill(unknownBaseline,
+      { ...current, marks: [...unknownBaseline.marks, unknownPeriod] }, { ...currentLedger, period: {} }, 'child')).toThrow()
+    expect(() => gradeNoticeBackfill({ ...baseline, marks: [...baseline.marks, baseline.marks[0]] }, current, currentLedger, 'child')).toThrow()
+    expect(() => gradeNoticeBackfill(baseline, { ...current, marks: [...current.marks, russian] }, currentLedger, 'child')).toThrow()
+  })
   it('rejects corrections, removals and incomplete baselines instead of announcing them as new', () => {
     expect(() => gradeNoticeBackfill({ ...before, complete: false }, after, ledger, 'child')).toThrow()
     const changed = snapshot('2026-10-19T10:00:00Z', [mark(1, '4'), mark(2, '4'), mark(3, '5')])

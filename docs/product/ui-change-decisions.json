@@ -354,8 +354,8 @@
       }
     },
     "day/grade-notice-backfill.mjs": {
-      "sha256": "b8ecea11a436771964f4e21e91f286019aa27c44f3e1779f82b8a89488030e9f",
-      "record": "docs/decisions/grade-notice-recovery-2026-10-19.md",
+      "sha256": "89e223536c68868b38cbbe72c31aff06f9c6753fd10573c43e7922329a6f536f",
+      "record": "docs/decisions/first-period-subject-mark-notice-2026-11-27.md",
       "specs": [
         "docs/modules/notifications/inbox.md"
       ],
@@ -364,7 +364,7 @@
       ],
       "authorization": {
         "status": "direct-request",
-        "evidence": "Пользователь19.10 поручил полный EducationSync44320156 с обычными safeguards и приложил навык, требующий адресные уведомления оценок и разрешающий узкую штатную команду с контрактом и тестом при отсутствии операции."
+        "evidence": "EducationSync27.11: опубликовать новые оценки с подтверждением обеих ролей; первая оценка предмета не должна терять уведомление."
       }
     },
     "day/grade-publication.mjs": {

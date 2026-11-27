@@ -1565,6 +1565,31 @@
       "path": "docs/decisions/firestore-live-discovery-2026-10-19.md"
     },
     {
+      "id": "decision.first-period-subject-mark-notice-2026-11-27",
+      "status": "accepted",
+      "implementation": "implemented",
+      "created": "2026-11-27",
+      "updated": "2026-11-27",
+      "parent": "module.notifications.inbox",
+      "uses": [
+        "module.school-diary.grades"
+      ],
+      "consumers": [
+        "Education operator",
+        "student",
+        "parent"
+      ],
+      "code": [],
+      "sections": [
+        "основание",
+        "было--стало",
+        "действия-и-роли",
+        "проверки",
+        "согласование"
+      ],
+      "path": "docs/decisions/first-period-subject-mark-notice-2026-11-27.md"
+    },
+    {
       "id": "decision.grade-average-ui-kit-2026-10-18",
       "status": "accepted",
       "implementation": "implemented",
@@ -6468,7 +6493,7 @@
       "id": "file:day/grade-notice-backfill.test.mjs",
       "path": "day/grade-notice-backfill.test.mjs",
       "kind": "verification",
-      "purpose": "Проверки добавления задним числом, повторов, исправлений и неполных источников",
+      "purpose": "Проверки первой оценки предмета в полном периоде, добавления задним числом, повторов, исправлений и неполных источников",
       "consumer": "Vitest"
     },
     {
@@ -18245,6 +18270,11 @@
       "type": "uses"
     },
     {
+      "from": "decision.first-period-subject-mark-notice-2026-11-27",
+      "to": "module.school-diary.grades",
+      "type": "uses"
+    },
+    {
       "from": "decision.grade-average-ui-kit-2026-10-18",
       "to": "module.school-diary.grades",
       "type": "uses"
@@ -27783,6 +27813,11 @@
       "from": "module.notifications.events",
       "to": "service.telegram-bot.ports-and-events",
       "type": "uses"
+    },
+    {
+      "from": "module.notifications.inbox",
+      "to": "decision.first-period-subject-mark-notice-2026-11-27",
+      "type": "contains"
     },
     {
       "from": "module.notifications.inbox",

@@ -40,15 +40,23 @@ export function gradeNoticeBackfill(before, after, ledger, childId) {
     || !Number.isFinite(Date.parse(after.fetchedAt)) || !Number.isFinite(Date.parse(ledger?.observed_at))
     || Date.parse(before.fetchedAt) >= Date.parse(after.fetchedAt)) throw Error('Нужны два последовательных полных журнала оценок.')
   const old = new Map(before.marks.map((subject) => [String(subject.subject_id), subject]))
-  if (old.size !== after.marks.length || after.marks.some((subject) => !old.has(String(subject.subject_id)))) throw Error('Изменился набор предметов.')
+  const current = new Map(after.marks.map((subject) => [String(subject.subject_id), subject]))
+  if (old.size !== before.marks.length || current.size !== after.marks.length
+    || [...old.keys()].some((id) => !current.has(id))) throw Error('Предмет исчез или повторён ID предмета.')
   const rendered = gradeDetailRows(ledger, after)
   const result = []
   for (const subject of after.marks) {
     const prior = old.get(String(subject.subject_id))
-    if (prior.start !== subject.start || prior.end !== subject.end || prior.period !== subject.period) throw Error('Разные аттестационные периоды.')
-    const previousMarks = new Map(prior.marks.map((mark) => [String(mark.id), mark]))
+    const samePeriod = (row) => row.start === subject.start && row.end === subject.end && row.period === subject.period
+    if (prior ? !samePeriod(prior) : before.marksScope !== 'subject-period-full'
+      || after.marksScope !== 'subject-period-full' || subject.count < 1
+      || !Number.isFinite(Date.parse(subject.start)) || !Number.isFinite(Date.parse(subject.end))
+      || typeof subject.period !== 'string' || !subject.period.trim()
+      || !before.marks.some(samePeriod) || ledger.period?.start !== subject.start
+      || ledger.period?.end !== subject.end || ledger.period?.title !== subject.period) throw Error('Разные или неподтверждённые аттестационные периоды.')
+    const previousMarks = new Map((prior?.marks ?? []).map((mark) => [String(mark.id), mark]))
     const currentMarks = new Map(subject.marks.map((mark) => [String(mark.id), mark]))
-    if (previousMarks.size !== prior.count || currentMarks.size !== subject.count) throw Error('Повторён ID оценки.')
+    if (previousMarks.size !== (prior?.count ?? 0) || currentMarks.size !== subject.count) throw Error('Повторён ID оценки.')
     for (const [id, mark] of previousMarks) {
       const current = currentMarks.get(id)
       if (!current || String(current.value) !== String(mark.value) || Number(current.weight) !== Number(mark.weight)) throw Error('Прежняя оценка изменена или снята: требуется отдельная сверка.')
