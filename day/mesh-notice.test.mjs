@@ -13,6 +13,13 @@ describe('консервативная классификация информа
     }
     expect(classifyMeshNotice('Нет дз, повторить правило')).toBeNull()
   })
+  it('treats standalone Без ДЗ as a notice while preserving attachments and mixed instructions', () => {
+    for (const text of ['Без дз', '  БЕЗ   ДЗ.  ']) {
+      expect(classifyMeshNotice(text)?.kind).toBe('notice')
+      expect(classifyMeshNotice(text, { hasTeacherFiles: true })).toBeNull()
+    }
+    expect(classifyMeshNotice('Без дз, но решить № 5')).toBeNull()
+  })
   it('recognizes the exact standalone greeting only', () => {
     expect(classifyMeshNotice('Всем хороших каникул!')).toEqual({ kind: 'notice', reason })
     expect(classifyMeshNotice('  Всем   хороших каникул… ')).toEqual({ kind: 'notice', reason })

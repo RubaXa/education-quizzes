@@ -2109,7 +2109,7 @@
       "status": "accepted",
       "implementation": "implemented",
       "created": "2026-10-21",
-      "updated": "2026-10-22",
+      "updated": "2026-11-28",
       "parent": "module.synchronization.plan-generation",
       "uses": [
         "module.school-diary.day-page",

@@ -10,6 +10,8 @@ const NO_ASSIGNMENT_NOTICE = /^не\s+задано\.?$/iu
 const NO_ASSIGNMENT_NOTICE_REASON = 'Точная отдельная отметка МЭШ «не задано»; в ней нет учебного действия.'
 const NO_HOMEWORK_NOTICE = /^нет\s+дз\.?$/iu
 const NO_HOMEWORK_NOTICE_REASON = 'Точная отдельная отметка МЭШ «Нет дз»; в ней нет учебного действия.'
+const WITHOUT_HOMEWORK_NOTICE = /^без\s+дз\.?$/iu
+const WITHOUT_HOMEWORK_NOTICE_REASON = 'Точная отдельная отметка МЭШ «Без дз»; в ней нет учебного действия.'
 
 export function classifyMeshNotice(rawText, { hasTeacherFiles = false } = {}) {
   if (hasTeacherFiles || typeof rawText !== 'string') return null
@@ -18,6 +20,7 @@ export function classifyMeshNotice(rawText, { hasTeacherFiles = false } = {}) {
   if (NONE_NOTICE.test(normalized)) return { kind: 'notice', reason: NONE_NOTICE_REASON }
   if (NO_ASSIGNMENT_NOTICE.test(normalized)) return { kind: 'notice', reason: NO_ASSIGNMENT_NOTICE_REASON }
   if (NO_HOMEWORK_NOTICE.test(normalized)) return { kind: 'notice', reason: NO_HOMEWORK_NOTICE_REASON }
+  if (WITHOUT_HOMEWORK_NOTICE.test(normalized)) return { kind: 'notice', reason: WITHOUT_HOMEWORK_NOTICE_REASON }
   return null
 }
 

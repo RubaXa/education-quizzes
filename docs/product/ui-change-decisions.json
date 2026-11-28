@@ -5777,13 +5777,14 @@
       }
     },
     "day/mesh-notice.mjs": {
-      "sha256": "571b1bfb3dff9095e84e816f62bee99c9ac512af2ee69911e77ba22417a8b48d",
-      "record": "docs/decisions/subject-graph-restoration-2026-11-16.md",
+      "sha256": "527d1aaa0bc261126452933e904ffa1aa518e4b718426e6a34f9b4170efa9260",
+      "record": "docs/decisions/mesh-informational-entry-2026-10-21.md",
       "specs": [
         "docs/modules/synchronization/subject-decision-graph.md",
         "docs/modules/synchronization/task-routing.md"
       ],
       "tests": [
+        "day/mesh-notice.test.mjs",
         "sync/subject-decisions.test.mjs",
         "sync/decision-evidence.test.mjs",
         "sync/deadline-control.test.mjs",
